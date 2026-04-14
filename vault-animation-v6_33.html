@@ -282,7 +282,11 @@ function pick(s){
   var ui=document.getElementById('ui');
   ui.style.transition='opacity .4s,transform .4s';
   ui.style.opacity='0';ui.style.transform='translateY(-12px) scale(.97)';
-  setTimeout(function(){ui.style.opacity='1';ui.style.transform='none';},500);
+  setTimeout(function(){
+    if(s==='borrow') window.location.href='borrower.html';
+    else if(s==='lend') window.location.href='lender.html';
+    else{ui.style.opacity='1';ui.style.transform='none';}
+  },500);
 }
 </script>
 </body>
