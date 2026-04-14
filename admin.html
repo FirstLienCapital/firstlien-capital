@@ -263,9 +263,8 @@
     justify-content: space-between;
     padding: 20px 28px;
     border-bottom: 1px solid var(--vault-border);
-    background: rgba(201,168,76,0.03);
-    position: sticky;
-    top: 60px;
+    background: var(--vault-dark);
+    position: relative;
     z-index: 10;
   }
 
@@ -668,6 +667,10 @@
       <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
 
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <input type="checkbox" id="remember-me" style="width:14px;height:14px;accent-color:var(--gold);cursor:pointer">
+      <label for="remember-me" style="font-size:12px;color:var(--text-muted);cursor:pointer;text-transform:none;letter-spacing:0;font-weight:400">Remember me</label>
+    </div>
     <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In →</button>
     <div class="login-error" id="login-error"></div>
   </div>
@@ -767,7 +770,8 @@
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
   import {
-    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+    setPersistence, browserLocalPersistence, browserSessionPersistence
   } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
   import {
     getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp
@@ -787,11 +791,19 @@
   const db   = getFirestore(app);
 
   // ── AUTH ─────────────────────────────────────────
+  // Pre-fill saved email
+  const savedEmail = localStorage.getItem('fl_admin_email');
+  if (savedEmail) {
+    document.getElementById('login-email').value = savedEmail;
+    document.getElementById('remember-me').checked = true;
+  }
+
   window.doLogin = async function() {
-    const email = document.getElementById('login-email').value.trim();
-    const pass  = document.getElementById('login-password').value;
-    const btn   = document.getElementById('login-btn');
-    const err   = document.getElementById('login-error');
+    const email    = document.getElementById('login-email').value.trim();
+    const pass     = document.getElementById('login-password').value;
+    const remember = document.getElementById('remember-me').checked;
+    const btn      = document.getElementById('login-btn');
+    const err      = document.getElementById('login-error');
 
     if (!email || !pass) { err.textContent = 'Please enter email and password.'; return; }
 
@@ -800,7 +812,11 @@
     err.textContent = '';
 
     try {
+      const persistence = remember ? browserLocalPersistence : browserSessionPersistence;
+      await setPersistence(auth, persistence);
       await signInWithEmailAndPassword(auth, email, pass);
+      if (remember) localStorage.setItem('fl_admin_email', email);
+      else localStorage.removeItem('fl_admin_email');
     } catch (e) {
       err.textContent = 'Invalid email or password.';
       btn.textContent = 'Sign In →';
