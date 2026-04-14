@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | FirstLien.Capital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: #8A6F2E;
+    --vault-dark: #0A0A0A;
+    --vault-mid: #111111;
+    --vault-panel: #161616;
+    --vault-border: #2A2A2A;
+    --text-primary: #F0E6CC;
+    --text-secondary: #9A8A6A;
+    --text-muted: #5A5040;
+    --green: #4CAF70;
+    --green-dim: #2A5A3A;
+    --red: #E05555;
+    --blue: #4A7FA5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--vault-dark);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── LOGIN SCREEN ─────────────────────────────── */
+  #login-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vault-dark);
+  }
+
+  .login-card {
+    background: var(--vault-panel);
+    border: 1px solid var(--vault-border);
+    border-radius: 4px;
+    padding: 48px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .login-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .login-logo span { color: var(--text-secondary); font-weight: 300; }
+
+  .login-sub {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .login-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+
+  .login-field label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .login-field input {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--vault-border);
+    border-radius: 2px;
+    padding: 12px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .login-field input:focus { border-color: var(--gold-dim); }
+
+  .login-btn {
+    width: 100%;
+    background: var(--gold);
+    color: var(--vault-dark);
+    border: none;
+    padding: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    margin-top: 8px;
+    transition: background 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .login-btn:hover { background: var(--gold-light); }
+  .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .login-error {
+    font-size: 12px;
+    color: var(--red);
+    text-align: center;
+    margin-top: 12px;
+    min-height: 18px;
+  }
+
+  /* ── DASHBOARD ────────────────────────────────── */
+  #dashboard { display: none; position: relative; z-index: 1; }
+
+  /* NAV */
+  .admin-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 60px;
+    background: rgba(10,10,10,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--vault-border);
+  }
+
+  .admin-nav-left { display: flex; align-items: center; gap: 24px; }
+
+  .admin-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.02em;
+  }
+
+  .admin-logo span { color: var(--text-secondary); font-weight: 300; }
+
+  .admin-badge {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 3px 10px;
+    border-radius: 2px;
+  }
+
+  .admin-nav-right { display: flex; align-items: center; gap: 20px; }
+
+  .admin-user {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .admin-user span { color: var(--text-secondary); }
+
+  .logout-btn {
+    background: none;
+    border: 1px solid var(--vault-border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* METRICS BAR */
+  .metrics-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--vault-border);
+    border-bottom: 1px solid var(--vault-border);
+  }
+
+  .metric-cell {
+    background: var(--vault-dark);
+    padding: 24px 32px;
+    text-align: center;
+  }
+
+  .metric-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* MAIN LAYOUT */
+  .dashboard-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    min-height: calc(100vh - 120px);
+  }
+
+  .dashboard-col {
+    border-right: 1px solid var(--vault-border);
+    overflow: hidden;
+  }
+
+  .dashboard-col:last-child { border-right: none; }
+
+  /* COLUMN HEADER */
+  .col-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--vault-border);
+    background: rgba(201,168,76,0.03);
+    position: sticky;
+    top: 60px;
+    z-index: 10;
+  }
+
+  .col-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .col-count {
+    background: rgba(201,168,76,0.12);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 2px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .col-actions { display: flex; gap: 8px; }
+
+  .col-filter {
+    background: none;
+    border: 1px solid var(--vault-border);
+    color: var(--text-muted);
+    padding: 5px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 2px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .col-filter:hover, .col-filter.active {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+  }
+
+  /* LOADING */
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 12px;
+  }
+
+  .loading-spinner {
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--vault-border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text { font-size: 12px; color: var(--text-muted); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 8px;
+  }
+
+  .empty-icon { font-size: 32px; opacity: 0.3; }
+  .empty-text { font-size: 13px; color: var(--text-muted); }
+
+  /* DEAL ROWS */
+  .records-list { overflow-y: auto; }
+
+  .deal-row {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--vault-border);
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .deal-row:hover { background: rgba(201,168,76,0.03); }
+
+  .deal-row-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .deal-row-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+
+  .deal-row-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .status-badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .status-pending { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.25); }
+  .status-active  { background: rgba(76,175,112,0.12); color: var(--green); border: 1px solid rgba(76,175,112,0.25); }
+  .status-closed  { background: rgba(90,80,64,0.3); color: var(--text-muted); border: 1px solid var(--vault-border); }
+
+  .deal-row-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item { display: flex; flex-direction: column; gap: 1px; }
+
+  .meta-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .meta-key {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .deal-row-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .deal-borrower {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .deal-time { font-size: 11px; color: var(--text-muted); }
+
+  .deal-email-link {
+    font-size: 11px;
+    color: var(--gold-dim);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .deal-email-link:hover { color: var(--gold); }
+
+  /* LENDER ROWS */
+  .lender-row {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--vault-border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .lender-row:hover { background: rgba(201,168,76,0.03); }
+
+  .lender-row-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .lender-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .lender-type-badge {
+    font-size: 10px;
+    color: var(--blue);
+    border: 1px solid rgba(74,127,165,0.3);
+    background: rgba(74,127,165,0.08);
+    padding: 3px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+  }
+
+  .lender-row-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; }
+
+  .lender-row-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .lender-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .lender-contact a {
+    font-size: 11px;
+    color: var(--gold-dim);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .lender-contact a:hover { color: var(--gold); }
+
+  /* DETAIL DRAWER */
+  .detail-drawer {
+    position: fixed;
+    top: 0;
+    right: -520px;
+    width: 520px;
+    height: 100vh;
+    background: var(--vault-panel);
+    border-left: 1px solid var(--vault-border);
+    z-index: 500;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .detail-drawer.open { right: 0; }
+
+  .drawer-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--vault-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--vault-panel);
+    z-index: 1;
+  }
+
+  .drawer-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .drawer-close {
+    background: none;
+    border: 1px solid var(--vault-border);
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .drawer-close:hover { border-color: var(--gold-dim); color: var(--text-primary); }
+
+  .drawer-body { padding: 28px; flex: 1; }
+
+  .drawer-section { margin-bottom: 28px; }
+
+  .drawer-section-title {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--vault-border);
+  }
+
+  .drawer-table { width: 100%; border-collapse: collapse; }
+
+  .drawer-table tr td:first-child {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 8px 0;
+    width: 40%;
+    vertical-align: top;
+  }
+
+  .drawer-table tr td:last-child {
+    font-size: 13px;
+    color: var(--text-primary);
+    padding: 8px 0 8px 12px;
+    vertical-align: top;
+  }
+
+  .drawer-actions {
+    padding: 20px 28px;
+    border-top: 1px solid var(--vault-border);
+    display: flex;
+    gap: 10px;
+  }
+
+  .drawer-btn {
+    flex: 1;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .drawer-btn-primary { background: var(--gold); color: var(--vault-dark); }
+  .drawer-btn-primary:hover { background: var(--gold-light); }
+
+  .drawer-btn-secondary { background: none; border: 1px solid var(--vault-border) !important; color: var(--text-secondary); }
+  .drawer-btn-secondary:hover { border-color: var(--gold-dim) !important; color: var(--text-primary); }
+
+  /* OVERLAY */
+  .drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 499;
+    display: none;
+  }
+
+  .drawer-overlay.visible { display: block; }
+
+  /* REFRESH INDICATOR */
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+    animation: livePulse 2s infinite;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  @media (max-width: 900px) {
+    .dashboard-body { grid-template-columns: 1fr; }
+    .metrics-bar { grid-template-columns: 1fr 1fr; }
+    .detail-drawer { width: 100%; right: -100%; }
+    .admin-nav { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ──────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">FirstLien<span>.Capital</span></div>
+    <div class="login-sub">Admin Portal</div>
+
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="admin@firstlien.capital" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ─────────────────────────────────── -->
+<div id="dashboard">
+
+  <nav class="admin-nav">
+    <div class="admin-nav-left">
+      <div class="admin-logo">FirstLien<span>.Capital</span></div>
+      <div class="admin-badge">Admin</div>
+    </div>
+    <div class="admin-nav-right">
+      <div class="admin-user"><span class="live-dot"></span>Live · <span id="admin-email-display"></span></div>
+      <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="metrics-bar">
+    <div class="metric-cell">
+      <div class="metric-num" id="m-deals">—</div>
+      <div class="metric-label">Deal Submissions</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-num" id="m-lenders">—</div>
+      <div class="metric-label">Lender Profiles</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-num" id="m-volume">—</div>
+      <div class="metric-label">Total Loan Volume</div>
+    </div>
+    <div class="metric-cell">
+      <div class="metric-num" id="m-today">—</div>
+      <div class="metric-label">New Today</div>
+    </div>
+  </div>
+
+  <div class="dashboard-body">
+
+    <!-- DEALS COLUMN -->
+    <div class="dashboard-col">
+      <div class="col-header">
+        <div class="col-title">
+          📋 Deal Submissions
+          <span class="col-count" id="deals-count">0</span>
+        </div>
+        <div class="col-actions">
+          <button class="col-filter active" onclick="filterDeals('all',this)">All</button>
+          <button class="col-filter" onclick="filterDeals('pending_review',this)">Pending</button>
+          <button class="col-filter" onclick="filterDeals('active',this)">Active</button>
+        </div>
+      </div>
+      <div class="records-list" id="deals-list">
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Loading deals...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LENDERS COLUMN -->
+    <div class="dashboard-col">
+      <div class="col-header">
+        <div class="col-title">
+          💰 Lender Profiles
+          <span class="col-count" id="lenders-count">0</span>
+        </div>
+        <div class="col-actions">
+          <button class="col-filter active" onclick="filterLenders('all',this)">All</button>
+          <button class="col-filter" onclick="filterLenders('active',this)">Active</button>
+        </div>
+      </div>
+      <div class="records-list" id="lenders-list">
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Loading lenders...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DETAIL DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="detail-drawer" id="detail-drawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawer-title">Details</div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+  <div class="drawer-actions" id="drawer-actions"></div>
+</div>
+
+<!-- ── FIREBASE ───────────────────────────────────── -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import {
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+  } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import {
+    getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp
+  } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey:    "AIzaSyAw7KJpB2yu_i9OVDrYOoZZkbNK-4oCKoE",
+    authDomain: "firstlien-capital.firebaseapp.com",
+    projectId:  "firstlien-capital",
+    storageBucket: "firstlien-capital.appspot.com",
+    messagingSenderId: "867672127759",
+    appId:     "1:867672127759:web:d24b328c6f55592b4d667a"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // ── AUTH ─────────────────────────────────────────
+  window.doLogin = async function() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-password').value;
+    const btn   = document.getElementById('login-btn');
+    const err   = document.getElementById('login-error');
+
+    if (!email || !pass) { err.textContent = 'Please enter email and password.'; return; }
+
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
+    err.textContent = '';
+
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (e) {
+      err.textContent = 'Invalid email or password.';
+      btn.textContent = 'Sign In →';
+      btn.disabled = false;
+    }
+  };
+
+  window.doLogout = async function() {
+    await signOut(auth);
+  };
+
+  // ── AUTH STATE ───────────────────────────────────
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('admin-email-display').textContent = user.email;
+      loadData();
+    } else {
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'none';
+    }
+  });
+
+  // ── LIVE DATA ────────────────────────────────────
+  let allDeals   = [];
+  let allLenders = [];
+  let dealFilter   = 'all';
+  let lenderFilter = 'all';
+
+  function loadData() {
+    // Deals — live listener
+    const dealsQ = query(collection(db, 'deals'), orderBy('createdAt', 'desc'));
+    onSnapshot(dealsQ, snap => {
+      allDeals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderDeals();
+      updateMetrics();
+    }, err => {
+      console.error('Deals error:', err);
+      document.getElementById('deals-list').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Could not load deals. Check Firestore rules.</div></div>`;
+    });
+
+    // Lenders — live listener
+    const lendersQ = query(collection(db, 'lenders'), orderBy('createdAt', 'desc'));
+    onSnapshot(lendersQ, snap => {
+      allLenders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderLenders();
+      updateMetrics();
+    }, err => {
+      console.error('Lenders error:', err);
+      document.getElementById('lenders-list').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Could not load lenders. Check Firestore rules.</div></div>`;
+    });
+  }
+
+  // ── METRICS ──────────────────────────────────────
+  function updateMetrics() {
+    document.getElementById('m-deals').textContent   = allDeals.length;
+    document.getElementById('m-lenders').textContent = allLenders.length;
+
+    // Total volume
+    const vol = allDeals.reduce((sum, d) => sum + (d.loan?.amount || 0), 0);
+    document.getElementById('m-volume').textContent = vol >= 1000000
+      ? '$' + (vol/1000000).toFixed(1) + 'M'
+      : vol >= 1000 ? '$' + (vol/1000).toFixed(0) + 'K' : '$' + vol;
+
+    // New today
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const todayDeals   = allDeals.filter(d => d.createdAt?.toDate() >= today).length;
+    const todayLenders = allLenders.filter(l => l.createdAt?.toDate() >= today).length;
+    document.getElementById('m-today').textContent = todayDeals + todayLenders;
+  }
+
+  // ── RENDER DEALS ─────────────────────────────────
+  function renderDeals() {
+    const filtered = dealFilter === 'all'
+      ? allDeals
+      : allDeals.filter(d => d.status === dealFilter);
+
+    document.getElementById('deals-count').textContent = filtered.length;
+
+    if (!filtered.length) {
+      document.getElementById('deals-list').innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No deal submissions yet.</div></div>`;
+      return;
+    }
+
+    const html = filtered.map(deal => {
+      const p = deal.property || {};
+      const l = deal.loan || {};
+      const b = deal.borrower || {};
+      const location = [p.city, p.state].filter(Boolean).join(', ') || '—';
+      const amt = l.amount >= 1000000
+        ? '$' + (l.amount/1000000).toFixed(2) + 'M'
+        : l.amount >= 1000 ? '$' + (l.amount/1000).toFixed(0) + 'K' : l.amount ? '$' + l.amount : '—';
+      const time = deal.createdAt?.toDate
+        ? timeAgo(deal.createdAt.toDate())
+        : 'Just now';
+      const statusClass = deal.status === 'active' ? 'status-active' : deal.status === 'closed' ? 'status-closed' : 'status-pending';
+      const statusLabel = deal.status === 'active' ? 'Active' : deal.status === 'closed' ? 'Closed' : 'Pending';
+
+      return `<div class="deal-row" onclick="openDealDrawer('${deal.id}')">
+        <div class="deal-row-top">
+          <div>
+            <div class="deal-row-title">${deal.loanPurpose || 'Deal'} · ${location}</div>
+            <div class="deal-row-sub">${p.type || ''} ${p.address ? '· ' + p.address : ''}</div>
+          </div>
+          <span class="status-badge ${statusClass}">${statusLabel}</span>
+        </div>
+        <div class="deal-row-meta">
+          <div class="meta-item"><div class="meta-val">${amt}</div><div class="meta-key">Loan</div></div>
+          ${l.term ? `<div class="meta-item"><div class="meta-val">${l.term}</div><div class="meta-key">Term</div></div>` : ''}
+          ${l.exitStrategy ? `<div class="meta-item"><div class="meta-val">${l.exitStrategy.split('/')[0].trim()}</div><div class="meta-key">Exit</div></div>` : ''}
+          ${b.creditScore ? `<div class="meta-item"><div class="meta-val">${b.creditScore}</div><div class="meta-key">Credit</div></div>` : ''}
+        </div>
+        <div class="deal-row-footer">
+          <div class="deal-borrower">
+            ${b.firstName ? b.firstName + ' ' + (b.lastName||'') : '—'}
+            ${b.email ? `· <a class="deal-email-link" href="mailto:${b.email}" onclick="event.stopPropagation()">${b.email}</a>` : ''}
+          </div>
+          <div class="deal-time">${time}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('deals-list').innerHTML = html;
+  }
+
+  // ── RENDER LENDERS ────────────────────────────────
+  function renderLenders() {
+    const filtered = lenderFilter === 'all'
+      ? allLenders
+      : allLenders.filter(l => l.status === lenderFilter);
+
+    document.getElementById('lenders-count').textContent = filtered.length;
+
+    if (!filtered.length) {
+      document.getElementById('lenders-list').innerHTML = `<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">No lender profiles yet.</div></div>`;
+      return;
+    }
+
+    const html = filtered.map(lender => {
+      const time = lender.createdAt?.toDate
+        ? timeAgo(lender.createdAt.toDate())
+        : 'Just now';
+
+      return `<div class="lender-row" onclick="openLenderDrawer('${lender.id}')">
+        <div class="lender-row-top">
+          <div class="lender-name">${lender.firstName || ''} ${lender.lastName || ''}</div>
+          <span class="lender-type-badge">${lender.lenderType || 'Investor'}</span>
+        </div>
+        <div class="lender-row-meta">
+          <div class="meta-item"><div class="meta-val">${lender.capital || '—'}</div><div class="meta-key">Capital</div></div>
+          <div class="meta-item"><div class="meta-val">${lender.experience || '—'}</div><div class="meta-key">Experience</div></div>
+          <div class="meta-item"><div class="meta-val">${lender.accredited?.includes('Yes') ? 'Yes' : 'No'}</div><div class="meta-key">Accredited</div></div>
+        </div>
+        <div class="lender-row-footer">
+          <div class="lender-contact">
+            ${lender.email ? `<a href="mailto:${lender.email}" onclick="event.stopPropagation()">${lender.email}</a>` : ''}
+            ${lender.phone ? `<a href="tel:${lender.phone}" onclick="event.stopPropagation()">${lender.phone}</a>` : ''}
+          </div>
+          <div class="deal-time">${time}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('lenders-list').innerHTML = html;
+  }
+
+  // ── FILTERS ──────────────────────────────────────
+  window.filterDeals = function(f, btn) {
+    dealFilter = f;
+    document.querySelectorAll('.dashboard-col:first-child .col-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderDeals();
+  };
+
+  window.filterLenders = function(f, btn) {
+    lenderFilter = f;
+    document.querySelectorAll('.dashboard-col:last-child .col-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderLenders();
+  };
+
+  // ── DRAWERS ──────────────────────────────────────
+  window.openDealDrawer = function(id) {
+    const deal = allDeals.find(d => d.id === id);
+    if (!deal) return;
+    const p = deal.property || {};
+    const l = deal.loan || {};
+    const b = deal.borrower || {};
+
+    const amt = l.amount >= 1000000
+      ? '$' + (l.amount/1000000).toFixed(2) + 'M'
+      : l.amount >= 1000 ? '$' + (l.amount/1000).toFixed(0) + 'K' : l.amount || '—';
+
+    document.getElementById('drawer-title').textContent = (deal.loanPurpose || 'Deal') + ' · ' + ([p.city, p.state].filter(Boolean).join(', ') || '—');
+
+    document.getElementById('drawer-body').innerHTML = `
+      <div class="drawer-section">
+        <div class="drawer-section-title">Property</div>
+        <table class="drawer-table">
+          <tr><td>Address</td><td>${p.address || '—'}</td></tr>
+          <tr><td>City / State</td><td>${[p.city, p.state, p.zip].filter(Boolean).join(', ') || '—'}</td></tr>
+          <tr><td>Type</td><td>${p.type || '—'}</td></tr>
+          <tr><td>Condition</td><td>${p.condition || '—'}</td></tr>
+        </table>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-title">Loan</div>
+        <table class="drawer-table">
+          <tr><td>Purpose</td><td>${deal.loanPurpose || '—'}</td></tr>
+          <tr><td>Amount</td><td>${amt}</td></tr>
+          <tr><td>As-Is Value</td><td>${l.asIsValue ? '$' + l.asIsValue.toLocaleString() : '—'}</td></tr>
+          <tr><td>ARV</td><td>${l.arv ? '$' + l.arv.toLocaleString() : '—'}</td></tr>
+          <tr><td>Term</td><td>${l.term || '—'}</td></tr>
+          <tr><td>Exit Strategy</td><td>${l.exitStrategy || '—'}</td></tr>
+          <tr><td>Close Timeline</td><td>${l.closeTimeline || '—'}</td></tr>
+          <tr><td>Summary</td><td>${l.summary || '—'}</td></tr>
+        </table>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-title">Borrower</div>
+        <table class="drawer-table">
+          <tr><td>Name</td><td>${b.firstName || ''} ${b.lastName || ''}</td></tr>
+          <tr><td>Email</td><td><a href="mailto:${b.email}" style="color:var(--gold-dim)">${b.email || '—'}</a></td></tr>
+          <tr><td>Phone</td><td><a href="tel:${b.phone}" style="color:var(--gold-dim)">${b.phone || '—'}</a></td></tr>
+          <tr><td>Entity</td><td>${b.entityType || '—'}</td></tr>
+          <tr><td>Credit Score</td><td>${b.creditScore || '—'}</td></tr>
+          <tr><td>Experience</td><td>${b.reExperience || '—'}</td></tr>
+          <tr><td>Broker</td><td>${b.hasBroker || '—'}</td></tr>
+          <tr><td>Referral</td><td>${b.referral || '—'}</td></tr>
+        </table>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-title">Status</div>
+        <table class="drawer-table">
+          <tr><td>Current Status</td><td>${deal.status || 'pending_review'}</td></tr>
+          <tr><td>Deal ID</td><td style="font-family:monospace;font-size:11px">${deal.id}</td></tr>
+          <tr><td>Submitted</td><td>${deal.createdAt?.toDate ? deal.createdAt.toDate().toLocaleString() : '—'}</td></tr>
+        </table>
+      </div>`;
+
+    document.getElementById('drawer-actions').innerHTML = `
+      <button class="drawer-btn drawer-btn-primary" onclick="updateDealStatus('${deal.id}','active')">Mark Active</button>
+      <button class="drawer-btn drawer-btn-secondary" onclick="updateDealStatus('${deal.id}','closed')">Mark Closed</button>`;
+
+    openDrawer();
+  };
+
+  window.openLenderDrawer = function(id) {
+    const lender = allLenders.find(l => l.id === id);
+    if (!lender) return;
+
+    document.getElementById('drawer-title').textContent = (lender.firstName || '') + ' ' + (lender.lastName || '');
+
+    document.getElementById('drawer-body').innerHTML = `
+      <div class="drawer-section">
+        <div class="drawer-section-title">Profile</div>
+        <table class="drawer-table">
+          <tr><td>Name</td><td>${lender.firstName || ''} ${lender.lastName || ''}</td></tr>
+          <tr><td>Email</td><td><a href="mailto:${lender.email}" style="color:var(--gold-dim)">${lender.email || '—'}</a></td></tr>
+          <tr><td>Phone</td><td><a href="tel:${lender.phone}" style="color:var(--gold-dim)">${lender.phone || '—'}</a></td></tr>
+          <tr><td>Lender Type</td><td>${lender.lenderType || '—'}</td></tr>
+          <tr><td>Capital to Deploy</td><td>${lender.capital || '—'}</td></tr>
+          <tr><td>Experience</td><td>${lender.experience || '—'}</td></tr>
+          <tr><td>Accredited</td><td>${lender.accredited || '—'}</td></tr>
+        </table>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-title">Account</div>
+        <table class="drawer-table">
+          <tr><td>Status</td><td>${lender.status || 'active'}</td></tr>
+          <tr><td>Lender ID</td><td style="font-family:monospace;font-size:11px">${lender.id}</td></tr>
+          <tr><td>Registered</td><td>${lender.createdAt?.toDate ? lender.createdAt.toDate().toLocaleString() : '—'}</td></tr>
+        </table>
+      </div>`;
+
+    document.getElementById('drawer-actions').innerHTML = `
+      <button class="drawer-btn drawer-btn-primary" onclick="window.location.href='mailto:${lender.email}'">Email Lender</button>
+      <button class="drawer-btn drawer-btn-secondary" onclick="closeDrawer()">Close</button>`;
+
+    openDrawer();
+  };
+
+  // ── STATUS UPDATE ────────────────────────────────
+  window.updateDealStatus = async function(id, status) {
+    try {
+      await updateDoc(doc(db, 'deals', id), { status, updatedAt: serverTimestamp() });
+      closeDrawer();
+    } catch (e) {
+      console.error('Update error:', e);
+    }
+  };
+
+  function openDrawer() {
+    document.getElementById('detail-drawer').classList.add('open');
+    document.getElementById('drawer-overlay').classList.add('visible');
+  }
+
+  window.closeDrawer = function() {
+    document.getElementById('detail-drawer').classList.remove('open');
+    document.getElementById('drawer-overlay').classList.remove('visible');
+  };
+
+  // ── HELPERS ──────────────────────────────────────
+  function timeAgo(date) {
+    const diff = Math.floor((Date.now() - date) / 1000);
+    if (diff < 60)    return 'just now';
+    if (diff < 3600)  return Math.floor(diff/60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+    return Math.floor(diff/86400) + 'd ago';
+  }
+</script>
+</body>
+</html>
