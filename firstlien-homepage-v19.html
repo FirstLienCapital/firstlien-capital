@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FirstLien.capital | Private Real Estate Lending Marketplace | Bridge, DSCR, Hard Money Loans</title>
+
+<!-- ══ SECURITY HEADERS ══ -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com https://picsum.photos data:; frame-ancestors 'none';"/>
+<meta http-equiv="X-Frame-Options" content="DENY"/>
+<meta http-equiv="X-Content-Type-Options" content="nosniff"/>
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin"/>
+<meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()"/>
+<meta name="format-detection" content="telephone=no"/>
+
+<!-- ══ SEO ══ -->
+<meta name="description" content="FirstLien.capital — the private real estate lending marketplace. Get your deal in front of thousands of lenders instantly. Accredited investors earn 8–14% on vetted first-lien real estate debt. Bridge, DSCR, Fix & Flip, Hard Money, Construction."/>
+<meta name="keywords" content="private real estate lending, hard money loans, bridge loans, DSCR loans, fix and flip financing, first lien mortgage, private capital, real estate debt investing, trust deed investing, private money lender, bridge loan marketplace"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://www.firstlien.capital/"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://www.firstlien.capital/"/>
+<meta property="og:title" content="FirstLien.capital — Private Real Estate Lending Marketplace"/>
+<meta property="og:description" content="Submit your deal or deploy capital into vetted first-lien real estate debt. Bridge, DSCR, Fix & Flip, Hard Money, Construction. 8–14% yields. First position on every deal."/>
+<meta property="twitter:card" content="summary_large_image"/>
+<meta property="twitter:title" content="FirstLien.capital — Private Real Estate Lending Marketplace"/>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Organization","@id":"https://www.firstlien.capital/#org","name":"FirstLien.capital","alternateName":"Direct Lender Capital","url":"https://www.firstlien.capital","description":"A technology-driven private real estate lending marketplace connecting brokers and borrowers with accredited lenders and institutional capital.","areaServed":"United States","serviceType":"Private Real Estate Lending Marketplace"},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What is FirstLien.capital?","acceptedAnswer":{"@type":"Answer","text":"FirstLien.capital is a private real estate lending marketplace operated by DirectLenderCapital.com, a licensed mortgage broker. All deals secured by first-position liens on real property."}},
+{"@type":"Question","name":"Does FirstLien.capital hold funds?","acceptedAnswer":{"@type":"Answer","text":"No. We are a licensed introducing broker only. All funds flow through the lender's chosen licensed title company or escrow agent. We never receive, hold, or control any funds."}},
+{"@type":"Question","name":"What loan types are supported?","acceptedAnswer":{"@type":"Answer","text":"Bridge Loans, DSCR Loans (24-month, 5-year ARM, 30-year fixed), Fix & Flip, Hard Money, Construction/Ground-Up, Cash-Out Refinance, and Conventional loans."}},
+{"@type":"Question","name":"What yields can lenders expect?","acceptedAnswer":{"@type":"Answer","text":"Deals typically target yields of 8–14% annually. All deals secured by first-position deeds of trust or mortgages. Past performance does not guarantee future results."}}
+]}]}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+<style>
+:root{
+  --cream:#faf8f4;--white:#fff;--off-white:#f4f2ee;
+  --navy:#0e1f38;--navy-mid:#1a3055;--navy-light:#2a4a73;
+  --gold:#c8922a;--gold-bright:#e0a632;--gold-light:#f5e4c0;--gold-pale:#fdf6e8;
+  --teal:#0d7a6e;--teal-bright:#12a090;--teal-light:#d0f0ec;--teal-pale:#edfaf8;
+  --text-primary:#0e1f38;--text-secondary:#4a5568;--text-tertiary:#8896a8;
+  --border-light:rgba(14,31,56,0.09);--border-mid:rgba(14,31,56,0.16);
+  --border-gold:rgba(200,146,42,0.28);--border-teal:rgba(13,122,110,0.22);
+  --green:#0d8a5e;--green-light:#d4f5e8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--cream);color:var(--text-primary);font-family:'DM Sans',sans-serif;overflow-x:hidden;cursor:none;font-size:15px;line-height:1.6;}
+
+/* ══ HOUSE CURSOR — outline arrow style ══ */
+#houseCur{position:fixed;pointer-events:none;z-index:9999;transform:translate(0,-2px);transition:transform 0.12s ease;}
+body.hovering #houseCur{transform:translate(0,-2px) scale(1.15);}
+
+/* ══ NAV ══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 56px;height:58px;background:rgba(255,255,255,0.97);border-bottom:1px solid var(--border-light);backdrop-filter:blur(20px);box-shadow:0 1px 12px rgba(14,31,56,0.05);}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:700;color:var(--navy);text-decoration:none;letter-spacing:-0.3px;}
+.nav-logo span{color:var(--gold);font-style:italic;font-weight:400;}
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none;}
+.nav-links a{font-size:12px;font-weight:500;color:var(--text-secondary);text-decoration:none;transition:color 0.2s;cursor:none;}
+.nav-links a:hover{color:var(--navy);}
+.nav-cta{display:flex;gap:8px;}
+.btn-teal{padding:8px 18px;font-size:12px;font-weight:600;color:var(--teal);background:transparent;border:1.5px solid var(--teal);border-radius:6px;cursor:none;transition:all 0.2s;text-decoration:none;}
+.btn-teal:hover{background:var(--teal-pale);}
+.btn-gold{padding:8px 18px;font-size:12px;font-weight:700;color:#fff;background:var(--gold);border:none;border-radius:6px;cursor:none;transition:all 0.2s;text-decoration:none;}
+.btn-gold:hover{background:var(--gold-bright);}
+
+/* ══ TRUST BAR ══ */
+.trust-bar{background:var(--navy);padding:8px 56px;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;position:fixed;top:58px;left:0;right:0;z-index:99;}
+.tb-item{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:rgba(255,255,255,0.72);white-space:nowrap;}
+.tb-check{color:#4ade80;font-size:11px;}
+.tb-div{width:1px;height:14px;background:rgba(255,255,255,0.1);}
+
+/* ══ TICKER ══ */
+.ticker-wrap{position:fixed;top:98px;left:0;right:0;z-index:98;background:rgba(14,31,56,0.97);height:30px;overflow:hidden;display:flex;align-items:center;}
+.ticker-track{display:inline-flex;align-items:center;height:30px;animation:ticker 40s linear infinite;white-space:nowrap;}
+.ti{display:inline-flex;align-items:center;height:30px;padding:0 20px;gap:6px;font-family:'JetBrains Mono',monospace;font-size:10px;}
+.ti .lbl{color:rgba(255,255,255,0.3);}
+.ti .val{color:rgba(255,255,255,0.92);font-weight:500;}
+.ti .up{color:#4ade80;}
+.tsep{color:rgba(255,255,255,0.1);padding:0 3px;}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ══ HERO SPLIT ══ */
+.hero{display:grid;grid-template-columns:1fr 1fr;min-height:100vh;padding-top:128px;position:relative;}
+.hero-half{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;cursor:none;}
+.hero-photo{position:absolute;inset:0;z-index:0;}
+.hero-photo img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.6s ease;}
+.hero-half:hover .hero-photo img{transform:scale(1.03);}
+.borrow-grade{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(14,31,56,0.2) 0%,rgba(14,31,56,0.45) 45%,rgba(14,31,56,0.94) 72%,rgba(14,31,56,1) 100%);}
+.lend-grade{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(8,32,28,0.2) 0%,rgba(8,32,28,0.45) 45%,rgba(8,32,28,0.94) 72%,rgba(8,32,28,1) 100%);}
+/* SVG illustration fallback when image fails */
+.hero-photo-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:-1;}
+.hero-divider{position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(255,255,255,0.1);z-index:10;pointer-events:none;}
+.hero-or{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:20px;padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500;color:var(--text-tertiary);letter-spacing:1px;z-index:11;pointer-events:none;border:1px solid var(--border-light);box-shadow:0 2px 8px rgba(14,31,56,0.1);}
+.hero-content{position:relative;z-index:2;padding:28px 40px 36px;}
+.h-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.borrow .h-eyebrow{color:rgba(245,228,192,0.75);}
+.lend .h-eyebrow{color:rgba(167,243,208,0.75);}
+.ey-ln{height:1px;width:22px;}
+.borrow .ey-ln{background:var(--gold-light);}
+.lend .ey-ln{background:#a7f3d0;}
+.hero-q{font-family:'Cormorant Garamond',serif;font-size:clamp(46px,5.5vw,76px);font-weight:700;line-height:0.92;letter-spacing:-2.5px;margin-bottom:14px;color:#fff;}
+.hero-desc{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.65;margin-bottom:16px;max-width:340px;}
+.hero-vp{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px;margin-bottom:16px;max-width:380px;}
+.hvp-line{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;}
+.hvp-line:last-child{margin-bottom:0;}
+.borrow .hvp-check{color:var(--gold-bright);font-size:11px;margin-top:2px;flex-shrink:0;}
+.lend .hvp-check{color:#6ee7d4;font-size:11px;margin-top:2px;flex-shrink:0;}
+.hvp-text{font-size:12px;color:rgba(255,255,255,0.7);line-height:1.5;}
+.hero-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;}
+.hp{font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 9px;border-radius:3px;}
+.borrow .hp{background:rgba(245,228,192,0.1);color:var(--gold-light);border:1px solid rgba(245,228,192,0.18);}
+.lend .hp{background:rgba(167,243,208,0.1);color:#a7f3d0;border:1px solid rgba(167,243,208,0.18);}
+.hero-cta-row{display:flex;gap:10px;align-items:center;margin-bottom:22px;}
+.hbtn-p{padding:12px 26px;font-size:12px;font-weight:700;border-radius:6px;cursor:none;transition:all 0.2s;text-decoration:none;border:none;letter-spacing:0.3px;}
+.borrow .hbtn-p{background:var(--gold-bright);color:var(--navy);}
+.borrow .hbtn-p:hover{background:#f0b83a;}
+.lend .hbtn-p{background:#fff;color:var(--teal);}
+.lend .hbtn-p:hover{background:var(--teal-light);}
+.hbtn-g{padding:11px 18px;font-size:12px;font-weight:500;border-radius:6px;cursor:none;transition:all 0.2s;background:transparent;color:rgba(255,255,255,0.65);border:1px solid rgba(255,255,255,0.2);text-decoration:none;}
+.hbtn-g:hover{background:rgba(255,255,255,0.08);}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding-top:16px;border-top:1px solid rgba(255,255,255,0.1);}
+.hst .hn{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;line-height:1;margin-bottom:2px;}
+.borrow .hst .hn{color:var(--gold-bright);}
+.lend .hst .hn{color:#6ee7d4;}
+.hst .hl{font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+.live-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite;margin-right:3px;vertical-align:middle;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.6)}}
+
+/* ══ SECTIONS ══ */
+section{position:relative;z-index:1;}
+.sw-light{padding:72px 56px;background:#fff;border-top:1px solid var(--border-light);}
+.sw-cream{padding:72px 56px;background:var(--cream);border-top:1px solid var(--border-light);}
+.sw-navy{padding:72px 56px;background:var(--navy);}
+.sw-teal-pale{padding:72px 56px;background:var(--teal-pale);border-top:1px solid var(--border-teal);}
+
+/* centered section header */
+.sec-center{text-align:center;margin-bottom:44px;}
+.se-inline{display:inline-flex;align-items:center;gap:10px;margin-bottom:12px;}
+.se-line{width:26px;height:2px;background:var(--gold);border-radius:1px;}
+.se-txt{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:500;}
+.se-left{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.se-teal .se-line{background:var(--teal);}
+.se-teal .se-txt{color:var(--teal);}
+.se-inv .se-line{background:var(--gold-bright);}
+.se-inv .se-txt{color:rgba(245,228,192,0.8);}
+.h2-dark{font-family:'Cormorant Garamond',serif;font-size:clamp(30px,4vw,50px);font-weight:300;line-height:1.06;letter-spacing:-1px;color:var(--navy);margin-bottom:12px;}
+.h2-dark em{font-style:italic;color:var(--gold);}
+.h2-center{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3.8vw,48px);font-weight:300;line-height:1.06;letter-spacing:-1px;color:var(--navy);margin-bottom:12px;text-align:center;}
+.h2-center em{font-style:italic;color:var(--gold);}
+.h2-light{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3.8vw,48px);font-weight:300;line-height:1.06;letter-spacing:-1px;color:#fff;margin-bottom:12px;text-align:center;}
+.h2-light em{font-style:italic;color:var(--gold-bright);}
+.sub-dark{font-size:14px;color:var(--text-secondary);max-width:560px;line-height:1.75;margin-bottom:44px;}
+.sub-center{font-size:14px;color:var(--text-secondary);max-width:540px;line-height:1.75;margin:0 auto 44px;text-align:center;}
+.sub-inv{font-size:14px;color:rgba(255,255,255,0.58);max-width:560px;line-height:1.75;margin:0 auto 44px;text-align:center;}
+
+/* ══ STAT BAR ══ */
+.stat-bar{display:grid;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;}
+.sb-i{padding:20px 22px;border-right:1px solid rgba(255,255,255,0.07);text-align:center;}
+.sb-i:last-child{border-right:none;}
+.sb-n{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:#fff;margin-bottom:3px;}
+.sb-l{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite;display:inline-block;margin-bottom:5px;}
+
+/* ══ WHY CARDS — 3 equal columns ══ */
+.why-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.why-card{border-radius:10px;padding:28px 24px;text-align:center;position:relative;overflow:hidden;}
+.why-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;}
+.wc-gold{background:#fff;border:1px solid var(--border-light);box-shadow:0 2px 8px rgba(14,31,56,0.04);}
+.wc-gold::before{background:linear-gradient(90deg,var(--gold-bright),var(--gold-light));}
+.wc-navy{background:var(--navy);}
+.wc-navy::before{background:linear-gradient(90deg,var(--gold-bright),var(--teal-bright));}
+.wc-teal{background:#fff;border:1px solid var(--border-light);box-shadow:0 2px 8px rgba(14,31,56,0.04);}
+.wc-teal::before{background:linear-gradient(90deg,var(--teal-bright),var(--teal-light));}
+.why-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:22px;}
+.wc-gold .why-icon{background:var(--gold-pale);}
+.wc-navy .why-icon{background:rgba(255,255,255,0.1);}
+.wc-teal .why-icon{background:var(--teal-pale);}
+.why-card h3{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;margin-bottom:10px;}
+.wc-gold h3,.wc-teal h3{color:var(--navy);}
+.wc-navy h3{color:#fff;}
+.why-card p{font-size:13px;line-height:1.7;}
+.wc-gold p,.wc-teal p{color:var(--text-secondary);}
+.wc-navy p{color:rgba(255,255,255,0.58);}
+.why-mini{display:flex;justify-content:space-around;padding-top:16px;margin-top:16px;border-top:1px solid;}
+.wc-gold .why-mini,.wc-teal .why-mini{border-color:var(--border-light);}
+.wc-navy .why-mini{border-color:rgba(255,255,255,0.1);}
+.wms-n{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;line-height:1;margin-bottom:3px;}
+.wc-gold .wms-n{color:var(--gold);}
+.wc-navy .wms-n{color:var(--gold-bright);}
+.wc-teal .wms-n{color:var(--teal);}
+.wms-l{font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:1px;text-transform:uppercase;}
+.wc-gold .wms-l,.wc-teal .wms-l{color:var(--text-tertiary);}
+.wc-navy .wms-l{color:rgba(255,255,255,0.35);}
+
+/* ══ FIGURE-STYLE PRODUCT SECTION ══ */
+.figure-section{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+.figure-left{position:relative;}
+.figure-mockup{background:linear-gradient(135deg,#1a3055 0%,#0e1f38 60%,#0a2622 100%);border-radius:16px;padding:32px;position:relative;overflow:hidden;box-shadow:0 24px 64px rgba(14,31,56,0.25);}
+.figure-mockup::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold-bright),var(--teal-bright));}
+.fm-card{background:#fff;border-radius:10px;padding:18px;box-shadow:0 8px 24px rgba(14,31,56,0.2);margin-bottom:12px;}
+.fm-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.fm-badge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;}
+.fm-funded{background:rgba(13,138,94,0.12);color:var(--green);border:1px solid rgba(13,138,94,0.25);}
+.fm-live{background:rgba(14,31,56,0.08);color:var(--navy-light);border:1px solid rgba(14,31,56,0.15);}
+.fm-claimed{background:rgba(200,146,42,0.1);color:var(--gold);border:1px solid var(--border-gold);}
+.fm-addr{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:2px;}
+.fm-type{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-tertiary);}
+.fm-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;}
+.fm-m{background:var(--cream);border-radius:4px;padding:6px 8px;text-align:center;}
+.fm-m label{font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-tertiary);display:block;margin-bottom:2px;}
+.fm-m .mv{font-size:13px;font-weight:600;}
+.mv.g{color:var(--gold);}
+.mv.gr{color:var(--green);}
+.mv.b{color:var(--navy-light);}
+.mv.w{color:var(--text-primary);}
+/* floating callout pills */
+.fm-pill{position:absolute;background:var(--navy);color:#fff;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;box-shadow:0 4px 16px rgba(14,31,56,0.3);white-space:nowrap;}
+.fm-pill span{display:block;font-size:9px;font-weight:400;color:rgba(255,255,255,0.55);margin-top:1px;}
+
+.figure-right{}
+.figure-right h2{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,3.5vw,44px);font-weight:300;line-height:1.08;letter-spacing:-1px;color:var(--navy);margin-bottom:14px;}
+.figure-right h2 em{font-style:italic;color:var(--gold);}
+.figure-right p{font-size:14px;color:var(--text-secondary);line-height:1.75;margin-bottom:28px;}
+.figure-loan-list{display:flex;flex-direction:column;gap:0;}
+.fll-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border-light);cursor:none;transition:all 0.2s;}
+.fll-item:last-child{border-bottom:none;}
+.fll-item:hover{padding-left:6px;}
+.fll-item:hover .fll-name{color:var(--gold);}
+.fll-name{font-size:15px;font-weight:600;color:var(--navy);transition:color 0.2s;}
+.fll-badge{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:3px;}
+.fll-b1{background:var(--gold-pale);color:var(--gold);border:1px solid var(--border-gold);}
+.fll-b2{background:var(--teal-pale);color:var(--teal);border:1px solid var(--border-teal);}
+.fll-b3{background:rgba(14,31,56,0.06);color:var(--navy-light);border:1px solid var(--border-light);}
+.fll-arrow{color:var(--text-tertiary);font-size:16px;transition:transform 0.2s;}
+.fll-item:hover .fll-arrow{transform:translateX(4px);color:var(--gold);}
+
+/* ══ FUNDED DEALS SCROLL ══ */
+.deals-scroll-wrap{display:flex;gap:16px;overflow-x:auto;padding:4px 56px 16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+.deals-scroll-wrap::-webkit-scrollbar{height:4px;}
+.deals-scroll-wrap::-webkit-scrollbar-track{background:var(--off-white);}
+.deals-scroll-wrap::-webkit-scrollbar-thumb{background:var(--border-mid);border-radius:2px;}
+.deal-card{flex-shrink:0;width:280px;scroll-snap-align:start;background:#fff;border:1px solid var(--border-light);border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(14,31,56,0.05);cursor:none;transition:all 0.25s;}
+.deal-card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(14,31,56,0.12);border-color:var(--border-mid);}
+.deal-card.active-card{border-color:var(--border-gold);}
+.dc-img-wrap{position:relative;height:150px;overflow:hidden;}
+/* SVG Property Illustration — guaranteed to always render */
+.prop-illus{width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;}
+.dc-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
+.dc-ov{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(14,31,56,0.7) 100%);z-index:2;}
+.dc-badge-wrap{position:absolute;top:9px;left:10px;z-index:3;}
+.dc-badge{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:1.2px;text-transform:uppercase;padding:3px 8px;border-radius:3px;font-weight:500;}
+.dc-loc{position:absolute;bottom:9px;left:11px;right:11px;z-index:3;}
+.dc-loc .da{font-size:11.5px;font-weight:600;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.8);}
+.dc-loc .ds{font-family:'JetBrains Mono',monospace;font-size:8.5px;color:rgba(255,255,255,0.65);margin-top:2px;text-shadow:0 1px 3px rgba(0,0,0,0.8);}
+.rb{display:inline-block;background:rgba(14,31,56,0.1);border-radius:2px;height:10px;vertical-align:middle;}
+/* Badge colors */
+.bg-funded{background:rgba(13,138,94,0.9);color:#fff;}
+.bg-live{background:rgba(26,48,85,0.88);color:#90c4f8;}
+.bg-uw{background:rgba(200,146,42,0.92);color:#fff;}
+.bg-claimed{background:rgba(120,20,20,0.85);color:#fca5a5;}
+/* Deal body */
+.dc-body{padding:12px 14px 14px;}
+.dc-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px;}
+.dcm{background:var(--cream);border-radius:4px;padding:7px 8px;}
+.dcm label{font-family:'JetBrains Mono',monospace;font-size:7.5px;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-tertiary);display:block;margin-bottom:2px;}
+.dcm .dv{font-size:13px;font-weight:600;}
+.dv.g{color:var(--gold);}
+.dv.gr{color:var(--green);}
+.dv.b{color:var(--navy-light);}
+.dv.w{color:var(--text-primary);}
+.dc-ft{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--border-light);}
+.dc-tp{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--text-tertiary);}
+.dc-rs{font-size:10.5px;font-weight:500;}
+.dc-rs.fn{color:var(--green);}
+.dc-rs.ac{color:var(--gold);}
+.dc-rs.vw{color:var(--navy-light);}
+.dc-rs.lk{color:var(--text-tertiary);}
+/* Scroll hint arrow */
+.scroll-hint{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-tertiary);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;padding:0 56px;}
+.scroll-arrow{display:flex;gap:4px;align-items:center;}
+.scroll-arrow span{width:20px;height:1px;background:var(--text-tertiary);}
+.scroll-arrow .arrow{font-size:14px;}
+
+/* ══ HOW SECTION ══ */
+.how-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
+.how-step{display:flex;gap:18px;padding:22px 0;border-bottom:1px solid var(--border-light);}
+.how-step:first-child{padding-top:0;}
+.sn{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:rgba(14,31,56,0.1);line-height:1;flex-shrink:0;width:42px;transition:color 0.3s;}
+.how-step:hover .sn{color:var(--gold);}
+.sh-t{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:4px;}
+.sh-p{font-size:13px;color:var(--text-secondary);line-height:1.7;}
+.how-sc{background:#fff;border:1px solid var(--border-light);border-radius:10px;padding:24px;margin-bottom:14px;box-shadow:0 2px 8px rgba(14,31,56,0.04);position:relative;overflow:hidden;}
+.how-sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;}
+.how-sc.gc::before{background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+.how-sc.bc::before{background:linear-gradient(90deg,var(--teal),var(--teal-light));}
+.sc-tag{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.gc .sc-tag{color:var(--gold);}
+.bc .sc-tag{color:var(--teal);}
+.sc-t{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:10px;font-family:'Cormorant Garamond',serif;}
+.sc-l{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.sc-l li{font-size:13px;color:var(--text-secondary);display:flex;align-items:flex-start;gap:8px;line-height:1.5;}
+.sc-l li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;font-size:11px;margin-top:1px;}
+
+/* ══ TECH GRID ══ */
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:10px;overflow:hidden;}
+.tc{padding:28px 24px;background:rgba(255,255,255,0.04);transition:background 0.3s;}
+.tc:hover{background:rgba(255,255,255,0.08);}
+.tc-tag{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.tc-tag::before{content:'';display:inline-block;width:12px;height:1px;background:rgba(255,255,255,0.2);}
+.tc h3{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:#fff;margin-bottom:8px;line-height:1.2;}
+.tc p{font-size:12.5px;color:rgba(255,255,255,0.5);line-height:1.7;}
+
+/* ══ TRUST ══ */
+.trust-2col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.tr-card{border-radius:10px;padding:28px;position:relative;overflow:hidden;}
+.tr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;}
+.tr-card.gc{background:var(--gold-pale);border:1px solid var(--border-gold);}
+.tr-card.gc::before{background:linear-gradient(90deg,var(--gold-bright),var(--gold));}
+.tr-card.bc{background:var(--teal-pale);border:1px solid var(--border-teal);}
+.tr-card.bc::before{background:linear-gradient(90deg,var(--teal-bright),var(--teal));}
+.tr-tag{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;margin-bottom:9px;}
+.gc .tr-tag{color:var(--gold);}
+.bc .tr-tag{color:var(--teal);}
+.tr-h{font-size:18px;font-weight:600;color:var(--navy);margin-bottom:14px;font-family:'Cormorant Garamond',serif;line-height:1.25;}
+.tr-row{display:flex;gap:11px;align-items:flex-start;margin-bottom:11px;}
+.tr-row:last-child{margin-bottom:0;}
+.tr-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}
+.gc .tr-icon{background:rgba(200,146,42,0.12);}
+.bc .tr-icon{background:rgba(13,122,110,0.1);}
+.tr-ih{font-size:12.5px;font-weight:600;color:var(--navy);margin-bottom:2px;}
+.tr-ip{font-size:12px;color:var(--text-secondary);line-height:1.6;}
+/* 4 equal badge cards */
+.badge-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.badge-c{background:#fff;border:1px solid var(--border-light);border-radius:10px;padding:20px 16px;text-align:center;box-shadow:0 2px 6px rgba(14,31,56,0.04);transition:all 0.2s;cursor:none;}
+.badge-c:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,31,56,0.09);}
+.badge-ic{font-size:22px;margin-bottom:7px;display:block;}
+.badge-t{font-size:12.5px;font-weight:600;color:var(--navy);margin-bottom:3px;}
+.badge-s{font-size:11px;color:var(--text-tertiary);line-height:1.4;}
+
+/* ══ PROTECTION ══ */
+.prot-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:40px;}
+.pc{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.09);border-radius:8px;padding:24px 20px;transition:background 0.3s;text-align:center;}
+.pc:hover{background:rgba(255,255,255,0.1);}
+.pn{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;color:var(--gold-bright);line-height:1;margin-bottom:10px;}
+.pc h4{font-size:12.5px;font-weight:600;color:#fff;margin-bottom:5px;}
+.pc p{font-size:11.5px;color:rgba(255,255,255,0.5);line-height:1.65;}
+
+/* ══ FAQ ══ */
+.faq-wrap{max-width:720px;margin:0 auto;}
+.faq-item{border-top:1px solid var(--border-light);padding:17px 0;}
+.faq-item:last-child{border-bottom:1px solid var(--border-light);}
+.faq-item summary{font-size:14.5px;font-weight:600;color:var(--navy);cursor:none;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.faq-item summary::-webkit-details-marker{display:none;}
+.faq-marker{color:var(--gold);font-size:20px;font-weight:300;flex-shrink:0;transition:transform 0.2s;}
+details[open] .faq-marker{transform:rotate(45deg);}
+.faq-item p{margin-top:11px;font-size:14px;color:var(--text-secondary);line-height:1.75;}
+
+/* ══ CTA SPLIT ══ */
+.cta-2{display:grid;grid-template-columns:1fr 1fr;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(14,31,56,0.18);}
+.cp{padding:40px 36px;position:relative;}
+.cp.bw{background:linear-gradient(135deg,#1a3055,var(--navy));}
+.cp.lw{background:linear-gradient(135deg,#0d4a42,#0a2622);}
+.cp::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.cp.bw::before{background:linear-gradient(90deg,var(--gold-bright),rgba(200,146,42,0.3));}
+.cp.lw::before{background:linear-gradient(90deg,var(--teal-bright),rgba(13,122,110,0.3));}
+.cp-tag{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;}
+.bw .cp-tag{color:rgba(245,228,192,0.75);}
+.lw .cp-tag{color:rgba(167,243,208,0.75);}
+.cp-t{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:#fff;line-height:1.1;margin-bottom:6px;}
+.cp-s{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;margin-bottom:20px;}
+.cf{padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:13px;color:#fff;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:7px;outline:none;transition:border-color 0.2s;width:100%;margin-bottom:8px;}
+.cf:focus{border-color:rgba(255,255,255,0.45);}
+.cf::placeholder{color:rgba(255,255,255,0.3);}
+.cbtn{padding:11px;font-size:12px;font-weight:700;border-radius:6px;cursor:none;transition:all 0.2s;border:none;width:100%;margin-top:4px;}
+.bw .cbtn{background:var(--gold-bright);color:var(--navy);}
+.bw .cbtn:hover{background:#f0c84e;}
+.lw .cbtn{background:#fff;color:var(--teal);}
+.lw .cbtn:hover{background:var(--teal-light);}
+.cf-legal{font-size:10.5px;color:rgba(255,255,255,0.28);line-height:1.6;margin-top:8px;}
+
+/* ══ FOOTER ══ */
+.footer-top{background:var(--navy-mid);padding:56px 56px 0;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px;}
+.ft-logo{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:8px;}
+.ft-logo span{color:var(--gold);font-style:italic;font-weight:400;}
+.ft-brand p{font-size:12px;color:rgba(255,255,255,0.38);line-height:1.7;margin-bottom:16px;max-width:260px;}
+.ft-license{font-family:'DM Sans',sans-serif;font-size:10.5px;color:rgba(255,255,255,0.28);line-height:1.8;border-top:1px solid rgba(255,255,255,0.07);padding-top:12px;}
+.ft-col h4{font-size:11px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:14px;}
+.ft-col ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.ft-col ul a{font-size:13px;color:rgba(255,255,255,0.38);text-decoration:none;transition:color 0.2s;cursor:none;}
+.ft-col ul a:hover{color:rgba(255,255,255,0.7);}
+.footer-disc{padding:32px 56px;background:var(--navy-mid);}
+.disc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-bottom:28px;}
+.disc-h{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(200,146,42,0.7);margin-bottom:8px;}
+.disc-b{font-size:11px;color:rgba(255,255,255,0.25);line-height:1.75;}
+.footer-bar{border-top:1px solid rgba(255,255,255,0.06);padding-top:20px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.fb-logo{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:rgba(255,255,255,0.35);}
+.fb-logo span{color:var(--gold);font-style:italic;}
+.fb-links{display:flex;gap:16px;flex-wrap:wrap;}
+.fb-links a{font-size:11px;color:rgba(255,255,255,0.25);text-decoration:none;transition:color 0.2s;cursor:none;}
+.fb-links a:hover{color:rgba(255,255,255,0.5);}
+.fb-copy{font-size:10.5px;color:rgba(255,255,255,0.2);line-height:1.5;text-align:right;}
+
+/* ══ MODALS ══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(14,31,56,0.75);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(12px);}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:14px;width:500px;max-width:92vw;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(14,31,56,0.25);animation:modalIn 0.28s ease;}
+@keyframes modalIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-top-bar{height:3px;background:linear-gradient(90deg,var(--gold-bright),var(--gold));position:absolute;top:0;left:0;right:0;}
+.modal-top-bar.teal{background:linear-gradient(90deg,var(--teal-bright),var(--teal));}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-tertiary);font-size:20px;cursor:none;line-height:1;padding:4px;}
+.modal-close:hover{color:var(--navy);}
+/* Step progress */
+.step-prog{display:flex;gap:5px;margin-bottom:14px;}
+.sp-dot{flex:1;height:3px;border-radius:2px;background:var(--off-white);transition:background 0.3s;}
+.sp-dot.done{background:var(--green);}
+.sp-dot.active{background:var(--gold);}
+/* Form inputs inside modal */
+.mf{width:100%;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text-primary);background:var(--cream);border:1.5px solid var(--border-light);border-radius:8px;outline:none;transition:border-color 0.2s;margin-bottom:9px;}
+.mf:focus{border-color:var(--gold);}
+.mf::placeholder{color:var(--text-tertiary);}
+.mf-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px;}
+/* Loan type buttons */
+.lt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
+.lt-btn{padding:9px 4px;font-size:10.5px;font-weight:500;border:1.5px solid var(--border-light);border-radius:6px;background:#fff;color:var(--text-secondary);cursor:none;transition:all 0.2s;text-align:center;font-family:'DM Sans',sans-serif;}
+.lt-btn:hover{border-color:var(--gold);color:var(--gold);}
+.lt-btn.sel{border-color:var(--gold);background:var(--gold-pale);color:var(--gold);font-weight:600;}
+/* Plan cards */
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.plan-card{border:1.5px solid var(--border-light);border-radius:8px;padding:14px;cursor:none;transition:all 0.2s;}
+.plan-card.selected,.plan-card:hover{border-color:var(--gold);background:var(--gold-pale);}
+.plan-label{font-size:10px;font-weight:600;color:var(--gold);margin-bottom:3px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+.plan-price{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--navy);}
+.plan-sub{font-size:10.5px;color:var(--text-tertiary);}
+/* Modal nav */
+.modal-nav{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+.mbtn-back{padding:10px 18px;font-size:12px;font-weight:500;border-radius:7px;cursor:none;background:transparent;border:1px solid var(--border-light);color:var(--text-secondary);transition:all 0.2s;}
+.mbtn-back:hover{border-color:var(--border-mid);color:var(--navy);}
+.mbtn-next{padding:11px 28px;font-size:13px;font-weight:700;border-radius:7px;cursor:none;border:none;background:var(--gold);color:#fff;transition:all 0.2s;}
+.mbtn-next:hover{background:var(--gold-bright);}
+.modal-success{text-align:center;padding:40px 32px;}
+.modal-success h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--navy);margin-bottom:8px;}
+.modal-success p{font-size:14px;color:var(--text-secondary);line-height:1.65;}
+
+/* ══ ANIMATIONS ══ */
+.fu{opacity:0;transform:translateY(14px);transition:opacity 0.55s ease,transform 0.55s ease;}
+.fu.vis{opacity:1;transform:translateY(0);}
+.fu.d1{transition-delay:0.08s;}.fu.d2{transition-delay:0.16s;}.fu.d3{transition-delay:0.24s;}
+</style>
+</head>
+<body>
+
+<!-- HOUSE CURSOR — outline arrow style, small, matches OS arrow feel -->
+<div id="houseCur" style="position:fixed;pointer-events:none;z-index:9999;">
+  <svg width="20" height="22" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Arrow/pointer shape with house roof -->
+    <path d="M2 2 L10 0 L18 8 L13 8 L13 20 L10 22 L7 20 L7 8 L2 8 Z" fill="none" stroke="#0e1f38" stroke-width="1.5" stroke-linejoin="round"/>
+    <!-- Roof peak (house shape) -->
+    <path d="M2 8 L10 1 L18 8" fill="none" stroke="#c8922a" stroke-width="1.5" stroke-linejoin="round"/>
+    <!-- Door -->
+    <rect x="8" y="14" width="4" height="6" rx="1" fill="none" stroke="#0e1f38" stroke-width="1"/>
+  </svg>
+</div>
+
+<!-- NAV -->
+<nav role="navigation" aria-label="Main navigation">
+  <a href="/" class="nav-logo" aria-label="FirstLien.capital home">FirstLien<span>.capital</span></a>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#loans">Loan Types</a></li>
+    <li><a href="#deals">Track Record</a></li>
+    <li><a href="#trust">Trust &amp; Safety</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="#" class="btn-teal" onclick="openLM();return false;" aria-label="Deploy capital - lender access">Deploy Capital</a>
+    <a href="#" class="btn-gold" onclick="openQSM();return false;" aria-label="Submit a deal for funding">Submit a Deal</a>
+  </div>
+</nav>
+
+<!-- TRUST BAR -->
+<div class="trust-bar" role="complementary" aria-label="Trust signals">
+  <div class="tb-item"><span class="tb-check">✓</span>First-Lien Secured — Every Deal</div>
+  <div class="tb-div"></div>
+  <div class="tb-item"><span class="tb-check">✓</span>Third-Party Escrow — We Never Hold Funds</div>
+  <div class="tb-div"></div>
+  <div class="tb-item"><span class="tb-check">✓</span>Non-Circumvention Protection</div>
+  <div class="tb-div"></div>
+  <div class="tb-item"><span class="tb-check">✓</span>Human Review Before Every Deal Goes Live</div>
+  <div class="tb-div"></div>
+  <div class="tb-item"><span class="tb-check">✓</span>$48M+ Active Deal Volume</div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-wrap" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="ti"><span class="lbl">ACTIVE DEALS</span>&nbsp;<span class="val">12</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">DEAL VOLUME</span>&nbsp;<span class="val">$48.2M</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">AVG YIELD</span>&nbsp;<span class="val up">10.8%</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">AVG LTV</span>&nbsp;<span class="val">68%</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">FUNDED YTD</span>&nbsp;<span class="val">$12.4M</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">NEW THIS WEEK</span>&nbsp;<span class="val up">+4 deals</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">CAPITAL DEPLOYED</span>&nbsp;<span class="val">8 active lenders</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">AVG CLOSE TIME</span>&nbsp;<span class="val">14 days</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">BRIDGE DEALS</span>&nbsp;<span class="val">5 live</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">DSCR DEALS</span>&nbsp;<span class="val">4 live</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">ACTIVE DEALS</span>&nbsp;<span class="val">12</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">DEAL VOLUME</span>&nbsp;<span class="val">$48.2M</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">AVG YIELD</span>&nbsp;<span class="val up">10.8%</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">AVG LTV</span>&nbsp;<span class="val">68%</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">FUNDED YTD</span>&nbsp;<span class="val">$12.4M</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">NEW THIS WEEK</span>&nbsp;<span class="val up">+4 deals</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">CAPITAL DEPLOYED</span>&nbsp;<span class="val">8 active lenders</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">AVG CLOSE TIME</span>&nbsp;<span class="val">14 days</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">BRIDGE DEALS</span>&nbsp;<span class="val">5 live</span></span><span class="tsep">·</span>
+    <span class="ti"><span class="lbl">DSCR DEALS</span>&nbsp;<span class="val">4 live</span></span><span class="tsep">·</span>
+  </div>
+</div>
+
+<main id="main-content">
+
+<!-- HERO SPLIT -->
+<div class="hero" role="banner">
+  <div class="hero-divider"><div class="hero-or">or</div></div>
+
+  <!-- BORROW HALF -->
+  <div class="hero-half borrow" onclick="openQSM()">
+    <div class="hero-photo">
+      <!-- Financial paperwork / stressed borrower -->
+      <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=900&q=82&auto=format&fit=crop" alt="Person reviewing loan paperwork and financial documents" loading="eager" style="object-position:center 35%;" onerror="this.style.display='none'"/>
+      <div class="borrow-grade"></div>
+    </div>
+    <div class="hero-content">
+      <div class="h-eyebrow"><div class="ey-ln"></div>For Brokers &amp; Borrowers</div>
+      <h1 class="hero-q">Need<br>a Loan?</h1>
+      <p class="hero-desc">Banks say no. Private capital says yes. Get your property in front of thousands of lenders for a fraction of what other lenders charge upfront.</p>
+      <div class="hero-vp">
+        <div class="hvp-line"><span class="borrow hvp-check">✦</span><span class="hvp-text">One submission reaches our entire lender network — no cold calls, no chasing</span></div>
+        <div class="hvp-line"><span class="borrow hvp-check">✦</span><span class="hvp-text">Our tech does the work — auto valuation, deal matching, instant lender alerts</span></div>
+        <div class="hvp-line"><span class="borrow hvp-check">✦</span><span class="hvp-text">1 point at closing only — $0 if your deal doesn't fund</span></div>
+      </div>
+      <div class="hero-pills">
+        <span class="hp">Bridge</span><span class="hp">DSCR</span><span class="hp">Fix &amp; Flip</span><span class="hp">Hard Money</span><span class="hp">Construction</span><span class="hp">Cash-out Refi</span>
+      </div>
+      <div class="hero-cta-row">
+        <a href="#" class="hbtn-p" onclick="openQSM();event.stopPropagation();return false;">Submit Your Deal →</a>
+        <a href="#how" class="hbtn-g" onclick="event.stopPropagation();">See how it works</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hst"><div class="hn">24h</div><div class="hl">Go live</div></div>
+        <div class="hst"><div class="hn">$19.99</div><div class="hl">Single deal</div></div>
+        <div class="hst"><div class="hn">$49/mo</div><div class="hl">Unlimited</div></div>
+        <div class="hst"><div class="hn">1 pt</div><div class="hl">At closing</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEND HALF -->
+  <div class="hero-half lend" onclick="openLM()">
+    <div class="hero-photo">
+      <!-- Aerial residential neighborhood — capital deployment view -->
+      <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=900&q=82&auto=format&fit=crop" alt="Aerial view of residential neighborhood representing real estate investment" loading="eager" style="object-position:center 55%;" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#1a3055,#0a2622)'"/>
+      <div class="lend-grade"></div>
+    </div>
+    <div class="hero-content">
+      <div class="h-eyebrow"><div class="ey-ln"></div>For Every Type of Capital Deployer</div>
+      <h2 class="hero-q" style="font-size:clamp(40px,5vw,66px);">Put Your<br>Capital<br>to Work.</h2>
+      <p class="hero-desc">Tired of cold calling and buying leads? Premium members get new matching deals delivered the moment they go live. Files move fast.</p>
+      <div class="hero-vp">
+        <div class="hvp-line"><span class="lend hvp-check">✦</span><span class="hvp-text">Individual investors, family offices, funds, banks, hard money lenders, trust deed investors</span></div>
+        <div class="hvp-line"><span class="lend hvp-check">✦</span><span class="hvp-text">Exclusive review windows — claim a deal, lock out competition while you underwrite</span></div>
+        <div class="hvp-line"><span class="lend hvp-check">✦</span><span class="hvp-text">Premium perk: new matching deals emailed the instant they post — first access, every time</span></div>
+      </div>
+      <div class="hero-pills">
+        <span class="hp">Individual Investors</span><span class="hp">Family Offices</span><span class="hp">Private Funds</span><span class="hp">Banks</span><span class="hp">Hard Money</span><span class="hp">Trust Deed</span>
+      </div>
+      <div class="hero-cta-row">
+        <a href="#" class="hbtn-p" onclick="openLM();event.stopPropagation();return false;">Deploy Capital →</a>
+        <a href="#deals" class="hbtn-g" onclick="event.stopPropagation();">See live deals</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hst"><div class="hn">8–14%</div><div class="hl">Target yield</div></div>
+        <div class="hst"><div class="hn">1st lien</div><div class="hl">Every deal</div></div>
+        <div class="hst"><div class="hn">$48M+</div><div class="hl">Volume placed</div></div>
+        <div class="hst"><div class="hn"><span class="live-dot"></span>12</div><div class="hl">Live now</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STAT BAR — navy, centered -->
+<section class="sw-navy" style="padding:36px 56px;" aria-label="Platform statistics">
+  <div class="stat-bar">
+    <div class="sb-i"><div class="sb-dot"></div><div class="sb-n">$48M+</div><div class="sb-l">Active volume</div></div>
+    <div class="sb-i"><div class="sb-n">12</div><div class="sb-l">Live deals now</div></div>
+    <div class="sb-i"><div class="sb-n">68%</div><div class="sb-l">Average LTV</div></div>
+    <div class="sb-i"><div class="sb-n">14 days</div><div class="sb-l">Avg time to fund</div></div>
+    <div class="sb-i"><div class="sb-n">100%</div><div class="sb-l">First position liens</div></div>
+  </div>
+</section>
+
+<!-- WHY — centered text, 3 equal cards -->
+<section class="sw-cream" aria-labelledby="why-heading">
+  <div class="sec-center">
+    <div class="se-inline"><div class="se-line"></div><div class="se-txt">Why FirstLien.capital</div><div class="se-line"></div></div>
+    <h2 id="why-heading" class="h2-center">Private lending,<br><em>reimagined with technology.</em></h2>
+    <p class="sub-center">Our proprietary deal intelligence engine, automated compliance layer, and real-time lender matching system do in seconds what used to take days. Institutional-grade infrastructure — available to everyone.</p>
+  </div>
+  <div class="why-3">
+    <div class="why-card wc-gold fu">
+      <div class="why-icon">🏠</div>
+      <h3>For Brokers &amp; Borrowers</h3>
+      <p>Submit once. Reach thousands. Our automated system pulls property intelligence, matches your deal to lenders instantly, and gets you in front of capital faster than any broker network.</p>
+      <div class="why-mini">
+        <div><div class="wms-n">24h</div><div class="wms-l">To go live</div></div>
+        <div><div class="wms-n">7</div><div class="wms-l">Loan types</div></div>
+        <div><div class="wms-n">$0</div><div class="wms-l">If no close</div></div>
+      </div>
+    </div>
+    <div class="why-card wc-navy fu d1">
+      <div class="why-icon">🔒</div>
+      <h3>Your Money. Always Protected.</h3>
+      <p>We are an introducing broker — never a lender. All funds flow through your chosen licensed title and escrow company. We never touch your money or your title. Ever.</p>
+      <div class="why-mini">
+        <div><div class="wms-n">1st</div><div class="wms-l">Lien always</div></div>
+        <div><div class="wms-n">$0</div><div class="wms-l">We hold</div></div>
+        <div><div class="wms-n">100%</div><div class="wms-l">Third party</div></div>
+      </div>
+    </div>
+    <div class="why-card wc-teal fu d2">
+      <div class="why-icon">📊</div>
+      <h3>For Every Type of Lender</h3>
+      <p>Set your criteria once. Get alerted the moment a matching deal posts. Claim exclusive review windows before other capital can move. Files go fast — premium members go first.</p>
+      <div class="why-mini">
+        <div><div class="wms-n">8–14%</div><div class="wms-l">Target yield</div></div>
+        <div><div class="wms-n">Excl.</div><div class="wms-l">Windows</div></div>
+        <div><div class="wms-n">12+</div><div class="wms-l">Live deals</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FIGURE-STYLE PRODUCT SECTION — loan types -->
+<section class="sw-light" id="loans" aria-labelledby="loans-heading">
+  <div class="figure-section">
+    <div class="figure-left fu">
+      <div class="figure-mockup">
+        <!-- Floating deal card mockup -->
+        <div class="fm-card">
+          <div class="fm-card-header">
+            <div>
+              <div class="fm-addr">Los Angeles, CA · SFR</div>
+              <div class="fm-type">BRIDGE LOAN · 12 MONTHS</div>
+            </div>
+            <span class="fm-badge fm-funded">✓ Funded</span>
+          </div>
+          <div class="fm-metrics">
+            <div class="fm-m"><label>Loan</label><div class="mv g">$1.1M</div></div>
+            <div class="fm-m"><label>LTV</label><div class="mv gr">67%</div></div>
+            <div class="fm-m"><label>Rate</label><div class="mv b">10.5%</div></div>
+            <div class="fm-m"><label>Term</label><div class="mv w">12 mo</div></div>
+          </div>
+        </div>
+        <div class="fm-card">
+          <div class="fm-card-header">
+            <div>
+              <div class="fm-addr">Phoenix, AZ · SFR Rental</div>
+              <div class="fm-type">DSCR · 30-YEAR FIXED</div>
+            </div>
+            <span class="fm-badge fm-funded">✓ Funded</span>
+          </div>
+          <div class="fm-metrics">
+            <div class="fm-m"><label>Loan</label><div class="mv g">$520K</div></div>
+            <div class="fm-m"><label>LTV</label><div class="mv gr">70%</div></div>
+            <div class="fm-m"><label>Rate</label><div class="mv b">7.625%</div></div>
+            <div class="fm-m"><label>DSCR</label><div class="mv w">1.28x</div></div>
+          </div>
+        </div>
+        <div class="fm-card" style="opacity:0.7;">
+          <div class="fm-card-header">
+            <div>
+              <div class="fm-addr" style="display:inline-block;background:rgba(14,31,56,0.1);border-radius:2px;width:130px;height:12px;"></div>
+              <div style="display:inline-block;background:rgba(14,31,56,0.07);border-radius:2px;width:90px;height:9px;margin-top:3px;display:block;"></div>
+            </div>
+            <span class="fm-badge fm-claimed">🔒 Claimed</span>
+          </div>
+          <div class="fm-metrics">
+            <div class="fm-m"><label>Loan</label><div class="mv g">$4.5M</div></div>
+            <div class="fm-m"><label>LTV</label><div class="mv gr">58%</div></div>
+            <div class="fm-m"><label>Rate</label><div class="mv b">TBD</div></div>
+            <div class="fm-m"><label>Term</label><div class="mv w">12 mo</div></div>
+          </div>
+        </div>
+        <!-- Floating pills -->
+        <div class="fm-pill" style="bottom:-16px;left:-20px;transform:rotate(-3deg);">
+          🏦 No tax returns on DSCR<span>Qualify on property cash flow</span>
+        </div>
+        <div class="fm-pill" style="top:50%;right:-20px;transform:rotate(2deg);">
+          ⚡ 24h to live<span>From submission to marketplace</span>
+        </div>
+      </div>
+    </div>
+    <div class="figure-right fu d1">
+      <div class="se-left"><div class="se-line"></div><div class="se-txt">Loan Types</div></div>
+      <h2 id="loans-heading">Every type of<br>private loan, <em>in one place.</em></h2>
+      <p>From quick bridge loans to 30-year DSCR products — we support every private lending structure. Select your loan type and the platform surfaces the right fields, the right lenders, and the right deal structure automatically.</p>
+      <div class="figure-loan-list">
+        <div class="fll-item"><span class="fll-name">Bridge Loans</span><span class="fll-badge fll-b1">Asset-Based</span><span class="fll-arrow">→</span></div>
+        <div class="fll-item"><span class="fll-name">DSCR Loans — 30yr, 5/1 ARM, 24-mo</span><span class="fll-badge fll-b2">No Tax Returns</span><span class="fll-arrow">→</span></div>
+        <div class="fll-item"><span class="fll-name">Fix &amp; Flip Financing</span><span class="fll-badge fll-b3">Purchase + Rehab</span><span class="fll-arrow">→</span></div>
+        <div class="fll-item"><span class="fll-name">Hard Money Loans</span><span class="fll-badge fll-b1">Speed-Driven</span><span class="fll-arrow">→</span></div>
+        <div class="fll-item"><span class="fll-name">Construction / Ground-Up</span><span class="fll-badge fll-b3">New Development</span><span class="fll-arrow">→</span></div>
+        <div class="fll-item"><span class="fll-name">Cash-Out Refinance</span><span class="fll-badge fll-b2">Equity Extraction</span><span class="fll-arrow">→</span></div>
+        <div class="fll-item"><span class="fll-name">Conventional</span><span class="fll-badge fll-b3">Agency Guidelines</span><span class="fll-arrow">→</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUNDED DEALS — horizontal scroll with snap, separated from active -->
+<section class="sw-light" id="deals" aria-labelledby="funded-heading">
+  <div style="padding:0 56px 16px;">
+    <div class="se-left fu"><div class="se-line"></div><div class="se-txt">Funded Deals</div></div>
+    <h2 id="funded-heading" class="h2-dark fu">Deals we've closed.<br><em>Real numbers.</em></h2>
+    <p class="sub-dark fu" style="margin-bottom:16px;">City and state only — no street addresses displayed. Funded with borrower and broker consent.</p>
+  </div>
+  <div class="scroll-hint fu"><span>Scroll to explore</span><div class="scroll-arrow"><span></span><span class="arrow">›</span></div></div>
+  <div class="deals-scroll-wrap" role="list" aria-label="Funded deal cards">
+
+    <!-- DEAL 1 — LA SFR Bridge -->
+    <div class="deal-card" role="listitem">
+      <div class="dc-img-wrap">
+        <!-- SFR gradient bg — navy blue tones of a modest house -->
+        <div class="prop-illus" style="background:linear-gradient(160deg,#1e3a5f 0%,#0f2340 100%);">
+          <svg viewBox="0 0 180 120" width="180" height="120" fill="none" style="opacity:0.3;">
+            <path d="M90 15 L160 60 L20 60 Z" stroke="#90c4f8" stroke-width="2" fill="rgba(144,196,248,0.15)"/>
+            <rect x="25" y="60" width="130" height="58" stroke="#90c4f8" stroke-width="2" fill="rgba(144,196,248,0.08)"/>
+            <rect x="75" y="82" width="30" height="36" stroke="#90c4f8" stroke-width="1.5" fill="rgba(144,196,248,0.06)"/>
+            <rect x="35" y="70" width="28" height="22" stroke="#90c4f8" stroke-width="1.5" fill="rgba(144,196,248,0.06)"/>
+            <rect x="117" y="70" width="28" height="22" stroke="#90c4f8" stroke-width="1.5" fill="rgba(144,196,248,0.06)"/>
+          </svg>
+        </div>
+        <img src="https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?w=560&q=80&auto=format&fit=crop" alt="Single family home Los Angeles CA" loading="lazy" onerror="this.style.display='none'"/>
+        <div class="dc-ov"></div>
+        <div class="dc-badge-wrap"><span class="dc-badge bg-funded">✓ Funded</span></div>
+        <div class="dc-loc"><div class="da">Los Angeles, CA</div><div class="ds">SFR · Bridge · 12 mo</div></div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-metrics">
+          <div class="dcm"><label>Loan</label><div class="dv g">$1.1M</div></div>
+          <div class="dcm"><label>LTV</label><div class="dv gr">67%</div></div>
+          <div class="dcm"><label>Rate</label><div class="dv b">10.5%</div></div>
+          <div class="dcm"><label>Term</label><div class="dv w">12 mo</div></div>
+        </div>
+        <div class="dc-ft"><span class="dc-tp">Bridge Loan</span><span class="dc-rs fn">✓ Funded in 11 days</span></div>
+      </div>
+    </div>
+
+    <!-- DEAL 2 — Phoenix DSCR 30yr -->
+    <div class="deal-card" role="listitem">
+      <div class="dc-img-wrap">
+        <div class="prop-illus" style="background:linear-gradient(160deg,#2d3a1f 0%,#1a2210 100%);">
+          <svg viewBox="0 0 180 120" width="180" height="120" fill="none" style="opacity:0.3;">
+            <path d="M90 18 L155 58 L25 58 Z" stroke="#86efac" stroke-width="2" fill="rgba(134,239,172,0.12)"/>
+            <rect x="28" y="58" width="124" height="55" stroke="#86efac" stroke-width="2" fill="rgba(134,239,172,0.07)"/>
+            <rect x="72" y="80" width="36" height="33" stroke="#86efac" stroke-width="1.5" fill="rgba(134,239,172,0.05)"/>
+            <rect x="38" y="68" width="26" height="20" stroke="#86efac" stroke-width="1.5" fill="rgba(134,239,172,0.05)"/>
+            <rect x="116" y="68" width="26" height="20" stroke="#86efac" stroke-width="1.5" fill="rgba(134,239,172,0.05)"/>
+            <path d="M90 18 L90 58" stroke="#c8922a" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+          </svg>
+        </div>
+        <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=560&q=80&auto=format&fit=crop" alt="Suburban home Phoenix Arizona" loading="lazy" onerror="this.style.display='none'"/>
+        <div class="dc-ov"></div>
+        <div class="dc-badge-wrap"><span class="dc-badge bg-funded">✓ Funded</span></div>
+        <div class="dc-loc"><div class="da">Phoenix, AZ</div><div class="ds">SFR Rental · DSCR · 30-yr Fixed</div></div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-metrics">
+          <div class="dcm"><label>Loan</label><div class="dv g">$520K</div></div>
+          <div class="dcm"><label>LTV</label><div class="dv gr">70%</div></div>
+          <div class="dcm"><label>Rate</label><div class="dv b">7.625%</div></div>
+          <div class="dcm"><label>DSCR</label><div class="dv w">1.28x</div></div>
+        </div>
+        <div class="dc-ft"><span class="dc-tp">DSCR · 30-Year Fixed</span><span class="dc-rs fn">✓ Funded in 18 days</span></div>
+      </div>
+    </div>
+
+    <!-- DEAL 3 — Ventura DSCR 5/1 ARM -->
+    <div class="deal-card" role="listitem">
+      <div class="dc-img-wrap">
+        <div class="prop-illus" style="background:linear-gradient(160deg,#3a2a1f 0%,#22180e 100%);">
+          <svg viewBox="0 0 180 120" width="180" height="120" fill="none" style="opacity:0.3;">
+            <path d="M90 20 L152 55 L28 55 Z" stroke="#fcd34d" stroke-width="2" fill="rgba(252,211,77,0.1)"/>
+            <rect x="30" y="55" width="120" height="58" stroke="#fcd34d" stroke-width="2" fill="rgba(252,211,77,0.06)"/>
+            <rect x="70" y="78" width="40" height="35" stroke="#fcd34d" stroke-width="1.5" fill="rgba(252,211,77,0.04)"/>
+            <rect x="38" y="66" width="24" height="18" stroke="#fcd34d" stroke-width="1.5" fill="rgba(252,211,77,0.04)"/>
+            <rect x="118" y="66" width="24" height="18" stroke="#fcd34d" stroke-width="1.5" fill="rgba(252,211,77,0.04)"/>
+            <rect x="10" y="55" width="160" height="3" fill="rgba(252,211,77,0.1)"/>
+          </svg>
+        </div>
+        <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=560&q=80&auto=format&fit=crop" alt="Single family rental home Ventura California" loading="lazy" onerror="this.style.display='none'"/>
+        <div class="dc-ov"></div>
+        <div class="dc-badge-wrap"><span class="dc-badge bg-funded">✓ Funded</span></div>
+        <div class="dc-loc"><div class="da">Ventura, CA</div><div class="ds">SFR Rental · DSCR · 5/1 ARM</div></div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-metrics">
+          <div class="dcm"><label>Loan</label><div class="dv g">$680K</div></div>
+          <div class="dcm"><label>LTV</label><div class="dv gr">65%</div></div>
+          <div class="dcm"><label>Rate</label><div class="dv b">7.125%</div></div>
+          <div class="dcm"><label>DSCR</label><div class="dv w">1.35x</div></div>
+        </div>
+        <div class="dc-ft"><span class="dc-tp">DSCR · 5/1 ARM · IO Option</span><span class="dc-rs fn">✓ Funded in 21 days</span></div>
+      </div>
+    </div>
+
+    <!-- DEAL 4 — Henderson Multi DSCR 24mo -->
+    <div class="deal-card" role="listitem">
+      <div class="dc-img-wrap">
+        <div class="prop-illus" style="background:linear-gradient(160deg,#1f2a3a 0%,#0f1a26 100%);">
+          <svg viewBox="0 0 180 120" width="180" height="120" fill="none" style="opacity:0.3;">
+            <!-- Multi-family / apartment building shape -->
+            <rect x="20" y="30" width="140" height="85" stroke="#90c4f8" stroke-width="2" fill="rgba(144,196,248,0.07)"/>
+            <line x1="80" y1="30" x2="80" y2="115" stroke="#90c4f8" stroke-width="1.5"/>
+            <line x1="20" y1="65" x2="160" y2="65" stroke="#90c4f8" stroke-width="1.5"/>
+            <!-- Windows grid -->
+            <rect x="30" y="38" width="20" height="15" stroke="#90c4f8" stroke-width="1" fill="rgba(144,196,248,0.1)"/>
+            <rect x="58" y="38" width="14" height="15" stroke="#90c4f8" stroke-width="1" fill="rgba(144,196,248,0.1)"/>
+            <rect x="90" y="38" width="20" height="15" stroke="#90c4f8" stroke-width="1" fill="rgba(144,196,248,0.1)"/>
+            <rect x="118" y="38" width="20" height="15" stroke="#90c4f8" stroke-width="1" fill="rgba(144,196,248,0.1)"/>
+            <rect x="30" y="73" width="20" height="15" stroke="#90c4f8" stroke-width="1" fill="rgba(144,196,248,0.1)"/>
+            <rect x="58" y="73" width="14" height="15" stroke="#90c4f8" stroke-width="1" fill="rgba(144,196,248,0.1)"/>
+            <rect x="90" y="73" width="20" height="15" stroke="#90c4f8" stroke-width="1" fill="rgba(144,196,248,0.1)"/>
+            <rect x="118" y="73" width="20" height="15" stroke="#90c4f8" stroke-width="1" fill="rgba(144,196,248,0.1)"/>
+          </svg>
+        </div>
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=560&q=80&auto=format&fit=crop" alt="Multi-family apartment complex Henderson Nevada" loading="lazy" onerror="this.style.display='none'"/>
+        <div class="dc-ov"></div>
+        <div class="dc-badge-wrap"><span class="dc-badge bg-funded">✓ Funded</span></div>
+        <div class="dc-loc"><div class="da">Henderson, NV</div><div class="ds">Multi-family · DSCR · 24-Month</div></div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-metrics">
+          <div class="dcm"><label>Loan</label><div class="dv g">$2.4M</div></div>
+          <div class="dcm"><label>LTV</label><div class="dv gr">68%</div></div>
+          <div class="dcm"><label>Rate</label><div class="dv b">9.25%</div></div>
+          <div class="dcm"><label>DSCR</label><div class="dv w">1.42x</div></div>
+        </div>
+        <div class="dc-ft"><span class="dc-tp">DSCR · 24-Month Bridge · 6 units</span><span class="dc-rs fn">✓ Funded in 14 days</span></div>
+      </div>
+    </div>
+
+    <!-- DEAL 5 — Austin Fix & Flip -->
+    <div class="deal-card" role="listitem">
+      <div class="dc-img-wrap">
+        <div class="prop-illus" style="background:linear-gradient(160deg,#3a1f1f 0%,#220f0f 100%);">
+          <svg viewBox="0 0 180 120" width="180" height="120" fill="none" style="opacity:0.3;">
+            <!-- Fixer upper / older house style -->
+            <path d="M90 22 L148 58 L32 58 Z" stroke="#fca5a5" stroke-width="2" fill="rgba(252,165,165,0.1)"/>
+            <rect x="34" y="58" width="112" height="55" stroke="#fca5a5" stroke-width="2" fill="rgba(252,165,165,0.07)"/>
+            <rect x="70" y="80" width="40" height="33" stroke="#fca5a5" stroke-width="1.5" fill="rgba(252,165,165,0.05)"/>
+            <rect x="42" y="68" width="22" height="16" stroke="#fca5a5" stroke-width="1.5" fill="rgba(252,165,165,0.05)"/>
+            <rect x="116" y="68" width="22" height="16" stroke="#fca5a5" stroke-width="1.5" fill="rgba(252,165,165,0.05)"/>
+            <!-- Rehab indicators -->
+            <line x1="145" y1="45" x2="155" y2="35" stroke="#fca5a5" stroke-width="1.5"/>
+            <text x="152" y="32" fill="rgba(252,165,165,0.8)" font-size="10" font-family="sans-serif">🔨</text>
+          </svg>
+        </div>
+        <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=560&q=80&auto=format&fit=crop" alt="Fixer upper home Austin Texas fix and flip" loading="lazy" onerror="this.style.display='none'"/>
+        <div class="dc-ov"></div>
+        <div class="dc-badge-wrap"><span class="dc-badge bg-funded">✓ Funded</span></div>
+        <div class="dc-loc"><div class="da">Austin, TX</div><div class="ds">SFR · Fix &amp; Flip · 9 mo</div></div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-metrics">
+          <div class="dcm"><label>Loan</label><div class="dv g">$740K</div></div>
+          <div class="dcm"><label>LTV</label><div class="dv gr">72%</div></div>
+          <div class="dcm"><label>Rate</label><div class="dv b">12.0%</div></div>
+          <div class="dcm"><label>ARV</label><div class="dv w">$1.1M</div></div>
+        </div>
+        <div class="dc-ft"><span class="dc-tp">Fix &amp; Flip</span><span class="dc-rs fn">✓ Funded in 7 days</span></div>
+      </div>
+    </div>
+
+    <!-- DEAL 6 — San Diego Construction -->
+    <div class="deal-card" role="listitem">
+      <div class="dc-img-wrap">
+        <div class="prop-illus" style="background:linear-gradient(160deg,#1f3a2a 0%,#0f2218 100%);">
+          <svg viewBox="0 0 180 120" width="180" height="120" fill="none" style="opacity:0.3;">
+            <!-- Construction / modern building outline -->
+            <rect x="40" y="20" width="100" height="95" stroke="#6ee7b7" stroke-width="2" fill="rgba(110,231,183,0.07)"/>
+            <line x1="40" y1="50" x2="140" y2="50" stroke="#6ee7b7" stroke-width="1.5"/>
+            <line x1="40" y1="80" x2="140" y2="80" stroke="#6ee7b7" stroke-width="1.5"/>
+            <line x1="90" y1="20" x2="90" y2="115" stroke="#6ee7b7" stroke-width="1.5"/>
+            <!-- Windows -->
+            <rect x="50" y="28" width="30" height="15" stroke="#6ee7b7" stroke-width="1" fill="rgba(110,231,183,0.12)"/>
+            <rect x="100" y="28" width="30" height="15" stroke="#6ee7b7" stroke-width="1" fill="rgba(110,231,183,0.12)"/>
+            <rect x="50" y="57" width="30" height="15" stroke="#6ee7b7" stroke-width="1" fill="rgba(110,231,183,0.12)"/>
+            <rect x="100" y="57" width="30" height="15" stroke="#6ee7b7" stroke-width="1" fill="rgba(110,231,183,0.12)"/>
+            <!-- Crane indicator -->
+            <line x1="145" y1="10" x2="145" y2="60" stroke="#6ee7b7" stroke-width="1.5"/>
+            <line x1="120" y1="10" x2="165" y2="10" stroke="#6ee7b7" stroke-width="1.5"/>
+            <line x1="145" y1="10" x2="135" y2="30" stroke="#6ee7b7" stroke-width="1" stroke-dasharray="2 2"/>
+          </svg>
+        </div>
+        <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=560&q=80&auto=format&fit=crop" alt="Construction project ground up San Diego California" loading="lazy" onerror="this.style.display='none'"/>
+        <div class="dc-ov"></div>
+        <div class="dc-badge-wrap"><span class="dc-badge bg-funded">✓ Funded</span></div>
+        <div class="dc-loc"><div class="da">San Diego, CA</div><div class="ds">Ground-Up · Construction</div></div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-metrics">
+          <div class="dcm"><label>Loan</label><div class="dv g">$1.6M</div></div>
+          <div class="dcm"><label>LTV</label><div class="dv gr">65%</div></div>
+          <div class="dcm"><label>Rate</label><div class="dv b">10.75%</div></div>
+          <div class="dcm"><label>ARV</label><div class="dv w">$2.5M</div></div>
+        </div>
+        <div class="dc-ft"><span class="dc-tp">Construction · Ground-up</span><span class="dc-rs fn">✓ Funded in 16 days</span></div>
+      </div>
+    </div>
+
+  </div>
+  <p style="font-size:11px;color:var(--text-tertiary);padding:10px 56px 0;line-height:1.6;">City and state only displayed. Funded deal details shown with borrower and broker consent. Past results do not guarantee future performance.</p>
+</section>
+
+<!-- ACTIVE PIPELINE — clearly separate section -->
+<section class="sw-cream" aria-labelledby="pipeline-heading">
+  <div style="padding:0 0 16px;">
+    <div class="se-left fu"><div class="se-line"></div><div class="se-txt">Active Pipeline</div></div>
+    <h2 id="pipeline-heading" class="h2-dark fu">Deals in market<br><em>right now.</em></h2>
+    <p class="sub-dark fu" style="margin-bottom:16px;">Active deal addresses are redacted to protect participants. Register as a lender to see full details, documents, and contact information.</p>
+  </div>
+  <div class="scroll-hint fu"><span>Scroll to view pipeline</span><div class="scroll-arrow"><span></span><span class="arrow">›</span></div></div>
+  <div class="deals-scroll-wrap" role="list" aria-label="Active pipeline deal cards">
+
+    <!-- ACTIVE 1 — In Underwriting (SFR with photo) -->
+    <div class="deal-card active-card" role="listitem">
+      <div class="dc-img-wrap">
+        <div class="prop-illus" style="background:linear-gradient(160deg,#2a3a1f 0%,#162210 100%);">
+          <svg viewBox="0 0 180 120" width="180" height="120" fill="none" style="opacity:0.25;">
+            <path d="M90 20 L150 58 L30 58 Z" stroke="#86efac" stroke-width="2" fill="rgba(134,239,172,0.1)"/>
+            <rect x="32" y="58" width="116" height="55" stroke="#86efac" stroke-width="2" fill="rgba(134,239,172,0.06)"/>
+            <rect x="70" y="80" width="40" height="33" stroke="#86efac" stroke-width="1.5" fill="rgba(134,239,172,0.04)"/>
+          </svg>
+        </div>
+        <img src="https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=560&q=80&auto=format&fit=crop" alt="Property currently in underwriting" loading="lazy" onerror="this.style.display='none'"/>
+        <div class="dc-ov"></div>
+        <div class="dc-badge-wrap"><span class="dc-badge bg-uw">⏳ In Underwriting</span></div>
+        <div class="dc-loc">
+          <div class="da"><span class="rb" style="width:110px;"></span></div>
+          <div class="ds"><span class="rb" style="width:75px;height:8px;margin-top:3px;display:block;"></span></div>
+        </div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-metrics">
+          <div class="dcm"><label>Loan</label><div class="dv g">$1.8M</div></div>
+          <div class="dcm"><label>LTV</label><div class="dv gr">62%</div></div>
+          <div class="dcm"><label>Rate</label><div class="dv b">TBD</div></div>
+          <div class="dcm"><label>Term</label><div class="dv w">18 mo</div></div>
+        </div>
+        <div class="dc-ft"><span class="dc-tp">Construction / Ground-up</span><span class="dc-rs ac">⚡ Exclusively claimed</span></div>
+      </div>
+    </div>
+
+    <!-- ACTIVE 2 — Live Available (SFR) -->
+    <div class="deal-card active-card" role="listitem">
+      <div class="dc-img-wrap">
+        <div class="prop-illus" style="background:linear-gradient(160deg,#1f2a3a 0%,#0e1828 100%);">
+          <svg viewBox="0 0 180 120" width="180" height="120" fill="none" style="opacity:0.25;">
+            <path d="M90 18 L155 60 L25 60 Z" stroke="#90c4f8" stroke-width="2" fill="rgba(144,196,248,0.12)"/>
+            <rect x="27" y="60" width="126" height="54" stroke="#90c4f8" stroke-width="2" fill="rgba(144,196,248,0.07)"/>
+            <rect x="73" y="82" width="34" height="32" stroke="#90c4f8" stroke-width="1.5" fill="rgba(144,196,248,0.05)"/>
+            <rect x="35" y="70" width="24" height="18" stroke="#90c4f8" stroke-width="1.5" fill="rgba(144,196,248,0.05)"/>
+            <rect x="121" y="70" width="24" height="18" stroke="#90c4f8" stroke-width="1.5" fill="rgba(144,196,248,0.05)"/>
+          </svg>
+        </div>
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=560&q=80&auto=format&fit=crop" alt="Residential property available for lending" loading="lazy" onerror="this.style.display='none'"/>
+        <div class="dc-ov"></div>
+        <div class="dc-badge-wrap"><span class="dc-badge bg-live">◉ Live — Available</span></div>
+        <div class="dc-loc">
+          <div class="da"><span class="rb" style="width:100px;"></span></div>
+          <div class="ds"><span class="rb" style="width:70px;height:8px;margin-top:3px;display:block;"></span></div>
+        </div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-metrics">
+          <div class="dcm"><label>Loan</label><div class="dv g">$890K</div></div>
+          <div class="dcm"><label>LTV</label><div class="dv gr">68%</div></div>
+          <div class="dcm"><label>Rate</label><div class="dv b">TBD</div></div>
+          <div class="dcm"><label>Term</label><div class="dv w">6 mo</div></div>
+        </div>
+        <div class="dc-ft"><span class="dc-tp">Hard Money · SFR</span><span class="dc-rs vw">2 lenders viewing</span></div>
+      </div>
+    </div>
+
+    <!-- ACTIVE 3 — Claimed (Multi-family) -->
+    <div class="deal-card active-card" role="listitem">
+      <div class="dc-img-wrap">
+        <div class="prop-illus" style="background:linear-gradient(160deg,#2a1f3a 0%,#180f22 100%);">
+          <svg viewBox="0 0 180 120" width="180" height="120" fill="none" style="opacity:0.25;">
+            <rect x="20" y="25" width="140" height="90" stroke="#c4b5fd" stroke-width="2" fill="rgba(196,181,253,0.07)"/>
+            <line x1="80" y1="25" x2="80" y2="115" stroke="#c4b5fd" stroke-width="1.5"/>
+            <line x1="20" y1="62" x2="160" y2="62" stroke="#c4b5fd" stroke-width="1.5"/>
+            <rect x="28" y="33" width="20" height="14" stroke="#c4b5fd" stroke-width="1" fill="rgba(196,181,253,0.1)"/>
+            <rect x="54" y="33" width="14" height="14" stroke="#c4b5fd" stroke-width="1" fill="rgba(196,181,253,0.1)"/>
+            <rect x="88" y="33" width="20" height="14" stroke="#c4b5fd" stroke-width="1" fill="rgba(196,181,253,0.1)"/>
+            <rect x="114" y="33" width="20" height="14" stroke="#c4b5fd" stroke-width="1" fill="rgba(196,181,253,0.1)"/>
+            <rect x="28" y="70" width="20" height="14" stroke="#c4b5fd" stroke-width="1" fill="rgba(196,181,253,0.1)"/>
+            <rect x="88" y="70" width="20" height="14" stroke="#c4b5fd" stroke-width="1" fill="rgba(196,181,253,0.1)"/>
+            <rect x="114" y="70" width="20" height="14" stroke="#c4b5fd" stroke-width="1" fill="rgba(196,181,253,0.1)"/>
+          </svg>
+        </div>
+        <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=560&q=80&auto=format&fit=crop" alt="Multi-family apartment building active deal" loading="lazy" onerror="this.style.display='none'"/>
+        <div class="dc-ov"></div>
+        <div class="dc-badge-wrap"><span class="dc-badge bg-claimed">🔒 Exclusively Claimed</span></div>
+        <div class="dc-loc">
+          <div class="da"><span class="rb" style="width:105px;"></span></div>
+          <div class="ds"><span class="rb" style="width:80px;height:8px;margin-top:3px;display:block;"></span></div>
+        </div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-metrics">
+          <div class="dcm"><label>Loan</label><div class="dv g">$2.1M</div></div>
+          <div class="dcm"><label>LTV</label><div class="dv gr">65%</div></div>
+          <div class="dcm"><label>Rate</label><div class="dv b">TBD</div></div>
+          <div class="dcm"><label>Term</label><div class="dv w">24 mo</div></div>
+        </div>
+        <div class="dc-ft"><span class="dc-tp">DSCR · Multi-family</span><span class="dc-rs lk">Locked — in review</span></div>
+      </div>
+    </div>
+
+    <!-- ACTIVE 4 — Large Commercial Bridge Claimed -->
+    <div class="deal-card active-card" role="listitem">
+      <div class="dc-img-wrap">
+        <div class="prop-illus" style="background:linear-gradient(160deg,#1f3a3a 0%,#0f2222 100%);">
+          <svg viewBox="0 0 180 120" width="180" height="120" fill="none" style="opacity:0.25;">
+            <!-- Commercial building -->
+            <rect x="30" y="15" width="120" height="100" stroke="#67e8f9" stroke-width="2" fill="rgba(103,232,249,0.06)"/>
+            <line x1="30" y1="45" x2="150" y2="45" stroke="#67e8f9" stroke-width="1.5"/>
+            <line x1="30" y1="75" x2="150" y2="75" stroke="#67e8f9" stroke-width="1.5"/>
+            <line x1="90" y1="15" x2="90" y2="115" stroke="#67e8f9" stroke-width="1.5"/>
+            <rect x="40" y="22" width="40" height="16" stroke="#67e8f9" stroke-width="1" fill="rgba(103,232,249,0.1)"/>
+            <rect x="100" y="22" width="40" height="16" stroke="#67e8f9" stroke-width="1" fill="rgba(103,232,249,0.1)"/>
+            <rect x="40" y="52" width="40" height="16" stroke="#67e8f9" stroke-width="1" fill="rgba(103,232,249,0.1)"/>
+            <rect x="100" y="52" width="40" height="16" stroke="#67e8f9" stroke-width="1" fill="rgba(103,232,249,0.1)"/>
+            <rect x="60" y="82" width="60" height="33" stroke="#67e8f9" stroke-width="1.5" fill="rgba(103,232,249,0.04)"/>
+          </svg>
+        </div>
+        <img src="https://images.unsplash.com/photo-1464082354059-27db6ce50048?w=560&q=80&auto=format&fit=crop" alt="Commercial property bridge loan active deal" loading="lazy" onerror="this.style.display='none'"/>
+        <div class="dc-ov"></div>
+        <div class="dc-badge-wrap"><span class="dc-badge bg-claimed">🔒 Exclusively Claimed</span></div>
+        <div class="dc-loc">
+          <div class="da"><span class="rb" style="width:95px;"></span></div>
+          <div class="ds"><span class="rb" style="width:65px;height:8px;margin-top:3px;display:block;"></span></div>
+        </div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-metrics">
+          <div class="dcm"><label>Loan</label><div class="dv g">$4.5M</div></div>
+          <div class="dcm"><label>LTV</label><div class="dv gr">58%</div></div>
+          <div class="dcm"><label>Rate</label><div class="dv b">TBD</div></div>
+          <div class="dcm"><label>Term</label><div class="dv w">12 mo</div></div>
+        </div>
+        <div class="dc-ft"><span class="dc-tp">Bridge · Commercial</span><span class="dc-rs lk">Locked — in review</span></div>
+      </div>
+    </div>
+
+    <!-- ACTIVE 5 — Live Available (SFR fixer) -->
+    <div class="deal-card active-card" role="listitem">
+      <div class="dc-img-wrap">
+        <div class="prop-illus" style="background:linear-gradient(160deg,#3a2a1f 0%,#221810 100%);">
+          <svg viewBox="0 0 180 120" width="180" height="120" fill="none" style="opacity:0.25;">
+            <path d="M90 25 L145 62 L35 62 Z" stroke="#fcd34d" stroke-width="2" fill="rgba(252,211,77,0.1)"/>
+            <rect x="37" y="62" width="106" height="50" stroke="#fcd34d" stroke-width="2" fill="rgba(252,211,77,0.06)"/>
+            <rect x="70" y="82" width="40" height="30" stroke="#fcd34d" stroke-width="1.5" fill="rgba(252,211,77,0.04)"/>
+            <rect x="44" y="70" width="20" height="15" stroke="#fcd34d" stroke-width="1.5" fill="rgba(252,211,77,0.04)"/>
+            <rect x="116" y="70" width="20" height="15" stroke="#fcd34d" stroke-width="1.5" fill="rgba(252,211,77,0.04)"/>
+          </svg>
+        </div>
+        <img src="https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=560&q=80&auto=format&fit=crop" alt="Fixer upper residential property available" loading="lazy" onerror="this.style.display='none'"/>
+        <div class="dc-ov"></div>
+        <div class="dc-badge-wrap"><span class="dc-badge bg-live">◉ Live — Available</span></div>
+        <div class="dc-loc">
+          <div class="da"><span class="rb" style="width:90px;"></span></div>
+          <div class="ds"><span class="rb" style="width:70px;height:8px;margin-top:3px;display:block;"></span></div>
+        </div>
+      </div>
+      <div class="dc-body">
+        <div class="dc-metrics">
+          <div class="dcm"><label>Loan</label><div class="dv g">$620K</div></div>
+          <div class="dcm"><label>LTV</label><div class="dv gr">71%</div></div>
+          <div class="dcm"><label>Rate</label><div class="dv b">TBD</div></div>
+          <div class="dcm"><label>Term</label><div class="dv w">12 mo</div></div>
+        </div>
+        <div class="dc-ft"><span class="dc-tp">Hard Money · SFR</span><span class="dc-rs vw">4 lenders viewing</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;margin-top:20px;">
+    <a href="#" onclick="openLM();return false;" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;font-size:13px;font-weight:600;color:var(--teal);background:var(--teal-pale);border:1.5px solid var(--border-teal);border-radius:8px;text-decoration:none;cursor:none;transition:all 0.2s;">Register to view full deal details, documents &amp; contact info →</a>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="sw-light" id="how" aria-labelledby="how-heading">
+  <div class="how-grid">
+    <div>
+      <div class="se-left fu"><div class="se-line"></div><div class="se-txt">How It Works</div></div>
+      <h2 id="how-heading" class="h2-dark fu" style="font-size:clamp(26px,3.5vw,44px);">From submission<br><em>to funded.</em></h2>
+      <p class="sub-dark fu" style="margin-bottom:28px;">Transparent, technology-driven, fast — for both sides of every transaction.</p>
+      <div class="how-step fu"><div class="sn">01</div><div><div class="sh-t">Submit your deal — start with your property</div><div class="sh-p">Enter your property address. Our proprietary intelligence engine instantly cross-references AVM data, county records, tax assessments, and comparable sales — generating a full property intelligence report. Select loan type, upload documents, write your value narrative.</div></div></div>
+      <div class="how-step fu d1"><div class="sn">02</div><div><div class="sh-t">Automated review + human approval in 24 hours</div><div class="sh-p">Our system validates broker licensing via national registry, checks document completeness, scores the submission, and flags address conflicts. A licensed team member approves before anything goes live. Nothing posts without human sign-off.</div></div></div>
+      <div class="how-step fu d2"><div class="sn">03</div><div><div class="sh-t">Lenders claim exclusive review windows</div><div class="sh-p">Approved lenders see deals matching their saved criteria. Premium members claim exclusive review windows — locking all other capital out during diligence. Full document access unlocks on claim.</div></div></div>
+      <div class="how-step fu d3"><div class="sn">04</div><div><div class="sh-t">Closing through third-party title — 1 point collected</div><div class="sh-p">All funds flow through the lender's chosen escrow and title company. We never touch money or title. Broker uploads the Closing Disclosure to confirm. Our 1-point success fee is owed by the submitter at close.</div></div></div>
+    </div>
+    <div>
+      <div class="how-sc gc fu">
+        <div class="sc-tag">For Borrowers — Why pay us 1 point?</div>
+        <div class="sc-t">One submission. Thousands of lenders. $0 upfront risk.</div>
+        <ul class="sc-l">
+          <li>Reach our entire lender network instantly — no cold calls, no broker chasing</li>
+          <li>Other lenders charge thousands upfront with no guarantee. We charge $19.99 and only win when you do</li>
+          <li>Our tech does the work — automated valuation, deal matching, lender alerts</li>
+          <li>7 loan types: Bridge, DSCR (24-mo, 5-yr ARM, 30-yr fixed), Fix &amp; Flip, Hard Money, Construction, Cash-out Refi, Conventional</li>
+          <li>DSCR: no tax returns — FICO + rent + taxes + insurance only</li>
+          <li>1 point at closing only — $0 if your deal doesn't fund</li>
+        </ul>
+      </div>
+      <div class="how-sc bc fu d1">
+        <div class="sc-tag">For Lenders — Stop chasing. Start closing.</div>
+        <div class="sc-t">Curated deal flow delivered to you. Files move fast.</div>
+        <ul class="sc-l">
+          <li>Tired of cold calling, buying leads, or networking events? Stop.</li>
+          <li>Earn 8–14% on vetted first-lien real estate debt — every deal secured by a recorded first-position deed of trust</li>
+          <li>Set criteria once: FICO floor, LTV ceiling, DSCR ratio, property type, geography, metro size</li>
+          <li>Claim exclusive review windows — your diligence, no competition from other capital</li>
+          <li><strong>Premium perk:</strong> Get new matching deals emailed the instant they post — fastest access, every time</li>
+          <li>You choose your own title and escrow — full control of your capital</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECHNOLOGY — navy, centered -->
+<section class="sw-navy" id="tech" aria-labelledby="tech-heading">
+  <div class="sec-center">
+    <div class="se-inline se-inv"><div class="se-line"></div><div class="se-txt">Platform Technology</div><div class="se-line"></div></div>
+    <h2 id="tech-heading" class="h2-light">Built different.<br><em>Engineered to close.</em></h2>
+    <p class="sub-inv">A full-stack private lending intelligence platform — automated compliance, real-time deal matching, and multi-layer fee protection built in from day one. Not a listing site. A deal engine.</p>
+  </div>
+  <div class="tg">
+    <div class="tc fu"><div class="tc-tag">VALUATION ENGINE</div><h3>Proprietary property intelligence</h3><p>Our automated engine cross-references AVM data, county tax records, comparable sales, permit history, and market trend indices — generating a complete property intelligence report the moment an address is entered.</p></div>
+    <div class="tc fu d1"><div class="tc-tag">DEAL MATCHING AI</div><h3>Real-time intelligent filtering</h3><p>Our matching engine continuously evaluates incoming deals against every lender's profile — FICO floor, LTV ceiling, DSCR ratio, property type, geography, MSA size, and loan term. Push alerts fire on match in real time.</p></div>
+    <div class="tc fu d2"><div class="tc-tag">EXCLUSIVITY ENGINE</div><h3>Claim-and-lock deal control</h3><p>Lenders claim exclusive review windows with a single click — instantly locking all other capital out. Timers are server-enforced and tamper-proof timestamped. Brokers can trigger early release if a lender goes dark.</p></div>
+    <div class="tc fu d3"><div class="tc-tag">PIPELINE INTELLIGENCE</div><h3>End-to-end deal lifecycle</h3><p>Every deal moves through a fully tracked, timestamped pipeline from Submitted to Closed. Closing Disclosure upload required at funding — triggering automatic fee enforcement and property watch updates.</p></div>
+    <div class="tc fu d1"><div class="tc-tag">COMPLIANCE LAYER</div><h3>Automated legal infrastructure</h3><p>Non-circumvention agreements execute digitally at submission and claim. Broker license status validated against national registries. Attestations collected and timestamped. No deal goes live without a complete compliance record.</p></div>
+    <div class="tc fu d2"><div class="tc-tag">PROPERTY WATCH SYSTEM</div><h3>Permanent address intelligence</h3><p>Every submitted address registered permanently. Any resubmission through any channel triggers immediate admin alert. Title company fee notices auto-dispatch at the underwriting stage to protect our 1-point fee.</p></div>
+  </div>
+</section>
+
+<!-- TRUST & SAFETY — cream, centered heading -->
+<section class="sw-cream" id="trust" aria-labelledby="trust-heading">
+  <div class="sec-center">
+    <div class="se-inline se-teal"><div class="se-line"></div><div class="se-txt">Trust &amp; Safety</div><div class="se-line"></div></div>
+    <h2 id="trust-heading" class="h2-center">Your money.<br><em style="color:var(--teal);">Always protected.</em></h2>
+    <p class="sub-center">We are a licensed introducing broker — not a lender, not a title company. We never touch your funds or your title. Every transaction flows through licensed third parties of the lender's choice.</p>
+  </div>
+  <div class="trust-2col">
+    <div class="tr-card gc fu">
+      <div class="tr-tag">For Borrowers</div>
+      <div class="tr-h">We never touch your property or your money</div>
+      <div class="tr-row"><div class="tr-icon">🏛</div><div><div class="tr-ih">Funds handled by escrow and title only</div><div class="tr-ip">All loan proceeds are disbursed by the lender's licensed title company or escrow agent. We never receive, hold, or disburse any funds at any point.</div></div></div>
+      <div class="tr-row"><div class="tr-icon">📋</div><div><div class="tr-ih">Title stays in your name</div><div class="tr-ip">We take no interest in your property. The lender records a first-position deed of trust — standard for any secured real estate loan.</div></div></div>
+      <div class="tr-row"><div class="tr-icon">🔍</div><div><div class="tr-ih">Full transparency on every offer</div><div class="tr-ip">You see every rate, term, and condition before accepting. You are never obligated to accept any offer presented through this platform.</div></div></div>
+      <div class="tr-row"><div class="tr-icon">⚖️</div><div><div class="tr-ih">Licensed mortgage broker</div><div class="tr-ip">Operated by DirectLenderCapital.com, a licensed mortgage broker acting solely as the introducing party between borrowers and lenders.</div></div></div>
+    </div>
+    <div class="tr-card bc fu d1">
+      <div class="tr-tag">For Lenders &amp; Investors</div>
+      <div class="tr-h">First-lien security on every deal — for every type of lender.</div>
+      <div class="tr-row"><div class="tr-icon">🔒</div><div><div class="tr-ih">First-position lien on every deal</div><div class="tr-ip">Every deal secured by a recorded first-position deed of trust. No second liens. No subordinated positions. You are always first in line on the collateral.</div></div></div>
+      <div class="tr-row"><div class="tr-icon">🏢</div><div><div class="tr-ih">You choose your title and escrow company</div><div class="tr-ip">All funds held and disbursed entirely by your chosen licensed title company or escrow agent. We never receive or control lender funds — ever.</div></div></div>
+      <div class="tr-row"><div class="tr-icon">📄</div><div><div class="tr-ih">Every deal reviewed before you see it</div><div class="tr-ip">Broker licenses validated. Authorization confirmed. Narrative reviewed. No unvetted submission ever reaches the marketplace.</div></div></div>
+      <div class="tr-row"><div class="tr-icon">📊</div><div><div class="tr-ih">Your criteria. Your control. Instant alerts.</div><div class="tr-ip">Set your FICO floor, max LTV, DSCR minimum, and loan type. Premium members receive instant email alerts when matching deals go live.</div></div></div>
+    </div>
+  </div>
+  <!-- 4 equal badge cards -->
+  <div class="badge-4 fu">
+    <div class="badge-c"><span class="badge-ic">🏛</span><div class="badge-t">Third-party escrow</div><div class="badge-s">We never hold your funds</div></div>
+    <div class="badge-c"><span class="badge-ic">🔒</span><div class="badge-t">First-lien secured</div><div class="badge-s">Every deal, every time</div></div>
+    <div class="badge-c"><span class="badge-ic">⚖️</span><div class="badge-t">Non-circumvention</div><div class="badge-s">Legal protection on every deal</div></div>
+    <div class="badge-c"><span class="badge-ic">👁</span><div class="badge-t">Human reviewed</div><div class="badge-s">Every deal before it goes live</div></div>
+  </div>
+</section>
+
+<!-- PROTECTION — navy, centered -->
+<section class="sw-navy" id="protect" aria-labelledby="protect-heading">
+  <div class="sec-center">
+    <div class="se-inline se-inv"><div class="se-line"></div><div class="se-txt">Fee Protection</div><div class="se-line"></div></div>
+    <h2 id="protect-heading" class="h2-light">Four layers of<br><em>iron-clad protection.</em></h2>
+    <p class="sub-inv">Multi-layer fee enforcement and legal protection built into every deal — designed by a licensed broker, enforced by our platform from day one.</p>
+  </div>
+  <div class="prot-4">
+    <div class="pc fu"><div class="pn">01</div><h4>Non-circumvention</h4><p>Executed digitally at every submission and claim. If the deal funds through any lender introduced here — on or off platform — the 1-point fee is owed.</p></div>
+    <div class="pc fu d1"><div class="pn">02</div><h4>Broker attestation</h4><p>Signed attestation confirming valid 1003 or borrower authorization. License verification automated via national registry lookup at submission.</p></div>
+    <div class="pc fu d2"><div class="pn">03</div><h4>Title fee notice</h4><p>When a deal enters underwriting, a formal fee notice auto-dispatches to the title company. Title cannot close without clearing the fee claim.</p></div>
+    <div class="pc fu d3"><div class="pn">04</div><h4>Property watch</h4><p>Every address registered permanently. Any resubmission — any party, any channel — triggers immediate admin alert and deal flag in our system.</p></div>
+  </div>
+</section>
+
+<!-- FAQ — centered, light -->
+<section class="sw-light" id="faq" aria-labelledby="faq-heading">
+  <div class="faq-wrap">
+    <div class="sec-center" style="margin-bottom:32px;">
+      <div class="se-inline"><div class="se-line"></div><div class="se-txt">FAQ</div><div class="se-line"></div></div>
+      <h2 id="faq-heading" class="h2-center fu">Common questions,<br><em>straight answers.</em></h2>
+    </div>
+    <details class="faq-item fu" open><summary>What is FirstLien.capital? <span class="faq-marker">+</span></summary><p>FirstLien.capital is a technology-driven private real estate lending marketplace operated by DirectLenderCapital.com, a licensed mortgage broker. We connect brokers and borrowers seeking private capital with accredited lenders, institutional funds, family offices, banks, hard money lenders, and trust deed investors. All deals are secured by first-position liens on real property.</p></details>
+    <details class="faq-item fu"><summary>Does FirstLien.capital hold funds or take title to property? <span class="faq-marker">+</span></summary><p>No — never. We are a licensed introducing broker only. All loan proceeds are disbursed by the lender's chosen licensed title company or escrow agent. We take no interest in any property and never receive, hold, or control any funds at any point in the transaction.</p></details>
+    <details class="faq-item fu"><summary>What loan types are supported? <span class="faq-marker">+</span></summary><p>Bridge Loans, DSCR Loans (24-month, 5-year ARM, 30-year fixed), Fix &amp; Flip, Hard Money, Construction and Ground-Up, Cash-Out Refinance, and Conventional loans. DSCR loans qualify on property cash flow — no tax returns required.</p></details>
+    <details class="faq-item fu"><summary>Who can become a lender on FirstLien.capital? <span class="faq-marker">+</span></summary><p>Individual trust deed investors, family offices, private funds, banks, credit unions, hard money lenders, and institutional capital entities. All lenders must be accredited investors as defined by SEC Rule 501 of Regulation D, or represent institutional capital. Access is by manual approval — applications reviewed within 1–2 business days.</p></details>
+    <details class="faq-item fu"><summary>What yields can lenders expect? <span class="faq-marker">+</span></summary><p>Deals on FirstLien.capital typically target yields of 8–14% annually, depending on loan type, LTV, property type, and term. All deals are secured by recorded first-position deeds of trust or mortgages. Past performance does not guarantee future results. Lenders should conduct independent due diligence before funding.</p></details>
+    <details class="faq-item fu"><summary>What is the fee for submitting a deal? <span class="faq-marker">+</span></summary><p>$19.99 per single deal submission or $49/month for unlimited submissions. A success fee of 1 point (1%) of the funded loan amount is owed at closing by the submitting party. There is no fee if the deal does not fund. Submission fees are non-refundable.</p></details>
+    <details class="faq-item fu"><summary>How does deal exclusivity work for lenders? <span class="faq-marker">+</span></summary><p>Premium lender members can claim exclusive review windows on individual deals — locking all other capital out while they conduct their diligence. During the exclusive period, no other lender can access full documents or contact the broker about that deal. The broker can release the lock early if a lender is unresponsive, and deals automatically re-open if a claimed deal does not progress.</p></details>
+    <details class="faq-item fu"><summary>Is the platform secure? <span class="faq-marker">+</span></summary><p>Yes. FirstLien.capital is built with multiple security layers: Content Security Policy headers block cross-site scripting and injection attacks, X-Frame-Options prevent clickjacking, HTTPS encrypts all data in transit, and form inputs are sanitized server-side. All submitted documents are stored in secured cloud infrastructure with access controls. We do not store sensitive financial data on the platform — all transactions flow through licensed third-party title and escrow companies.</p></details>
+  </div>
+</section>
+
+<!-- CTA SPLIT — centered heading above -->
+<section class="sw-cream" id="join" aria-labelledby="cta-heading">
+  <div class="sec-center" style="margin-bottom:36px;">
+    <div class="se-inline"><div class="se-line"></div><div class="se-txt">Get Started</div><div class="se-line"></div></div>
+    <h2 id="cta-heading" class="h2-center fu">Two doors.<br><em>One platform.</em></h2>
+    <p class="sub-center fu">Need a loan or ready to deploy capital? Both sides of private real estate lending belong here.</p>
+  </div>
+  <div class="cta-2 fu">
+    <div class="cp bw">
+      <div class="cp-tag">Need a Loan?</div>
+      <div class="cp-t">Submit your deal today</div>
+      <div class="cp-s">Goes live within 24 hours. $19.99 per deal or $49/month unlimited. 1 point at closing only — $0 if no close.</div>
+      <input class="cf" type="text" placeholder="Full name" autocomplete="name"/>
+      <input class="cf" type="email" placeholder="Email address" autocomplete="email"/>
+      <input class="cf" type="tel" placeholder="Phone number" autocomplete="tel"/>
+      <select class="cf" style="appearance:none;cursor:none;" autocomplete="off"><option value="" disabled selected>I am a...</option><option>Borrower (direct owner)</option><option>Mortgage Broker</option><option>Real Estate Agent / Advisor</option></select>
+      <button class="cbtn" onclick="openQSM()" type="button">Get Started →</button>
+      <div class="cf-legal">By submitting you agree to our non-circumvention policy. Submission fee non-refundable. 1 point success fee owed at closing.</div>
+    </div>
+    <div class="cp lw">
+      <div class="cp-tag">Deploy Capital</div>
+      <div class="cp-t">Request lender access</div>
+      <div class="cp-s">Open to all capital types. Individual investors, family offices, funds, banks, hard money lenders, and trust deed investors. Manual approval — 1–2 business days.</div>
+      <input class="cf" type="text" placeholder="Full name" autocomplete="name"/>
+      <input class="cf" type="email" placeholder="Email address" autocomplete="email"/>
+      <input class="cf" type="text" placeholder="Company / Fund name (if applicable)"/>
+      <select class="cf" style="appearance:none;cursor:none;" autocomplete="off"><option value="" disabled selected>I represent...</option><option>Individual Investor / Trust Deed</option><option>Family Office</option><option>Private Fund</option><option>Bank or Credit Union</option><option>Hard Money Lender</option><option>Institutional Capital</option></select>
+      <button class="cbtn" onclick="openLM()" type="button">Request Access →</button>
+      <div class="cf-legal">Accredited investor confirmation required. Subject to manual review and approval. Platform is invite-only for lenders.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+<footer role="contentinfo">
+  <div class="footer-top">
+    <div class="footer-grid">
+      <div class="ft-brand">
+        <div class="ft-logo">FirstLien<span>.capital</span></div>
+        <p>A technology-driven private real estate lending marketplace. Connecting brokers, borrowers, and capital deployers through intelligent deal flow infrastructure.</p>
+        <div class="ft-license">
+          Operated by <strong>DirectLenderCapital.com</strong><br/>
+          Licensed Mortgage Broker · State of California<br/>
+          DRE / NMLS License on file · All disclosures available upon request<br/>
+          Introducing broker only — not a lender, bank, or escrow company<br/>
+          FirstLien.capital is a DBA of DirectLenderCapital.com
+        </div>
+      </div>
+      <div class="ft-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#deals">Live Deal Flow</a></li>
+          <li><a href="#how">How It Works</a></li>
+          <li><a href="#loans">Loan Types</a></li>
+          <li><a href="#tech">Technology</a></li>
+          <li><a href="#trust">Trust &amp; Safety</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h4>For Borrowers</h4>
+        <ul>
+          <li><a href="#" onclick="openQSM();return false;">Submit a Deal</a></li>
+          <li><a href="#loans">Bridge Loans</a></li>
+          <li><a href="#loans">DSCR Loans</a></li>
+          <li><a href="#loans">Fix &amp; Flip</a></li>
+          <li><a href="#loans">Construction Loans</a></li>
+          <li><a href="#loans">Hard Money</a></li>
+          <li><a href="#loans">Cash-Out Refi</a></li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h4>For Lenders</h4>
+        <ul>
+          <li><a href="#" onclick="openLM();return false;">Request Access</a></li>
+          <li><a href="#deals">Browse Deals</a></li>
+          <li><a href="#trust">Deal Exclusivity</a></li>
+          <li><a href="#trust">Premium Membership</a></li>
+          <li><a href="#trust">Lender Criteria</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-disc">
+    <div class="disc-grid">
+      <div><div class="disc-h">Platform Role &amp; Limitations</div><div class="disc-b">FirstLien.capital is operated by DirectLenderCapital.com, a licensed mortgage broker acting solely as an introducing broker. We are NOT a lender, mortgage banker, bank, credit union, escrow company, title company, or investment advisor. We do not originate loans, fund transactions, hold deposits, or provide investment advice. All loan transactions are directly between borrower and lender.</div></div>
+      <div><div class="disc-h">Funds &amp; Title Disclaimer</div><div class="disc-b">FirstLien.capital does not receive, hold, disburse, or control any loan proceeds, down payments, earnest money, or any other funds at any time. All funds are handled exclusively by the escrow agent or title company selected by the lender. We do not take title to, record any interest in, or exercise any control over any real property listed on this platform.</div></div>
+      <div><div class="disc-h">Investment Risk Disclosure</div><div class="disc-b">Private real estate lending involves substantial risk, including potential loss of principal. Past funded deals shown do not guarantee future results. Lenders should conduct independent due diligence and consult with legal, financial, and tax advisors before any lending decision. This platform is not a securities offering. All lenders must independently verify deal information.</div></div>
+      <div><div class="disc-h">Valuation Data Disclaimer</div><div class="disc-b">Automated valuation data generated by our proprietary engine and cross-referenced from public sources is provided for informational purposes ONLY and does not constitute an appraisal, broker price opinion, or certified valuation. Valuations may be materially inaccurate. All lenders should obtain an independent certified appraisal before funding any loan.</div></div>
+      <div><div class="disc-h">Borrower &amp; Broker Disclosure</div><div class="disc-b">Submission does not guarantee lender interest, a term sheet, or loan funding. Submission fees are non-refundable regardless of outcome. A success fee of 1 point (1%) of the funded loan amount is owed by the submitting party upon closing, whether closing occurs on or off this platform. Brokers represent they hold valid licenses and written borrower authorization.</div></div>
+      <div><div class="disc-h">Accredited Investor Notice</div><div class="disc-b">Access to the lender marketplace is restricted to accredited investors as defined under SEC Rule 501 of Regulation D, or to institutional capital entities. By registering you represent that you meet applicable accredited investor or institutional qualification standards. FirstLien.capital does not verify accredited investor status and bears no responsibility for misrepresentation.</div></div>
+    </div>
+    <div class="footer-bar">
+      <div class="fb-logo">FirstLien<span>.capital</span></div>
+      <div class="fb-links">
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Non-Circumvention Agreement</a>
+        <a href="#">Broker License &amp; Disclosures</a>
+        <a href="#">Risk Disclosure</a>
+        <a href="#">Accredited Investor Notice</a>
+        <a href="#">NMLS Consumer Access</a>
+        <a href="#">Fair Lending Policy</a>
+        <a href="#">Security Policy</a>
+        <a href="#">Accessibility</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="fb-copy">© 2025 DirectLenderCapital.com · All Rights Reserved<br/>FirstLien.capital is a DBA of DirectLenderCapital.com</div>
+    </div>
+  </div>
+</footer>
+
+<!-- BORROWER 4-STEP MODAL -->
+<div class="modal-overlay" id="qsm" role="dialog" aria-modal="true" aria-labelledby="qsm-title">
+  <div class="modal-box">
+    <div class="modal-top-bar"></div>
+    <button class="modal-close" onclick="closeQSM()" aria-label="Close">×</button>
+
+    <!-- STEP 1 -->
+    <div id="qs1" style="padding:28px 32px 28px;">
+      <div class="step-prog"><div class="sp-dot active"></div><div class="sp-dot"></div><div class="sp-dot"></div><div class="sp-dot"></div></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Step 1 of 4</div>
+      <h3 id="qsm-title" style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--navy);margin-bottom:4px;">Tell us about your property</h3>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:18px;">We pull valuation data automatically. Start with the basics — no commitment required.</p>
+      <input class="mf" type="text" placeholder="Property address (e.g. 123 Main St, Los Angeles CA 90001)" autocomplete="off"/>
+      <div class="mf-grid-2">
+        <select class="mf" style="appearance:none;cursor:none;"><option disabled selected>Property type</option><option>Single Family (SFR)</option><option>Multi-family 2–4 units</option><option>Multi-family 5+ units</option><option>Commercial</option><option>Mixed Use</option><option>Condo / Townhouse</option><option>Land / Lot</option></select>
+        <select class="mf" style="appearance:none;cursor:none;"><option disabled selected>Condition</option><option>Turnkey / Move-in ready</option><option>Light rehab needed</option><option>Heavy rehab needed</option><option>Gut renovation</option><option>New construction</option></select>
+      </div>
+      <div class="modal-nav"><span style="font-size:12px;color:var(--text-tertiary);">No commitment · Takes 2 minutes</span><button class="mbtn-next" onclick="qsGo(2)" type="button">Next →</button></div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="qs2" style="display:none;padding:28px 32px 28px;">
+      <div class="step-prog"><div class="sp-dot done"></div><div class="sp-dot active"></div><div class="sp-dot"></div><div class="sp-dot"></div></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Step 2 of 4</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--navy);margin-bottom:4px;">Loan type &amp; amount</h3>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:16px;">Select the type that fits your deal.</p>
+      <div class="lt-grid" id="ltGrid">
+        <button class="lt-btn" onclick="selLT(this)" type="button">Bridge</button>
+        <button class="lt-btn" onclick="selLT(this)" type="button">DSCR</button>
+        <button class="lt-btn" onclick="selLT(this)" type="button">Fix &amp; Flip</button>
+        <button class="lt-btn" onclick="selLT(this)" type="button">Hard Money</button>
+        <button class="lt-btn" onclick="selLT(this)" type="button">Construction</button>
+        <button class="lt-btn" onclick="selLT(this)" type="button">Cash-out Refi</button>
+        <button class="lt-btn" onclick="selLT(this)" type="button">Conventional</button>
+        <button class="lt-btn" onclick="selLT(this)" type="button">Any / Open</button>
+      </div>
+      <div class="mf-grid-2" style="margin-top:8px;">
+        <input class="mf" type="text" placeholder="Loan amount (e.g. $850,000)" style="margin-bottom:0;"/>
+        <input class="mf" type="text" placeholder="Estimated value (as-is)" style="margin-bottom:0;"/>
+      </div>
+      <select class="mf" style="appearance:none;cursor:none;margin-top:8px;">
+        <option disabled selected>Loan term needed</option><option>6 months</option><option>12 months</option><option>18 months</option><option>24 months</option><option>30 years</option><option>Flexible</option>
+      </select>
+      <div class="modal-nav"><button class="mbtn-back" onclick="qsGo(1)" type="button">← Back</button><button class="mbtn-next" onclick="qsGo(3)" type="button">Next →</button></div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="qs3" style="display:none;padding:28px 32px 28px;">
+      <div class="step-prog"><div class="sp-dot done"></div><div class="sp-dot done"></div><div class="sp-dot active"></div><div class="sp-dot"></div></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Step 3 of 4</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--navy);margin-bottom:4px;">Quick profile</h3>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:16px;">So lenders know who they're working with before they reach out.</p>
+      <select class="mf" style="appearance:none;cursor:none;"><option disabled selected>I am submitting as...</option><option>Borrower (direct owner / sponsor)</option><option>Mortgage Broker (on behalf of borrower)</option><option>Real Estate Agent / Advisor</option></select>
+      <select class="mf" style="appearance:none;cursor:none;"><option disabled selected>Exit strategy</option><option>Sale</option><option>Refinance (agency / conventional)</option><option>Lease-up / Hold</option><option>Development</option><option>1031 Exchange</option></select>
+      <input class="mf" type="text" placeholder="Your name or company name" autocomplete="name"/>
+      <input class="mf" type="tel" placeholder="Phone number" autocomplete="tel" style="margin-bottom:0;"/>
+      <div class="modal-nav"><button class="mbtn-back" onclick="qsGo(2)" type="button">← Back</button><button class="mbtn-next" onclick="qsGo(4)" type="button">Almost there →</button></div>
+    </div>
+
+    <!-- STEP 4 — Email last -->
+    <div id="qs4" style="display:none;padding:28px 32px 28px;">
+      <div class="step-prog"><div class="sp-dot done"></div><div class="sp-dot done"></div><div class="sp-dot done"></div><div class="sp-dot active"></div></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Final step</div>
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--navy);margin-bottom:4px;">Email &amp; plan</h3>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:16px;">We'll send your submission portal link and deal tracking to this email. One submission reaches our entire lender network.</p>
+      <input class="mf" type="email" placeholder="Email address" autocomplete="email"/>
+      <div class="plan-grid">
+        <div class="plan-card selected"><div class="plan-label">Single Deal</div><div class="plan-price">$19.99</div><div class="plan-sub">One deal · Non-refundable</div></div>
+        <div class="plan-card"><div class="plan-label" style="color:var(--teal);">Unlimited Monthly</div><div class="plan-price">$49<span style="font-size:13px;font-weight:400;">/mo</span></div><div class="plan-sub">Unlimited · Cancel anytime</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:12px;">
+        <input type="checkbox" style="margin-top:3px;flex-shrink:0;" id="ncAgree"/>
+        <label for="ncAgree" style="font-size:12px;color:var(--text-secondary);line-height:1.5;cursor:none;">I agree to the non-circumvention policy. The submission fee is non-refundable. A 1-point (1%) success fee is owed at closing.</label>
+      </div>
+      <div class="modal-nav"><button class="mbtn-back" onclick="qsGo(3)" type="button">← Back</button><button class="mbtn-next" onclick="qsDone()" type="button" style="background:var(--gold);padding:12px 28px;">Submit &amp; Pay →</button></div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="qsSuc" style="display:none;" class="modal-success">
+      <div style="font-size:36px;color:var(--gold);margin-bottom:12px;">✦</div>
+      <h3>You're in the queue.</h3>
+      <p>Check your email — we'll send your submission portal link and payment instructions within 5 minutes. Your deal will be live within 24 hours of payment confirmation.</p>
+    </div>
+  </div>
+</div>
+
+<!-- LENDER MODAL -->
+<div class="modal-overlay" id="lm" role="dialog" aria-modal="true" aria-labelledby="lm-title">
+  <div class="modal-box">
+    <div class="modal-top-bar teal"></div>
+    <button class="modal-close" onclick="closeLM()" aria-label="Close">×</button>
+    <div id="lmForm" style="padding:28px 32px 28px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:6px;">For Every Type of Capital Deployer</div>
+      <h3 id="lm-title" style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--navy);margin-bottom:4px;">Request lender access</h3>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:18px;">Open to individual investors, family offices, funds, banks, hard money lenders, and institutional capital. Manual approval — reviewed within 1–2 business days.</p>
+      <input class="mf" type="text" placeholder="Full name" autocomplete="name"/>
+      <input class="mf" type="email" placeholder="Email address" autocomplete="email"/>
+      <input class="mf" type="text" placeholder="Company / Fund name (if applicable)"/>
+      <select class="mf" style="appearance:none;cursor:none;"><option disabled selected>I represent...</option><option>Individual Investor / Trust Deed</option><option>Family Office</option><option>Private Fund</option><option>Bank or Credit Union</option><option>Hard Money Lender</option><option>Institutional Capital</option><option>Other</option></select>
+      <select class="mf" style="appearance:none;cursor:none;"><option disabled selected>Capital available to deploy</option><option>Under $500K</option><option>$500K – $2M</option><option>$2M – $10M</option><option>$10M – $50M</option><option>$50M+</option></select>
+      <input class="mf" type="text" placeholder="Geographic focus (e.g. California, Southwest, Nationwide)"/>
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:12px;">
+        <input type="checkbox" style="margin-top:3px;flex-shrink:0;" id="accredCheck"/>
+        <label for="accredCheck" style="font-size:11.5px;color:var(--text-secondary);line-height:1.5;cursor:none;">I confirm I am an accredited investor per SEC Rule 501 of Regulation D, or represent an institutional capital entity.</label>
+      </div>
+      <button style="width:100%;padding:12px;font-size:12px;font-weight:700;border-radius:7px;cursor:none;border:none;background:var(--teal);color:#fff;transition:background 0.2s;" onclick="lmDone()" type="button">Submit Application →</button>
+      <p style="font-size:10.5px;color:var(--text-tertiary);margin-top:8px;line-height:1.6;text-align:center;">Subject to manual review and approval. You will receive an email within 1–2 business days.</p>
+    </div>
+    <div id="lmSuc" style="display:none;" class="modal-success">
+      <div style="font-size:32px;color:var(--teal);margin-bottom:12px;">◈</div>
+      <h3>Application received.</h3>
+      <p>Our team will review your profile and send approval within 1–2 business days. You'll receive an email with marketplace access instructions.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── HOUSE CURSOR ──
+const hc = document.getElementById('houseCur');
+document.addEventListener('mousemove', e => {
+  hc.style.left = e.clientX + 'px';
+  hc.style.top = e.clientY + 'px';
+});
+document.querySelectorAll('a,button,input,select,.deal-card,.fll-item,.badge-c,.pc,.tc,.why-card,.faq-item summary').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+});
+
+// ── MODAL OPEN/CLOSE ──
+function openQSM() { document.getElementById('qsm').classList.add('open'); }
+function closeQSM() { document.getElementById('qsm').classList.remove('open'); }
+function openLM() { document.getElementById('lm').classList.add('open'); }
+function closeLM() { document.getElementById('lm').classList.remove('open'); }
+
+// ── BORROWER STEPS ──
+function qsGo(n) {
+  [1,2,3,4].forEach(s => { const e = document.getElementById('qs'+s); if(e) e.style.display = 'none'; });
+  const t = document.getElementById('qs'+n);
+  if(t) t.style.display = 'block';
+}
+function selLT(btn) {
+  document.querySelectorAll('.lt-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function qsDone() {
+  [1,2,3,4].forEach(s => { const e = document.getElementById('qs'+s); if(e) e.style.display='none'; });
+  document.getElementById('qsSuc').style.display = 'block';
+}
+function lmDone() {
+  document.getElementById('lmForm').style.display = 'none';
+  document.getElementById('lmSuc').style.display = 'block';
+}
+
+// ── CLOSE ON OVERLAY CLICK ──
+['qsm','lm'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target === document.getElementById(id)) {
+      if(id==='qsm') closeQSM(); else closeLM();
+    }
+  });
+});
+
+// ── CLOSE ON ESCAPE ──
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') { closeQSM(); closeLM(); }
+});
+
+// ── INPUT SANITIZATION ──
+document.querySelectorAll('input[type="text"], input[type="tel"]').forEach(inp => {
+  inp.addEventListener('input', () => {
+    inp.value = inp.value.replace(/[<>"';&{}]/g, '');
+  });
+});
+
+// ── SCROLL ANIMATIONS ──
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.06 });
+document.querySelectorAll('.fu').forEach(el => obs.observe(el));
+
+// ── PLAN CARD SELECTION ──
+document.querySelectorAll('.plan-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  });
+});
+</script>
+</body>
+</html>
