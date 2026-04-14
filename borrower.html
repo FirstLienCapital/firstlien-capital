@@ -35,7 +35,6 @@
     overflow-x: hidden;
   }
 
-  /* Vault texture overlay */
   body::before {
     content: '';
     position: fixed;
@@ -143,10 +142,7 @@
     margin-bottom: 20px;
   }
 
-  .hero h1 em {
-    font-style: italic;
-    color: var(--gold);
-  }
+  .hero h1 em { font-style: italic; color: var(--gold); }
 
   .hero-sub {
     font-size: 15px;
@@ -233,12 +229,6 @@
     position: relative;
   }
 
-  /* SVG House Guy character */
-  .character-svg {
-    width: 100%;
-    height: 100%;
-  }
-
   .character-name {
     font-family: 'Cormorant Garamond', serif;
     font-size: 20px;
@@ -278,13 +268,14 @@
     line-height: 1;
   }
 
-  /* QSM SECTION */
-  .qsm-section {
+  /* HOW IT WORKS */
+  .how-section {
     position: relative;
     z-index: 1;
-    max-width: 860px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 0 40px 80px;
+    padding: 60px 40px 80px;
+    border-top: 1px solid var(--vault-border);
   }
 
   .section-header {
@@ -310,6 +301,53 @@
     font-weight: 300;
     color: var(--text-primary);
     line-height: 1.2;
+  }
+
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+  }
+
+  .how-card {
+    position: relative;
+    padding: 28px 24px;
+    background: var(--vault-panel);
+    border: 1px solid var(--vault-border);
+    border-radius: 4px;
+  }
+
+  .how-card::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -14px;
+    left: 20px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: rgba(201,168,76,0.12);
+    line-height: 1;
+  }
+
+  .how-icon { font-size: 28px; margin-bottom: 12px; }
+
+  .how-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .how-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+  /* QSM SECTION */
+  .qsm-section {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
   }
 
   /* FORM STEPPER */
@@ -340,9 +378,7 @@
     z-index: 0;
   }
 
-  .step.completed:not(:last-child)::after {
-    background: var(--gold-dim);
-  }
+  .step.completed:not(:last-child)::after { background: var(--gold-dim); }
 
   .step-circle {
     width: 36px;
@@ -403,14 +439,8 @@
     background: linear-gradient(90deg, transparent, var(--gold), transparent);
   }
 
-  .form-step {
-    display: none;
-  }
-
-  .form-step.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-  }
+  .form-step { display: none; }
+  .form-step.active { display: block; animation: fadeIn 0.3s ease; }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -425,11 +455,7 @@
     margin-bottom: 8px;
   }
 
-  .form-step-sub {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 32px;
-  }
+  .form-step-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 32px; }
 
   .form-grid {
     display: grid;
@@ -441,12 +467,7 @@
   .form-grid.single { grid-template-columns: 1fr; }
   .form-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
 
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
+  .field { display: flex; flex-direction: column; gap: 6px; }
   .field.span2 { grid-column: span 2; }
 
   label {
@@ -481,18 +502,10 @@
     box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
   }
 
-  select option {
-    background: var(--vault-mid);
-    color: var(--text-primary);
-  }
-
+  select option { background: var(--vault-mid); color: var(--text-primary); }
   textarea { resize: vertical; min-height: 100px; }
 
-  .field-hint {
-    font-size: 11px;
-    color: var(--text-muted);
-    font-style: italic;
-  }
+  .field-hint { font-size: 11px; color: var(--text-muted); font-style: italic; }
 
   /* LOAN TYPE CARDS */
   .loan-type-grid {
@@ -512,10 +525,7 @@
     background: rgba(255,255,255,0.02);
   }
 
-  .loan-type-card:hover {
-    border-color: var(--gold-dim);
-    background: rgba(201,168,76,0.04);
-  }
+  .loan-type-card:hover { border-color: var(--gold-dim); background: rgba(201,168,76,0.04); }
 
   .loan-type-card.selected {
     border-color: var(--gold);
@@ -523,10 +533,7 @@
     box-shadow: 0 0 20px rgba(201,168,76,0.1);
   }
 
-  .loan-type-icon {
-    font-size: 24px;
-    margin-bottom: 8px;
-  }
+  .loan-type-icon { font-size: 24px; margin-bottom: 8px; }
 
   .loan-type-name {
     font-family: 'Cormorant Garamond', serif;
@@ -536,16 +543,10 @@
     margin-bottom: 4px;
   }
 
-  .loan-type-desc {
-    font-size: 11px;
-    color: var(--text-muted);
-    line-height: 1.5;
-  }
+  .loan-type-desc { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
 
   /* RANGE SLIDER */
-  .range-group {
-    margin-bottom: 24px;
-  }
+  .range-group { margin-bottom: 24px; }
 
   .range-label-row {
     display: flex;
@@ -594,10 +595,7 @@
     margin-top: 6px;
   }
 
-  .range-ticks span {
-    font-size: 10px;
-    color: var(--text-muted);
-  }
+  .range-ticks span { font-size: 10px; color: var(--text-muted); }
 
   /* LTV METER */
   .ltv-meter {
@@ -627,12 +625,7 @@
     font-weight: 600;
   }
 
-  .ltv-bar-bg {
-    height: 8px;
-    background: var(--vault-border);
-    border-radius: 4px;
-    overflow: hidden;
-  }
+  .ltv-bar-bg { height: 8px; background: var(--vault-border); border-radius: 4px; overflow: hidden; }
 
   .ltv-bar-fill {
     height: 100%;
@@ -647,12 +640,9 @@
     margin-top: 6px;
   }
 
-  .ltv-zone {
-    font-size: 10px;
-    color: var(--text-muted);
-  }
+  .ltv-zone { font-size: 10px; color: var(--text-muted); }
 
-  /* FORM NAV BUTTONS */
+  /* FORM NAV */
   .form-nav {
     display: flex;
     justify-content: space-between;
@@ -674,10 +664,7 @@
     transition: all 0.2s;
   }
 
-  .btn-back:hover {
-    border-color: var(--gold-dim);
-    color: var(--text-primary);
-  }
+  .btn-back:hover { border-color: var(--gold-dim); color: var(--text-primary); }
 
   .btn-next {
     background: var(--gold);
@@ -699,21 +686,136 @@
     box-shadow: 0 6px 24px rgba(201,168,76,0.3);
   }
 
-  .form-save-note {
-    font-size: 11px;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  .btn-next:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
   }
 
-  /* AI HELPER FLOATING */
-  .ai-helper {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    z-index: 200;
+  .form-save-note { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+
+  /* FIREBASE STATUS */
+  .firebase-status {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 12px;
   }
+
+  .firebase-status.visible { display: flex; }
+
+  .fs-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: fsPulse 1.2s infinite;
+  }
+
+  @keyframes fsPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .fs-dot.success { background: var(--accent-green-bright); animation: none; }
+  .fs-dot.error { background: var(--danger-bright); animation: none; }
+
+  /* SUCCESS STATE */
+  .success-card { text-align: center; padding: 60px 40px; }
+
+  .success-icon {
+    width: 72px;
+    height: 72px;
+    background: rgba(76,175,112,0.15);
+    border: 2px solid var(--accent-green-bright);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 24px;
+    animation: popIn 0.4s ease;
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .success-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .success-sub {
+    font-size: 15px;
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+  }
+
+  .success-ref { font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .success-ref span {
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-style: italic;
+    letter-spacing: 0;
+  }
+
+  /* RATES TABLE */
+  .rates-section {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+
+  .rates-table { width: 100%; border-collapse: collapse; margin-top: 40px; }
+
+  .rates-table thead tr {
+    background: rgba(201,168,76,0.08);
+    border-bottom: 2px solid var(--gold-dim);
+  }
+
+  .rates-table th {
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .rates-table td {
+    padding: 14px 20px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--vault-border);
+  }
+
+  .rates-table tr:hover td { background: rgba(201,168,76,0.03); }
+
+  .rate-badge {
+    display: inline-block;
+    background: rgba(76,175,112,0.15);
+    color: var(--accent-green-bright);
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* AI HELPER */
+  .ai-helper { position: fixed; bottom: 32px; right: 32px; z-index: 200; }
 
   .ai-helper-toggle {
     width: 64px;
@@ -806,10 +908,7 @@
     color: var(--gold);
   }
 
-  .ai-chat-info span {
-    font-size: 11px;
-    color: var(--text-muted);
-  }
+  .ai-chat-info span { font-size: 11px; color: var(--text-muted); }
 
   .online-dot {
     width: 7px;
@@ -837,13 +936,7 @@
     scrollbar-color: var(--vault-border) transparent;
   }
 
-  .msg {
-    max-width: 85%;
-    padding: 10px 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    line-height: 1.5;
-  }
+  .msg { max-width: 85%; padding: 10px 14px; border-radius: 6px; font-size: 13px; line-height: 1.5; }
 
   .msg.bot {
     background: rgba(201,168,76,0.07);
@@ -852,11 +945,7 @@
     align-self: flex-start;
   }
 
-  .msg.user {
-    background: rgba(201,168,76,0.15);
-    color: var(--text-primary);
-    align-self: flex-end;
-  }
+  .msg.user { background: rgba(201,168,76,0.15); color: var(--text-primary); align-self: flex-end; }
 
   .ai-chat-input-row {
     padding: 12px 16px;
@@ -895,167 +984,6 @@
 
   .ai-send-btn:hover { background: var(--gold-light); }
 
-  /* HOW IT WORKS */
-  .how-section {
-    position: relative;
-    z-index: 1;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 60px 40px 80px;
-    border-top: 1px solid var(--vault-border);
-  }
-
-  .how-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 32px;
-    margin-top: 48px;
-  }
-
-  .how-card {
-    position: relative;
-    padding: 28px 24px;
-    background: var(--vault-panel);
-    border: 1px solid var(--vault-border);
-    border-radius: 4px;
-  }
-
-  .how-card::before {
-    content: attr(data-num);
-    position: absolute;
-    top: -14px;
-    left: 20px;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 48px;
-    font-weight: 700;
-    color: rgba(201,168,76,0.12);
-    line-height: 1;
-  }
-
-  .how-icon {
-    font-size: 28px;
-    margin-bottom: 12px;
-  }
-
-  .how-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-  }
-
-  .how-desc {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.6;
-  }
-
-  /* RATES TABLE */
-  .rates-section {
-    position: relative;
-    z-index: 1;
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 0 40px 80px;
-  }
-
-  .rates-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 40px;
-  }
-
-  .rates-table thead tr {
-    background: rgba(201,168,76,0.08);
-    border-bottom: 2px solid var(--gold-dim);
-  }
-
-  .rates-table th {
-    padding: 14px 20px;
-    text-align: left;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--gold);
-    font-weight: 600;
-  }
-
-  .rates-table td {
-    padding: 14px 20px;
-    font-size: 14px;
-    color: var(--text-secondary);
-    border-bottom: 1px solid var(--vault-border);
-  }
-
-  .rates-table tr:hover td { background: rgba(201,168,76,0.03); }
-
-  .rate-badge {
-    display: inline-block;
-    background: rgba(76,175,112,0.15);
-    color: var(--accent-green-bright);
-    padding: 3px 10px;
-    border-radius: 2px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  /* SUCCESS STATE */
-  .success-card {
-    text-align: center;
-    padding: 60px 40px;
-  }
-
-  .success-icon {
-    width: 72px;
-    height: 72px;
-    background: rgba(76,175,112,0.15);
-    border: 2px solid var(--accent-green-bright);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    margin: 0 auto 24px;
-    animation: popIn 0.4s ease;
-  }
-
-  @keyframes popIn {
-    from { transform: scale(0); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  .success-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 36px;
-    font-weight: 400;
-    color: var(--text-primary);
-    margin-bottom: 12px;
-  }
-
-  .success-sub {
-    font-size: 15px;
-    color: var(--text-secondary);
-    max-width: 480px;
-    margin: 0 auto 32px;
-    line-height: 1.7;
-  }
-
-  .success-ref {
-    font-size: 11px;
-    color: var(--text-muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .success-ref span {
-    color: var(--gold);
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    font-style: italic;
-    letter-spacing: 0;
-  }
-
   /* FOOTER */
   footer {
     position: relative;
@@ -1069,17 +997,9 @@
     margin: 0 auto;
   }
 
-  .footer-logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 18px;
-    color: var(--gold-dim);
-    letter-spacing: 0.02em;
-  }
+  .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--gold-dim); letter-spacing: 0.02em; }
 
-  .footer-links {
-    display: flex;
-    gap: 28px;
-  }
+  .footer-links { display: flex; gap: 28px; }
 
   .footer-links a {
     font-size: 12px;
@@ -1091,18 +1011,11 @@
   }
 
   .footer-links a:hover { color: var(--gold); }
-
-  .footer-copy {
-    font-size: 11px;
-    color: var(--text-muted);
-  }
+  .footer-copy { font-size: 11px; color: var(--text-muted); }
 
   /* RESPONSIVE */
   @media (max-width: 900px) {
-    .hero {
-      grid-template-columns: 1fr;
-      padding: 48px 24px 40px;
-    }
+    .hero { grid-template-columns: 1fr; padding: 48px 24px 40px; }
     .character-card { display: none; }
     nav { padding: 0 24px; }
     .nav-links { gap: 16px; }
@@ -1120,12 +1033,10 @@
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" class="nav-logo">FirstLien<span>.Capital</span></a>
+  <a href="vault-animation-v6_33.html" class="nav-logo">FirstLien<span>.Capital</span></a>
   <ul class="nav-links">
     <li><a href="borrower.html" class="active">Borrow</a></li>
     <li><a href="lender.html">Lend</a></li>
-    <li><a href="index.html#deals">Deals</a></li>
-    <li><a href="index.html#about">About</a></li>
     <li><a href="borrower.html#apply" class="nav-cta">Apply Now</a></li>
   </ul>
 </nav>
@@ -1154,41 +1065,28 @@
         <div class="stat-label">States Active</div>
       </div>
     </div>
-    <a href="#apply" class="hero-cta">
-      Submit Your Deal →
-    </a>
+    <a href="#apply" class="hero-cta">Submit Your Deal →</a>
   </div>
 
-  <!-- House Character Card -->
   <div class="character-card">
     <div class="character-figure">
-      <svg class="character-svg" viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
-        <!-- House body -->
+      <svg viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg" width="140" height="160">
         <rect x="30" y="85" width="80" height="60" rx="2" fill="#1a1a1a" stroke="#C9A84C" stroke-width="1.5"/>
-        <!-- House roof -->
         <polygon points="20,88 70,40 120,88" fill="#C9A84C" opacity="0.8"/>
         <polygon points="20,88 70,40 120,88" fill="none" stroke="#E8C97A" stroke-width="1.5"/>
-        <!-- Chimney -->
         <rect x="85" y="50" width="14" height="22" fill="#8A6F2E"/>
-        <!-- Door -->
         <rect x="54" y="110" width="22" height="35" rx="2" fill="#0A0A0A" stroke="#C9A84C" stroke-width="1"/>
         <circle cx="72" cy="128" r="2.5" fill="#C9A84C"/>
-        <!-- Windows -->
         <rect x="35" y="95" width="20" height="18" rx="1" fill="#C9A84C" opacity="0.3" stroke="#C9A84C" stroke-width="1"/>
         <line x1="45" y1="95" x2="45" y2="113" stroke="#C9A84C" stroke-width="0.8" opacity="0.5"/>
         <line x1="35" y1="104" x2="55" y2="104" stroke="#C9A84C" stroke-width="0.8" opacity="0.5"/>
         <rect x="85" y="95" width="20" height="18" rx="1" fill="#C9A84C" opacity="0.3" stroke="#C9A84C" stroke-width="1"/>
         <line x1="95" y1="95" x2="95" y2="113" stroke="#C9A84C" stroke-width="0.8" opacity="0.5"/>
         <line x1="85" y1="104" x2="105" y2="104" stroke="#C9A84C" stroke-width="0.8" opacity="0.5"/>
-        <!-- Face / character elements -->
-        <!-- Arms -->
         <line x1="30" y1="100" x2="8" y2="118" stroke="#C9A84C" stroke-width="3" stroke-linecap="round"/>
         <line x1="110" y1="100" x2="132" y2="118" stroke="#C9A84C" stroke-width="3" stroke-linecap="round"/>
-        <!-- Hands holding briefcase -->
         <rect x="120" y="116" width="18" height="13" rx="2" fill="#8A6F2E" stroke="#C9A84C" stroke-width="1"/>
-        <line x1="124" y1="116" x2="124" y2="129" stroke="#C9A84C" stroke-width="0.8"/>
         <rect x="127" y="113" width="5" height="4" rx="1" fill="none" stroke="#C9A84C" stroke-width="1"/>
-        <!-- Ground shadow -->
         <ellipse cx="70" cy="149" rx="45" ry="5" fill="rgba(201,168,76,0.08)"/>
       </svg>
     </div>
@@ -1237,24 +1135,11 @@
     <h2 class="section-title">Submit Your Deal</h2>
   </div>
 
-  <!-- Stepper -->
   <div class="stepper" id="stepper">
-    <div class="step active" data-step="1">
-      <div class="step-circle">1</div>
-      <div class="step-label">Property</div>
-    </div>
-    <div class="step" data-step="2">
-      <div class="step-circle">2</div>
-      <div class="step-label">Loan</div>
-    </div>
-    <div class="step" data-step="3">
-      <div class="step-circle">3</div>
-      <div class="step-label">Borrower</div>
-    </div>
-    <div class="step" data-step="4">
-      <div class="step-circle">4</div>
-      <div class="step-label">Review</div>
-    </div>
+    <div class="step active" data-step="1"><div class="step-circle">1</div><div class="step-label">Property</div></div>
+    <div class="step" data-step="2"><div class="step-circle">2</div><div class="step-label">Loan</div></div>
+    <div class="step" data-step="3"><div class="step-circle">3</div><div class="step-label">Borrower</div></div>
+    <div class="step" data-step="4"><div class="step-circle">4</div><div class="step-label">Review</div></div>
   </div>
 
   <div class="form-card">
@@ -1381,40 +1266,34 @@
         <input type="range" id="loan_amount" min="250000" max="20000000" step="50000" value="1500000"
           oninput="updateLoanAmt(this.value)">
         <div class="range-ticks">
-          <span>$250K</span>
-          <span>$5M</span>
-          <span>$10M</span>
-          <span>$20M+</span>
+          <span>$250K</span><span>$5M</span><span>$10M</span><span>$20M+</span>
         </div>
       </div>
 
       <div class="form-grid triple">
         <div class="field">
           <label>As-Is Property Value</label>
-          <input type="number" id="as_is_value" placeholder="2,000,000" oninput="updateLTV()">
-          <span class="field-hint">Current market value, appraisal estimate</span>
+          <input type="number" id="as_is_value" placeholder="2000000" oninput="updateLTV()">
+          <span class="field-hint">Current market value estimate</span>
         </div>
         <div class="field">
           <label>After Repair Value (ARV)</label>
-          <input type="number" id="arv" placeholder="2,500,000" oninput="updateLTV()">
-          <span class="field-hint">For rehab projects; same as as-is if stabilized</span>
+          <input type="number" id="arv" placeholder="2500000" oninput="updateLTV()">
+          <span class="field-hint">For rehab projects</span>
         </div>
         <div class="field">
           <label>Purchase Price</label>
-          <input type="number" id="purchase_price" placeholder="1,800,000">
+          <input type="number" id="purchase_price" placeholder="1800000">
           <span class="field-hint">If applicable</span>
         </div>
       </div>
 
-      <!-- LTV Meter -->
       <div class="ltv-meter">
         <div class="ltv-label-row">
           <span class="ltv-label">Estimated LTV</span>
           <span class="ltv-value" id="ltv_display" style="color: var(--accent-green-bright)">—</span>
         </div>
-        <div class="ltv-bar-bg">
-          <div class="ltv-bar-fill" id="ltv_bar" style="width:0%"></div>
-        </div>
+        <div class="ltv-bar-bg"><div class="ltv-bar-fill" id="ltv_bar" style="width:0%"></div></div>
         <div class="ltv-zones">
           <span class="ltv-zone">Conservative</span>
           <span class="ltv-zone">Sweet Spot 55–70%</span>
@@ -1426,42 +1305,31 @@
         <div class="field">
           <label>Desired Term</label>
           <select id="loan_term">
-            <option>6 Months</option>
-            <option>12 Months</option>
-            <option>18 Months</option>
-            <option>24 Months</option>
-            <option>36 Months</option>
-            <option>5 Years</option>
+            <option>6 Months</option><option>12 Months</option><option>18 Months</option>
+            <option>24 Months</option><option>36 Months</option><option>5 Years</option>
             <option>30 Years (DSCR)</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Interest Reserve</label>
-          <select id="int_reserve">
-            <option>No Preference</option>
-            <option>3 Months</option>
-            <option>6 Months</option>
-            <option>12 Months</option>
           </select>
         </div>
         <div class="field">
           <label>Exit Strategy</label>
           <select id="exit_strategy">
-            <option>Sell / Flip</option>
-            <option>Refinance to Conventional</option>
-            <option>Refinance to DSCR / Perm</option>
-            <option>Hold as Rental</option>
+            <option>Sell / Flip</option><option>Refinance to Conventional</option>
+            <option>Refinance to DSCR / Perm</option><option>Hold as Rental</option>
             <option>Development / Sale</option>
           </select>
         </div>
         <div class="field">
           <label>Timeline to Close</label>
           <select id="close_timeline">
-            <option>ASAP (7–10 Days)</option>
-            <option>2–3 Weeks</option>
-            <option>30 Days</option>
-            <option>45–60 Days</option>
-            <option>Flexible</option>
+            <option>ASAP (7–10 Days)</option><option>2–3 Weeks</option>
+            <option>30 Days</option><option>45–60 Days</option><option>Flexible</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Interest Reserve</label>
+          <select id="int_reserve">
+            <option>No Preference</option><option>3 Months</option>
+            <option>6 Months</option><option>12 Months</option>
           </select>
         </div>
         <div class="field span2">
@@ -1501,40 +1369,30 @@
         <div class="field">
           <label>Entity Type</label>
           <select id="entity_type">
-            <option>LLC</option>
-            <option>Corporation (C or S)</option>
-            <option>Limited Partnership</option>
-            <option>Trust</option>
-            <option>Individual</option>
+            <option>LLC</option><option>Corporation (C or S)</option>
+            <option>Limited Partnership</option><option>Trust</option><option>Individual</option>
           </select>
         </div>
         <div class="field">
           <label>Estimated Credit Score</label>
           <select id="credit_score">
-            <option>700+</option>
-            <option>680–699</option>
-            <option>660–679</option>
-            <option>640–659</option>
-            <option>620–639</option>
-            <option>Below 620</option>
+            <option>700+</option><option>680–699</option><option>660–679</option>
+            <option>640–659</option><option>620–639</option><option>Below 620</option>
             <option>Prefer not to say</option>
           </select>
         </div>
         <div class="field">
           <label>Real Estate Experience</label>
           <select id="re_experience">
-            <option>First Investment</option>
-            <option>1–3 Transactions</option>
-            <option>4–10 Transactions</option>
-            <option>11–25 Transactions</option>
+            <option>First Investment</option><option>1–3 Transactions</option>
+            <option>4–10 Transactions</option><option>11–25 Transactions</option>
             <option>25+ Transactions</option>
           </select>
         </div>
         <div class="field">
-          <label>Are You Working with a Broker?</label>
+          <label>Working with a Broker?</label>
           <select id="has_broker">
-            <option>No, direct borrower</option>
-            <option>Yes, broker is submitting</option>
+            <option>No, direct borrower</option><option>Yes, broker is submitting</option>
           </select>
         </div>
         <div class="field span2">
@@ -1554,32 +1412,35 @@
       <div class="form-step-title">Review & Submit</div>
       <div class="form-step-sub">Confirm your deal details before submission.</div>
 
-      <div id="review-content" style="margin-bottom:32px">
-        <!-- populated by JS -->
+      <div id="review-content" style="margin-bottom:32px"></div>
+
+      <div id="consent-box" style="background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:4px;padding:20px;margin-bottom:24px">
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.7">
+          By submitting, you authorize FirstLien.Capital to share your deal information with private lenders in our network for the purpose of obtaining financing quotes. No credit pull occurs at this stage.
+        </p>
       </div>
 
-      <div style="background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:4px;padding:20px;margin-bottom:24px">
-        <p style="font-size:13px;color:var(--text-secondary);line-height:1.7">
-          By submitting, you authorize FirstLien.Capital to share your deal information with private lenders in our network for the purpose of obtaining financing quotes. No credit pull occurs at this stage. Lender contact is subject to your approval.
-        </p>
+      <div class="firebase-status" id="firebaseStatus">
+        <div class="fs-dot" id="fsDot"></div>
+        <span id="fsMsg">Saving deal to lender network...</span>
       </div>
 
       <div id="success-msg" style="display:none">
         <div class="success-card">
           <div class="success-icon">✓</div>
           <div class="success-title">Deal Submitted Successfully</div>
-          <div class="success-sub">Your deal is now live in our lender network. Expect term sheet inquiries within 24–48 business hours. We'll send confirmation to your email.</div>
+          <div class="success-sub">Your deal is now live in our lender network. Expect term sheet inquiries within 24–48 business hours.</div>
           <div class="success-ref">Reference ID: <span id="deal-ref">FL-2025-XXXX</span></div>
         </div>
       </div>
 
       <div id="submit-form-nav" class="form-nav">
         <button class="btn-back" onclick="goToStep(3)">← Back</button>
-        <button class="btn-next" onclick="submitDeal()">Submit Deal to Lenders ✓</button>
+        <button class="btn-next" id="submitBtn" onclick="submitDeal()">Submit Deal to Lenders ✓</button>
       </div>
     </div>
 
-  </div><!-- /form-card -->
+  </div>
 </section>
 
 <!-- RATES REFERENCE -->
@@ -1591,54 +1452,19 @@
   <table class="rates-table">
     <thead>
       <tr>
-        <th>Loan Type</th>
-        <th>Rate Range</th>
-        <th>Max LTV</th>
-        <th>Term</th>
-        <th>Points</th>
+        <th>Loan Type</th><th>Rate Range</th><th>Max LTV</th><th>Term</th><th>Points</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>Bridge / Purchase</td>
-        <td><span class="rate-badge">9 – 11.5%</span></td>
-        <td>70%</td>
-        <td>6–24 mo</td>
-        <td>1.5–2.5</td>
-      </tr>
-      <tr>
-        <td>Fix & Flip</td>
-        <td><span class="rate-badge">10 – 12%</span></td>
-        <td>75% of ARV</td>
-        <td>6–18 mo</td>
-        <td>2–3</td>
-      </tr>
-      <tr>
-        <td>Ground-Up Construction</td>
-        <td><span class="rate-badge">10.5 – 13%</span></td>
-        <td>65% LTC</td>
-        <td>12–24 mo</td>
-        <td>2–3</td>
-      </tr>
-      <tr>
-        <td>DSCR / Rental</td>
-        <td><span class="rate-badge">7.5 – 9.5%</span></td>
-        <td>75%</td>
-        <td>30 yr</td>
-        <td>1–2</td>
-      </tr>
-      <tr>
-        <td>Multifamily Value-Add</td>
-        <td><span class="rate-badge">9.5 – 12%</span></td>
-        <td>70%</td>
-        <td>12–36 mo</td>
-        <td>1.5–2.5</td>
-      </tr>
+      <tr><td>Bridge / Purchase</td><td><span class="rate-badge">9 – 11.5%</span></td><td>70%</td><td>6–24 mo</td><td>1.5–2.5</td></tr>
+      <tr><td>Fix & Flip</td><td><span class="rate-badge">10 – 12%</span></td><td>75% of ARV</td><td>6–18 mo</td><td>2–3</td></tr>
+      <tr><td>Ground-Up Construction</td><td><span class="rate-badge">10.5 – 13%</span></td><td>65% LTC</td><td>12–24 mo</td><td>2–3</td></tr>
+      <tr><td>DSCR / Rental</td><td><span class="rate-badge">7.5 – 9.5%</span></td><td>75%</td><td>30 yr</td><td>1–2</td></tr>
+      <tr><td>Multifamily Value-Add</td><td><span class="rate-badge">9.5 – 12%</span></td><td>70%</td><td>12–36 mo</td><td>1.5–2.5</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- FOOTER -->
 <footer>
   <div class="footer-logo">FirstLien.Capital</div>
   <div class="footer-links">
@@ -1680,6 +1506,59 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════
+     FIREBASE SDK + DEAL SUBMISSION
+     ═══════════════════════════════════════════════════ -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getFirestore, collection, addDoc, serverTimestamp }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  // ── Firebase config ──────────────────────────────
+  const firebaseConfig = {
+    apiKey:    "AIzaSyAw7KJpB2yu_i9OVDrYOoZZkbNK-4oCKoE",
+    authDomain: "firstlien-capital.firebaseapp.com",
+    projectId:  "firstlien-capital",
+    storageBucket: "firstlien-capital.appspot.com",
+    messagingSenderId: "867672127759",
+    appId:     "1:867672127759:web:d24b328c6f55592b4d667a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // Expose save function globally so onclick can call it
+  window._saveDealToFirebase = async function(dealData) {
+    const statusEl = document.getElementById('firebaseStatus');
+    const dotEl    = document.getElementById('fsDot');
+    const msgEl    = document.getElementById('fsMsg');
+
+    statusEl.classList.add('visible');
+    dotEl.className   = 'fs-dot';
+    msgEl.textContent = 'Saving deal to lender network...';
+
+    try {
+      const docRef = await addDoc(collection(db, 'deals'), {
+        ...dealData,
+        status:      'pending_review',
+        createdAt:   serverTimestamp(),
+        updatedAt:   serverTimestamp()
+      });
+
+      dotEl.className   = 'fs-dot success';
+      msgEl.textContent = 'Deal saved ✓';
+
+      return docRef.id;
+
+    } catch (err) {
+      console.error('Firebase error:', err);
+      dotEl.className   = 'fs-dot error';
+      msgEl.textContent = 'Could not reach database — deal logged locally.';
+      return null;
+    }
+  };
+</script>
+
 <script>
   // ── STEPPER ──────────────────────────────────────
   let currentStep = 1;
@@ -1687,14 +1566,12 @@
   function goToStep(n) {
     document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
     document.getElementById('step' + n).classList.add('active');
-
     document.querySelectorAll('.step').forEach((s, i) => {
       s.classList.remove('active', 'completed');
       const num = i + 1;
       if (num < n) s.classList.add('completed');
       if (num === n) s.classList.add('active');
     });
-
     if (n === 4) buildReview();
     currentStep = n;
     document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1711,7 +1588,7 @@
   function updateLoanAmt(val) {
     const v = parseInt(val);
     const fmt = v >= 1000000
-      ? '$' + (v/1000000).toFixed(v%1000000===0?0:2) + 'M'
+      ? '$' + (v/1000000).toFixed(v % 1000000 === 0 ? 0 : 2) + 'M'
       : '$' + (v/1000).toFixed(0) + 'K';
     document.getElementById('loan_amt_display').textContent = fmt;
     updateLTV();
@@ -1721,14 +1598,14 @@
   function updateLTV() {
     const loan = parseInt(document.getElementById('loan_amount').value) || 0;
     const asIs = parseFloat(document.getElementById('as_is_value').value) || 0;
-    if (!asIs || !loan) { 
+    if (!asIs || !loan) {
       document.getElementById('ltv_display').textContent = '—';
       document.getElementById('ltv_bar').style.width = '0%';
       return;
     }
     const ltv = (loan / asIs * 100);
     const display = document.getElementById('ltv_display');
-    const bar = document.getElementById('ltv_bar');
+    const bar     = document.getElementById('ltv_bar');
     display.textContent = ltv.toFixed(1) + '%';
     bar.style.width = Math.min(ltv, 100) + '%';
 
@@ -1753,16 +1630,16 @@
     };
 
     const rows = [
-      ['Loan Purpose', document.getElementById('loan_purpose').value],
-      ['Property', [document.getElementById('prop_address').value, document.getElementById('prop_city').value, document.getElementById('prop_state').value].filter(Boolean).join(', ') || '—'],
+      ['Loan Purpose',  document.getElementById('loan_purpose').value],
+      ['Property',      [document.getElementById('prop_address').value, document.getElementById('prop_city').value, document.getElementById('prop_state').value].filter(Boolean).join(', ') || '—'],
       ['Property Type', document.getElementById('prop_type').value],
-      ['Loan Amount', fmt(loanAmt)],
-      ['As-Is Value', document.getElementById('as_is_value').value ? '$' + parseInt(document.getElementById('as_is_value').value).toLocaleString() : '—'],
-      ['Term', document.getElementById('loan_term').value],
+      ['Loan Amount',   fmt(loanAmt)],
+      ['As-Is Value',   document.getElementById('as_is_value').value ? '$' + parseInt(document.getElementById('as_is_value').value).toLocaleString() : '—'],
+      ['Term',          document.getElementById('loan_term').value],
       ['Exit Strategy', document.getElementById('exit_strategy').value],
-      ['Borrower', [document.getElementById('first_name').value, document.getElementById('last_name').value].join(' ')],
-      ['Email', document.getElementById('email').value],
-      ['Entity Type', document.getElementById('entity_type').value],
+      ['Borrower',      [document.getElementById('first_name').value, document.getElementById('last_name').value].join(' ')],
+      ['Email',         document.getElementById('email').value],
+      ['Entity Type',   document.getElementById('entity_type').value],
       ['RE Experience', document.getElementById('re_experience').value],
     ];
 
@@ -1776,23 +1653,70 @@
     document.getElementById('review-content').innerHTML = html;
   }
 
-  // ── SUBMIT ───────────────────────────────────────
-  function submitDeal() {
-    const btn = event.target;
+  // ── SUBMIT DEAL → FIREBASE ───────────────────────
+  async function submitDeal() {
+    const btn = document.getElementById('submitBtn');
     btn.textContent = 'Submitting...';
     btn.disabled = true;
 
-    setTimeout(() => {
-      const ref = 'FL-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
-      document.getElementById('deal-ref').textContent = ref;
-      document.getElementById('submit-form-nav').style.display = 'none';
-      document.getElementById('review-content').style.display = 'none';
-      document.querySelector('[style*="authorize"]').style.display = 'none';
-      document.getElementById('success-msg').style.display = 'block';
+    // Build deal object
+    const dealData = {
+      loanPurpose:   document.getElementById('loan_purpose').value,
+      property: {
+        address:   document.getElementById('prop_address').value,
+        city:      document.getElementById('prop_city').value,
+        state:     document.getElementById('prop_state').value,
+        zip:       document.getElementById('prop_zip').value,
+        type:      document.getElementById('prop_type').value,
+        condition: document.getElementById('prop_condition').value
+      },
+      loan: {
+        amount:        parseInt(document.getElementById('loan_amount').value),
+        asIsValue:     parseFloat(document.getElementById('as_is_value').value) || null,
+        arv:           parseFloat(document.getElementById('arv').value) || null,
+        purchasePrice: parseFloat(document.getElementById('purchase_price').value) || null,
+        term:          document.getElementById('loan_term').value,
+        exitStrategy:  document.getElementById('exit_strategy').value,
+        closeTimeline: document.getElementById('close_timeline').value,
+        intReserve:    document.getElementById('int_reserve').value,
+        summary:       document.getElementById('deal_summary').value
+      },
+      borrower: {
+        firstName:    document.getElementById('first_name').value,
+        lastName:     document.getElementById('last_name').value,
+        email:        document.getElementById('email').value,
+        phone:        document.getElementById('phone').value,
+        entityType:   document.getElementById('entity_type').value,
+        creditScore:  document.getElementById('credit_score').value,
+        reExperience: document.getElementById('re_experience').value,
+        hasBroker:    document.getElementById('has_broker').value,
+        referral:     document.getElementById('referral').value
+      }
+    };
 
-      // Update stepper
-      document.querySelectorAll('.step').forEach(s => s.classList.add('completed'));
-    }, 1600);
+    // Save to Firebase
+    let firebaseId = null;
+    if (window._saveDealToFirebase) {
+      firebaseId = await window._saveDealToFirebase(dealData);
+    }
+
+    // Generate reference ID  (use Firebase doc ID if available)
+    const year = new Date().getFullYear();
+    const shortId = firebaseId
+      ? firebaseId.substring(0, 6).toUpperCase()
+      : Math.floor(1000 + Math.random() * 9000).toString();
+    const ref = `FL-${year}-${shortId}`;
+
+    document.getElementById('deal-ref').textContent = ref;
+
+    // Hide form, show success
+    document.getElementById('submit-form-nav').style.display = 'none';
+    document.getElementById('review-content').style.display = 'none';
+    document.getElementById('consent-box').style.display = 'none';
+    document.getElementById('success-msg').style.display = 'block';
+
+    // Mark all steps complete
+    document.querySelectorAll('.step').forEach(s => s.classList.add('completed'));
   }
 
   // ── AI CHAT ──────────────────────────────────────
@@ -1805,29 +1729,22 @@
     "Most lenders don't require a credit pull until they issue a term sheet. Your score is just used for initial matching.",
     "Construction draws are typically released monthly based on inspection. Is this a ground-up or heavy rehab?",
     "DSCR loans are underwritten off property cash flow, not personal income. Great for investors with multiple LLCs.",
-    "I'd recommend filling out the full application — our AI matching engine will surface lenders who are actively deploying in your asset class.",
+    "I'd recommend filling out the full application — our AI matching engine will surface lenders actively deploying in your asset class.",
     "Closing costs typically run 2–4 points plus title and escrow. We'll show you lender-specific estimates with each term sheet.",
     "Got it. I'll flag your deal as time-sensitive — some lenders in our network can close in 5–7 business days.",
   ];
 
   let botIdx = 0;
 
-  function toggleChat() {
-    chatPanel.classList.toggle('open');
-  }
+  function toggleChat() { chatPanel.classList.toggle('open'); }
 
   function sendChat() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
     if (!text) return;
-
     addMsg(text, 'user');
     input.value = '';
-
-    setTimeout(() => {
-      addMsg(botReplies[botIdx % botReplies.length], 'bot');
-      botIdx++;
-    }, 800);
+    setTimeout(() => { addMsg(botReplies[botIdx % botReplies.length], 'bot'); botIdx++; }, 800);
   }
 
   function addMsg(text, type) {
@@ -1838,11 +1755,8 @@
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  // Scroll to apply if hash
   if (window.location.hash === '#apply') {
-    setTimeout(() => {
-      document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
-    }, 300);
+    setTimeout(() => document.getElementById('apply').scrollIntoView({ behavior: 'smooth' }), 300);
   }
 </script>
 </body>
