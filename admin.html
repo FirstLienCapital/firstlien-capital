@@ -533,7 +533,7 @@ select option{background:var(--s2);}
           <div class="fg3">
             <div class="field"><div class="flbl">Loan Amount ($) <span class="req">*</span></div><input type="text" id="dp-loan" placeholder="399000" oninput="dpCalc()"></div>
             <div class="field"><div class="flbl">Interest Rate (%)</div><input type="text" id="dp-rate" placeholder="12.990" oninput="dpCalc()"></div>
-            <div class="field"><div class="flbl">Monthly P&I ($) <span class="req">*</span></div><input type="text" id="dp-monthly" placeholder="4354.80" oninput="dpCalc()"></div>
+            <div class="field"><div class="flbl">Monthly P&I (auto-calculated)</div><input type="text" id="dp-monthly" placeholder="Auto from loan/rate/amort" readonly style="background:var(--s2);color:var(--gold);cursor:default;"><div class="fnote">Calculated automatically — do not edit</div></div>
             <div class="field"><div class="flbl">Amortization (months)</div><input type="text" id="dp-amort" value="480" oninput="dpCalc()"></div>
             <div class="field"><div class="flbl">Origination Fee (%)</div><input type="text" id="dp-origpct" placeholder="3.5" oninput="dpCalc()"></div>
             <div class="field"><div class="flbl">Default Rate (%)</div><input type="text" id="dp-defrate" value="24.99"></div>
@@ -541,7 +541,7 @@ select option{background:var(--s2);}
           <div class="tiles" style="margin-top:14px;">
             <div class="tile"><div class="tl-l">Orig Fee</div><div class="tl-v" id="dt-of">—</div></div>
             <div class="tile"><div class="tl-l">3-Mo Reserve</div><div class="tl-v" id="dt-res">—</div></div>
-            <div class="tile"><div class="tl-l">Per Diem/day</div><div class="tl-v" id="dt-pdd">—</div></div>
+            <div class="tile"><div class="tl-l">Per Diem/day (360)</div><div class="tl-v" id="dt-pdd">—</div></div>
             <div class="tile"><div class="tl-l">ALTA (125%)</div><div class="tl-v" id="dt-alta">—</div></div>
             <div class="tile"><div class="tl-l">Balloon</div><div class="tl-v" id="dt-bal">—</div></div>
           </div>
@@ -597,7 +597,7 @@ select option{background:var(--s2);}
             <div class="field"><div class="flbl">City, State ZIP</div><input type="text" id="dp-titlecsz" placeholder="Del Rio, Texas 78840"></div>
             <div class="field"><div class="flbl">Title Phone</div><input type="text" id="dp-titleph" placeholder="(830) 778-1837"></div>
             <div class="field"><div class="flbl">Title Email</div><input type="email" id="dp-titleem" placeholder="title@company.com"></div>
-            <div class="field"><div class="flbl">Underwriter</div><input type="text" id="dp-titleund" value="First American Title Guaranty Company"></div>
+            <div class="field"><div class="flbl">Underwriter (Title Insurance Co)</div><input type="text" id="dp-titleund" value="FIdelity National Title Insurance Company"><div class="fnote">The title insurance underwriter (not issuing agent)</div></div>
             <div class="field"><div class="flbl">Loan Servicer</div><input type="text" id="dp-servicer" placeholder="Loan servicer name"></div>
           </div>
         </div>
@@ -883,12 +883,22 @@ function dpME(ym,n){var d=dpAddM(ym,n||0),last=new Date(d.y,d.m,0).getDate();ret
 function dpCalc() {
   var loan    = parseFloat((document.getElementById('dp-loan')||{value:''}).value.replace(/[^0-9.]/g,''))||0;
   var rate    = parseFloat((document.getElementById('dp-rate')||{value:''}).value)||0;
-  var monthly = parseFloat((document.getElementById('dp-monthly')||{value:''}).value.replace(/[^0-9.]/g,''))||0;
   var origpct = parseFloat((document.getElementById('dp-origpct')||{value:''}).value)||0;
   var term    = parseInt((document.getElementById('dp-term')||{value:'24'}).value)||24;
   var amort   = parseInt((document.getElementById('dp-amort')||{value:'480'}).value)||480;
   var ym      = (document.getElementById('dp-closemon')||{value:''}).value;
   var dateRaw = (document.getElementById('dp-docdate')||{value:''}).value;
+
+  // FIX 1: Auto-calculate monthly P&I from loan/rate/amort (never accept manual input)
+  // Uses standard mortgage formula: M = P * r / (1 - (1+r)^-n)
+  var monthly = 0;
+  if (loan > 0 && rate > 0 && amort > 0) {
+    var mr = rate / 100 / 12;
+    monthly = loan * mr / (1 - Math.pow(1 + mr, -amort));
+    // Show in the read-only field
+    var mEl = document.getElementById('dp-monthly');
+    if (mEl) mEl.value = monthly.toFixed(2);
+  }
 
   var docDate = '';
   if (dateRaw) {
@@ -900,8 +910,12 @@ function dpCalc() {
 
   if (ym) {
     dpCalcData.ym=ym;
+    // Reserve months = 1,2,3 after close month; first borrower payment = month 4
     dpCalcData.res1=dpM1(ym,1);dpCalcData.res2=dpM1(ym,2);dpCalcData.res3=dpM1(ym,3);
-    dpCalcData.first=dpM1(ym,4);dpCalcData.pdThru=dpME(ym,0);dpCalcData.maturity=dpM1(ym,term);
+    dpCalcData.first=dpM1(ym,4);
+    // FIX 3: pdThru = last day of PREVIOUS month (funds disburse in month before first payment)
+    dpCalcData.pdThru=dpME(ym,-1);
+    dpCalcData.maturity=dpM1(ym,term);
     var lk=dpAddM(ym,6),lkLast=new Date(lk.y,lk.m,0).getDate();
     dpCalcData.lockout=MO[lk.m-1]+' '+lkLast+', '+lk.y;
     s('dt-r1',dpCalcData.res1);s('dt-r2',dpCalcData.res2);s('dt-r3',dpCalcData.res3);
@@ -909,9 +923,19 @@ function dpCalc() {
     s('dt-mat',dpCalcData.maturity);s('dt-lk',dpCalcData.lockout);
   }
 
-  var origFee=loan*origpct/100, reserve=monthly*3, perDiem=loan*rate/100/365, alta=loan*1.25;
+  // FIX 2: Per diem uses 360-day year (commercial RE standard), not 365
+  var origFee=loan*origpct/100, reserve=monthly*3, perDiem=loan*rate/100/360, alta=loan*1.25;
   var balloon=0;
-  if(loan>0&&rate>0&&monthly>0){var mr=rate/100/12,bal=loan;for(var i=0;i<term;i++){bal=bal*(1+mr)-monthly;}balloon=Math.max(0,bal);}
+  // FIX 6: Balloon = balance due on maturity date (accrue term months of interest,
+  // apply (term-1) regular payments — the final month payment IS the balloon, not an installment)
+  if(loan>0&&rate>0&&monthly>0){
+    var mr=rate/100/12,bal=loan;
+    for(var i=0;i<term;i++){
+      bal=bal*(1+mr);           // accrue one month interest
+      if(i<term-1) bal-=monthly; // apply regular payment for months 1..(term-1)
+    }                           // month 'term' = balloon month: full balance due
+    balloon=Math.max(0,bal);
+  }
   dpCalcData.loan=loan;dpCalcData.rate=rate;dpCalcData.monthly=monthly;dpCalcData.origFee=origFee;
   dpCalcData.reserve=reserve;dpCalcData.perDiem=perDiem;dpCalcData.alta=alta;dpCalcData.balloon=balloon;
   dpCalcData.term=term;dpCalcData.amort=amort;
@@ -1078,6 +1102,10 @@ async function dpRun() {
       ['aracely@delriotitle.com',v('dp-titleem'),'prev title email'],
       ['Westcor Land Title Insurance Company',v('dp-titleund'),'old underwriter'],
       ['First American Title Guaranty Company',v('dp-titleund'),'prev underwriter'],
+      // FIX 7: Fidelity title underwriter (v2 corrected)
+      ['Fidelity National Title Insurance Company',v('dp-titleund'),'v2 underwriter Fidelity'],
+      ['FIdelity National Title Insurance Company',v('dp-titleund'),'v2 underwriter FIdelity cap'],
+      ['FIDELITY NATIONAL TITLE INSURANCE COMPANY',v('dp-titleund').toUpperCase(),'v2 underwriter upper'],
       ['7996-25-63029',v('dp-escrow'),'old escrow no'],['GF#260125A',v('dp-escrow'),'prev escrow no'],
       ['File:\t48607','File:\t'+v('dp-fileno'),'old file no'],['File:\t49559','File:\t'+v('dp-fileno'),'prev file no'],
       ['48607',v('dp-fileno'),'old file bare'],['49559',v('dp-fileno'),'prev file bare'],
@@ -1086,21 +1114,27 @@ async function dpRun() {
       ['Three Hundred Ninety-Nine Thousand and 00/100 Dollars',n2w(c.loan),'prev loan written'],
       ['Four Hundred Ninety-Nine Thousand and 00/100 Dollars',n2w(c.loan),'old loan written'],
       ['$399,000.00','$'+$f(c.loan),'prev loan $'],['$499,000.00','$'+$f(c.loan),'old loan $'],
-      ['Four Thousand Three Hundred Fifty-Four and 80/100 Dollars ($4,354.80)',n2w(c.monthly)+' ($'+$f(c.monthly)+')','prev monthly'],
+      ['Four Thousand Three Hundred Fifty-Four and 80/100 Dollars ($4,354.80)',n2w(c.monthly)+' ($'+$f(c.monthly)+')','prev monthly (wrong)'],
+      ['Four Thousand Three Hundred Forty-Three and 92/100 Dollars ($4,343.92)',n2w(c.monthly)+' ($'+$f(c.monthly)+')','v2 monthly (correct base)'],
       ['Five Thousand Four Hundred Thirty-Two and 62/100 Dollars ($5,432.62)',n2w(c.monthly)+' ($'+$f(c.monthly)+')','old monthly'],
-      ['Four Thousand Three Hundred Fifty-Four and 80/100 Dollars',n2w(c.monthly),'prev monthly written'],
+      ['Four Thousand Three Hundred Fifty-Four and 80/100 Dollars',n2w(c.monthly),'prev monthly written (wrong)'],
+      ['Four Thousand Three Hundred Forty-Three and 92/100 Dollars',n2w(c.monthly),'v2 monthly written (correct base)'],
       ['Five Thousand Four Hundred Thirty-Two and 62/100 Dollars',n2w(c.monthly),'old monthly written'],
-      ['$4,354.80','$'+$f(c.monthly),'prev monthly $'],['$5,432.62','$'+$f(c.monthly),'old monthly $'],
-      ['Thirteen Thousand Sixty-Four and 40/100 Dollars ($13,064.40)',n2w(c.reserve)+' ($'+$f(c.reserve)+')','prev reserve'],
+      ['$4,354.80','$'+$f(c.monthly),'prev monthly $ (wrong)'],['$4,343.92','$'+$f(c.monthly),'v2 monthly $ (correct base)'],['$5,432.62','$'+$f(c.monthly),'old monthly $'],
+      ['Thirteen Thousand Sixty-Four and 40/100 Dollars ($13,064.40)',n2w(c.reserve)+' ($'+$f(c.reserve)+')','prev reserve (wrong)'],
+      ['Thirteen Thousand Thirty-One and 76/100 Dollars ($13,031.76)',n2w(c.reserve)+' ($'+$f(c.reserve)+')','v2 reserve (correct base)'],
       ['Sixteen Thousand Two Hundred Ninety-Seven and 86/100 Dollars ($16,297.86)',n2w(c.reserve)+' ($'+$f(c.reserve)+')','old reserve'],
-      ['Thirteen Thousand Sixty-Four and 40/100 Dollars',n2w(c.reserve),'prev reserve written'],
+      ['Thirteen Thousand Sixty-Four and 40/100 Dollars',n2w(c.reserve),'prev reserve written (wrong)'],
+      ['Thirteen Thousand Thirty-One and 76/100 Dollars',n2w(c.reserve),'v2 reserve written (correct base)'],
       ['Sixteen Thousand Two Hundred Ninety-Seven and 86/100 Dollars',n2w(c.reserve),'old reserve written'],
-      ['$13,064.40','$'+$f(c.reserve),'prev reserve $'],['$16,297.86','$'+$f(c.reserve),'old reserve $'],
-      ['Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars ($398,326.09)',n2w(c.balloon)+' ($'+$f(c.balloon)+')','prev balloon'],
+      ['$13,064.40','$'+$f(c.reserve),'prev reserve $ (wrong)'],['$13,031.76','$'+$f(c.reserve),'v2 reserve $ (correct base)'],['$16,297.86','$'+$f(c.reserve),'old reserve $'],
+      ['Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars ($398,326.09)',n2w(c.balloon)+' ($'+$f(c.balloon)+')','prev balloon (wrong)'],
+      ['Four Hundred Two Thousand Six Hundred Sixty-Nine and 90/100 Dollars ($402,669.90)',n2w(c.balloon)+' ($'+$f(c.balloon)+')','v2 balloon (correct base)'],
       ['Five Hundred Three Thousand Five Hundred Eighty-Nine and 71/100 Dollars ($503,589.71)',n2w(c.balloon)+' ($'+$f(c.balloon)+')','old balloon'],
-      ['Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars',n2w(c.balloon),'prev balloon written'],
+      ['Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars',n2w(c.balloon),'prev balloon written (wrong)'],
+      ['Four Hundred Two Thousand Six Hundred Sixty-Nine and 90/100 Dollars',n2w(c.balloon),'v2 balloon written (correct base)'],
       ['Five Hundred Three Thousand Five Hundred Eighty-Nine and 71/100 Dollars',n2w(c.balloon),'old balloon written'],
-      ['$398,326.09','$'+$f(c.balloon),'prev balloon $'],['$503,589.71','$'+$f(c.balloon),'old balloon $'],
+      ['$398,326.09','$'+$f(c.balloon),'prev balloon $ (wrong)'],['$402,669.90','$'+$f(c.balloon),'v2 balloon $ (correct base)'],['$503,589.71','$'+$f(c.balloon),'old balloon $'],
       ['Four Hundred Ninety-Eight Thousand Seven Hundred Fifty and 00/100 Dollars ($498,750.00)',n2w(c.alta)+' ($'+$f(c.alta)+')','prev ALTA'],
       ['Six Hundred Twenty-Three Thousand Seven Hundred Fifty and 00/100 Dollars ($623,750.00)',n2w(c.alta)+' ($'+$f(c.alta)+')','old ALTA'],
       ['Four Hundred Ninety-Eight Thousand Seven Hundred Fifty and 00/100 Dollars',n2w(c.alta),'prev ALTA written'],
@@ -1120,8 +1154,11 @@ async function dpRun() {
       ['Doc Service Pro CORPORATION','LENDER FUNDS, Inc.','template artifact fix'],
       ['$180.06 per day from date funds disbursed by escrow through November 30, 2025','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'old per diem line'],
       ['$142.00 per day from date funds disbursed by escrow through April 30, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'prev per diem Apr'],
-      ['$142.00 per day from date funds disbursed by escrow through May 31, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'prev per diem May'],
-      ['$180.06','$'+c.perDiem.toFixed(2),'old per diem'],['$142.00','$'+c.perDiem.toFixed(2),'prev per diem'],
+      ['$142.00 per day from date funds disbursed by escrow through May 31, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'prev per diem May (wrong 365-day)'],
+      // FIX 2: v2 corrected per diem patterns (360-day basis = $143.97)
+      ['$143.97.00 per day from date funds disbursed by escrow through May 31, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'v2 per diem May (correct 360-day)'],
+      ['$143.97 per day from date funds disbursed by escrow through May 31, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'v2 per diem May clean'],
+      ['$180.06','$'+c.perDiem.toFixed(2),'old per diem'],['$142.00','$'+c.perDiem.toFixed(2),'prev per diem (wrong 365-day)'],['$143.97','$'+c.perDiem.toFixed(2),'v2 per diem (correct 360-day base)'],
       ['Twenty and 99/100 Percent (20.99%)','Twenty-Four and 99/100 Percent ('+defRate+'%)','old default rate'],
       ['Twenty-Four and 99/100 Percent (24.99%)','Twenty-Four and 99/100 Percent ('+defRate+'%)','prev default rate'],
       ['(20.99%)','('+defRate+'%)','old default paren'],['(24.99%)','('+defRate+'%)','prev default paren'],
@@ -1137,6 +1174,17 @@ async function dpRun() {
       ['December 1, 2027',c.maturity,'old maturity'],['April 1, 2028',c.maturity,'prev maturity Apr'],['May 1, 2028',c.maturity,'prev maturity May'],
       ['October 27, 2025',c.docDate,'old doc date'],['April 15, 2026',c.docDate,'prev doc date'],
       ['April __, 2026',c.docDate,'prev blank Apr'],['May __, 2026',c.docDate,'prev blank May'],
+      // FIX 4: Additional reserve range patterns (v2-corrected dates Jul-Sep 2026)
+      ['July 1, 2026 through September 1, 2026',c.res1+' through '+c.res3,'v2 reserve Jul-Sep'],
+      // FIX 5: Additional maturity date patterns
+      ['June 1, 2028',c.maturity,'v2 maturity Jun-2028'],
+      // FIX 4: Additional first/fourth payment patterns
+      ['October 1, 2026',c.first,'v2 fourth payment Oct'],
+      // FIX 4: Additional res1/res3 standalone patterns
+      ['July 1, 2026',c.res1,'v2 res1 Jul'],['September 1, 2026',c.res3,'v2 res3 Sep'],
+      // Additional per diem through patterns
+      ['May 31, 2026',c.pdThru,'v2 pdThru May31'],
+      ['June 30, 2026',c.pdThru,'v2 pdThru Jun30'],
       ['***Arbitration County TE***',county+' County, '+state,'arb county placeholder'],
       ['Val Verde County, Texas',county+' County, '+state,'prev arb county'],
     ];
@@ -1171,7 +1219,8 @@ async function dpRun() {
       });
 
     dpProg(85,'Verifying...');
-    var mustZero=['LAND TO SKY','DERIC OUTLEY','Port Arthur','October 27, 2025','78840-0000'];
+    // FIX 8: Add borrower city check — warn if any known wrong city appears
+    var mustZero=['LAND TO SKY','DERIC OUTLEY','Port Arthur','October 27, 2025','78840-0000','Burbank, TX','Burbank, Texas'];
     var warns=0;
     mustZero.forEach(function(t){if(xml.includes(t)){dpLog('  ⚠ Still found: "'+t+'"','warn');warns++;}});
     dpLog(warns===0?'✓ All verifications passed':'⚠ '+warns+' warnings — review output carefully',warns?'warn':'ok');
