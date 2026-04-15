@@ -1175,20 +1175,24 @@ function exDropTpl(e) {
   var files = Array.from(e.dataTransfer.files).filter(function(f){ return /\.docx?$/i.test(f.name); });
   if (files.length) dpLoadTemplates({ files: files });
 }
-// ── Zone A browse: fresh input each click, no shared state ──────────────────
+// ── Zone A browse: reliable cross-browser file picker ────────────────────────
 function exBrowseFiles() {
-  var inp = document.createElement('input');
-  inp.type     = 'file';
-  inp.accept   = '.docx,.doc,.pdf,.txt';
-  inp.multiple = true;
-  inp.style.display = 'none';
-  document.body.appendChild(inp);
-  inp.addEventListener('change', function() {
-    if (inp.files && inp.files.length) {
-      exHandleFiles(Array.from(inp.files));
-    }
-    document.body.removeChild(inp);
-  });
+  var inp = document.getElementById('ex-src-picker');
+  if (!inp) {
+    inp = document.createElement('input');
+    inp.type = 'file';
+    inp.id   = 'ex-src-picker';
+    inp.accept   = '.docx,.doc,.pdf,.txt';
+    inp.multiple = true;
+    inp.style.cssText = 'position:fixed;top:-200px;left:-200px;opacity:0;pointer-events:none;';
+    inp.addEventListener('change', function() {
+      if (inp.files && inp.files.length) {
+        exHandleFiles(Array.from(inp.files));
+      }
+    });
+    document.body.appendChild(inp);
+  }
+  inp.value = '';   // reset BEFORE click
   inp.click();
 }
 
@@ -1774,20 +1778,24 @@ function n2w(num){
 // can build substitution rules dynamically — no hardcoding needed.
 var dpTemplateFields = {}; // what was found IN the template
 
-// ── Browse: create a fresh <input> each click — no shared state, no conflicts ──
+// ── Browse templates: reliable cross-browser file picker ─────────────────────
 function dpBrowseTemplates() {
-  var inp = document.createElement('input');
-  inp.type     = 'file';
-  inp.accept   = '.docx';
-  inp.multiple = true;   // allow multi-select in one picker session
-  inp.style.display = 'none';
-  document.body.appendChild(inp);
-  inp.addEventListener('change', function() {
-    if (inp.files && inp.files.length) {
-      dpLoadTemplates({ files: inp.files });
-    }
-    document.body.removeChild(inp);  // discard — no reuse
-  });
+  var inp = document.getElementById('dp-tpl-picker');
+  if (!inp) {
+    inp = document.createElement('input');
+    inp.type = 'file';
+    inp.id   = 'dp-tpl-picker';
+    inp.accept   = '.docx';
+    inp.multiple = true;
+    inp.style.cssText = 'position:fixed;top:-200px;left:-200px;opacity:0;pointer-events:none;';
+    inp.addEventListener('change', function() {
+      if (inp.files && inp.files.length) {
+        dpLoadTemplates({ files: inp.files });
+      }
+    });
+    document.body.appendChild(inp);
+  }
+  inp.value = '';   // reset BEFORE click so change fires even for same file
   inp.click();
 }
 
