@@ -450,7 +450,7 @@ select option{background:var(--s2);}
       <!-- STEP 1: TEMPLATE -->
       <div id="dp-panel-1">
         <div class="card">
-          <div class="card-head"><span style="font-size:18px">📄</span><div class="card-title">Upload Lender Funds Template</div></div>
+          <div class="card-head"><span style="font-size:18px">📄</span><div class="card-title">Upload Master Loan Template (.docx)</div></div>
           <div class="alert alert-warn"><span>⚠</span><span>Upload the master .docx template. All formatting, margins, fonts, and layout are preserved exactly — only the deal data changes.</span></div>
           <div id="dp-dropzone" onclick="document.getElementById('dp-tpl-file').click()"
                style="border:2px dashed var(--border);border-radius:var(--r);padding:36px;text-align:center;cursor:pointer;transition:all 0.2s;"
@@ -459,7 +459,7 @@ select option{background:var(--s2);}
             <input type="file" id="dp-tpl-file" accept=".docx" style="display:none" onchange="dpLoadTemplate(this)">
             <div style="font-size:32px;margin-bottom:10px;">📋</div>
             <div style="color:var(--gold);margin-bottom:4px;">Click to upload template .docx</div>
-            <div style="font-size:10px;color:var(--muted);">Lender Funds master template</div>
+            <div style="font-size:10px;color:var(--muted);">Master template .docx file</div>
           </div>
           <div id="dp-tpl-info" style="display:none;margin-top:14px;">
             <div class="alert alert-ok"><span>✓</span><div id="dp-tpl-stats"></div></div>
@@ -549,7 +549,7 @@ select option{background:var(--s2);}
         <div class="card">
           <div class="card-head"><span style="font-size:18px">🏢</span><div class="card-title">Broker & Fees</div></div>
           <div class="fg2">
-            <div class="field"><div class="flbl">Originating Broker <span class="req">*</span></div><input type="text" id="dp-origbroker" placeholder="West Capital Lending, Inc."><div class="fnote">Company that sourced borrower</div></div>
+            <div class="field"><div class="flbl">Originating Broker <span class="req">*</span></div><input type="text" id="dp-origbroker" placeholder="Originating broker name"><div class="fnote">Company that sourced borrower</div></div>
             <div class="field"><div class="flbl">Originating Broker Fee ($)</div><input type="text" id="dp-origfee" placeholder="Auto from %"></div>
             <div class="field"><div class="flbl">Doc Prep Fee ($)</div><input type="text" id="dp-docprep" value="1595.00"></div>
             <div class="field"><div class="flbl">Processing Fee ($)</div><input type="text" id="dp-procfee" value="995.00"></div>
@@ -590,14 +590,14 @@ select option{background:var(--s2);}
         <div class="card">
           <div class="card-head"><span style="font-size:18px">🏛</span><div class="card-title">Title & Escrow</div></div>
           <div class="fg2">
-            <div class="field"><div class="flbl">Title Company <span class="req">*</span></div><input type="text" id="dp-titleco" placeholder="Del Rio Title Company"></div>
-            <div class="field"><div class="flbl">Closing Officer</div><input type="text" id="dp-titleoff" placeholder="Aracely Martinez"></div>
+            <div class="field"><div class="flbl">Title Company <span class="req">*</span></div><input type="text" id="dp-titleco" placeholder="Title company name"></div>
+            <div class="field"><div class="flbl">Closing Officer</div><input type="text" id="dp-titleoff" placeholder="Closing officer name"></div>
             <div class="field"><div class="flbl">Title Address</div><input type="text" id="dp-titleaddr" placeholder="300 East Losoya Street"></div>
             <div class="field"><div class="flbl">City, State ZIP</div><input type="text" id="dp-titlecsz" placeholder="Del Rio, Texas 78840"></div>
             <div class="field"><div class="flbl">Title Phone</div><input type="text" id="dp-titleph" placeholder="(830) 778-1837"></div>
-            <div class="field"><div class="flbl">Title Email</div><input type="email" id="dp-titleem" placeholder="aracely@delriotitle.com"></div>
+            <div class="field"><div class="flbl">Title Email</div><input type="email" id="dp-titleem" placeholder="title@company.com"></div>
             <div class="field"><div class="flbl">Underwriter</div><input type="text" id="dp-titleund" value="First American Title Guaranty Company"></div>
-            <div class="field"><div class="flbl">Loan Servicer</div><input type="text" id="dp-servicer" value="Superior Loan Servicing"></div>
+            <div class="field"><div class="flbl">Loan Servicer</div><input type="text" id="dp-servicer" placeholder="Loan servicer name"></div>
           </div>
         </div>
 
@@ -1053,7 +1053,7 @@ async function dpRun() {
       ['Processing Fee payable to LENDER FUNDS, Inc. in the amount of $1,060.00;','Processing Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f(procFee)+';','old proc fee'],
       ['Wire Fee payable to LENDER FUNDS, Inc. in the amount of $45.00;','','wire fee remove'],
       ['Legal Fee payable to LENDER FUNDS, Inc.','','legal fee remove'],
-      ['Doc Service Pro CORPORATION','LENDER FUNDS, Inc.','doc service fix'],
+      ['Doc Service Pro CORPORATION','LENDER FUNDS, Inc.','template artifact fix'],
       ['$180.06 per day from date funds disbursed by escrow through November 30, 2025','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'old per diem line'],
       ['$142.00 per day from date funds disbursed by escrow through April 30, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'prev per diem Apr'],
       ['$142.00 per day from date funds disbursed by escrow through May 31, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'prev per diem May'],
@@ -1093,7 +1093,7 @@ async function dpRun() {
     if(oi>=0){
       var seg=xml.slice(oi,oi+1800);
       if(seg.includes('LENDER FUNDS, Inc.')){
-        var ob=v('dp-origbroker')||'West Capital Lending, Inc.';
+        var ob=v('dp-origbroker')||'[Originating Broker]';
         var ns=seg.replace('<w:t>LENDER FUNDS, Inc.</w:t>','<w:t>'+ob+'</w:t>');
         if(ns!==seg){xml=xml.slice(0,oi)+ns+xml.slice(oi+1800);totalReps++;dpLog('  ✓ [1×] originating broker bold run','ok');}
       }
