@@ -486,71 +486,65 @@ select option{background:var(--s2);}
           <div class="card-head"><span style="font-size:18px">📂</span><div class="card-title">Upload Loan Documents</div></div>
           <div class="alert alert-info"><span>ℹ</span><span>Drop your existing loan documents here. The engine reads them and auto-fills all deal fields — borrower name, entity, property address, loan amount, rate, dates, title company, and more. You review and fix anything before generating.</span></div>
 
-          <!-- Drop zone: SOURCE docs (filled originals) -->
-          <!-- No persistent input — Browse button creates fresh input each click -->
+          <!-- ── ZONE A: Source docs ─────────────────────────────────────── -->
           <div style="margin-bottom:20px;">
             <div class="flbl" style="margin-bottom:8px;">Step A — Add your filled loan documents
               <span style="color:var(--muted)">(term sheet, escrow instructions, note, addendum — as many as needed)</span>
             </div>
 
-            <!-- Drop zone: full-area input overlay for click-to-browse -->
-            <label style="display:block;cursor:pointer;position:relative;">
-              <div class="extract-drop" id="ex-dropzone"
-                   ondragover="exDragOver(event)" ondragleave="exDragLeave(event)" ondrop="exDrop(event)">
-                <span class="extract-drop-icon">📋</span>
-                <div class="extract-drop-title">Drag & drop files here — or click to browse</div>
-                <div class="extract-drop-sub">
-                  .docx · .doc · .pdf · .txt · .xlsx · images — drop as many as needed
-                </div>
-              </div>
-              <input type="file" accept=".docx,.doc,.pdf,.txt,.xlsx,.xls,.csv,.png,.jpg,.jpeg" multiple
-                     style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;"
-                     onchange="exHandleFilePick(this)">
-            </label>
+            <!-- Drag target only — no inputs inside, no overlays -->
+            <div class="extract-drop" id="ex-dropzone"
+                 ondragover="exDragOver(event)" ondragleave="exDragLeave(event)" ondrop="exDrop(event)">
+              <span class="extract-drop-icon">📋</span>
+              <div class="extract-drop-title">Drag &amp; drop files here</div>
+              <div class="extract-drop-sub">.docx · .doc · .pdf · .txt · .xlsx · images</div>
+            </div>
 
-            <!-- Zone A file list -->
-            <div class="extract-files-list" id="ex-files-list" style="margin-top:12px;"></div>
-            <!-- Add More button — always visible, creates fresh input each click -->
-            <div style="margin-top:8px;">
-              <label class="btn btn-ghost" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;position:relative;">
-                ➕ Add Files
-                <input type="file" id="ex-add-input"
-                       accept=".docx,.doc,.pdf,.txt,.xlsx,.xls,.csv,.png,.jpg,.jpeg" multiple
-                       style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;"
+            <!-- File list -->
+            <div class="extract-files-list" id="ex-files-list" style="margin-top:10px;"></div>
+
+            <!-- Browse button: label wraps input — native browser behavior, no JS click() -->
+            <div style="margin-top:10px;display:flex;align-items:center;gap:12px;">
+              <label class="btn btn-ghost" style="cursor:pointer;margin:0;">
+                📂 Add Files
+                <input type="file" id="ex-file-inp"
+                       accept=".docx,.doc,.pdf,.txt,.xlsx,.xls,.csv,.png,.jpg,.jpeg"
+                       multiple style="display:none"
                        onchange="exHandleFilePick(this)">
               </label>
-              <span style="font-size:10px;color:var(--muted);margin-left:10px;">Click to add files — click again to add more</span>
+              <span style="font-size:10px;color:var(--muted);">Click to browse · drag &amp; drop above · click again to add more</span>
             </div>
           </div>
 
-          <!-- Drop zone: TEMPLATES (multiple allowed) -->
+          <!-- ── ZONE B: Templates ───────────────────────────────────────── -->
           <div>
-            <div class="flbl" style="margin-bottom:8px;">Step B — Drop your template(s) <span style="color:var(--muted)">(main doc + security addendum + any others — all get merged)</span></div>
-            <!-- No persistent input — Browse button creates a fresh one each click -->
-            <label style="display:block;cursor:pointer;position:relative;">
-              <div class="extract-drop" id="dp-dropzone"
-                   ondragover="exDragOver(event,true)" ondragleave="exDragLeave(event,true)" ondrop="exDropTpl(event)">
-                <span class="extract-drop-icon">📄</span>
-                <div class="extract-drop-title">Drag & drop template(s) here — or click to browse</div>
-                <div class="extract-drop-sub">.docx · .doc · .pdf — drop multiple templates at once<br>Main doc + security addendum — all substituted and zipped together</div>
-              </div>
-              <input type="file" accept=".docx,.doc,.pdf" multiple
-                     style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;"
-                     onchange="dpHandleTemplateInput(this)">
-            </label>
+            <div class="flbl" style="margin-bottom:8px;">Step B — Add your template(s)
+              <span style="color:var(--muted)">(main doc + security addendum — drop both, generate together)</span>
+            </div>
+
+            <!-- Drag target only -->
+            <div class="extract-drop" id="dp-dropzone"
+                 ondragover="exDragOver(event,true)" ondragleave="exDragLeave(event,true)" ondrop="exDropTpl(event)">
+              <span class="extract-drop-icon">📄</span>
+              <div class="extract-drop-title">Drag &amp; drop template(s) here</div>
+              <div class="extract-drop-sub">.docx · .doc — drag both at once, or add one at a time below</div>
+            </div>
+
             <!-- Template file list -->
-            <div class="extract-files-list" id="dp-tpl-list" style="margin-top:12px;"></div>
-            <!-- Add Template button -->
-            <div style="margin-top:8px;">
-              <label class="btn btn-ghost" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;position:relative;">
-                ➕ Add Template
-                <input type="file" id="dp-add-input"
-                       accept=".docx,.doc,.pdf" multiple
-                       style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;"
+            <div class="extract-files-list" id="dp-tpl-list" style="margin-top:10px;"></div>
+
+            <!-- Browse button -->
+            <div style="margin-top:10px;display:flex;align-items:center;gap:12px;">
+              <label class="btn btn-ghost" style="cursor:pointer;margin:0;">
+                📂 Add Template
+                <input type="file" id="dp-tpl-inp"
+                       accept=".docx,.doc"
+                       multiple style="display:none"
                        onchange="dpHandleTemplateInput(this)">
               </label>
-              <span style="font-size:10px;color:var(--muted);margin-left:10px;">Click to add templates — click again to add more</span>
+              <span style="font-size:10px;color:var(--muted);">Click to browse · click again to add another template</span>
             </div>
+
             <div id="dp-tpl-info" style="display:none;margin-top:10px;">
               <div class="alert alert-ok" style="margin:0;"><span>✓</span><div id="dp-tpl-stats"></div></div>
             </div>
@@ -1195,9 +1189,10 @@ function exDropTpl(e) {
 }
 // ── Zone A file handler — called by label>input onchange (Firefox-safe) ───────
 function exHandleFilePick(inp) {
-  if (inp.files && inp.files.length) {
+  if (inp && inp.files && inp.files.length) {
     exHandleFiles(Array.from(inp.files));
   }
+  setTimeout(function(){ if(inp) inp.value = ''; }, 200);
 }
 
 // Legacy kept for any existing references
@@ -1213,9 +1208,9 @@ function exFilePicked(inp) {
 // ── File list UI ──────────────────────────────────────────────────
 function exHandleFiles(files) {
   var valid = files.filter(function(f) {
-    return /\.(docx?|pdf|txt)$/i.test(f.name);
+    return /\.(docx?|pdf|txt|xlsx?|csv|png|jpe?g)$/i.test(f.name);
   });
-  if (!valid.length) { alert('Please upload .docx, .doc, .pdf, or .txt files.'); return; }
+  if (!valid.length) { alert('Unsupported file type. Please upload .docx, .doc, .pdf, .txt, .xlsx, or image files.'); return; }
 
   valid.forEach(function(f) {
     if (exSourceFiles.some(function(x){ return x.name===f.name; })) {
@@ -1789,11 +1784,11 @@ var dpTemplateFields = {}; // what was found IN the template
 
 // ── Template file handler — called by label>input onchange (Firefox-safe) ─────
 function dpHandleTemplateInput(inp) {
-  console.log('[DP] dpHandleTemplateInput called, files:', inp.files ? inp.files.length : 0);
-  if (inp.files && inp.files.length) {
-    console.log('[DP] Calling dpLoadTemplates with', inp.files.length, 'file(s)');
+  if (inp && inp.files && inp.files.length) {
     dpLoadTemplates({ files: inp.files });
   }
+  // Reset so clicking again opens fresh picker
+  setTimeout(function(){ if(inp) inp.value = ''; }, 200);
 }
 
 // Legacy kept for any existing references
@@ -1939,17 +1934,12 @@ function dpScanTemplatePlain(txt) {
 // ── Handle multiple template files dropped or selected ────────────────────────
 function dpLoadTemplates(inp) {
   var files = Array.from(inp.files);
-  console.log('[TPL] dpLoadTemplates: got', files.length, 'file(s):', files.map(function(f){return f.name;}));
   if (!files.length) return;
-  // Dedupe by name
+  // Dedupe by name — silently skip already-loaded files
   files = files.filter(function(f) {
     return !dpTemplateFiles.some(function(t){ return t.name === f.name; });
   });
-  console.log('[TPL] After dedupe:', files.length, 'new. Already have:', dpTemplateFiles.length);
-  if (!files.length) {
-    alert('That file is already loaded. Remove it with X first, then re-add it.');
-    return;
-  }
+  if (!files.length) return; // all already loaded, do nothing
 
   var pending = files.length;
   files.forEach(function(file) {
