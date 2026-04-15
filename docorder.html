@@ -662,7 +662,7 @@ const ALL_DOCS = [
     required: false,
     type:     'upload',
     accept:   '.pdf',
-    instructions: `Please obtain a <strong>Preliminary Title Report</strong> (sometimes called a Title Commitment) from a licensed title company and upload it here. Contact your escrow officer or we can refer you to Del Rio Title Company if needed.`,
+    instructions: `Please obtain a <strong>Preliminary Title Report</strong> (sometimes called a Title Commitment) from a licensed title company and upload it here. Contact your assigned escrow officer or closing agent for assistance.`,
   },
   {
     id:       'purchase',
@@ -883,9 +883,7 @@ function renderDocBody(doc) {
       ${doc.id === 'dl' ? `<a href="https://dmv.texas.gov" target="_blank" class="action-btn btn-ghost">
         🔗 Texas DMV (ID renewal)
       </a>` : ''}
-      ${doc.id === 'title' ? `<a href="mailto:aracely@delriotitle.com?subject=Title%20Commitment%20Request" class="action-btn btn-ghost">
-        📧 Contact Del Rio Title
-      </a>` : ''}
+      
       ${doc.id === 'entitydocs' ? `<a href="https://www.sos.state.tx.us/corp/sosda/index.shtml" target="_blank" class="action-btn btn-ghost">
         🔗 TX Secretary of State
       </a>` : ''}
@@ -1253,5 +1251,23 @@ document.addEventListener('DOMContentLoaded', () => {
   showLinkGenerator();
 });
 </script>
+
+<!-- LEGAL DISCLOSURE FOOTER -->
+<div style="background:#1a1510;border-top:1px solid #2a2018;padding:24px 28px;margin-top:40px;">
+  <div style="max-width:720px;margin:0 auto;">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:rgba(200,155,40,0.6);margin-bottom:12px;">Important Disclosures</div>
+    <p style="font-size:11px;color:rgba(240,235,224,0.35);line-height:1.8;margin-bottom:8px;">
+      FirstLien.Capital is a licensed mortgage broker marketplace, not a lender. All loans are originated by participating third-party private lenders. Submission of this document request does not constitute a commitment to lend. Loan approval is subject to underwriting, appraisal, and lender credit criteria. Rates and terms are subject to change without notice.
+    </p>
+    <p style="font-size:11px;color:rgba(240,235,224,0.35);line-height:1.8;margin-bottom:8px;">
+      All loans originated through FirstLien.Capital are for business or investment purposes only and are exempt from TILA/RESPA consumer loan requirements. These are not consumer mortgage loans. Borrower represents and warrants that funds will be used solely for commercial or investment purposes.
+    </p>
+    <p style="font-size:11px;color:rgba(240,235,224,0.25);line-height:1.8;">
+      © 2026 FirstLien.Capital, Inc. All rights reserved. Equal Housing Opportunity. NMLS ID available upon request. 
+      <a href="mailto:info@firstlien.capital" style="color:rgba(200,155,40,0.5);">info@firstlien.capital</a>
+    </p>
+  </div>
+</div>
+
 </body>
 </html>
