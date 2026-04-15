@@ -487,10 +487,7 @@ select option{background:var(--s2);}
           <div class="alert alert-info"><span>ℹ</span><span>Drop your existing loan documents here. The engine reads them and auto-fills all deal fields — borrower name, entity, property address, loan amount, rate, dates, title company, and more. You review and fix anything before generating.</span></div>
 
           <!-- Drop zone: SOURCE docs (filled originals) -->
-          <!-- Hidden file input — completely separate from drop zone so it never interferes -->
-          <input type="file" id="ex-file-input" multiple accept=".docx,.doc,.pdf,.txt"
-                 style="display:none" onchange="exFilePicked(this)">
-
+          <!-- No persistent input — Browse button creates fresh input each click -->
           <div style="margin-bottom:20px;">
             <div class="flbl" style="margin-bottom:8px;">Step A — Add your filled loan documents
               <span style="color:var(--muted)">(term sheet, escrow instructions, note, addendum — as many as needed)</span>
@@ -508,10 +505,10 @@ select option{background:var(--s2);}
 
             <!-- Browse button sits OUTSIDE the drop zone — no conflict -->
             <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;">
-              <button class="btn btn-ghost" onclick="document.getElementById('ex-file-input').click()" type="button">
+              <button class="btn btn-ghost" onclick="exBrowseFiles()" type="button">
                 📂 Browse Files
               </button>
-              <span style="font-size:10px;color:var(--muted);">You can click this button multiple times to add more files</span>
+              <span style="font-size:10px;color:var(--muted);">Click to add files — keep clicking to add more</span>
             </div>
 
             <!-- File list renders here, outside the drop zone -->
@@ -521,10 +518,7 @@ select option{background:var(--s2);}
           <!-- Drop zone: TEMPLATES (multiple allowed) -->
           <div>
             <div class="flbl" style="margin-bottom:8px;">Step B — Drop your template(s) <span style="color:var(--muted)">(main doc + security addendum + any others — all get merged)</span></div>
-            <!-- Hidden file input — outside drop zone, multiple allowed -->
-            <input type="file" id="dp-tpl-file" accept=".docx" multiple
-                   style="display:none" onchange="dpLoadTemplates(this)">
-
+            <!-- No persistent input — Browse button creates a fresh one each click -->
             <div class="extract-drop" id="dp-dropzone"
                  ondragover="exDragOver(event,true)" ondragleave="exDragLeave(event,true)" ondrop="exDropTpl(event)">
               <span class="extract-drop-icon">📄</span>
@@ -532,10 +526,10 @@ select option{background:var(--s2);}
               <div class="extract-drop-sub">Drop multiple templates at once — main doc, security addendum, any supporting docs<br>Each gets the same substitutions applied · All downloaded as a single ZIP</div>
             </div>
             <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;">
-              <button class="btn btn-ghost" onclick="document.getElementById('dp-tpl-file').click()" type="button">
+              <button class="btn btn-ghost" onclick="dpBrowseTemplates()" type="button">
                 📂 Browse Templates
               </button>
-              <span style="font-size:10px;color:var(--muted);">Click multiple times to add more templates</span>
+              <span style="font-size:10px;color:var(--muted);">Click to add templates — keep clicking to add more one at a time</span>
             </div>
             <!-- Template file list -->
             <div class="extract-files-list" id="dp-tpl-list" style="margin-top:12px;"></div>
@@ -1174,9 +1168,6 @@ function exDrop(e) {
   e.preventDefault();
   document.getElementById('ex-dropzone').classList.remove('drag-over');
   exHandleFiles(Array.from(e.dataTransfer.files));
-  // Reset input value so the same file can be re-added if removed
-  var inp = document.getElementById('ex-file-input');
-  if (inp) inp.value = '';
 }
 function exDropTpl(e) {
   e.preventDefault();
@@ -1184,10 +1175,26 @@ function exDropTpl(e) {
   var files = Array.from(e.dataTransfer.files).filter(function(f){ return /\.docx?$/i.test(f.name); });
   if (files.length) dpLoadTemplates({ files: files });
 }
+// ── Zone A browse: fresh input each click, no shared state ──────────────────
+function exBrowseFiles() {
+  var inp = document.createElement('input');
+  inp.type     = 'file';
+  inp.accept   = '.docx,.doc,.pdf,.txt';
+  inp.multiple = true;
+  inp.style.display = 'none';
+  document.body.appendChild(inp);
+  inp.addEventListener('change', function() {
+    if (inp.files && inp.files.length) {
+      exHandleFiles(Array.from(inp.files));
+    }
+    document.body.removeChild(inp);
+  });
+  inp.click();
+}
+
+// Legacy kept for any existing references
 function exFilePicked(inp) {
-  exHandleFiles(Array.from(inp.files));
-  // Reset so user can pick the same file again or add more on next click
-  setTimeout(function(){ inp.value = ''; }, 100);
+  if (inp && inp.files) exHandleFiles(Array.from(inp.files));
 }
 
 // ── File list UI ──────────────────────────────────────────────────
@@ -1767,6 +1774,23 @@ function n2w(num){
 // can build substitution rules dynamically — no hardcoding needed.
 var dpTemplateFields = {}; // what was found IN the template
 
+// ── Browse: create a fresh <input> each click — no shared state, no conflicts ──
+function dpBrowseTemplates() {
+  var inp = document.createElement('input');
+  inp.type     = 'file';
+  inp.accept   = '.docx';
+  inp.multiple = true;   // allow multi-select in one picker session
+  inp.style.display = 'none';
+  document.body.appendChild(inp);
+  inp.addEventListener('change', function() {
+    if (inp.files && inp.files.length) {
+      dpLoadTemplates({ files: inp.files });
+    }
+    document.body.removeChild(inp);  // discard — no reuse
+  });
+  inp.click();
+}
+
 // ── Read one template file and add to dpTemplateFiles[] ─────────────────────
 function dpReadOneTemplate(file, onDone) {
   var reader = new FileReader();
@@ -1807,8 +1831,6 @@ function dpLoadTemplates(inp) {
       if (pending === 0) dpRenderTemplateList();
     });
   });
-  // Reset input so same file can be re-added after removal
-  setTimeout(function(){ inp.value = ''; }, 100);
 }
 
 // Legacy single-file entry point (kept so drag-and-drop still works)
