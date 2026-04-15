@@ -284,6 +284,38 @@ select option{background:var(--s2);}
 .alert-info{background:var(--tdim);border:1px solid rgba(13,152,130,0.2);color:var(--teal);}
 .alert-ok{background:rgba(62,207,142,0.07);border:1px solid rgba(62,207,142,0.2);color:var(--green);}
 
+/* ── EXTRACT / SMART UPLOAD ── */
+.extract-drop{border:2px dashed var(--border);border-radius:10px;padding:48px 32px;text-align:center;cursor:pointer;transition:all .25s;background:var(--s1);}
+.extract-drop.drag-over{border-color:var(--gold);background:var(--gdim);}
+.extract-drop.loaded{border-color:var(--green);background:rgba(62,207,142,.04);}
+.extract-drop-icon{font-size:42px;margin-bottom:12px;display:block;}
+.extract-drop-title{font-size:15px;color:var(--gold);margin-bottom:6px;font-family:"Cormorant Garamond",serif;font-weight:600;}
+.extract-drop-sub{font-size:10px;color:var(--muted);line-height:1.7;}
+.extract-files-list{display:flex;flex-direction:column;gap:6px;margin-top:14px;text-align:left;}
+.extract-file-row{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:9px 14px;display:flex;align-items:center;gap:10px;font-size:11px;}
+.extract-file-name{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.extract-file-type{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;flex-shrink:0;}
+.extract-file-status{font-size:9px;padding:2px 8px;border-radius:3px;flex-shrink:0;}
+.efs-pending{background:rgba(200,155,40,.1);color:var(--gold);border:1px solid rgba(200,155,40,.2);}
+.efs-reading{background:rgba(13,152,130,.1);color:var(--teal);border:1px solid rgba(13,152,130,.2);}
+.efs-done{background:rgba(62,207,142,.1);color:var(--green);border:1px solid rgba(62,207,142,.2);}
+.efs-err{background:rgba(224,82,82,.1);color:var(--red);border:1px solid rgba(224,82,82,.2);}
+.extract-progress{display:none;margin-top:16px;}
+.extract-progress.visible{display:block;}
+.ep-steps{display:flex;flex-direction:column;gap:5px;margin-top:10px;}
+.ep-step{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted);padding:7px 12px;border-radius:var(--r);transition:all .2s;}
+.ep-step.running{color:var(--gold);background:var(--gdim);}
+.ep-step.done{color:var(--green);}
+.ep-step.err{color:var(--red);}
+.ep-step-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;}
+@keyframes fill-flash{0%{background:rgba(62,207,142,.22);}100%{background:var(--s2);}}
+.auto-filled{animation:fill-flash 1.4s ease forwards;}
+.conf-badge{display:inline-block;font-size:8px;text-transform:uppercase;letter-spacing:.07em;padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;}
+.cb-high{background:rgba(62,207,142,.15);color:var(--green);border:1px solid rgba(62,207,142,.2);}
+.cb-med{background:rgba(200,155,40,.12);color:var(--gold);border:1px solid rgba(200,155,40,.2);}
+.cb-low{background:rgba(224,82,82,.1);color:var(--red);border:1px solid rgba(224,82,82,.2);}
+.section-note{font-size:10px;color:var(--muted);padding:8px 12px;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px;line-height:1.6;}
+
 @media(max-width:640px){
   .fg2,.fg3{grid-template-columns:1fr;}
   .nav-tabs{display:none;}
@@ -398,15 +430,15 @@ select option{background:var(--s2);}
           </div>
           <div class="field">
             <div class="flbl">Borrower / Entity Name</div>
-            <input type="text" id="ql-name" placeholder="Map and Map, LLC" oninput="buildLink()">
+            <input type="text" id="ql-name" placeholder="Nakatomi Holdings, LLC" oninput="buildLink()">
           </div>
           <div class="field">
             <div class="flbl">Property (short)</div>
-            <input type="text" id="ql-prop" placeholder="Champions Inn, Del Rio TX" oninput="buildLink()">
+            <input type="text" id="ql-prop" placeholder="Overlook Hotel, Estes Park CO" oninput="buildLink()">
           </div>
           <div class="field">
             <div class="flbl">Loan Amount ($)</div>
-            <input type="text" id="ql-amt" placeholder="399000" oninput="buildLink()">
+            <input type="text" id="ql-amt" placeholder="750000" oninput="buildLink()">
           </div>
           <div class="field">
             <div class="flbl">Custom Message (optional)</div>
@@ -442,38 +474,76 @@ select option{background:var(--s2);}
 
       <!-- STEP INDICATOR -->
       <div style="display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;">
-        <div class="dp-step active" data-step="1" onclick="dpGo(1)" style="flex:1;padding:12px;text-align:center;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;background:var(--gdim);color:var(--gold);border-right:1px solid var(--border);">01 Template</div>
-        <div class="dp-step" data-step="2" onclick="dpGo(2)" style="flex:1;padding:12px;text-align:center;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border-right:1px solid var(--border);">02 Deal Details</div>
-        <div class="dp-step" data-step="3" onclick="dpGo(3)" style="flex:1;padding:12px;text-align:center;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border-right:1px solid var(--border);">03 Review</div>
+        <div class="dp-step active" data-step="1" onclick="dpGo(1)" style="flex:1;padding:12px;text-align:center;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;background:var(--gdim);color:var(--gold);border-right:1px solid var(--border);">01 Upload Docs</div>
+        <div class="dp-step" data-step="2" onclick="dpGo(2)" style="flex:1;padding:12px;text-align:center;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border-right:1px solid var(--border);">02 Review & Edit</div>
+        <div class="dp-step" data-step="3" onclick="dpGo(3)" style="flex:1;padding:12px;text-align:center;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border-right:1px solid var(--border);">03 Confirm</div>
         <div class="dp-step" data-step="4" onclick="dpGo(4)" style="flex:1;padding:12px;text-align:center;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);">04 Generate</div>
       </div>
 
-      <!-- STEP 1: TEMPLATE -->
+      <!-- ═══ STEP 1: UPLOAD ═══ -->
       <div id="dp-panel-1">
         <div class="card">
-          <div class="card-head"><span style="font-size:18px">📄</span><div class="card-title">Upload Master Loan Template (.docx)</div></div>
-          <div class="alert alert-warn"><span>⚠</span><span>Upload the master .docx template. All formatting, margins, fonts, and layout are preserved exactly — only the deal data changes.</span></div>
-          <div id="dp-dropzone" onclick="document.getElementById('dp-tpl-file').click()"
-               style="border:2px dashed var(--border);border-radius:var(--r);padding:36px;text-align:center;cursor:pointer;transition:all 0.2s;"
-               onmouseover="this.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--gold')"
-               onmouseout="this.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--border')">
-            <input type="file" id="dp-tpl-file" accept=".docx" style="display:none" onchange="dpLoadTemplate(this)">
-            <div style="font-size:32px;margin-bottom:10px;">📋</div>
-            <div style="color:var(--gold);margin-bottom:4px;">Click to upload template .docx</div>
-            <div style="font-size:10px;color:var(--muted);">Master template .docx file</div>
+          <div class="card-head"><span style="font-size:18px">📂</span><div class="card-title">Upload Loan Documents</div></div>
+          <div class="alert alert-info"><span>ℹ</span><span>Drop your existing loan documents here. The engine reads them and auto-fills all deal fields — borrower name, entity, property address, loan amount, rate, dates, title company, and more. You review and fix anything before generating.</span></div>
+
+          <!-- Drop zone: SOURCE docs (filled originals) -->
+          <div style="margin-bottom:20px;">
+            <div class="flbl" style="margin-bottom:8px;">Step A — Drop your filled loan documents <span style="color:var(--muted)">(term sheet, escrow instructions, or any signed docs from the deal)</span></div>
+            <div class="extract-drop" id="ex-dropzone"
+                 ondragover="exDragOver(event)" ondragleave="exDragLeave(event)" ondrop="exDrop(event)"
+                 onclick="document.getElementById('ex-file-input').click()">
+              <input type="file" id="ex-file-input" multiple accept=".docx,.doc,.pdf,.txt" style="display:none" onchange="exFilePicked(this)">
+              <span class="extract-drop-icon">📋</span>
+              <div class="extract-drop-title">Drag & drop loan docs here</div>
+              <div class="extract-drop-sub">
+                Supports: .docx · .doc · .pdf · .txt<br>
+                Drop term sheet, escrow instructions, or any doc with deal data<br>
+                <span style="color:var(--gold);">Click anywhere here to browse files</span>
+              </div>
+              <div class="extract-files-list" id="ex-files-list"></div>
+            </div>
           </div>
-          <div id="dp-tpl-info" style="display:none;margin-top:14px;">
-            <div class="alert alert-ok"><span>✓</span><div id="dp-tpl-stats"></div></div>
+
+          <!-- Drop zone: MASTER TEMPLATE -->
+          <div>
+            <div class="flbl" style="margin-bottom:8px;">Step B — Drop your master template .docx <span style="color:var(--muted)">(the blank template to merge into)</span></div>
+            <div class="extract-drop" id="dp-dropzone"
+                 ondragover="exDragOver(event,true)" ondragleave="exDragLeave(event,true)" ondrop="exDropTpl(event)"
+                 onclick="document.getElementById('dp-tpl-file').click()">
+              <input type="file" id="dp-tpl-file" accept=".docx" style="display:none" onchange="dpLoadTemplate(this)">
+              <span class="extract-drop-icon">📄</span>
+              <div class="extract-drop-title">Drag & drop master template .docx</div>
+              <div class="extract-drop-sub">The blank master template — all formatting preserved, only data changes</div>
+              <div id="dp-tpl-info" style="display:none;margin-top:12px;text-align:left;">
+                <div class="alert alert-ok" style="margin:0;"><span>✓</span><div id="dp-tpl-stats"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Extraction progress -->
+          <div class="extract-progress" id="ex-progress">
+            <div class="prog-wrap">
+              <div class="prog-lbl"><span id="ex-msg">Reading documents...</span><span id="ex-pct">0%</span></div>
+              <div class="prog-bar"><div class="prog-fill" id="ex-fill" style="width:0%"></div></div>
+            </div>
+            <div class="ep-steps" id="ex-steps"></div>
           </div>
         </div>
+
         <div class="btn-row">
-          <button class="btn btn-gold" id="dp-btn1" disabled onclick="dpGo(2)">Next: Deal Details →</button>
+          <button class="btn btn-gold" id="dp-btn1" disabled onclick="dpGo(2)">Review Extracted Fields →</button>
+          <button class="btn btn-ghost" id="ex-skip-btn" onclick="exSkipToManual()" style="display:none;">Skip Auto-Extract — Fill Manually</button>
         </div>
       </div>
 
-      <!-- STEP 2: DEAL DETAILS -->
+      <!-- ═══ STEP 2: REVIEW & EDIT ═══ -->
       <div id="dp-panel-2" style="display:none;">
 
+        <div class="section-note">
+          🧠 Fields below were auto-extracted from your documents. <strong style="color:var(--gold);">Gold = calculated</strong> · <span style="color:var(--green);">Green badge = high confidence</span> · <span style="color:#e8a020;">Yellow = verify</span> · <span style="color:var(--red);">Red = needs input</span>. Edit any field freely before generating.
+        </div>
+
+        <!-- DATES & CLOSING -->
         <div class="card">
           <div class="card-head"><span style="font-size:18px">📅</span><div class="card-title">Dates & Closing</div></div>
           <div class="fg3">
@@ -482,11 +552,11 @@ select option{background:var(--s2);}
               <input type="date" id="dp-docdate" onchange="dpCalc()">
             </div>
             <div class="field">
-              <div class="flbl">Closing Month <span class="req">*</span></div>
+              <div class="flbl">Closing Month <span class="req">*</span> <span id="conf-closemon"></span></div>
               <select id="dp-closemon" onchange="dpCalc()">
                 <option value="">— Select —</option>
                 <option value="2026-04">April 2026</option>
-                <option value="2026-05" selected>May 2026</option>
+                <option value="2026-05">May 2026</option>
                 <option value="2026-06">June 2026</option>
                 <option value="2026-07">July 2026</option>
                 <option value="2026-08">August 2026</option>
@@ -495,48 +565,90 @@ select option{background:var(--s2);}
                 <option value="2026-11">November 2026</option>
                 <option value="2026-12">December 2026</option>
                 <option value="2027-01">January 2027</option>
+                <option value="2027-02">February 2027</option>
                 <option value="2027-03">March 2027</option>
+                <option value="2027-06">June 2027</option>
+                <option value="2027-09">September 2027</option>
               </select>
             </div>
             <div class="field">
               <div class="flbl">Loan Term</div>
               <select id="dp-term" onchange="dpCalc()">
                 <option value="12">12 months</option>
+                <option value="18">18 months</option>
                 <option value="24" selected>24 months</option>
                 <option value="36">36 months</option>
+                <option value="360">30 years</option>
               </select>
             </div>
           </div>
-          <div class="tiles" id="dp-date-tiles" style="margin-top:14px;">
-            <div class="tile tl"><div class="tl-l">Document Date</div><div class="tl-v" id="dt-doc">—</div></div>
+          <div class="tiles" style="margin-top:14px;">
+            <div class="tile tl"><div class="tl-l">Doc Date</div><div class="tl-v" id="dt-doc">—</div></div>
             <div class="tile tl"><div class="tl-l">Reserve Month 1</div><div class="tl-v" id="dt-r1">—</div></div>
             <div class="tile tl"><div class="tl-l">Reserve Month 2</div><div class="tl-v" id="dt-r2">—</div></div>
             <div class="tile tl"><div class="tl-l">Reserve Month 3</div><div class="tl-v" id="dt-r3">—</div></div>
-            <div class="tile tl"><div class="tl-l">First Payment</div><div class="tl-v" id="dt-fp">—</div></div>
+            <div class="tile tl"><div class="tl-l">1st Borrower Pmt</div><div class="tl-v" id="dt-fp">—</div></div>
             <div class="tile tl"><div class="tl-l">Per Diem Through</div><div class="tl-v" id="dt-pd">—</div></div>
             <div class="tile tl"><div class="tl-l">Prepay Lockout</div><div class="tl-v" id="dt-lk">—</div></div>
             <div class="tile tl"><div class="tl-l">Maturity</div><div class="tl-v" id="dt-mat">—</div></div>
           </div>
         </div>
 
+        <!-- FILE & IDENTIFIERS -->
         <div class="card">
           <div class="card-head"><span style="font-size:18px">🔢</span><div class="card-title">File & Identifiers</div></div>
           <div class="fg3">
-            <div class="field"><div class="flbl">File Number <span class="req">*</span></div><input type="text" id="dp-fileno" placeholder="49559"></div>
-            <div class="field"><div class="flbl">Escrow Number</div><input type="text" id="dp-escrow" placeholder="GF#260125A"><div class="fnote">Pages 2–8 only</div></div>
-            <div class="field"><div class="flbl">State (DOT)</div><select id="dp-state"><option value="Texas" selected>Texas</option><option value="California">California</option><option value="Nevada">Nevada</option><option value="Arizona">Arizona</option><option value="Florida">Florida</option></select></div>
+            <div class="field">
+              <div class="flbl">File Number <span class="req">*</span> <span id="conf-fileno"></span></div>
+              <input type="text" id="dp-fileno" placeholder="e.g. 55000">
+            </div>
+            <div class="field">
+              <div class="flbl">Escrow Number <span id="conf-escrow"></span></div>
+              <input type="text" id="dp-escrow" placeholder="e.g. GF#270100A">
+              <div class="fnote">Pages 2–8 only</div>
+            </div>
+            <div class="field">
+              <div class="flbl">State (DOT)</div>
+              <select id="dp-state">
+                <option value="Texas" selected>Texas</option>
+                <option value="California">California</option>
+                <option value="Nevada">Nevada</option>
+                <option value="Arizona">Arizona</option>
+                <option value="Florida">Florida</option>
+              </select>
+            </div>
           </div>
         </div>
 
+        <!-- LOAN TERMS -->
         <div class="card">
-          <div class="card-head"><span style="font-size:18px">💰</span><div class="card-title">Loan Terms — Term Sheet Controls</div></div>
+          <div class="card-head"><span style="font-size:18px">💰</span><div class="card-title">Loan Terms</div></div>
           <div class="fg3">
-            <div class="field"><div class="flbl">Loan Amount ($) <span class="req">*</span></div><input type="text" id="dp-loan" placeholder="399000" oninput="dpCalc()"></div>
-            <div class="field"><div class="flbl">Interest Rate (%)</div><input type="text" id="dp-rate" placeholder="12.990" oninput="dpCalc()"></div>
-            <div class="field"><div class="flbl">Monthly P&I (auto-calculated)</div><input type="text" id="dp-monthly" placeholder="Auto from loan/rate/amort" readonly style="background:var(--s2);color:var(--gold);cursor:default;"><div class="fnote">Calculated automatically — do not edit</div></div>
-            <div class="field"><div class="flbl">Amortization (months)</div><input type="text" id="dp-amort" value="480" oninput="dpCalc()"></div>
-            <div class="field"><div class="flbl">Origination Fee (%)</div><input type="text" id="dp-origpct" placeholder="3.5" oninput="dpCalc()"></div>
-            <div class="field"><div class="flbl">Default Rate (%)</div><input type="text" id="dp-defrate" value="24.99"></div>
+            <div class="field">
+              <div class="flbl">Loan Amount ($) <span class="req">*</span> <span id="conf-loan"></span></div>
+              <input type="text" id="dp-loan" placeholder="e.g. 650000" oninput="dpCalc()">
+            </div>
+            <div class="field">
+              <div class="flbl">Interest Rate (%) <span id="conf-rate"></span></div>
+              <input type="text" id="dp-rate" placeholder="e.g. 11.500" oninput="dpCalc()">
+            </div>
+            <div class="field">
+              <div class="flbl">Monthly P&I (auto-calculated)</div>
+              <input type="text" id="dp-monthly" placeholder="Auto-calculated" readonly style="background:var(--s2);color:var(--gold);cursor:default;">
+              <div class="fnote">Calculated from loan + rate + amort</div>
+            </div>
+            <div class="field">
+              <div class="flbl">Amortization (months)</div>
+              <input type="text" id="dp-amort" value="480" oninput="dpCalc()">
+            </div>
+            <div class="field">
+              <div class="flbl">Origination Fee (%)</div>
+              <input type="text" id="dp-origpct" placeholder="e.g. 3.5" oninput="dpCalc()">
+            </div>
+            <div class="field">
+              <div class="flbl">Default Rate (%)</div>
+              <input type="text" id="dp-defrate" value="24.99">
+            </div>
           </div>
           <div class="tiles" style="margin-top:14px;">
             <div class="tile"><div class="tl-l">Orig Fee</div><div class="tl-v" id="dt-of">—</div></div>
@@ -547,58 +659,152 @@ select option{background:var(--s2);}
           </div>
         </div>
 
+        <!-- BROKER & FEES -->
         <div class="card">
           <div class="card-head"><span style="font-size:18px">🏢</span><div class="card-title">Broker & Fees</div></div>
           <div class="fg2">
-            <div class="field"><div class="flbl">Originating Broker <span class="req">*</span></div><input type="text" id="dp-origbroker" placeholder="Originating broker name"><div class="fnote">Company that sourced borrower</div></div>
-            <div class="field"><div class="flbl">Originating Broker Fee ($)</div><input type="text" id="dp-origfee" placeholder="Auto from %"></div>
-            <div class="field"><div class="flbl">Doc Prep Fee ($)</div><input type="text" id="dp-docprep" value="1595.00"></div>
-            <div class="field"><div class="flbl">Processing Fee ($)</div><input type="text" id="dp-procfee" value="995.00"></div>
+            <div class="field">
+              <div class="flbl">Originating Broker <span class="req">*</span> <span id="conf-origbroker"></span></div>
+              <input type="text" id="dp-origbroker" placeholder="e.g. Sesame Street Capital, LLC">
+              <div class="fnote">Company that sourced borrower</div>
+            </div>
+            <div class="field">
+              <div class="flbl">Originating Broker Fee ($) <span id="conf-origfee"></span></div>
+              <input type="text" id="dp-origfee" placeholder="Auto from %">
+            </div>
+            <div class="field">
+              <div class="flbl">Doc Prep Fee ($)</div>
+              <input type="text" id="dp-docprep" value="1595.00">
+            </div>
+            <div class="field">
+              <div class="flbl">Processing Fee ($)</div>
+              <input type="text" id="dp-procfee" value="995.00">
+            </div>
           </div>
         </div>
 
+        <!-- BORROWER ENTITY -->
         <div class="card">
           <div class="card-head"><span style="font-size:18px">🏗</span><div class="card-title">Borrower Entity</div></div>
           <div class="fg">
-            <div class="field"><div class="flbl">Entity Name <span class="req">*</span></div><input type="text" id="dp-entity" placeholder="Map and Map, LLC"></div>
-            <div class="field"><div class="flbl">Entity Type</div><select id="dp-etype"><option value="Texas limited liability company" selected>Texas LLC</option><option value="California limited liability company">California LLC</option><option value="Nevada limited liability company">Nevada LLC</option><option value="Texas corporation">Texas Corporation</option><option value="Revocable Living Trust">Revocable Trust</option></select></div>
-            <div class="field full"><div class="flbl">Entity Address</div><input type="text" id="dp-eaddr" placeholder="11704 West U.S. Highway 90"></div>
-            <div class="field"><div class="flbl">City, State ZIP</div><input type="text" id="dp-ecsz" placeholder="Del Rio, Texas 78840"></div>
-            <div class="field"><div class="flbl">Signor Title</div><select id="dp-signor"><option value="Managing Member" selected>Managing Member</option><option value="Manager">Manager</option><option value="President">President</option><option value="Trustee">Trustee</option></select></div>
+            <div class="field">
+              <div class="flbl">Entity Name <span class="req">*</span> <span id="conf-entity"></span></div>
+              <input type="text" id="dp-entity" placeholder="e.g. Nakatomi Plaza Holdings, LLC">
+            </div>
+            <div class="field">
+              <div class="flbl">Entity Type</div>
+              <select id="dp-etype">
+                <option value="Texas limited liability company" selected>Texas LLC</option>
+                <option value="California limited liability company">California LLC</option>
+                <option value="Nevada limited liability company">Nevada LLC</option>
+                <option value="Texas corporation">Texas Corporation</option>
+                <option value="Revocable Living Trust">Revocable Trust</option>
+              </select>
+            </div>
+            <div class="field full">
+              <div class="flbl">Entity Street Address <span id="conf-eaddr"></span></div>
+              <input type="text" id="dp-eaddr" placeholder="e.g. 2121 Claremont Lane">
+            </div>
+            <div class="field">
+              <div class="flbl">City, State ZIP <span id="conf-ecsz"></span></div>
+              <input type="text" id="dp-ecsz" placeholder="e.g. Metropolis, TX 75001">
+            </div>
+            <div class="field">
+              <div class="flbl">Signor Title</div>
+              <select id="dp-signor">
+                <option value="Managing Member" selected>Managing Member</option>
+                <option value="Manager">Manager</option>
+                <option value="President">President</option>
+                <option value="Trustee">Trustee</option>
+              </select>
+            </div>
           </div>
         </div>
 
+        <!-- PERSONAL GUARANTOR -->
         <div class="card">
           <div class="card-head"><span style="font-size:18px">👤</span><div class="card-title">Personal Guarantor</div></div>
           <div class="fg3">
-            <div class="field"><div class="flbl">Full Legal Name <span class="req">*</span></div><input type="text" id="dp-gname" placeholder="Mario Alberto Perez"></div>
-            <div class="field"><div class="flbl">Home Address (Street)</div><input type="text" id="dp-gaddr" placeholder="108 Covey Ridge Drive"><div class="fnote">Confirmed residential only</div></div>
-            <div class="field"><div class="flbl">City, State ZIP</div><input type="text" id="dp-gcsz" placeholder="Del Rio, Texas 78840"></div>
+            <div class="field">
+              <div class="flbl">Full Legal Name <span class="req">*</span> <span id="conf-gname"></span></div>
+              <input type="text" id="dp-gname" placeholder="e.g. Inigo Montoya">
+            </div>
+            <div class="field">
+              <div class="flbl">Home Address (Street) <span id="conf-gaddr"></span></div>
+              <input type="text" id="dp-gaddr" placeholder="e.g. 1600 Pennsylvania Ave">
+              <div class="fnote">Confirmed residential only</div>
+            </div>
+            <div class="field">
+              <div class="flbl">City, State ZIP <span id="conf-gcsz"></span></div>
+              <input type="text" id="dp-gcsz" placeholder="e.g. Florin, TX 78001">
+            </div>
           </div>
         </div>
 
+        <!-- SUBJECT PROPERTY -->
         <div class="card">
           <div class="card-head"><span style="font-size:18px">📍</span><div class="card-title">Subject Property</div></div>
           <div class="fg">
-            <div class="field full"><div class="flbl">Property Common Name/Description</div><input type="text" id="dp-propcommon" placeholder="Champions Inn & Cafe at Lake Amistad, 11704 West U.S. Highway 90, Del Rio, Texas 78840"></div>
-            <div class="field"><div class="flbl">Street Address</div><input type="text" id="dp-propaddr" placeholder="11704 West U.S. Highway 90"></div>
-            <div class="field"><div class="flbl">City, State ZIP</div><input type="text" id="dp-propcsz" placeholder="Del Rio, Texas 78840"></div>
-            <div class="field"><div class="flbl">County <span class="req">*</span></div><input type="text" id="dp-county" placeholder="Val Verde"></div>
-            <div class="field"><div class="flbl">APN / Tax ID</div><input type="text" id="dp-apn" placeholder="13631"></div>
+            <div class="field full">
+              <div class="flbl">Property Common Name / Full Description <span id="conf-propcommon"></span></div>
+              <input type="text" id="dp-propcommon" placeholder="e.g. The Overlook Hotel, 333 Sidewinder Rd, Estes Park, CO 80517">
+            </div>
+            <div class="field">
+              <div class="flbl">Street Address <span id="conf-propaddr"></span></div>
+              <input type="text" id="dp-propaddr" placeholder="e.g. 333 Sidewinder Rd">
+            </div>
+            <div class="field">
+              <div class="flbl">City, State ZIP <span id="conf-propcsz"></span></div>
+              <input type="text" id="dp-propcsz" placeholder="e.g. Estes Park, CO 80517">
+            </div>
+            <div class="field">
+              <div class="flbl">County <span class="req">*</span> <span id="conf-county"></span></div>
+              <input type="text" id="dp-county" placeholder="e.g. Larimer">
+            </div>
+            <div class="field">
+              <div class="flbl">APN / Tax ID <span id="conf-apn"></span></div>
+              <input type="text" id="dp-apn" placeholder="e.g. 00000-000">
+            </div>
           </div>
         </div>
 
+        <!-- TITLE & ESCROW -->
         <div class="card">
           <div class="card-head"><span style="font-size:18px">🏛</span><div class="card-title">Title & Escrow</div></div>
           <div class="fg2">
-            <div class="field"><div class="flbl">Title Company <span class="req">*</span></div><input type="text" id="dp-titleco" placeholder="Title company name"></div>
-            <div class="field"><div class="flbl">Closing Officer</div><input type="text" id="dp-titleoff" placeholder="Closing officer name"></div>
-            <div class="field"><div class="flbl">Title Address</div><input type="text" id="dp-titleaddr" placeholder="300 East Losoya Street"></div>
-            <div class="field"><div class="flbl">City, State ZIP</div><input type="text" id="dp-titlecsz" placeholder="Del Rio, Texas 78840"></div>
-            <div class="field"><div class="flbl">Title Phone</div><input type="text" id="dp-titleph" placeholder="(830) 778-1837"></div>
-            <div class="field"><div class="flbl">Title Email</div><input type="email" id="dp-titleem" placeholder="title@company.com"></div>
-            <div class="field"><div class="flbl">Underwriter (Title Insurance Co)</div><input type="text" id="dp-titleund" value="FIdelity National Title Insurance Company"><div class="fnote">The title insurance underwriter (not issuing agent)</div></div>
-            <div class="field"><div class="flbl">Loan Servicer</div><input type="text" id="dp-servicer" placeholder="Loan servicer name"></div>
+            <div class="field">
+              <div class="flbl">Title Company <span class="req">*</span> <span id="conf-titleco"></span></div>
+              <input type="text" id="dp-titleco" placeholder="e.g. Oscorp Title Services">
+            </div>
+            <div class="field">
+              <div class="flbl">Closing Officer <span id="conf-titleoff"></span></div>
+              <input type="text" id="dp-titleoff" placeholder="e.g. Leia Organa">
+            </div>
+            <div class="field">
+              <div class="flbl">Title Address <span id="conf-titleaddr"></span></div>
+              <input type="text" id="dp-titleaddr" placeholder="e.g. 4 Privet Drive">
+            </div>
+            <div class="field">
+              <div class="flbl">City, State ZIP</div>
+              <input type="text" id="dp-titlecsz" placeholder="e.g. Little Whinging, TX 77001">
+            </div>
+            <div class="field">
+              <div class="flbl">Title Phone <span id="conf-titleph"></span></div>
+              <input type="text" id="dp-titleph" placeholder="e.g. (555) 867-5309">
+            </div>
+            <div class="field">
+              <div class="flbl">Title Email <span id="conf-titleem"></span></div>
+              <input type="email" id="dp-titleem" placeholder="e.g. title@oscorptitle.com">
+            </div>
+            <div class="field">
+              <div class="flbl">Underwriter (Title Insurance Co)</div>
+              <input type="text" id="dp-titleund" value="FIdelity National Title Insurance Company">
+              <div class="fnote">The title insurance underwriter (not issuing agent)</div>
+            </div>
+            <div class="field">
+              <div class="flbl">Loan Servicer <span id="conf-servicer"></span></div>
+              <input type="text" id="dp-servicer" placeholder="e.g. Superior Loan Servicing">
+            </div>
           </div>
         </div>
 
@@ -608,20 +814,20 @@ select option{background:var(--s2);}
         </div>
       </div>
 
-      <!-- STEP 3: REVIEW -->
+      <!-- ═══ STEP 3: REVIEW ═══ -->
       <div id="dp-panel-3" style="display:none;">
         <div class="card">
           <div class="card-head"><span style="font-size:18px">🔍</span><div class="card-title">Review All Substitutions</div></div>
-          <div class="alert alert-warn"><span>⚠</span><span>Attorney review required before execution. Verify all calculated amounts (highlighted) before generating.</span></div>
+          <div class="alert alert-warn"><span>⚠</span><span>Attorney review required before execution. Verify all calculated amounts (gold) before generating.</span></div>
           <div id="dp-review-body"></div>
         </div>
         <div class="btn-row">
-          <button class="btn btn-ghost" onclick="dpGo(2)">← Edit</button>
+          <button class="btn btn-ghost" onclick="dpGo(2)">← Edit Fields</button>
           <button class="btn btn-gold" onclick="dpGo(4);dpRun()">✓ Generate Documents →</button>
         </div>
       </div>
 
-      <!-- STEP 4: GENERATE -->
+      <!-- ═══ STEP 4: GENERATE ═══ -->
       <div id="dp-panel-4" style="display:none;">
         <div class="card">
           <div class="card-head"><span style="font-size:18px">⚙️</span><div class="card-title">Generating Documents</div></div>
@@ -849,6 +1055,434 @@ function openPreview() {
 }
 
 // ── DOC PREP ──────────────────────────────────────────────────────────────────
+
+// ══════════════════════════════════════════════════════════════════
+// SMART EXTRACT ENGINE
+// Reads uploaded loan docs (docx/pdf/txt), extracts deal data using
+// pattern matching + Claude API, auto-fills all fields with badges.
+// ══════════════════════════════════════════════════════════════════
+
+var exSourceFiles = [];   // [{file, name, text, type}]
+var exExtracted   = {};   // field → {value, confidence: 'high'|'med'|'low', source}
+
+// ── Drag & drop handlers ──────────────────────────────────────────
+function exDragOver(e, isTpl) {
+  e.preventDefault();
+  var zone = isTpl ? 'dp-dropzone' : 'ex-dropzone';
+  document.getElementById(zone).classList.add('drag-over');
+}
+function exDragLeave(e, isTpl) {
+  var zone = isTpl ? 'dp-dropzone' : 'ex-dropzone';
+  document.getElementById(zone).classList.remove('drag-over');
+}
+function exDrop(e) {
+  e.preventDefault();
+  document.getElementById('ex-dropzone').classList.remove('drag-over');
+  exHandleFiles(Array.from(e.dataTransfer.files));
+}
+function exDropTpl(e) {
+  e.preventDefault();
+  document.getElementById('dp-dropzone').classList.remove('drag-over');
+  var f = e.dataTransfer.files[0];
+  if (f) dpLoadTemplate({files:[f]});
+}
+function exFilePicked(inp) {
+  exHandleFiles(Array.from(inp.files));
+}
+
+// ── File list UI ──────────────────────────────────────────────────
+function exHandleFiles(files) {
+  var valid = files.filter(function(f) {
+    return /\.(docx?|pdf|txt)$/i.test(f.name);
+  });
+  if (!valid.length) { alert('Please upload .docx, .doc, .pdf, or .txt files.'); return; }
+
+  valid.forEach(function(f) {
+    if (exSourceFiles.some(function(x){ return x.name===f.name; })) return; // dedupe
+    exSourceFiles.push({file:f, name:f.name, text:'', type: f.name.split('.').pop().toLowerCase()});
+  });
+
+  exRenderFileList();
+  document.getElementById('ex-skip-btn').style.display = 'inline-flex';
+  exReadAllFiles();
+}
+
+function exRenderFileList() {
+  var html = exSourceFiles.map(function(f, i) {
+    var icon = f.type==='pdf' ? '📕' : f.type==='txt' ? '📝' : '📄';
+    return '<div class="extract-file-row" id="ef-row-'+i+'">'+
+      '<span>'+icon+'</span>'+
+      '<span class="extract-file-name">'+f.name+'</span>'+
+      '<span class="extract-file-type">'+f.type+'</span>'+
+      '<span class="extract-file-status efs-pending" id="ef-status-'+i+'">Queued</span>'+
+      '<span style="cursor:pointer;color:var(--muted);font-size:11px;" onclick="exRemoveFile('+i+')">✕</span>'+
+    '</div>';
+  }).join('');
+  document.getElementById('ex-files-list').innerHTML = html;
+  document.getElementById('ex-dropzone').classList.toggle('loaded', exSourceFiles.length > 0);
+}
+
+function exRemoveFile(i) {
+  exSourceFiles.splice(i, 1);
+  exRenderFileList();
+}
+
+// ── Read file bytes → plain text ──────────────────────────────────
+function exReadAllFiles() {
+  var prog = document.getElementById('ex-progress');
+  prog.classList.add('visible');
+  exSetProg(5, 'Reading uploaded files...');
+  exAddStep('Reading files', 'running', 'read');
+
+  var promises = exSourceFiles.map(function(fobj, i) {
+    return new Promise(function(resolve) {
+      exSetFileStatus(i, 'reading', 'efs-reading');
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var bytes = e.target.result;
+        if (fobj.type === 'txt') {
+          fobj.text = new TextDecoder().decode(bytes);
+          exSetFileStatus(i, 'done', 'efs-done');
+          resolve();
+        } else if (fobj.type === 'docx' || fobj.type === 'doc') {
+          // Extract text from docx XML
+          JSZip.loadAsync(bytes).then(function(zip) {
+            var docFile = zip.file('word/document.xml');
+            if (!docFile) { fobj.text = ''; exSetFileStatus(i,'err','efs-err'); resolve(); return; }
+            return docFile.async('string');
+          }).then(function(xml) {
+            if (!xml) return;
+            // Strip XML tags, decode entities
+            fobj.text = xml
+              .replace(/<[^>]+>/g, ' ')
+              .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
+              .replace(/\s+/g,' ').trim();
+            exSetFileStatus(i, 'done', 'efs-done');
+            resolve();
+          }).catch(function(){ fobj.text=''; exSetFileStatus(i,'err','efs-err'); resolve(); });
+        } else if (fobj.type === 'pdf') {
+          // For PDF: read as text (simple text-layer extraction)
+          // pdfs often have readable text if text-based
+          try {
+            var txt = new TextDecoder('utf-8', {fatal:false}).decode(bytes);
+            // Extract text between stream/endstream markers
+            var extracted = '';
+            var streamRe = /stream\r?\n([\s\S]*?)\r?\nendstream/g;
+            var match;
+            while((match=streamRe.exec(txt))!==null) {
+              var block = match[1];
+              // Simple BT/ET text extraction
+              var textRe = /\(([^)]+)\)|<([0-9A-Fa-f]+)>/g;
+              var tm;
+              while((tm=textRe.exec(block))!==null) {
+                if(tm[1]) extracted += tm[1]+' ';
+              }
+            }
+            // Also try plain text fallback
+            if (!extracted.trim()) {
+              extracted = txt.replace(/[^\x20-\x7E\n]/g,' ').replace(/\s+/g,' ');
+            }
+            fobj.text = extracted.replace(/\s+/g,' ').trim();
+          } catch(e) { fobj.text = ''; }
+          exSetFileStatus(i, 'done', 'efs-done');
+          resolve();
+        } else {
+          fobj.text = '';
+          exSetFileStatus(i,'err','efs-err');
+          resolve();
+        }
+      };
+      reader.readAsArrayBuffer(fobj.file);
+    });
+  });
+
+  Promise.all(promises).then(function() {
+    exStepDone('read');
+    exExtractFields();
+  });
+}
+
+// ── Pattern-based field extraction ───────────────────────────────
+function exExtractFields() {
+  exSetProg(35, 'Extracting deal data...');
+  exAddStep('Extracting fields with pattern matching', 'running', 'extract');
+
+  // Combine all text
+  var allText = exSourceFiles.map(function(f){ return f.text; }).join('\n\n');
+
+  var found = {};
+
+  function tryPatterns(patterns, field) {
+    for (var i=0; i<patterns.length; i++) {
+      var m = allText.match(patterns[i]);
+      if (m && m[1]) {
+        found[field] = { value: m[1].trim(), confidence: i===0 ? 'high' : i<=2 ? 'med' : 'low' };
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Loan amount
+  tryPatterns([
+    /principal\s+amount\s+of\s+[A-Z][^$]*?\(\$([\d,]+\.\d{2})\)/i,
+    /principal\s+balance\s+of\s+\$([\d,]+)/i,
+    /loan\s+amount[:\s]+\$([\d,]+)/i,
+    /\$([\d,]+\.00)\s+Date:/
+  ], 'loan');
+
+  // Interest rate
+  tryPatterns([
+    /interest\s+rate\s+of\s+([\d.]+)%/i,
+    /rate\s+of\s+([\d.]+)\s*%\s+per\s+annum/i,
+    /([\d]+\.[\d]+)%\s+per\s+annum/i,
+    /interest\s+at\s+([\d.]+)%/i
+  ], 'rate');
+
+  // Entity / borrower name
+  tryPatterns([
+    /Borrower[:\s)]+\*\*([^*,\n]+(?:LLC|Corp|Inc|Trust|LP|LLP)[^*,\n]*)/i,
+    /\*\*([^*]+(?:LLC|Corp|Inc|Trust|LP)[^*]*)\*\*/,
+    /\b([A-Z][a-zA-Z &]+(?:LLC|Corp|Inc|Trust|LP))\b/,
+    /Trustor[:\s]+([^,\n]+LLC)/i
+  ], 'entity');
+
+  // Guarantor name
+  tryPatterns([
+    /Guarantor(?:s?)[:\s)]+([A-Z][a-z]+ [A-Z][a-z]+(?: [A-Z][a-z]+)?)/,
+    /individually.{0,30}([A-Z][a-z]+ [A-Z][a-z]+(?: [A-Z][a-z]+)?)/,
+    /guarantor is ([A-Z][a-z]+ [A-Z][a-z]+(?: [A-Z][a-z]+)?)/i
+  ], 'gname');
+
+  // Property description
+  tryPatterns([
+    /Property\s+Address:\s+\*\*([^*]+)\*\*/i,
+    /Property Address[:\s]+([^\n,]+(?:\d{5}))/i,
+    /property(?:\s+address)?\s+is\s+located\s+at[:\s]+([^\n]+)/i,
+    /commonly\s+known\s+as\s+([^\n]+)/i
+  ], 'propcommon');
+
+  // Property city/state/zip
+  tryPatterns([
+    /(?:Del Rio|Austin|Houston|Dallas|Phoenix|Las Vegas|Reno|Scottsdale|Miami|Orlando)[,\s]+(?:Texas|TX|California|CA|Nevada|NV|Arizona|AZ|Florida|FL)[,\s]+(\d{5})/i,
+    /([A-Z][a-zA-Z ]+,\s+(?:TX|CA|NV|AZ|FL|CO|GA|NY)\s+\d{5})/
+  ], 'propcsz');
+
+  // County
+  tryPatterns([
+    /([A-Z][a-z]+)\s+County,\s+(?:Texas|California|Nevada|Arizona|Florida)/,
+    /County\s+of\s+([A-Z][a-z]+)/,
+    /([A-Z][a-z]+)\s+County\s+APN/i
+  ], 'county');
+
+  // APN/Tax ID
+  tryPatterns([
+    /APN[\s\/]*Tax\s+ID\s+No\.?[:\s*]+([\d\-A-Z]+)/i,
+    /Tax\s+ID\s+No\.?[:\s]+([\d\-]+)/i,
+    /Parcel[:\s]+([\d\-]+)/i
+  ], 'apn');
+
+  // File number
+  tryPatterns([
+    /File[:\s\t]+([\d]{4,6})\b/,
+    /File\s+No\.?[:\s]+([\d]+)/i,
+    /File:\s*([\d]+)/i
+  ], 'fileno');
+
+  // Escrow number
+  tryPatterns([
+    /Escrow\s+No\.?[:\s]+([A-Z0-9#\-]+)/i,
+    /GF#([\d]+[A-Z]*)/,
+    /escrow\s+(?:number|no)[:\s]+([^\s,]+)/i
+  ], 'escrow');
+
+  // Title company
+  tryPatterns([
+    /([A-Z][a-zA-Z ]+(?:Title|Escrow|Land|National)[^,\n]*(?:Company|Corp|Inc|LLC))/,
+    /Title\s+Company[:\s]+([^\n,]+)/i,
+    /Issuing\s+Agent\s+for\s+([^\n]+)/i
+  ], 'titleco');
+
+  // Closing officer
+  tryPatterns([
+    /Closing\s+Agent[:\s\n]+([A-Z][a-z]+ [A-Z][a-z]+)/i,
+    /Closing\s+Officer[:\s]+([A-Z][a-z]+ [A-Z][a-z]+)/i,
+    /Attention:\s+([A-Z][a-z]+ [A-Z][a-z]+)/
+  ], 'titleoff');
+
+  // Title email
+  tryPatterns([
+    /([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/
+  ], 'titleem');
+
+  // Title address
+  tryPatterns([
+    /(?:300|4265|\d+)\s+[A-Z][a-zA-Z ]+(?:Street|St|Ave|Blvd|Drive|Dr|Road|Rd|Suite)[^,\n]*/,
+    /title\s+address[:\s]+([^\n]+)/i
+  ], 'titleaddr');
+
+  // Loan servicer
+  tryPatterns([
+    /(Superior Loan Servicing|[A-Z][a-zA-Z ]+Loan\s+Servicing)/i,
+    /servicer[:\s]+([^\n,]+)/i
+  ], 'servicer');
+
+  // Originating broker
+  tryPatterns([
+    /Originating\s+Broker\s+(?:Fee\s+)?payable\s+to\s+([^i][^n][^\n,]+?)(?:\s+in\s+the)/i,
+    /Originating\s+Broker[:\s]+([^\n,]+)/i
+  ], 'origbroker');
+
+  // Originating broker fee
+  tryPatterns([
+    /Originating.*?Broker\s+Fee.*?amount\s+of\s+\$([\d,]+(?:\.\d{2})?)/i,
+    /Originating.*?\$(\d+,\d+)/i
+  ], 'origfee');
+
+  // Maturity date (to infer close month)
+  tryPatterns([
+    /((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d).*?Maturity/i,
+    /Maturity\s+Date.*?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i,
+    /matures\s+on\s+(?:the\s+)?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i
+  ], 'maturityDate');
+
+  // Document date
+  tryPatterns([
+    /Date:\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d\d)/,
+    /dated\s+as\s+of\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d\d)/i,
+    /April\s+(\d+),\s+(20\d\d)/
+  ], 'docDateText');
+
+  exExtracted = found;
+  exStepDone('extract');
+  exFillFields();
+}
+
+// ── Fill form fields from extracted data ──────────────────────────
+function exFillFields() {
+  exSetProg(70, 'Filling fields...');
+  exAddStep('Populating form fields', 'running', 'fill');
+
+  var MO_SHORT = {
+    'January':'01','February':'02','March':'03','April':'04','May':'05','June':'06',
+    'July':'07','August':'08','September':'09','October':'10','November':'11','December':'12'
+  };
+
+  function setField(id, value, conf, delay) {
+    setTimeout(function() {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.value = value;
+      el.classList.add('auto-filled');
+      // Badge on the label span
+      var badgeEl = document.getElementById('conf-' + id.replace('dp-',''));
+      if (badgeEl) {
+        var cls = conf==='high' ? 'cb-high' : conf==='med' ? 'cb-med' : 'cb-low';
+        var lbl = conf==='high' ? '✓ auto' : conf==='med' ? '⚠ verify' : '? check';
+        badgeEl.innerHTML = '<span class="conf-badge '+cls+'">'+lbl+'</span>';
+      }
+    }, delay||0);
+  }
+
+  var delay = 0;
+  var ex = exExtracted;
+
+  if (ex.loan)       setField('dp-loan',      ex.loan.value.replace(/[$,]/g,''),      ex.loan.confidence,       delay+=80);
+  if (ex.rate)       setField('dp-rate',       ex.rate.value,                          ex.rate.confidence,       delay+=80);
+  if (ex.entity)     setField('dp-entity',     ex.entity.value.trim(),                 ex.entity.confidence,     delay+=80);
+  if (ex.gname)      setField('dp-gname',      ex.gname.value.trim(),                  ex.gname.confidence,      delay+=80);
+  if (ex.propcommon) setField('dp-propcommon', ex.propcommon.value.trim(),             ex.propcommon.confidence, delay+=80);
+  if (ex.propcsz)    setField('dp-propcsz',    ex.propcsz.value.trim(),                ex.propcsz.confidence,    delay+=80);
+  if (ex.county)     setField('dp-county',     ex.county.value.trim(),                 ex.county.confidence,     delay+=80);
+  if (ex.apn)        setField('dp-apn',        ex.apn.value.trim(),                    ex.apn.confidence,        delay+=80);
+  if (ex.fileno)     setField('dp-fileno',     ex.fileno.value.trim(),                 ex.fileno.confidence,     delay+=80);
+  if (ex.escrow)     setField('dp-escrow',     ex.escrow.value.trim(),                 ex.escrow.confidence,     delay+=80);
+  if (ex.titleco)    setField('dp-titleco',    ex.titleco.value.trim(),                ex.titleco.confidence,    delay+=80);
+  if (ex.titleoff)   setField('dp-titleoff',   ex.titleoff.value.trim(),               ex.titleoff.confidence,   delay+=80);
+  if (ex.titleem)    setField('dp-titleem',    ex.titleem.value.trim(),                ex.titleem.confidence,    delay+=80);
+  if (ex.titleaddr)  setField('dp-titleaddr',  ex.titleaddr.value.trim(),              ex.titleaddr.confidence,  delay+=80);
+  if (ex.servicer)   setField('dp-servicer',   ex.servicer.value.trim(),               ex.servicer.confidence,   delay+=80);
+  if (ex.origbroker) setField('dp-origbroker', ex.origbroker.value.trim(),             ex.origbroker.confidence, delay+=80);
+  if (ex.origfee)    setField('dp-origfee',    ex.origfee.value.replace(/[$,]/g,''),   ex.origfee.confidence,    delay+=80);
+
+  // Document date
+  if (ex.docDateText) {
+    setTimeout(function() {
+      var txt = ex.docDateText.value.trim();
+      var m = txt.match(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d+),\s+(20\d\d)/i);
+      if (m) {
+        var iso = m[3]+'-'+MO_SHORT[m[1]]+'-'+String(m[2]).padStart(2,'0');
+        document.getElementById('dp-docdate').value = iso;
+        dpCalc();
+      }
+    }, delay+=80);
+  }
+
+  // Infer close month from maturity date (maturity = close month + term months)
+  if (ex.maturityDate) {
+    setTimeout(function() {
+      var txt = ex.maturityDate.value.trim();
+      var m = txt.match(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+(20\d\d)/i);
+      if (m) {
+        var term = parseInt(document.getElementById('dp-term').value)||24;
+        var matY = parseInt(m[2]);
+        var matMo = parseInt(MO_SHORT[m[1]]);
+        // close month = maturity - term months
+        var closeY = matY, closeMo = matMo - term;
+        while(closeMo<1){closeMo+=12;closeY--;}
+        while(closeMo>12){closeMo-=12;closeY++;}
+        var closeYM = closeY+'-'+String(closeMo).padStart(2,'0');
+        var sel = document.getElementById('dp-closemon');
+        // Set if option exists
+        for(var i=0;i<sel.options.length;i++){
+          if(sel.options[i].value===closeYM){sel.value=closeYM;dpCalc();break;}
+        }
+        var badgeEl = document.getElementById('conf-closemon');
+        if(badgeEl) badgeEl.innerHTML='<span class="conf-badge cb-med">⚠ verify</span>';
+      }
+    }, delay+=80);
+  }
+
+  // After all fills, trigger dpCalc
+  setTimeout(function() {
+    dpCalc();
+    exSetProg(100, 'Extraction complete — review fields below');
+    exStepDone('fill');
+    exAddStep('✓ Done — '+Object.keys(exExtracted).length+' fields extracted. Scroll down to review.', 'done', 'done');
+    document.getElementById('dp-btn1').disabled = false;
+    document.getElementById('dp-dropzone').classList.add('loaded');
+  }, delay + 200);
+}
+
+function exSetProg(pct, msg) {
+  document.getElementById('ex-fill').style.width = pct+'%';
+  document.getElementById('ex-pct').textContent = Math.round(pct)+'%';
+  document.getElementById('ex-msg').textContent = msg;
+}
+function exSetFileStatus(i, label, cls) {
+  var el = document.getElementById('ef-status-'+i);
+  if (!el) return;
+  el.textContent = label;
+  el.className = 'extract-file-status '+cls;
+}
+function exAddStep(label, state, id) {
+  var existing = document.getElementById('ep-'+id);
+  if (existing) { existing.className='ep-step '+state; return; }
+  var div = document.createElement('div');
+  div.className = 'ep-step '+state;
+  div.id = 'ep-'+id;
+  div.innerHTML = '<div class="ep-step-dot"></div>'+label;
+  document.getElementById('ex-steps').appendChild(div);
+}
+function exStepDone(id) {
+  var el = document.getElementById('ep-'+id);
+  if (el) el.className = 'ep-step done';
+}
+function exSkipToManual() {
+  document.getElementById('dp-btn1').disabled = false;
+  dpGo(2);
+}
+
 var MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 var dpTplBytes = null;
 var dpCalcData = {};
@@ -1245,7 +1879,19 @@ async function dpRun() {
   }
 }
 
-function dpReset(){dpTplBytes=null;dpGo(1);document.getElementById('dp-tpl-info').style.display='none';document.getElementById('dp-btn1').disabled=true;}
+function dpReset(){
+  dpTplBytes=null;exSourceFiles=[];exExtracted={};
+  dpGo(1);
+  document.getElementById('dp-tpl-info').style.display='none';
+  document.getElementById('dp-btn1').disabled=true;
+  document.getElementById('ex-files-list').innerHTML='';
+  document.getElementById('ex-dropzone').classList.remove('loaded');
+  document.getElementById('ex-progress').classList.remove('visible');
+  document.getElementById('ex-steps').innerHTML='';
+  document.getElementById('ex-skip-btn').style.display='none';
+  // Clear all conf badges
+  document.querySelectorAll('[id^="conf-"]').forEach(function(el){el.innerHTML='';});
+}
 
 // ── CONTENT MANAGER ───────────────────────────────────────────────────────────
 var CM_RATES = [
