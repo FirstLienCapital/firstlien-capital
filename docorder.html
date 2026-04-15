@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FirstLien Capital — Document Request</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:       #f5f2ec;
+  --surface:  #ffffff;
+  --border:   #ddd8cc;
+  --border2:  #c8c0b0;
+  --gold:     #9a7c2e;
+  --gold-l:   #c89b28;
+  --gold-dim: rgba(154,124,46,0.08);
+  --gold-med: rgba(154,124,46,0.15);
+  --teal:     #0a7b6a;
+  --teal-dim: rgba(10,123,106,0.08);
+  --text:     #1a1510;
+  --text2:    #5a5040;
+  --muted:    #8a7f70;
+  --green:    #1a7a4a;
+  --red:      #b03030;
+  --amber:    #9a6010;
+  --r:        4px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 14px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--text);
+  padding: 0 0 0;
+  position: relative;
+  overflow: hidden;
+}
+.header-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 28px 40px;
+  position: relative;
+  z-index: 2;
+}
+.header-rule {
+  width: 40px; height: 2px;
+  background: var(--gold-l);
+  margin-bottom: 20px;
+}
+.header-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-l);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.header-eyebrow::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: rgba(200,155,40,0.3);
+  max-width: 60px;
+}
+.header-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 300;
+  color: #f0ebe0;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+.header-title em { font-style: italic; color: var(--gold-l); font-weight: 300; }
+.header-sub {
+  font-size: 13px;
+  color: rgba(240,235,224,0.55);
+  line-height: 1.7;
+  font-family: 'Libre Baskerville', serif;
+  max-width: 480px;
+}
+.header-meta {
+  display: flex; gap: 20px; flex-wrap: wrap;
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.header-meta-item {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: rgba(240,235,224,0.4);
+  letter-spacing: 0.06em;
+  display: flex; align-items: center; gap: 6px;
+}
+.header-meta-item span { color: rgba(240,235,224,0.7); }
+.header-bg-pattern {
+  position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 20px,
+      rgba(255,255,255,0.015) 20px,
+      rgba(255,255,255,0.015) 21px
+    );
+}
+
+/* ── LOAN SNAPSHOT ── */
+.loan-bar {
+  background: var(--gold);
+  padding: 14px 0;
+}
+.loan-bar-inner {
+  max-width: 720px; margin: 0 auto;
+  padding: 0 28px;
+  display: flex; gap: 32px; flex-wrap: wrap; align-items: center;
+}
+.loan-bar-item {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.loan-bar-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.65);
+}
+.loan-bar-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px; font-weight: 500;
+  color: #fff;
+}
+#loan-bar { display: none; }
+
+/* ── MAIN CONTENT ── */
+.main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 44px 28px 80px;
+}
+
+/* ── SECTIONS ── */
+.section {
+  margin-bottom: 10px;
+}
+
+/* ── DOC REQUEST ITEMS ── */
+.doc-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.doc-item.required { border-left: 3px solid var(--gold); }
+.doc-item.optional { border-left: 3px solid var(--border2); }
+.doc-item.completed { border-color: var(--green); background: rgba(26,122,74,0.03); }
+.doc-item.completed .doc-header { background: rgba(26,122,74,0.04); }
+
+.doc-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.doc-header:hover { background: var(--gold-dim); }
+
+.doc-check {
+  width: 22px; height: 22px; flex-shrink: 0;
+  border: 1.5px solid var(--border2);
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s;
+  background: var(--bg);
+}
+.doc-item.completed .doc-check {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.doc-icon { font-size: 20px; flex-shrink: 0; }
+
+.doc-info { flex: 1; min-width: 0; }
+.doc-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-weight: 600;
+  color: var(--text); line-height: 1.2;
+}
+.doc-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.doc-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 3px 8px; border-radius: 3px; flex-shrink: 0;
+}
+.badge-req { background: rgba(154,124,46,0.12); border: 1px solid rgba(154,124,46,0.25); color: var(--gold); }
+.badge-opt { background: var(--bg); border: 1px solid var(--border); color: var(--muted); }
+.badge-done { background: rgba(26,122,74,0.1); border: 1px solid rgba(26,122,74,0.25); color: var(--green); }
+
+.doc-expand {
+  color: var(--muted); font-size: 16px; flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.doc-item.open .doc-expand { transform: rotate(180deg); }
+
+/* ── DOC BODY ── */
+.doc-body {
+  display: none;
+  padding: 0 18px 20px 18px;
+  border-top: 1px solid var(--border);
+  animation: slideDown 0.2s ease;
+}
+.doc-item.open .doc-body { display: block; }
+
+@keyframes slideDown {
+  from { opacity:0; transform:translateY(-6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.doc-instructions {
+  font-size: 13px; color: var(--text2);
+  margin: 14px 0 16px;
+  line-height: 1.7;
+  font-family: 'Libre Baskerville', serif;
+}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone {
+  border: 2px dashed var(--border2);
+  border-radius: var(--r);
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  background: var(--bg);
+}
+.upload-zone:hover { border-color: var(--gold); background: var(--gold-dim); }
+.upload-zone.has-file { border-color: var(--green); border-style: solid; background: rgba(26,122,74,0.04); }
+.upload-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.upload-icon { font-size: 28px; margin-bottom: 8px; }
+.upload-text { font-size: 13px; color: var(--muted); }
+.upload-text strong { color: var(--gold); }
+.upload-file-name { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--green); margin-top: 6px; display:none; }
+
+/* ── ACTION BUTTONS ── */
+.doc-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+.action-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 16px;
+  border-radius: var(--r);
+  font-size: 12px;
+  font-family: 'Libre Baskerville', serif;
+  cursor: pointer; text-decoration: none;
+  border: none; transition: all 0.18s;
+  letter-spacing: 0.02em;
+}
+.action-btn:hover { transform: translateY(-1px); }
+.btn-primary { background: var(--text); color: #f0ebe0; }
+.btn-primary:hover { background: #2a2018; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+.btn-gold { background: var(--gold); color: #fff; }
+.btn-gold:hover { background: #8a6c26; box-shadow: 0 4px 16px rgba(154,124,46,0.3); }
+.btn-outline { background: transparent; color: var(--gold); border: 1px solid rgba(154,124,46,0.4); }
+.btn-outline:hover { background: var(--gold-dim); }
+.btn-teal { background: var(--teal); color: #fff; }
+.btn-teal:hover { background: #086056; }
+.btn-ghost { background: var(--bg); color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── FORMS ── */
+.form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.form-group:last-child { margin-bottom: 0; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid .full { grid-column: 1/-1; }
+
+label.lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted);
+}
+label.lbl .req { color: var(--gold); }
+
+input[type=text], input[type=email], input[type=tel], input[type=date],
+input[type=number], select, textarea {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 13px;
+  font-size: 13.5px;
+  font-family: 'Libre Baskerville', serif;
+  color: var(--text);
+  transition: border-color 0.18s;
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: var(--gold);
+}
+select option { background: #fff; }
+textarea { resize: vertical; min-height: 80px; }
+
+/* ── INLINE FORM (1003) ── */
+.form-section-head {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--teal);
+  margin: 20px 0 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.form-section-head::before { content:''; flex:none; width:3px; height:11px; background:var(--teal); border-radius:2px; }
+
+/* ── RADIO / CHECKBOX GROUPS ── */
+.radio-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+.radio-opt {
+  display: flex; align-items: center; gap: 7px;
+  cursor: pointer; font-size: 13px; color: var(--text2);
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  transition: all 0.15s;
+  user-select: none;
+}
+.radio-opt:hover { border-color: var(--gold); color: var(--gold); }
+.radio-opt input { display:none; }
+.radio-opt.selected { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+.radio-dot {
+  width: 14px; height: 14px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.radio-opt.selected .radio-dot::after {
+  content: ''; width: 7px; height: 7px;
+  background: var(--gold); border-radius: 50%;
+}
+
+/* ── CHECKLIST ── */
+.checklist { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.check-opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  cursor: pointer; font-size: 13px; color: var(--text2);
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  transition: all 0.15s;
+  user-select: none;
+}
+.check-opt:hover { border-color: var(--gold-l); }
+.check-opt.checked { background: var(--gold-dim); border-color: var(--gold); color: var(--text); }
+.check-opt input { display:none; }
+.check-box {
+  width: 18px; height: 18px; flex-shrink: 0;
+  border: 1.5px solid var(--border2);
+  border-radius: 3px; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; background: var(--bg);
+}
+.check-opt.checked .check-box {
+  background: var(--gold); border-color: var(--gold); color: #fff; font-size: 11px;
+}
+.check-label { flex: 1; }
+.check-label strong { display: block; font-size: 13.5px; margin-bottom: 1px; color: var(--text); }
+.check-label span { font-size: 11.5px; color: var(--muted); }
+
+/* ── DIVIDERS ── */
+.divider {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--muted);
+  display: flex; align-items: center; gap: 14px;
+  margin: 32px 0 20px;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── NOTICE BOX ── */
+.notice {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 13px 16px; border-radius: var(--r);
+  font-size: 12.5px; margin: 14px 0;
+}
+.notice-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.notice-info  { background: var(--teal-dim); border: 1px solid rgba(10,123,106,0.2); color: #0a6b5a; }
+.notice-warn  { background: rgba(154,124,46,0.07); border: 1px solid rgba(154,124,46,0.2); color: var(--amber); }
+.notice-tip   { background: rgba(26,122,74,0.07); border: 1px solid rgba(26,122,74,0.2); color: var(--green); }
+
+/* ── PROGRESS TRACKER ── */
+.progress-tracker {
+  position: sticky; bottom: 0; z-index: 100;
+  background: var(--text);
+  padding: 14px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid #2a2018;
+}
+.pt-left { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.pt-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: rgba(240,235,224,0.45);
+}
+.pt-bar { height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow:hidden; }
+.pt-fill { height:100%; background: linear-gradient(90deg, var(--teal), var(--gold-l)); border-radius:3px; transition: width 0.35s ease; width:0%; }
+.pt-count { font-family:'DM Mono',monospace; font-size:12px; color:rgba(240,235,224,0.55); white-space:nowrap; }
+.pt-submit { white-space:nowrap; }
+
+/* ── SUCCESS STATE ── */
+.success-screen {
+  display: none;
+  text-align: center;
+  padding: 60px 28px;
+}
+.success-screen.show { display: block; }
+.success-icon { font-size: 56px; margin-bottom: 20px; }
+.success-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px; font-weight: 300;
+  color: var(--text); margin-bottom: 14px;
+}
+.success-sub { font-size: 14px; color: var(--muted); max-width: 400px; margin: 0 auto; }
+
+/* ── FILE PREVIEW LIST ── */
+.file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.file-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 12px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: var(--r);
+  font-size: 12px; font-family: 'DM Mono', monospace;
+  color: var(--text2);
+}
+.file-item .fi-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.file-item .fi-size { color: var(--muted); white-space:nowrap; }
+.file-item .fi-remove { cursor:pointer; color:var(--red); font-size:14px; }
+
+/* ── LINK BOX ── */
+.link-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 12px;
+}
+.link-box a {
+  flex: 1; font-family:'DM Mono',monospace; font-size:12px;
+  color: var(--teal); text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.link-box a:hover { text-decoration: underline; }
+
+/* ── SECURE BADGE ── */
+.secure-note {
+  display: flex; align-items: center; gap: 7px; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: 10px;
+  color: var(--muted); letter-spacing: 0.07em;
+  margin-top: 28px;
+}
+
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .header-meta { gap: 14px; }
+  .loan-bar-inner { gap: 20px; }
+  .radio-group { flex-direction: column; }
+  .progress-tracker { flex-direction: column; align-items: stretch; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-bg-pattern"></div>
+  <div class="header-inner">
+    <div class="header-eyebrow">FirstLien Capital · Document Request</div>
+    <div class="header-rule"></div>
+    <h1 class="header-title">Your <em>loan documents</em><br>are waiting on you.</h1>
+    <p class="header-sub" id="header-sub">
+      Please complete this secure form and upload the requested documents. Our team will review everything and move your file to closing as quickly as possible.
+    </p>
+    <div class="header-meta">
+      <div class="header-meta-item">🔒 <span>Secure & Encrypted</span></div>
+      <div class="header-meta-item">📁 <span>Files stored privately</span></div>
+      <div class="header-meta-item" id="meta-file">📋 <span id="meta-fileno">File #—</span></div>
+      <div class="header-meta-item" id="meta-prop" style="display:none">📍 <span id="meta-propval"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOAN SNAPSHOT BAR (shown when params present) -->
+<div id="loan-bar" class="loan-bar">
+  <div class="loan-bar-inner">
+    <div class="loan-bar-item">
+      <div class="loan-bar-label">Loan Amount</div>
+      <div class="loan-bar-value" id="lb-amount">—</div>
+    </div>
+    <div class="loan-bar-item">
+      <div class="loan-bar-label">Property</div>
+      <div class="loan-bar-value" id="lb-prop">—</div>
+    </div>
+    <div class="loan-bar-item">
+      <div class="loan-bar-label">Assigned To</div>
+      <div class="loan-bar-value" id="lb-contact">FirstLien Capital</div>
+    </div>
+    <div class="loan-bar-item">
+      <div class="loan-bar-label">File No.</div>
+      <div class="loan-bar-value" id="lb-file">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-content">
+
+  <!-- ── SECTION: YOUR INFORMATION ── -->
+  <div class="divider">Your Contact Information</div>
+
+  <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:8px;">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="lbl">Your Full Legal Name <span class="req">*</span></label>
+        <input type="text" id="b-name" placeholder="As it appears on your ID" required>
+      </div>
+      <div class="form-group">
+        <label class="lbl">Entity Name (if applicable)</label>
+        <input type="text" id="b-entity" placeholder="Map and Map, LLC">
+      </div>
+      <div class="form-group">
+        <label class="lbl">Best Phone Number <span class="req">*</span></label>
+        <input type="tel" id="b-phone" placeholder="(830) 555-1234" required>
+      </div>
+      <div class="form-group">
+        <label class="lbl">Email Address <span class="req">*</span></label>
+        <input type="email" id="b-email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group full">
+        <label class="lbl">Mailing Address (Home / Personal)</label>
+        <input type="text" id="b-addr" placeholder="108 Covey Ridge Drive, Del Rio, Texas 78840">
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION: REQUESTED DOCUMENTS ── -->
+  <div class="divider" id="docs-divider">Requested Documents</div>
+
+  <div id="doc-list">
+    <!-- Documents are rendered by JS based on URL params -->
+  </div>
+
+  <!-- ── SECTION: ADDITIONAL COMMENTS ── -->
+  <div class="divider">Anything Else We Should Know?</div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;">
+    <div class="form-group">
+      <label class="lbl">Notes / Questions for Our Team</label>
+      <textarea id="b-notes" rows="3" placeholder="Any additional information, questions about the process, or context about any of the documents above..."></textarea>
+    </div>
+  </div>
+
+  <div class="secure-note">
+    🔒 This form is encrypted in transit &nbsp;·&nbsp; Documents are stored securely &nbsp;·&nbsp; firstlien.capital
+  </div>
+
+</div><!-- /main -->
+
+<!-- SUCCESS SCREEN -->
+<div class="success-screen" id="success-screen">
+  <div class="success-icon">✅</div>
+  <div class="success-title">Documents Received</div>
+  <p class="success-sub">
+    Thank you — your file has been updated and our team will review everything shortly.
+    You'll hear from us within one business day.
+  </p>
+  <br>
+  <p style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">
+    Questions? <a href="mailto:info@firstlien.capital" style="color:var(--teal)">info@firstlien.capital</a>
+  </p>
+</div>
+
+<!-- STICKY PROGRESS BAR + SUBMIT -->
+<div class="progress-tracker" id="progress-tracker">
+  <div class="pt-left">
+    <div class="pt-label">Documents Completed</div>
+    <div class="pt-bar"><div class="pt-fill" id="pt-fill"></div></div>
+  </div>
+  <div class="pt-count" id="pt-count">0 of 0</div>
+  <button class="action-btn btn-gold pt-submit" id="btn-submit" onclick="submitForm()">
+    Submit Documents ›
+  </button>
+</div>
+
+
+<script>
+// ─── URL PARAM PARSING ────────────────────────────────────────────────────────
+// Admin generates a link like:
+// /docorder.html?file=49559&name=Map+and+Map+LLC&prop=Champions+Inn&amt=399000&docs=dl,f1003,title,purchase,appraisal,entitydocs&contact=Andrew+Dioli
+//
+// docs= comma-separated list of doc IDs to request
+// All params optional — defaults to all docs if none specified
+
+function getParam(key, def='') {
+  return new URLSearchParams(window.location.search).get(key) || def;
+}
+
+const PARAMS = {
+  file:    getParam('file'),
+  name:    getParam('name'),
+  prop:    getParam('prop'),
+  amt:     getParam('amt'),
+  docs:    getParam('docs'),       // comma list, empty = show all
+  contact: getParam('contact', 'FirstLien Capital'),
+  msg:     getParam('msg'),        // optional custom message
+};
+
+// ─── DOC DEFINITIONS ─────────────────────────────────────────────────────────
+const ALL_DOCS = [
+  {
+    id:       'dl',
+    icon:     '🪪',
+    name:     "Government-Issued Photo ID",
+    desc:     "Driver's license or passport for all signing parties",
+    required: true,
+    type:     'upload',
+    accept:   '.pdf,.jpg,.jpeg,.png',
+    instructions: `Please upload a clear, color photo or scan of your <strong>driver's license (front and back)</strong> or passport. The image must be:
+    <ul style="margin:8px 0 0 20px;font-size:13px;color:var(--text2)">
+      <li>In color (no black & white photos)</li>
+      <li>Clearly legible — all text and photo visible</li>
+      <li>Not expired</li>
+      <li>Accepted formats: PDF, JPG, or PNG</li>
+    </ul>`,
+  },
+  {
+    id:       'f1003',
+    icon:     '📋',
+    name:     "Loan Application (1003 / URLA)",
+    desc:     "Uniform Residential Loan Application — or complete one online below",
+    required: true,
+    type:     'upload-or-fill',
+    accept:   '.pdf',
+    instructions: `Upload a completed <strong>1003 / Uniform Residential Loan Application</strong> if you already have one from a previous lender, or complete our short version below. Both options are accepted.`,
+    hasFillForm: true,
+  },
+  {
+    id:       'title',
+    icon:     '📜',
+    name:     "Preliminary Title Report / Title Commitment",
+    desc:     "From your title company showing property ownership and liens",
+    required: false,
+    type:     'upload',
+    accept:   '.pdf',
+    instructions: `Please obtain a <strong>Preliminary Title Report</strong> (sometimes called a Title Commitment) from a licensed title company and upload it here. Contact your escrow officer or we can refer you to Del Rio Title Company if needed.`,
+  },
+  {
+    id:       'purchase',
+    icon:     '🤝',
+    name:     "Purchase Contract / Escrow Instructions",
+    desc:     "Signed purchase agreement if this is an acquisition",
+    required: false,
+    type:     'upload',
+    accept:   '.pdf',
+    instructions: `Upload the fully executed <strong>Purchase and Sale Agreement</strong> for the property, including all addenda and any counter-offers. If this is a refinance, this item does not apply.`,
+  },
+  {
+    id:       'appraisal',
+    icon:     '🏗',
+    name:     "Appraisal Report",
+    desc:     "Full appraisal by a licensed MAI or state-certified appraiser",
+    required: false,
+    type:     'upload',
+    accept:   '.pdf',
+    instructions: `Upload the <strong>complete appraisal report</strong> including all addenda and the appraiser's license. We accept FNMA 1004, commercial narrative, or desk review appraisals. Minimum: Colliers, CBRE, or licensed state-certified appraiser.`,
+  },
+  {
+    id:       'entitydocs',
+    icon:     '🏢',
+    name:     "Entity Documents",
+    desc:     "Articles of Organization, Operating Agreement, Certificate of Good Standing",
+    required: false,
+    type:     'upload-multi',
+    accept:   '.pdf',
+    instructions: `If borrowing through an LLC, corporation, or trust, please upload:
+    <ul style="margin:8px 0 0 20px;font-size:13px;color:var(--text2)">
+      <li><strong>Articles of Organization or Incorporation</strong> (filed with Secretary of State)</li>
+      <li><strong>Operating Agreement</strong> (showing who has authority to sign)</li>
+      <li><strong>Certificate of Good Standing</strong> (dated within 90 days — obtain from Secretary of State)</li>
+      <li><strong>EIN Confirmation Letter</strong> (IRS SS-4 or CP-575) if available</li>
+    </ul>`,
+    multiFiles: [],
+  },
+  {
+    id:       'insurance',
+    icon:     '🛡',
+    name:     "Property Insurance Declaration Page",
+    desc:     "Current hazard / property insurance policy showing coverage",
+    required: false,
+    type:     'upload',
+    accept:   '.pdf',
+    instructions: `Upload the <strong>Declarations Page</strong> (first page of your insurance policy) showing the property address, coverage amounts, and policy period. The policy must show at minimum:
+    <ul style="margin:8px 0 0 20px;font-size:13px;color:var(--text2)">
+      <li>Property/hazard coverage at full replacement cost</li>
+      <li>Liability coverage ($1M minimum)</li>
+      <li>Business interruption if commercial</li>
+    </ul>`,
+  },
+  {
+    id:       'taxreturns',
+    icon:     '📊',
+    name:     "Tax Returns / Financial Statements",
+    desc:     "2 years personal and/or business tax returns",
+    required: false,
+    type:     'upload-multi',
+    accept:   '.pdf',
+    instructions: `Please upload the last <strong>2 years of tax returns</strong> — both personal (1040) and business (if applicable). Include all schedules and K-1s. If current year is available, include that as well.`,
+    multiFiles: [],
+  },
+  {
+    id:       'bankstmts',
+    icon:     '🏦',
+    name:     "Bank Statements",
+    desc:     "Last 3 months of all bank/asset accounts",
+    required: false,
+    type:     'upload-multi',
+    accept:   '.pdf',
+    instructions: `Upload the last <strong>3 months of statements</strong> for all bank accounts (checking, savings, investment). All pages of each statement must be included. PDFs directly from your bank's portal are preferred.`,
+    multiFiles: [],
+  },
+  {
+    id:       'rentroll',
+    icon:     '📈',
+    name:     "Rent Roll / Income Summary",
+    desc:     "Current rent roll showing all tenants, rents, and lease terms",
+    required: false,
+    type:     'upload',
+    accept:   '.pdf,.xlsx,.xls,.csv',
+    instructions: `For income-producing properties, please upload a current <strong>Rent Roll</strong> showing all tenants, unit/suite numbers, current rents, lease start/end dates, and any vacancies. If available, attach actual executed leases as well.`,
+  },
+  {
+    id:       'photos',
+    icon:     '📸',
+    name:     "Property Photos",
+    desc:     "Interior and exterior photos of the subject property",
+    required: false,
+    type:     'upload-multi',
+    accept:   '.jpg,.jpeg,.png,.pdf',
+    instructions: `Please provide <strong>current photos of the property</strong> including exterior (all four sides), interior (all rooms/units), and any notable features or deferred maintenance items. Minimum 10 photos recommended.`,
+    multiFiles: [],
+  },
+  {
+    id:       'other',
+    icon:     '📎',
+    name:     "Additional Documents",
+    desc:     "Any other supporting documentation",
+    required: false,
+    type:     'upload-multi',
+    accept:   '.pdf,.jpg,.jpeg,.png,.docx',
+    instructions: `Use this section to upload any additional documents that may be relevant to your loan request that weren't covered above.`,
+    multiFiles: [],
+  },
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const docState = {};   // id → { files: [], filled: bool, expanded: bool }
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function init() {
+  // Populate header from params
+  if (PARAMS.file) {
+    document.getElementById('meta-fileno').textContent = 'File #' + PARAMS.file;
+    document.getElementById('lb-file').textContent = PARAMS.file;
+  }
+  if (PARAMS.prop) {
+    document.getElementById('meta-prop').style.display = 'flex';
+    document.getElementById('meta-propval').textContent = PARAMS.prop;
+    document.getElementById('lb-prop').textContent = PARAMS.prop;
+  }
+  if (PARAMS.amt) {
+    const n = parseFloat(PARAMS.amt);
+    document.getElementById('lb-amount').textContent = '$'+n.toLocaleString('en-US',{minimumFractionDigits:0});
+    document.getElementById('loan-bar').style.display = 'block';
+  }
+  if (PARAMS.name) {
+    document.getElementById('b-name').value = PARAMS.name;
+  }
+  if (PARAMS.contact) {
+    document.getElementById('lb-contact').textContent = PARAMS.contact;
+  }
+  if (PARAMS.msg) {
+    document.getElementById('header-sub').textContent = PARAMS.msg;
+  }
+
+  // Determine which docs to show
+  let docsToShow;
+  if (PARAMS.docs) {
+    const requested = PARAMS.docs.split(',').map(d => d.trim().toLowerCase());
+    docsToShow = ALL_DOCS.filter(d => requested.includes(d.id));
+    // Always include 'other' as last
+    if (!docsToShow.find(d => d.id === 'other')) {
+      docsToShow.push(ALL_DOCS.find(d => d.id === 'other'));
+    }
+  } else {
+    docsToShow = ALL_DOCS;
+  }
+
+  // Init state
+  docsToShow.forEach(doc => {
+    docState[doc.id] = { files:[], filled:false, expanded: doc.required };
+  });
+
+  // Render
+  const list = document.getElementById('doc-list');
+  list.innerHTML = docsToShow.map(doc => renderDoc(doc)).join('');
+
+  // Event listeners for toggle
+  document.querySelectorAll('.doc-header').forEach(h => {
+    h.addEventListener('click', () => toggleDoc(h.dataset.id));
+  });
+
+  updateProgress();
+}
+
+// ─── RENDER DOC ITEM ─────────────────────────────────────────────────────────
+function renderDoc(doc) {
+  const state = docState[doc.id];
+  const isOpen = state.expanded;
+  const isDone = state.filled || state.files.length > 0;
+
+  return `
+  <div class="doc-item ${doc.required ? 'required' : 'optional'} ${isOpen ? 'open' : ''} ${isDone ? 'completed' : ''}"
+       id="doc-${doc.id}">
+    <div class="doc-header" data-id="${doc.id}">
+      <div class="doc-check">${isDone ? '✓' : ''}</div>
+      <div class="doc-icon">${doc.icon}</div>
+      <div class="doc-info">
+        <div class="doc-name">${doc.name}</div>
+        <div class="doc-desc">${doc.desc}</div>
+      </div>
+      <span class="doc-badge ${doc.required ? 'badge-req' : 'badge-opt'}">${doc.required ? 'Required' : 'Requested'}</span>
+      <div class="doc-expand">▼</div>
+    </div>
+    <div class="doc-body">
+      <div class="doc-instructions">${doc.instructions}</div>
+      ${renderDocBody(doc)}
+    </div>
+  </div>`;
+}
+
+function renderDocBody(doc) {
+  if (doc.id === 'f1003') return renderF1003();
+
+  const accept = doc.accept || '.pdf';
+  const multi  = doc.type === 'upload-multi';
+
+  return `
+    <div class="upload-zone ${multi ? '' : ''}" id="uz-${doc.id}" onclick="triggerUpload('${doc.id}')">
+      <input type="file" id="fi-${doc.id}" accept="${accept}"
+             ${multi ? 'multiple' : ''}
+             onchange="handleFiles('${doc.id}', this.files)" style="display:none">
+      <div class="upload-icon">📤</div>
+      <div class="upload-text">
+        <strong>Click to select file${multi ? 's' : ''}</strong> or drag and drop<br>
+        <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--muted)">${accept.replace(/\./g,'').toUpperCase().split(',').join(' · ')}</span>
+      </div>
+    </div>
+    <div class="file-list" id="fl-${doc.id}"></div>
+    <div class="doc-actions" style="margin-top:10px;">
+      <button class="action-btn btn-primary" onclick="triggerUpload('${doc.id}')">
+        📎 Select File${multi ? 's' : ''}
+      </button>
+      ${doc.id === 'dl' ? `<a href="https://dmv.texas.gov" target="_blank" class="action-btn btn-ghost">
+        🔗 Texas DMV (ID renewal)
+      </a>` : ''}
+      ${doc.id === 'title' ? `<a href="mailto:aracely@delriotitle.com?subject=Title%20Commitment%20Request" class="action-btn btn-ghost">
+        📧 Contact Del Rio Title
+      </a>` : ''}
+      ${doc.id === 'entitydocs' ? `<a href="https://www.sos.state.tx.us/corp/sosda/index.shtml" target="_blank" class="action-btn btn-ghost">
+        🔗 TX Secretary of State
+      </a>` : ''}
+    </div>`;
+}
+
+function renderF1003() {
+  return `
+    <div class="notice notice-tip">
+      <span class="notice-icon">💡</span>
+      <div>Already have a 1003? Upload it below. Or fill in the short version here — takes about 3 minutes.</div>
+    </div>
+
+    <div class="upload-zone" id="uz-f1003" onclick="triggerUpload('f1003')">
+      <input type="file" id="fi-f1003" accept=".pdf" onchange="handleFiles('f1003', this.files)" style="display:none">
+      <div class="upload-icon">📤</div>
+      <div class="upload-text"><strong>Upload existing 1003 / URLA</strong> (PDF)</div>
+    </div>
+    <div class="file-list" id="fl-f1003"></div>
+
+    <div class="divider" style="margin:20px 0 16px;font-size:9px;">or complete short form below</div>
+
+    <div class="form-section-head">Borrower Information</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="lbl">Full Legal Name <span class="req">*</span></label>
+        <input type="text" id="lo-name" placeholder="Mario Alberto Perez" oninput="check1003()">
+      </div>
+      <div class="form-group">
+        <label class="lbl">Date of Birth</label>
+        <input type="date" id="lo-dob">
+      </div>
+      <div class="form-group">
+        <label class="lbl">Social Security #</label>
+        <input type="text" id="lo-ssn" placeholder="XXX-XX-XXXX (for credit check only)">
+      </div>
+      <div class="form-group">
+        <label class="lbl">Marital Status</label>
+        <select id="lo-marital">
+          <option value="">— Select —</option>
+          <option>Married</option>
+          <option>Unmarried</option>
+          <option>Separated</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="lbl">Current Residence Address</label>
+        <input type="text" id="lo-addr" placeholder="108 Covey Ridge Drive, Del Rio, Texas 78840">
+      </div>
+      <div class="form-group">
+        <label class="lbl">Years at this Address</label>
+        <input type="number" id="lo-yrs" placeholder="5" min="0" max="99">
+      </div>
+      <div class="form-group">
+        <label class="lbl">Housing</label>
+        <div class="radio-group">
+          <label class="radio-opt" onclick="selectRadio(this,'lo-housing')">
+            <input type="radio" name="lo-housing" value="Own"> <div class="radio-dot"></div> Own
+          </label>
+          <label class="radio-opt" onclick="selectRadio(this,'lo-housing')">
+            <input type="radio" name="lo-housing" value="Rent"> <div class="radio-dot"></div> Rent
+          </label>
+          <label class="radio-opt" onclick="selectRadio(this,'lo-housing')">
+            <input type="radio" name="lo-housing" value="Other"> <div class="radio-dot"></div> Other
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section-head">Employment & Income</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="lbl">Employer / Business Name</label>
+        <input type="text" id="lo-employer" placeholder="Map and Map, LLC">
+      </div>
+      <div class="form-group">
+        <label class="lbl">Position / Title</label>
+        <input type="text" id="lo-title" placeholder="Managing Member">
+      </div>
+      <div class="form-group">
+        <label class="lbl">Years at Job</label>
+        <input type="number" id="lo-empyrs" placeholder="10" min="0" max="60">
+      </div>
+      <div class="form-group">
+        <label class="lbl">Monthly Gross Income ($)</label>
+        <input type="number" id="lo-income" placeholder="25000">
+      </div>
+    </div>
+
+    <div class="form-section-head">Property & Loan Purpose</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label class="lbl">Subject Property Address</label>
+        <input type="text" id="lo-propaddr" placeholder="11704 West U.S. Highway 90, Del Rio, Texas 78840">
+      </div>
+      <div class="form-group">
+        <label class="lbl">Purpose of Loan</label>
+        <select id="lo-purpose">
+          <option value="">— Select —</option>
+          <option>Purchase</option>
+          <option>Refinance</option>
+          <option>Cash-Out Refinance</option>
+          <option>Construction</option>
+          <option>Bridge / Short-Term</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="lbl">Property Use</label>
+        <select id="lo-use">
+          <option value="">— Select —</option>
+          <option>Investment / Rental</option>
+          <option>Commercial</option>
+          <option>Mixed Use</option>
+          <option>Primary Residence</option>
+          <option>Second Home</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="lbl">Appraised / Purchase Value ($)</label>
+        <input type="number" id="lo-value" placeholder="1150000">
+      </div>
+      <div class="form-group">
+        <label class="lbl">Loan Amount Requested ($)</label>
+        <input type="number" id="lo-loanamt" placeholder="399000">
+      </div>
+    </div>
+
+    <div class="form-section-head">Declarations</div>
+    <div class="checklist">
+      <label class="check-opt" onclick="toggleCheck(this)">
+        <input type="checkbox" id="dec-1">
+        <div class="check-box"></div>
+        <div class="check-label">
+          <strong>Ownership / Outstanding Judgments</strong>
+          <span>I do not have any outstanding judgments against me</span>
+        </div>
+      </label>
+      <label class="check-opt" onclick="toggleCheck(this)">
+        <input type="checkbox" id="dec-2">
+        <div class="check-box"></div>
+        <div class="check-label">
+          <strong>No Recent Bankruptcy</strong>
+          <span>I have not declared bankruptcy in the last 7 years</span>
+        </div>
+      </label>
+      <label class="check-opt" onclick="toggleCheck(this)">
+        <input type="checkbox" id="dec-3">
+        <div class="check-box"></div>
+        <div class="check-label">
+          <strong>US Citizen / Permanent Resident</strong>
+          <span>I am a U.S. citizen or permanent resident alien</span>
+        </div>
+      </label>
+      <label class="check-opt" onclick="toggleCheck(this)">
+        <input type="checkbox" id="dec-4">
+        <div class="check-box"></div>
+        <div class="check-label">
+          <strong>Business Purpose Certification</strong>
+          <span>This loan is for business/investment purposes, not for personal family or household use</span>
+        </div>
+      </label>
+    </div>
+
+    <div style="margin-top:16px;">
+      <button class="action-btn btn-teal" onclick="save1003()">✓ Save Application</button>
+    </div>
+  `;
+}
+
+// ─── INTERACTIONS ─────────────────────────────────────────────────────────────
+function toggleDoc(id) {
+  const el = document.getElementById('doc-' + id);
+  el.classList.toggle('open');
+  docState[id].expanded = el.classList.contains('open');
+}
+
+function triggerUpload(id) {
+  document.getElementById('fi-' + id)?.click();
+}
+
+function handleFiles(id, files) {
+  if (!files || files.length === 0) return;
+  const state = docState[id];
+  const fl = document.getElementById('fl-' + id);
+  const uz = document.getElementById('uz-' + id);
+
+  Array.from(files).forEach(file => {
+    state.files.push(file);
+    const li = document.createElement('div');
+    li.className = 'file-item';
+    li.innerHTML = `
+      <span>📎</span>
+      <span class="fi-name">${file.name}</span>
+      <span class="fi-size">${(file.size/1024).toFixed(0)}KB</span>
+      <span class="fi-remove" onclick="removeFile('${id}', '${file.name}', this.parentElement)">✕</span>
+    `;
+    fl.appendChild(li);
+  });
+
+  uz.classList.add('has-file');
+  markDone(id, true);
+  updateProgress();
+}
+
+function removeFile(id, name, el) {
+  docState[id].files = docState[id].files.filter(f => f.name !== name);
+  el.remove();
+  if (docState[id].files.length === 0 && !docState[id].filled) {
+    markDone(id, false);
+  }
+  updateProgress();
+}
+
+function markDone(id, done) {
+  const el = document.getElementById('doc-' + id);
+  const check = el.querySelector('.doc-check');
+  const badge = el.querySelector('.doc-badge');
+  el.classList.toggle('completed', done);
+  check.textContent = done ? '✓' : '';
+  if (done && badge) {
+    badge.className = 'doc-badge badge-done';
+    badge.textContent = 'Received ✓';
+  }
+}
+
+function selectRadio(el, name) {
+  document.querySelectorAll(`[name="${name}"]`).forEach(r => {
+    r.closest('.radio-opt')?.classList.remove('selected');
+  });
+  el.classList.add('selected');
+}
+
+function toggleCheck(el) {
+  const cb = el.querySelector('input[type=checkbox]');
+  cb.checked = !cb.checked;
+  el.classList.toggle('checked', cb.checked);
+}
+
+function check1003() {
+  const name = document.getElementById('lo-name')?.value || '';
+  if (name.length > 2 && !docState['f1003'].filled) {
+    // auto-save indication
+  }
+}
+
+function save1003() {
+  docState['f1003'].filled = true;
+  markDone('f1003', true);
+  updateProgress();
+  const btn = event.target;
+  btn.textContent = '✓ Saved!';
+  btn.style.background = 'var(--green)';
+  setTimeout(() => {
+    btn.textContent = '✓ Save Application';
+    btn.style.background = '';
+  }, 2000);
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────────────────────
+function updateProgress() {
+  const all   = Object.keys(docState);
+  const done  = all.filter(id => {
+    const s = docState[id];
+    return s.filled || (s.files && s.files.length > 0);
+  });
+  const pct   = all.length ? Math.round(done.length / all.length * 100) : 0;
+  document.getElementById('pt-fill').style.width  = pct + '%';
+  document.getElementById('pt-count').textContent = done.length + ' of ' + all.length;
+}
+
+// ─── SUBMIT ──────────────────────────────────────────────────────────────────
+function submitForm() {
+  const name  = document.getElementById('b-name').value.trim();
+  const email = document.getElementById('b-email').value.trim();
+  const phone = document.getElementById('b-phone').value.trim();
+
+  if (!name || !email || !phone) {
+    alert('Please complete your name, email, and phone number at the top of the form.');
+    document.getElementById('b-name').scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+
+  // Build submission summary
+  const submitted = Object.entries(docState).map(([id, s]) => {
+    const doc = ALL_DOCS.find(d => d.id === id);
+    const files = (s.files||[]).map(f => f.name).join(', ');
+    return {
+      doc: doc?.name || id,
+      status: (s.filled || s.files?.length > 0) ? 'provided' : 'not provided',
+      files
+    };
+  });
+
+  console.log('Submission:', { name, email, phone, file: PARAMS.file, submitted });
+
+  // In production: POST to Firebase / Firestore / Formspree / EmailJS here
+  // For now, show success state
+
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('progress-tracker').style.display = 'none';
+  document.querySelector('.loan-bar') && (document.querySelector('.loan-bar').style.display = 'none');
+  document.getElementById('success-screen').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ─── LINK GENERATOR (shown in admin mode: ?admin=1) ──────────────────────────
+function showLinkGenerator() {
+  if (!getParam('admin')) return;
+
+  const genDiv = document.createElement('div');
+  genDiv.style.cssText = 'position:fixed;top:70px;right:20px;width:340px;background:#fff;border:1px solid #ddd;border-radius:6px;padding:20px;box-shadow:0 8px 32px rgba(0,0,0,0.12);z-index:999;font-family:sans-serif;font-size:13px;';
+  genDiv.innerHTML = `
+    <div style="font-weight:bold;margin-bottom:12px;font-size:14px;">🔗 Generate Doc Request Link</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <input id="lg-file" placeholder="File # (e.g. 49559)" style="border:1px solid #ddd;padding:7px 10px;border-radius:4px;font-size:12px;">
+      <input id="lg-name" placeholder="Borrower name" style="border:1px solid #ddd;padding:7px 10px;border-radius:4px;font-size:12px;">
+      <input id="lg-prop" placeholder="Property (short)" style="border:1px solid #ddd;padding:7px 10px;border-radius:4px;font-size:12px;">
+      <input id="lg-amt"  placeholder="Loan amount (e.g. 399000)" style="border:1px solid #ddd;padding:7px 10px;border-radius:4px;font-size:12px;">
+      <div style="font-size:11px;font-weight:bold;margin-top:4px;">Request these documents:</div>
+      ${ALL_DOCS.filter(d => d.id !== 'other').map(d => `
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="checkbox" class="lg-doc" value="${d.id}" ${d.required ? 'checked' : ''}>
+          <span>${d.icon} ${d.name}</span>
+        </label>
+      `).join('')}
+      <button onclick="generateLink()" style="margin-top:8px;background:#9a7c2e;color:#fff;border:none;padding:9px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:bold;">Generate Link</button>
+      <div id="lg-output" style="margin-top:6px;"></div>
+    </div>
+  `;
+  document.body.appendChild(genDiv);
+}
+
+function generateLink() {
+  const file    = document.getElementById('lg-file').value.trim();
+  const name    = document.getElementById('lg-name').value.trim();
+  const prop    = document.getElementById('lg-prop').value.trim();
+  const amt     = document.getElementById('lg-amt').value.trim();
+  const checked = Array.from(document.querySelectorAll('.lg-doc:checked')).map(c => c.value);
+  checked.push('other');
+
+  const base   = window.location.origin + window.location.pathname;
+  const params = new URLSearchParams();
+  if (file) params.set('file', file);
+  if (name) params.set('name', name);
+  if (prop) params.set('prop', prop);
+  if (amt)  params.set('amt', amt);
+  if (checked.length) params.set('docs', checked.join(','));
+
+  const url = base + '?' + params.toString();
+  const out = document.getElementById('lg-output');
+  out.innerHTML = `
+    <div style="background:#f5f2ec;border:1px solid #ddd;border-radius:4px;padding:8px;word-break:break-all;font-size:10px;font-family:monospace;">
+      ${url}
+    </div>
+    <button onclick="navigator.clipboard.writeText('${url.replace(/'/g,"\\'")}').then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Link',1500)})"
+      style="margin-top:6px;background:#1a1510;color:#fff;border:none;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:12px;width:100%;">
+      Copy Link
+    </button>
+  `;
+}
+
+// ─── START ────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+  showLinkGenerator();
+});
+</script>
+</body>
+</html>
