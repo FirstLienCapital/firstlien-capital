@@ -325,6 +325,7 @@ select option{background:var(--s2);}
       <button class="nav-tab active" onclick="showTab('dash',this)">Dashboard</button>
       <button class="nav-tab" onclick="showTab('docorder',this)">Doc Request</button>
       <button class="nav-tab" onclick="showTab('docprep',this)">Doc Prep Engine</button>
+      <button class="nav-tab" onclick="showTab('content',this)">Content Manager</button>
     </div>
     <div class="nav-right">
       <span class="nav-badge">Admin</span>
@@ -640,6 +641,69 @@ select option{background:var(--s2);}
       </div>
 
     </div><!-- /tab-docprep -->
+
+    <!-- ── CONTENT MANAGER TAB ── -->
+    <div class="tab-panel" id="tab-content">
+
+      <div class="alert alert-info" style="margin-bottom:20px;">
+        <span>ℹ</span>
+        <span>Changes here update the <strong>borrower.html</strong> and <strong>lender.html</strong> pages instantly on page load. Copy the generated config and paste it into the SITE_CONFIG block in those files, then commit to GitHub.</span>
+      </div>
+
+      <!-- RATES -->
+      <div class="card">
+        <div class="card-head"><span style="font-size:18px">💰</span><div class="card-title">Interest Rates & Loan Products</div></div>
+        <div id="rates-editor"></div>
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn btn-teal" onclick="addRate()">+ Add Rate Row</button>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="card">
+        <div class="card-head"><span style="font-size:18px">📊</span><div class="card-title">Homepage Stats (Hero Section)</div></div>
+        <div class="fg2">
+          <div class="field"><div class="flbl">Active Lenders</div><input type="text" id="cm-lenders" value="1,000+" placeholder="1,000+"></div>
+          <div class="field"><div class="flbl">Total Funded</div><input type="text" id="cm-funded" value="$2.4B+" placeholder="$2.4B+"></div>
+          <div class="field"><div class="flbl">Avg Response Time</div><input type="text" id="cm-response" value="24 hr" placeholder="24 hr"></div>
+          <div class="field"><div class="flbl">Broker Fee</div><input type="text" id="cm-fee" value="1 Pt" placeholder="1 Pt"></div>
+          <div class="field"><div class="flbl">Active Deals (Lender Page)</div><input type="text" id="cm-deals" value="200+" placeholder="200+"></div>
+          <div class="field"><div class="flbl">Avg Yield (Lender Page)</div><input type="text" id="cm-yield" value="11.2%" placeholder="11.2%"></div>
+        </div>
+      </div>
+
+      <!-- RATES DISCLAIMER -->
+      <div class="card">
+        <div class="card-head"><span style="font-size:18px">⚠</span><div class="card-title">Rates Disclaimer Text</div></div>
+        <div class="field">
+          <div class="flbl">Disclaimer shown below rates table</div>
+          <textarea id="cm-disclaimer" rows="2" style="font-family:'DM Mono',monospace;font-size:11px;">Rates shown are indicative market ranges. Actual rate depends on LTV, FICO, property type, and lender. Not a commitment to lend. Updated daily.</textarea>
+        </div>
+      </div>
+
+      <!-- STATES -->
+      <div class="card">
+        <div class="card-head"><span style="font-size:18px">🗺</span><div class="card-title">Active States</div></div>
+        <div class="field">
+          <div class="flbl">Comma-separated state abbreviations</div>
+          <textarea id="cm-states" rows="3" style="font-family:'DM Mono',monospace;font-size:11px;">AL,AK,AZ,AR,CA,CO,CT,DE,FL,GA,HI,ID,IL,IN,IA,KS,KY,LA,ME,MD,MA,MI,MN,MS,MO,MT,NE,NV,NH,NJ,NM,NY,NC,ND,OH,OK,OR,PA,RI,SC,SD,TN,TX,UT,VT,VA,WA,WV,WI,WY</textarea>
+        </div>
+      </div>
+
+      <!-- GENERATE CONFIG -->
+      <div class="card">
+        <div class="card-head"><span style="font-size:18px">📋</span><div class="card-title">Generate Updated SITE_CONFIG</div></div>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:14px;">Click below to generate the updated config block. Copy it and replace the SITE_CONFIG variable in both borrower.html and lender.html, then commit to GitHub.</p>
+        <button class="btn btn-gold" onclick="generateConfig()">Generate Config →</button>
+        <div id="config-output" style="display:none;margin-top:14px;">
+          <div class="logbox" id="config-code" style="max-height:300px;color:var(--green);font-size:10px;user-select:all;"></div>
+          <div class="btn-row">
+            <button class="btn btn-teal" onclick="copyConfig()">📋 Copy Config</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-content -->
 
   </div><!-- /content -->
 </div><!-- /admin-shell -->
@@ -1133,6 +1197,147 @@ async function dpRun() {
 }
 
 function dpReset(){dpTplBytes=null;dpGo(1);document.getElementById('dp-tpl-info').style.display='none';document.getElementById('dp-btn1').disabled=true;}
+
+// ── CONTENT MANAGER ───────────────────────────────────────────────────────────
+var CM_RATES = [
+  { type:'Bridge',       rate:'9–12%',    detail:'12–36 month', ltv:'Up to 75% LTV' },
+  { type:'Fix & Flip',   rate:'10–13%',   detail:'6–18 month',  ltv:'Up to 80% ARV' },
+  { type:'DSCR / Rental',rate:'7.5–10%',  detail:'30 year',     ltv:'Up to 80% LTV' },
+  { type:'Construction', rate:'11–14%',   detail:'12–24 month', ltv:'Up to 70% LTC' },
+  { type:'Commercial',   rate:'8–12%',    detail:'2–10 year',   ltv:'Up to 75% LTV' },
+  { type:'Land',         rate:'10–14%',   detail:'12–36 month', ltv:'Up to 65% LTV' },
+];
+
+function renderRatesEditor() {
+  var html = '<table style="width:100%;border-collapse:collapse;">' +
+    '<tr>' +
+    '<th style="text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding:6px 10px;border:1px solid var(--border);background:var(--s2);">Product Type</th>' +
+    '<th style="text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding:6px 10px;border:1px solid var(--border);background:var(--s2);">Rate Range</th>' +
+    '<th style="text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding:6px 10px;border:1px solid var(--border);background:var(--s2);">Term</th>' +
+    '<th style="text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding:6px 10px;border:1px solid var(--border);background:var(--s2);">Max LTV</th>' +
+    '<th style="text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding:6px 10px;border:1px solid var(--border);background:var(--s2);">Remove</th>' +
+    '</tr>';
+  CM_RATES.forEach(function(r, i) {
+    html += '<tr>' +
+      '<td style="border:1px solid var(--border);padding:4px;"><input type="text" value="'+r.type+'" onchange="CM_RATES['+i+'].type=this.value" style="background:var(--s2);border:none;color:var(--text);font-family:\'DM Mono\',monospace;font-size:11px;width:100%;padding:6px;"></td>' +
+      '<td style="border:1px solid var(--border);padding:4px;"><input type="text" value="'+r.rate+'" onchange="CM_RATES['+i+'].rate=this.value" style="background:var(--s2);border:none;color:var(--gold);font-family:\'DM Mono\',monospace;font-size:11px;width:100%;padding:6px;"></td>' +
+      '<td style="border:1px solid var(--border);padding:4px;"><input type="text" value="'+r.detail+'" onchange="CM_RATES['+i+'].detail=this.value" style="background:var(--s2);border:none;color:var(--text);font-family:\'DM Mono\',monospace;font-size:11px;width:100%;padding:6px;"></td>' +
+      '<td style="border:1px solid var(--border);padding:4px;"><input type="text" value="'+r.ltv+'" onchange="CM_RATES['+i+'].ltv=this.value" style="background:var(--s2);border:none;color:var(--text);font-family:\'DM Mono\',monospace;font-size:11px;width:100%;padding:6px;"></td>' +
+      '<td style="border:1px solid var(--border);padding:4px;text-align:center;"><button onclick="removeRate('+i+')" style="background:rgba(224,82,82,0.15);border:1px solid rgba(224,82,82,0.3);color:var(--red);border-radius:3px;padding:4px 8px;cursor:pointer;font-size:11px;">✕</button></td>' +
+    '</tr>';
+  });
+  html += '</table>';
+  document.getElementById('rates-editor').innerHTML = html;
+}
+
+function addRate() {
+  CM_RATES.push({ type:'New Product', rate:'9–12%', detail:'12–24 month', ltv:'Up to 75% LTV' });
+  renderRatesEditor();
+}
+function removeRate(i) {
+  CM_RATES.splice(i, 1);
+  renderRatesEditor();
+}
+
+function generateConfig() {
+  var states = document.getElementById('cm-states').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  
+  // Build rates in new format
+  var rates = CM_RATES.map(function(r) {
+    return { type: r.type, range: r.rate, ltv: r.ltv, term: r.detail };
+  });
+
+  // Borrower SITE_CONFIG (matches borrower.html format)
+  var borrowerConfig = {
+    stats: {
+      lenders:   document.getElementById('cm-lenders').value,
+      upfront:   '$0 Upfront',
+      firstSheet: document.getElementById('cm-response').value,
+      states:    '50'
+    },
+    rates: rates,
+    ratesDisclaimer: document.getElementById('cm-disclaimer').value,
+    trustItems: [
+      {icon:"🔒",title:"SSL Secured",sub:"Bank-grade encryption"},
+      {icon:"⚡",title:"AI Matching",sub:"Gemini-powered"},
+      {icon:"🏦",title:document.getElementById('cm-lenders').value+" Lenders",sub:"Active network"},
+      {icon:"$0",title:"No Upfront Fee",sub:"Pay only at close"},
+      {icon:"🚫",title:"No Hard Pull",sub:"Soft inquiry only"},
+      {icon:"📡",title:"AVM Verified",sub:"Auto-valuations"},
+      {icon:"🛡️",title:"Lowball Shield",sub:"You set the floor"},
+      {icon:"⏱",title:document.getElementById('cm-response').value+" Response",sub:"First offer avg"},
+      {icon:"🌍",title:"All 50 States",sub:"Full coverage"},
+      {icon:"⚖️",title:"Equal Housing",sub:"Fair lending"}
+    ],
+    propertyTypes: [
+      {name:"Single Family",sub:"1–4 unit residential",img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&q=80"},
+      {name:"Fix & Flip",sub:"Distressed / needs rehab",img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80"},
+      {name:"Multi-Family",sub:"5+ unit apartment",img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80"},
+      {name:"Commercial",sub:"Office / retail / industrial",img:"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80"},
+      {name:"Hospitality",sub:"Motels / hotels / B&Bs",img:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80"},
+      {name:"Mixed-Use",sub:"Retail + residential",img:"https://images.unsplash.com/photo-1460317442991-0ec209397118?w=400&q=80"},
+      {name:"Industrial",sub:"Warehouse / flex space",img:"https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&q=80"},
+      {name:"Construction",sub:"Ground-up / ADU / teardown",img:"https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=80"},
+      {name:"Land / Lots",sub:"Raw land / entitled lots",img:"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=400&q=80"},
+      {name:"Special Purpose",sub:"Churches / schools / flex",img:"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80"},
+      {name:"Short-Term Rental",sub:"Airbnb / VRBO",img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80"},
+      {name:"NNN / Triple Net",sub:"Retail with tenant",img:"https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&q=80"}
+    ],
+    states: states
+  };
+
+  // Lender SITE_CONFIG (matches lender.html format)
+  var lenderConfig = {
+    stats: {
+      deals:    document.getElementById('cm-deals').value,
+      yield:    document.getElementById('cm-yield').value,
+      position: '1st Lien',
+      states:   '50'
+    },
+    trustItems: [
+      {icon:"🔒",title:"First-Lien Only",sub:"No junior positions"},
+      {icon:"🧠",title:"AI Matched",sub:"Gemini-powered"},
+      {icon:"📡",title:"AVM Verified",sub:"Multi-source data"},
+      {icon:"🤝",title:"Co-Lending",sub:"Fractional available"},
+      {icon:"⚡",title:"24hr Review",sub:"Fast approval"},
+      {icon:"🛡️",title:"Conduct Standards",sub:"Lenders enforced"},
+      {icon:"📋",title:"Auto Doc Prep",sub:"6 states ready"},
+      {icon:"🌍",title:"All 50 States",sub:"Full coverage"},
+      {icon:"$0",title:"No Lender Fees",sub:"Borrower pays"},
+      {icon:"⚖️",title:"Equal Housing",sub:"Fair lending"}
+    ],
+    states: states
+  };
+
+  var borrowerOut = '// ═══ PASTE INTO borrower.html — replace entire SITE_CONFIG object ═══\nvar SITE_CONFIG = ' + JSON.stringify(borrowerConfig, null, 2) + ';';
+  var lenderOut   = '\n\n// ═══ PASTE INTO lender.html — replace stats and states sections ═══\n// (lender.html also has deals[] — do not overwrite those)\n// Update these in lender.html SITE_CONFIG:\nstats: ' + JSON.stringify(lenderConfig.stats, null, 2) + ',\nstates: ' + JSON.stringify(lenderConfig.states) + ',';
+
+  document.getElementById('config-code').textContent = borrowerOut + lenderOut;
+  document.getElementById('config-output').style.display = 'block';
+}
+
+function copyConfig() {
+  var text = document.getElementById('config-code').textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = event.target;
+    btn.textContent = '✓ Copied!';
+    btn.style.background = 'var(--green)';
+    setTimeout(function(){ btn.textContent = '📋 Copy Config'; btn.style.background = ''; }, 2000);
+  });
+}
+
+// Init content manager when its tab loads
+var cmInited = false;
+var origShowTab = window.showTab;
+window.showTab = function(id, btn) {
+  origShowTab(id, btn);
+  if (id === 'content' && !cmInited) {
+    cmInited = true;
+    renderRatesEditor();
+  }
+};
+
+
 
 </script>
 </body>
