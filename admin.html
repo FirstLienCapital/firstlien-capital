@@ -1303,28 +1303,65 @@ function exReadAllFiles() {
             resolve();
           }).catch(function(){ fobj.text=''; exSetFileStatus(i,'err','efs-err'); resolve(); });
         } else if (fobj.type === 'pdf') {
-          // For PDF: read as text (simple text-layer extraction)
-          // pdfs often have readable text if text-based
+          // PDF text extraction — multi-strategy approach
           try {
-            var txt = new TextDecoder('utf-8', {fatal:false}).decode(bytes);
-            // Extract text between stream/endstream markers
+            var pdfBytes2 = new Uint8Array(bytes);
+            var rawTxt = new TextDecoder('utf-8', {fatal:false}).decode(bytes);
             var extracted = '';
-            var streamRe = /stream\r?\n([\s\S]*?)\r?\nendstream/g;
-            var match;
-            while((match=streamRe.exec(txt))!==null) {
-              var block = match[1];
-              // Simple BT/ET text extraction
-              var textRe = /\(([^)]+)\)|<([0-9A-Fa-f]+)>/g;
-              var tm;
-              while((tm=textRe.exec(block))!==null) {
-                if(tm[1]) extracted += tm[1]+' ';
+
+            // Strategy 1: BT...ET operator extraction (proper PDF text)
+            var btBlocks = rawTxt.match(/BT\s*([\s\S]*?)\s*ET/g) || [];
+            btBlocks.forEach(function(block) {
+              // Extract parenthesized strings: (text)
+              var parenRe = /\(([^)\\]|\\[\s\S])*\)/g;
+              var pm;
+              while((pm = parenRe.exec(block)) !== null) {
+                var s = pm[0].slice(1,-1)
+                  .replace(/\\n/g,' ').replace(/\\r/g,' ')
+                  .replace(/\\t/g,' ').replace(/\\\\/g,'\\')
+                  .replace(/\\\(/g,'(').replace(/\\\)/g,')');
+                if (s.trim()) extracted += s + ' ';
+              }
+              // Also catch hex strings: <hex>
+              var hexRe = /<([0-9A-Fa-f]{2,})>/g;
+              var hm;
+              while((hm = hexRe.exec(block)) !== null) {
+                var hex = hm[1];
+                var hexStr = '';
+                for (var hi=0; hi<hex.length-1; hi+=2) {
+                  var code = parseInt(hex.substr(hi,2),16);
+                  if (code >= 32 && code < 127) hexStr += String.fromCharCode(code);
+                }
+                if (hexStr.trim()) extracted += hexStr + ' ';
+              }
+            });
+
+            // Strategy 2: Raw ASCII run extraction (catches text not in BT/ET)
+            if (extracted.trim().length < 100) {
+              var asciiRuns = '';
+              var run = '';
+              for (var ai=0; ai<pdfBytes2.length; ai++) {
+                var b3 = pdfBytes2[ai];
+                if (b3 >= 32 && b3 < 127) {
+                  run += String.fromCharCode(b3);
+                } else {
+                  if (run.length > 3) asciiRuns += run + ' ';
+                  run = '';
+                }
+              }
+              if (run.length > 3) asciiRuns += run;
+              // Only use ASCII runs if they contain useful text markers
+              if (asciiRuns.includes('$') || asciiRuns.includes('@') || 
+                  asciiRuns.includes('NM') || asciiRuns.includes('LLC')) {
+                extracted = extracted + ' ' + asciiRuns;
               }
             }
-            // Also try plain text fallback
-            if (!extracted.trim()) {
-              extracted = txt.replace(/[^\x20-\x7E\n]/g,' ').replace(/\s+/g,' ');
-            }
-            fobj.text = extracted.replace(/\s+/g,' ').trim();
+
+            // Clean up extracted text
+            fobj.text = extracted
+              .replace(/[^\x20-\x7E\n\r]/g, ' ')
+              .replace(/\s+/g, ' ')
+              .trim();
           } catch(e) { fobj.text = ''; }
           fobj.read = true;
           exSetFileStatus(i, 'done', 'efs-done');
@@ -1346,185 +1383,255 @@ function exReadAllFiles() {
   });
 }
 
-// ── Pattern-based field extraction ───────────────────────────────
+// ── Pattern-based field extraction ───────────────────────
+// Sources are combined into allText. Patterns are ordered by document priority:
+// Loan Quote > Doc Order > Appraisal > Title Commitment > 1003
+
 function exExtractFields() {
   exSetProg(35, 'Extracting deal data...');
   exAddStep('Extracting fields with pattern matching', 'running', 'extract');
 
-  // Combine all text
-  var allText = exSourceFiles.map(function(f){ return f.text; }).join('\n\n');
-
+  var allText = exSourceFiles.map(function(f){ return f.text; }).join('\n\n---DOC---\n\n');
   var found = {};
 
   function tryPatterns(patterns, field) {
-    for (var i=0; i<patterns.length; i++) {
+    for (var i = 0; i < patterns.length; i++) {
       var m = allText.match(patterns[i]);
-      if (m && m[1]) {
-        found[field] = { value: m[1].trim(), confidence: i===0 ? 'high' : i<=2 ? 'med' : 'low' };
+      if (m && m[1] && m[1].trim()) {
+        found[field] = { value: m[1].trim(), confidence: i === 0 ? 'high' : i <= 2 ? 'med' : 'low' };
         return true;
       }
     }
     return false;
   }
 
-  // Loan amount — numeric in parentheses after written-out amount
+  // ── LOAN AMOUNT — Loan Quote is priority ──────────────────────────────────
   tryPatterns([
+    /(?:2-Year Term|Term)\s*&\s*Loan Amount\s*\$([\d,]+)/i,
+    /Loan Amount\s*\$([\d,]+(?:\.\d{2})?)/i,
     /principal\s+amount\s+of\s+[A-Z][^$]*?\(\$([\d,]+\.\d{2})\)/i,
     /loan\s+in\s+the\s+principal\s+amount\s+of[^$]*\(\$([\d,]+\.\d{2})\)/i,
-    /principal\s+balance\s+of\s+\$([\d,]+)/i,
-    /loan\s+amount[:\s]+\$([\d,]+)/i,
+    /Amount\s+\$([\d,]+\.00)\s+Interest/i,
     /\$([\d,]+\.00)\s+Date:/
   ], 'loan');
 
-  // Interest rate
+  // ── INTEREST RATE — Loan Quote first ─────────────────────────────────────
   tryPatterns([
+    /Fixed\s+Interest\s+Rate\s+([\d.]+)%/i,
+    /Interest\s+Rate\s+([\d.]+)%/i,
     /interest\s+rate\s+of\s+([\d.]+)%/i,
     /rate\s+of\s+([\d.]+)\s*%\s+per\s+annum/i,
-    /([\d]+\.[\d]{3})%\s+per\s+annum/i,
-    /interest\s+at\s+([\d.]+)%/i,
-    /([\d]+\.[\d]+)%\s+per\s+annum/i
+    /([\d]+\.[\d]{3})%\s+per\s+annum/i
   ], 'rate');
 
-  // Entity / borrower name
+  // ── AMORTIZATION PERIOD — Loan Quote ────────────────────────────────────
   tryPatterns([
-    /Borrower:\s+([A-Z][^,()\n]+(?:LLC|Corp|Inc|Trust|LP|LLP))[^a-z]/i,
-    /([A-Z][a-zA-Z &,'.]+(?:LLC|Corp|Inc|Trust|LP))\s*,\s*a\s+[A-Z][a-z]+/,
-    /Trustor[:\s(]+([^,\n()]+(?:LLC|Corp|Inc|Trust|LP))/i,
-    /\b([A-Z][a-zA-Z &]+(?:LLC|Corp|Inc|Trust|LP))\b/
-  ], 'entity');
+    /Amortization\s+Period\s+(\d+)/i,
+    /No\.\s+of\s+Months\s+(\d+)/i,
+    /(\d+)-years?\s+amortization/i
+  ], 'amortPeriod');
 
-  // Guarantor full name — handles "Guarantor(s): Name" and "Name, an individual"
+  // ── LOAN TERM — Loan Quote ───────────────────────────────────────────────
   tryPatterns([
-    /[Gg]uarantor[^:]*:\s*([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+){1,2})/,
-    /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s*,\s*an\s+individual/,
-    /individually[^(]*\(([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\)/
-  ], 'gname');
+    /(\d+)-Year\s+Term/i,
+    /No\.\s+of\s+Months\s+(\d+)/i,
+    /(\d+)[- ]Month\s+Term/i
+  ], 'loanTerm');
 
-  // Property description — full address line
+  // ── ORIGINATING BROKER — Doc Order first, then 1003 ──────────────────────
   tryPatterns([
-    /Property\s+Address:\s+([^\n]+\d{5})/i,
-    /Property\s+Address:\s+([^\n]+)/i,
-    /commonly\s+known\s+as\s+([^\n]+)/i,
-    /property(?:\s+address)?\s+is\s+located\s+at[:\s]+([^\n]+)/i
+    /(?:Individual Name or Company name|Broker[:\s]+)\s*([^\n]+(?:LLC|Corp|Inc|Solutions|Capital|Lending|Partners|Group)[^\n]*)/i,
+    /Originating\s+Broker\s+Fee\s+payable\s+to\s+([A-Z][^\n]*?)\s+in\s+the\s+amount/i,
+    /This\s+application\s+was\s+taken\s+by:\s*([^\n]+?)\s*(?:Face|Mail|Phone|Internet)/i,
+    /Name\s+&\s+Address\s+of\s+Employer[^\n]*\n+([A-Z][a-zA-Z &]+(?:LLC|Corp|Inc|Solutions|Capital))/i,
+    /Interviewer[^:]*:\s*\n*([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i
+  ], 'origbroker');
+
+  // ── BROKER POINTS — Loan Quote page 2 ───────────────────────────────────
+  tryPatterns([
+    /Broker\s+Points[^:\n]*:\s*([\d.]+)%/i,
+    /Broker\s+Points\/Fees[^:\n]*:\s*([\d.]+)%/i,
+    /Lender\s+Fee\s+\(%\s+of\s+Loan\s+Amount\)\s+([\d.]+)%/i
+  ], 'origpct');
+
+  // ── PROPERTY ADDRESS — Appraisal > Loan Quote > Title ────────────────────
+  tryPatterns([
+    /Subject\s+Property\s+Address[^:\n]*:\s*([^\n]+)/i,
+    /Property\s+Address[:\s]+([^\n]+(?:NM|CA|TX|AZ|NV|FL|CO|NY)[^\n]*\d{5})/i,
+    /(?:Subject Property|Property)[:\s]+(?:1st Trust Deed\s+)?([A-Z][^\n]+(?:NM|CA|TX|AZ|NV|FL|CO)\s*\d{5})/i,
+    /commonly\s+known\s+as\s+([^\n]+)/i
   ], 'propcommon');
 
-  // Property city/state/zip — look near highway/property address context first
+  // ── APN — Appraisal > Title > Tax Sheet ─────────────────────────────────
   tryPatterns([
-    /Highway\s+\d+[^,]*,\s+([A-Z][a-zA-Z ]+,\s+(?:Texas|California|Nevada|Arizona|Florida|Colorado|Georgia|Tennessee|Illinois|Michigan)\s+\d{5})/i,
-    /(?:Property Address[^,\n]*,\s+)([A-Z][a-zA-Z ]+,\s+(?:Texas|California|Nevada|Arizona|Florida)\s+\d{5})/i,
-    /([A-Z][a-zA-Z ]+,\s+(?:Texas|California|Nevada|Arizona|Florida|Colorado|Georgia|Tennessee|Illinois|Michigan)\s+\d{5})/,
-    /([A-Z][a-zA-Z ]+,\s+(?:TX|CA|NV|AZ|FL|CO|GA|TN|IL|MI|NY)\s+\d{5})/
-  ], 'propcsz');
-
-  // County name — handles "Val Verde County" two-word counties
-  tryPatterns([
-    /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+County\s+APN/i,
-    /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+County,\s+(?:Texas|California|Nevada|Arizona|Florida)/,
-    /County\s+of\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/
-  ], 'county');
-
-  // APN/Tax ID
-  tryPatterns([
-    /APN[\s\/]*Tax\s+ID\s+No\.?[:\s*]+([\d\-A-Z]+)/i,
-    /Tax\s+ID\s+No\.?[:\s]+([\d\-]+)/i,
-    /Parcel[:\s]+([\d\-]+)/i
+    /(?:Assessor.{0,15}Parcel|APN|Tax\s+ID)[^:\n]*No\.?[:\s]+([A-Z0-9\-]+(?:[,\s]+[A-Z0-9\-]+)*)/i,
+    /(?:Parcel\s+No|APN)[:\s]+([A-Z0-9\-]+)/i,
+    /Tax\s+(?:Parcel|Map)\s+(?:No|#|ID)[:\s]+([A-Z0-9\-]+)/i,
+    /APN[\s\/]*Tax\s+Id?\s+No\.?[:\s*]+([A-Z0-9\-]+)/i
   ], 'apn');
 
-  // File number
+  // ── COUNTY ──────────────────────────────────────────────────────────────
   tryPatterns([
-    /File[:\s\t]+([\d]{4,6})(?:\s|$)/,
-    /File\s+No\.?[:\s]+([\d]+)/i,
-    /File:\s*([\d]+)/i
+    /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+County[,\s]+(?:New Mexico|California|Texas|Nevada|Arizona|Florida|Colorado)/,
+    /County[:\s]+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
+    /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+County\s+APN/i,
+    /County\s+of\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i
+  ], 'county');
+
+  // ── ENTITY NAME — Purchase contract (purchases) > Title current vesting ──
+  // Title Schedule A item 4: "The Title is...vested in: [entity], a [state] [type]"
+  tryPatterns([
+    /Buyer[:\s]+([^\n,()]+(?:LLC|Corp|Inc|Trust|LP|Solutions|Investments)[^\n,()]*)/i,
+    /Purchaser[:\s]+([^\n,()]+(?:LLC|Corp|Inc|Trust|LP)[^\n,()]*)/i,
+    /Title\s+is[^:]*vested\s+in[:\s]+([^,\n]+)/i,
+    /vested\s+in\s*:\s*([^,\n]+)/i,
+    /Borrower:\s+([A-Z][^,()\n]+(?:LLC|Corp|Inc|Trust|LP|LLP))[^a-z]/i,
+    /([A-Z][a-zA-Z &,'.]+(?:LLC|Corp|Inc|Trust|LP))\s*,\s*a\s+[A-Z][a-z]+/,
+    /Title\s+will\s+be\s+held\s+in\s+what\s+Name[^:]*:\s*([^\n]+?)(?:\s*Manner|\s*$)/i,
+    /Borrowers?:\s*([A-Z][a-zA-Z ]+(?:Solution|Investment|Propert|Group|Holding|Partner)[a-zA-Z]*s?)/i,
+    /([A-Z][a-zA-Z .]+DBA[^,\n]+)/i
+  ], 'entity');
+
+  // ── ENTITY TYPE — Title current vesting (Schedule A) ─────────────────────
+  // "Great Western Real Estate Investments, LLC, a New Mexico Limited Liability Company"
+  tryPatterns([
+    /vested\s+in[:\s]+[^,\n]+,\s+a\s+([A-Z][a-zA-Z ]+(?:Limited Liability Company|Corporation|Trust|Partnership|LP))/i,
+    /([A-Z][a-zA-Z ]+(?:Limited\s+Liability\s+Company|Corporation|Corp|Trust|LP))/i,
+    /Vesting[:\s]+(?:Corp|Llc|Llp|Sole|Trust|Partnership)[^\n]*/i
+  ], 'etype');
+
+  // ── GUARANTOR / BORROWER INDIVIDUAL ──────────────────────────────────────
+  // Doc Order has the authoritative name; 1003 borrower name is fallback
+  // RULE: If borrower address = property address, flag it
+  tryPatterns([
+    /Borrower\s+Name[:\s]+([A-Z][a-zA-Z .]+)/i,
+    /Borrower[:\s]+([A-Z][a-zA-Z .]+)\s+(?:Single|Married|Unmarried|Widow)/i,
+    /[Gg]uarantor[^:]*:\s*([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+){1,2})/,
+    /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s*,\s*an\s+individual/,
+    /Borrower.?s\s+Name[^:]*:[\s\n]*([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z.]+){1,3})/i,
+    /Print\s+Name:\s*([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z.]+){1,3})/i,
+    /Signed\s+by\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z.]+){1,2})\s*\(/i
+  ], 'gname');
+
+  // ── GUARANTOR ADDRESS — Doc Order > 1003 (verify ≠ property address) ────
+  tryPatterns([
+    /Borrower\s+Home\s+Address[^\n]*:\s*([^\n]+)/i,
+    /(?:Home|Mailing|Residential)\s+Address[:\s]+([\d]+[^\n]+)/i,
+    /Present\s+Address[^:]*:\s*([^\n]+)/i,
+    /(\d+\s+[A-Z][a-zA-Z ]+(?:AVE|ST|DR|RD|LN|WAY|BLVD|CT|PL|LANE|STREET|AVENUE|DRIVE|ROAD)[^,\n]*)/i
+  ], 'gaddr');
+
+  // ── GUARANTOR CSZ ────────────────────────────────────────────────────────
+  tryPatterns([
+    /([A-Z][a-zA-Z ]+,\s+(?:New Mexico|California|Texas|Nevada|Arizona|Florida|Colorado|Maine)\s+\d{5}(?:-\d{4})?)/,
+    /([A-Z][a-zA-Z ]+,\s+(?:NM|CA|TX|NV|AZ|FL|CO|ME|NY)\s+\d{5}(?:-\d{4})?)/
+  ], 'gcsz');
+
+  // ── FILE NUMBER ──────────────────────────────────────────────────────────
+  tryPatterns([
+    /File\s+#\s*(\d{4,6})\b/i,
+    /File[:\s\t]+(\d{4,6})\b/,
+    /Loan\s+ID\s+Number[:\s]+(\d{4,6})/i,
+    /File\s+No[.:\s]+(\d{4,6})/i
   ], 'fileno');
 
-  // Escrow number
+  // ── ESCROW / TITLE FILE NUMBER ───────────────────────────────────────────
   tryPatterns([
+    /Escrow\s+#[:\s]*([A-Z0-9\-]+)/i,
     /Escrow\s+No\.?[:\s]+([A-Z0-9#\-]+)/i,
-    /GF#([\d]+[A-Z]*)/,
-    /escrow\s+(?:number|no)[:\s]+([^\s,]+)/i
+    /(?:GF#|File\s+No\.?\s*PA-?)(\d+[A-Z]*)/i,
+    /(PA-\d{4,6})/i,
+    /Commitment\s+Number[:\s]+([A-Z0-9\-]+)/i
   ], 'escrow');
 
-  // Title company — handles "Name Closing Agent TitleCo" or "Issuing Agent for TitleCo"
+  // ── TITLE COMPANY — Doc Order first (has closer/escrow contact) ──────────
   tryPatterns([
-    /[A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+\s+Closing\s+Agent\s+([A-Z][a-zA-Z ]+(?:Title|Escrow)\s+Company)/i,
-    /Issuing\s+Agent\s+for\s+([^\n]+)/i,
-    /Title\s+Company[:\s]+([^\n,]+)/i,
-    /([A-Z][a-zA-Z ]+(?:Title|Escrow)\s+Company)/i
+    /Title\s+Company[\s\/]Officer\s+name[:\s]+([^\n,]+)/i,
+    /(?:Escrow|Title)\s+Company[:\s]+([^\n,]+)/i,
+    /([A-Z][a-zA-Z ]+(?:Abstract|Title)[^,\n]*(?:Co\.|Company|Inc))/i,
+    /Issuing\s+Agent[:\s]+([^\n,]+)/i
   ], 'titleco');
 
-
-  // Closing officer — person name, works when "Aracely Martinez Closing Agent" or "Closing Agent: Name"
+  // ── TITLE / ESCROW OFFICER ───────────────────────────────────────────────
+  // Doc Order has the actual closer; title commitment has the underwriter contact
   tryPatterns([
+    /(?:Escrow|Title)\s+Company[\s\/]Officer\s+name[:\s]+[^\n]+\n+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i,
+    /(?:Closing|Escrow)\s+Officer[:\s]+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i,
     /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)\s+Closing\s+Agent/,
-    /Closing\s+(?:Agent|Officer)[:\s\n]+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i,
-    /Attention:\s+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/
+    /Countersigned\s+by[:\s]+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i,
+    /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+),\s*License/i,
+    /Attention[:\s]+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i
   ], 'titleoff');
 
-  // Title email
+  // ── TITLE ADDRESS ────────────────────────────────────────────────────────
   tryPatterns([
+    /(?:Escrow|Title)\s+Address[:\s]+([^\n]+)/i,
+    /(\d+\s+[A-Z][a-zA-Z ]+(?:Street|St|Avenue|Ave|Blvd|Drive|Dr|Road|Rd|Delaware)[^,\n]*)/i
+  ], 'titleaddr');
+
+  // ── TITLE PHONE ──────────────────────────────────────────────────────────
+  tryPatterns([
+    /(?:Escrow|Title)[^\n]{0,30}Phone[:\s]+(\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})/i,
+    /(\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})/
+  ], 'titleph');
+
+  // ── TITLE EMAIL — Doc Order > Title Commitment (skip broker emails) ───────
+  tryPatterns([
+    /(?:Escrow|Title)\s+officer\s+direct\s+E-mail[:\s]+([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/i,
+    /(?:Escrow|Title)[^@\n]{0,60}([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/i,
+    /([a-zA-Z0-9._%+\-]+@(?!myfirstoption|gmail|yahoo|hotmail)[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/i,
     /([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/
   ], 'titleem');
 
-  // Title street address
+  // ── TITLE UNDERWRITER ────────────────────────────────────────────────────
   tryPatterns([
-    /(\d+\s+[A-Z][a-zA-Z ]+(?:Street|St|Avenue|Ave|Blvd|Boulevard|Drive|Dr|Road|Rd)(?:[^,\n]{0,30})?)/,
-    /title\s+address[:\s]+([^\n]+)/i
-  ], 'titleaddr');
+    /(WFG National Title Insurance Company)/i,
+    /(First American Title[^\n]*Company)/i,
+    /(Fidelity National Title[^\n]*Company)/i,
+    /(Stewart Title[^\n]*Company)/i,
+    /(Old Republic[^\n]*Insurance)/i,
+    /underwritten\s+by\s+([^\n,]+)/i
+  ], 'titleund');
 
-  // Loan servicer — look near "payable to" or "servicer"
+  // ── LOAN SERVICER ────────────────────────────────────────────────────────
   tryPatterns([
-    /payable\s+to\s+Lender.{0,30}loan\s+servicer[^,]*,\s+(Superior\s+Loan\s+Servicing|[A-Z][a-zA-Z]+ Loan Servicing)/i,
-    /loan\s+servicer[,\s]+([A-Z][a-zA-Z ]+ Servicing)/i,
-    /\b(Superior\s+Loan\s+Servicing)\b/i
+    /(Superior\s+Loan\s+Servicing)/i,
+    /payments?\s+to[:\s]+([A-Z][a-zA-Z ]+(?:Servicing|Services|Servicer))/i,
+    /servicer[:\s]+([^\n,]+)/i
   ], 'servicer');
 
-  // Originating broker
+  // ── DOCUMENT DATE ────────────────────────────────────────────────────────
   tryPatterns([
-    /Originating\s+Broker\s+Fee\s+payable\s+to\s+([A-Z][^\n]*?)\s+in\s+the\s+amount/i,
-    /[Oo]riginating\s+Broker[:\s]+([A-Z][^\n,]+(?:LLC|Corp|Inc|Capital|Lending|Partners))/
-  ], 'origbroker');
-
-  // Originating broker fee
-  tryPatterns([
-    /Originating\s+Broker\s+Fee.*?amount\s+of\s+\$([\d,]+(?:\.\d{2})?)/i,
-    /[Oo]riginating.*?\$([\d]+,[\d]+(?:\.[\d]{2})?)/i
-  ], 'origfee');
-
-  // Maturity date
-  tryPatterns([
-    /Maturity\s+Date[^.]*?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i,
-    /matures\s+on\s+(?:the\s+)?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i,
-    /((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)[^.]*?[Mm]aturity/i
-  ], 'maturityDate');
-
-  // Document date
-  tryPatterns([
-    /Date:\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d\d)/,
+    /Date:\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d\d)/i,
     /dated\s+as\s+of\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d\d)/i,
-    /as\s+of\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d\d)/i
+    /Funding\/Closing\s+Deadline[:\s]+(\d{1,2}\/\d{1,2}\/\d{4})/i
   ], 'docDateText');
 
-  // Guarantor home address (street)
+  // ── MATURITY DATE ────────────────────────────────────────────────────────
   tryPatterns([
-    /([\d]+\s+[A-Z][a-zA-Z ]+(?:Drive|Dr|Street|St|Avenue|Ave|Road|Rd|Lane|Ln|Court|Ct|Way|Blvd))(?=\s+(?:Del Rio|[A-Z][a-z]+,))/,
-    /guarantor.{0,200}address.{0,50}([\d]+\s+[A-Z][a-zA-Z ]+(?:Drive|Dr|Street|St|Ave))/i
-  ], 'gaddr');
+    /Maturity\s+Date[^.]*?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i,
+    /matures\s+on\s+(?:the\s+)?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i
+  ], 'maturityDate');
 
-  // Guarantor city/state/zip
+  // ── PROPERTY CSZ ─────────────────────────────────────────────────────────
   tryPatterns([
-    /([A-Z][a-zA-Z ]+,\s+(?:Texas|California|Nevada|Arizona|Florida)\s+\d{5}(?:-\d{4})?)/,
-    /([A-Z][a-zA-Z ]+,\s+(?:TX|CA|NV|AZ|FL)\s+\d{5}(?:-\d{4})?)/
-  ], 'gcsz');
+    /([A-Z][a-zA-Z ]+,\s+(?:New Mexico|California|Texas|Nevada|Arizona|Florida|Colorado)\s+\d{5})/,
+    /([A-Z][a-zA-Z ]+,\s+(?:NM|CA|TX|NV|AZ|FL|CO|ME|NY)\s+\d{5})/
+  ], 'propcsz');
 
-  // Property street address (standalone)
+  // ── PROPERTY STREET ──────────────────────────────────────────────────────
   tryPatterns([
-    /Property\s+Address:\s+(\d+[^,\n]+)/i,
-    /(\d+\s+(?:West|East|North|South)?\s*[A-Z][a-zA-Z .]+(?:Highway|Hwy|Road|Rd|Street|St|Ave|Drive|Dr|Blvd|Lane|Ln)\s+\d*[^,\n]*)/i
+    /(\d+\s+[A-Z][a-zA-Z ]+(?:Street|St|Ave|Drive|Dr|Road|Rd|Blvd|Lane|Ln|Way|Court|Ct|Holloman|Trail|Acres|Arces)[^,\n]*)/i
   ], 'propaddr');
+
+  // ── GUARANTOR HOME ADDRESS VALIDATION ────────────────────────────────────
+  // After extraction, check: guarantor address ≠ property address
+  // This is flagged in the review step, not blocked here
 
   exExtracted = found;
   exStepDone('extract');
   exFillFields();
+} exFillFields();
 }
 
 // ── Fill form fields from extracted data ──────────────────────────
@@ -1574,6 +1681,109 @@ function exFillFields() {
   if (ex.gaddr)      setField('dp-gaddr',      ex.gaddr.value.trim(),                  ex.gaddr.confidence,      delay+=80);
   if (ex.gcsz)       setField('dp-gcsz',       ex.gcsz.value.trim(),                   ex.gcsz.confidence,       delay+=80);
   if (ex.propaddr)   setField('dp-propaddr',    ex.propaddr.value.trim(),               ex.propaddr.confidence,   delay+=80);
+  if (ex.titleph)    setField('dp-titleph',     ex.titleph.value.trim(),                ex.titleph.confidence,    delay+=80);
+  if (ex.titleund)   setField('dp-titleund',    ex.titleund.value.trim(),               ex.titleund.confidence,   delay+=80);
+  if (ex.origpct) {
+    setTimeout(function() {
+      var el = document.getElementById('dp-origpct');
+      if (el) { el.value = parseFloat(ex.origpct.value)||0; el.classList.add('auto-filled'); dpCalc(); }
+    }, delay+=80);
+  }
+  // Entity type from title vesting
+  if (ex.etype) {
+    setTimeout(function() {
+      var etVal = ex.etype.value.trim();
+      var el = document.getElementById('dp-etype');
+      if (el) {
+        // Try to match to existing dropdown option
+        var matched = false;
+        for (var oi=0; oi<el.options.length; oi++) {
+          if (el.options[oi].text.toLowerCase().includes(etVal.toLowerCase().split(' ')[0]) ||
+              etVal.toLowerCase().includes(el.options[oi].value.toLowerCase().split(' ')[0])) {
+            el.value = el.options[oi].value; matched = true; break;
+          }
+        }
+        if (!matched) el.options[el.options.length] = new Option(etVal, etVal);
+        el.classList.add('auto-filled');
+      }
+      var badge = document.getElementById('conf-etype');
+      if (badge) badge.innerHTML = '<span class="conf-badge cb-med">⚠ verify</span>';
+    }, delay+=80);
+  }
+  // Amort period from loan quote (e.g. "40" years → 480 months)
+  if (ex.amortPeriod) {
+    setTimeout(function() {
+      var yrs = parseInt(ex.amortPeriod.value);
+      var mos = yrs <= 40 ? yrs * 12 : yrs; // "40" = 40 years = 480 months
+      var el = document.getElementById('dp-amort');
+      if (el) { el.value = mos; el.classList.add('auto-filled'); dpCalc(); }
+    }, delay+=80);
+  }
+  // Loan term (e.g. "2-Year" → 24 months)
+  if (ex.loanTerm) {
+    setTimeout(function() {
+      var t = parseInt(ex.loanTerm.value);
+      var termMonths = t <= 5 ? t * 12 : t; // "2" → 24 months
+      var el = document.getElementById('dp-term');
+      if (el) {
+        for (var oi=0; oi<el.options.length; oi++) {
+          if (parseInt(el.options[oi].value) === termMonths) { el.value = el.options[oi].value; break; }
+        }
+        el.classList.add('auto-filled'); dpCalc();
+      }
+    }, delay+=80);
+  }
+  // ── VALIDATION: Guarantor address must differ from property address ───────
+  setTimeout(function() {
+    var gaddr = (document.getElementById('dp-gaddr')||{value:''}).value.trim().toLowerCase();
+    var gcsz  = (document.getElementById('dp-gcsz')||{value:''}).value.trim().toLowerCase();
+    var prop  = (document.getElementById('dp-propcommon')||{value:''}).value.trim().toLowerCase();
+    var propcsz = (document.getElementById('dp-propcsz')||{value:''}).value.trim().toLowerCase();
+    if (gaddr && prop) {
+      // Check if any significant words overlap (street number or street name)
+      var gaddrWords = gaddr.replace(/[^a-z0-9 ]/g,'').split(' ').filter(function(w){return w.length>2;});
+      var propWords  = prop.replace(/[^a-z0-9 ]/g,'').split(' ').filter(function(w){return w.length>2;});
+      var overlap = gaddrWords.filter(function(w){ return propWords.indexOf(w)>=0; });
+      if (overlap.length >= 2 || (gcsz && propcsz && gcsz === propcsz && overlap.length >= 1)) {
+        // Addresses look the same — flag it
+        var badge = document.getElementById('conf-gaddr');
+        if (badge) badge.innerHTML = '<span class="conf-badge" style="background:rgba(224,82,82,.15);color:var(--red);border:1px solid rgba(224,82,82,.3);">⚠ SAME AS PROPERTY?</span>';
+        var gEl = document.getElementById('dp-gaddr');
+        if (gEl) gEl.style.borderColor = 'var(--red)';
+        // Show warning in extraction steps
+        exAddStep('⚠ WARNING: Guarantor address may match subject property — verify before submitting', 'err', 'addr-warn');
+      }
+    }
+  }, delay + 300);
+  // Fill amortization and term if extracted from loan quote
+  if (ex.amortPeriod) {
+    setTimeout(function() {
+      var amortYears = parseInt(ex.amortPeriod.value);
+      var amortMonths = amortYears > 30 ? amortYears : amortYears * 12; // quote says "40" meaning 40 years = 480 months
+      if (amortMonths > 0) {
+        var el = document.getElementById('dp-amort');
+        if (el) { el.value = amortMonths <= 40 ? amortMonths * 12 : amortMonths; el.classList.add('auto-filled'); }
+        var badge = document.getElementById('conf-amort');
+        if (badge) badge.innerHTML = '<span class="conf-badge cb-high">✓ auto</span>';
+        dpCalc();
+      }
+    }, delay+=80);
+  }
+  if (ex.loanTerm) {
+    setTimeout(function() {
+      var termVal = parseInt(ex.loanTerm.value);
+      // If "2-Year Term" → 24 months; if already months → use directly
+      var termMonths = termVal <= 5 ? termVal * 12 : termVal;
+      var el = document.getElementById('dp-term');
+      if (el) {
+        for (var oi=0; oi<el.options.length; oi++) {
+          if (parseInt(el.options[oi].value) === termMonths) { el.value = el.options[oi].value; break; }
+        }
+        el.classList.add('auto-filled');
+        dpCalc();
+      }
+    }, delay+=80);
+  }
   if (ex.origbroker) setField('dp-origbroker', ex.origbroker.value.trim(),             ex.origbroker.confidence, delay+=80);
   if (ex.origfee)    setField('dp-origfee',    ex.origfee.value.replace(/[$,]/g,''),   ex.origfee.confidence,    delay+=80);
 
