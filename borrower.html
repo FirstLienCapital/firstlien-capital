@@ -3,1561 +3,755 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Borrow | FirstLien.Capital</title>
+<title>Get Funding | FirstLien.Capital</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --gold: #C9A84C;
-    --gold-light: #E8C97A;
-    --gold-dim: #8A6F2E;
-    --vault-dark: #0A0A0A;
-    --vault-mid: #111111;
-    --vault-panel: #161616;
-    --vault-border: #2A2A2A;
-    --text-primary: #F0E6CC;
-    --text-secondary: #9A8A6A;
-    --text-muted: #5A5040;
-    --accent-green: #2A5A3A;
-    --accent-green-bright: #4CAF70;
-    --danger: #8B3A3A;
-    --danger-bright: #E05555;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--vault-dark);
-    color: var(--text-primary);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: 
-      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='1' height='1' fill='rgba(201,168,76,0.03)'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* NAV */
-  nav {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 40px;
-    height: 64px;
-    background: rgba(10,10,10,0.95);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--vault-border);
-  }
-
-  .nav-logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--gold);
-    text-decoration: none;
-    letter-spacing: 0.02em;
-  }
-
-  .nav-logo span { color: var(--text-secondary); font-weight: 300; }
-
-  .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 32px;
-    list-style: none;
-  }
-
-  .nav-links a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transition: color 0.2s;
-  }
-
-  .nav-links a:hover, .nav-links a.active { color: var(--gold); }
-
-  .nav-cta {
-    background: var(--gold);
-    color: var(--vault-dark) !important;
-    padding: 8px 20px;
-    border-radius: 2px;
-    font-weight: 600 !important;
-  }
-
-  .nav-cta:hover { background: var(--gold-light) !important; color: var(--vault-dark) !important; }
-
-  /* HERO */
-  .hero {
-    position: relative;
-    z-index: 1;
-    padding: 80px 40px 60px;
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 60px;
-    align-items: center;
-  }
-
-  .hero-eyebrow {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .hero-eyebrow::before {
-    content: '';
-    display: block;
-    width: 32px;
-    height: 1px;
-    background: var(--gold);
-  }
-
-  .hero h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(42px, 5vw, 64px);
-    font-weight: 300;
-    line-height: 1.1;
-    color: var(--text-primary);
-    margin-bottom: 20px;
-  }
-
-  .hero h1 em { font-style: italic; color: var(--gold); }
-
-  .hero-sub {
-    font-size: 15px;
-    line-height: 1.7;
-    color: var(--text-secondary);
-    max-width: 520px;
-    margin-bottom: 32px;
-  }
-
-  .hero-stats {
-    display: flex;
-    gap: 32px;
-    margin-bottom: 40px;
-  }
-
-  .stat {
-    border-left: 2px solid var(--gold-dim);
-    padding-left: 16px;
-  }
-
-  .stat-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--gold);
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 11px;
-    color: var(--text-muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-top: 4px;
-  }
-
-  .hero-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--gold);
-    color: var(--vault-dark);
-    padding: 14px 32px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: all 0.25s;
-    border-radius: 2px;
-  }
-
-  .hero-cta:hover {
-    background: var(--gold-light);
-    transform: translateY(-1px);
-    box-shadow: 0 8px 32px rgba(201,168,76,0.25);
-  }
-
-  /* CHARACTER CARD */
-  .character-card {
-    background: var(--vault-panel);
-    border: 1px solid var(--vault-border);
-    border-radius: 4px;
-    padding: 32px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .character-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  }
-
-  .character-figure {
-    width: 140px;
-    height: 160px;
-    margin: 0 auto 20px;
-    position: relative;
-  }
-
-  .character-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--gold);
-    margin-bottom: 4px;
-  }
-
-  .character-title {
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: 16px;
-  }
-
-  .character-bubble {
-    background: rgba(201,168,76,0.06);
-    border: 1px solid rgba(201,168,76,0.15);
-    border-radius: 8px;
-    padding: 14px 16px;
-    font-size: 13px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    text-align: left;
-    position: relative;
-  }
-
-  .character-bubble::before {
-    content: '"';
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 48px;
-    color: var(--gold-dim);
-    position: absolute;
-    top: -8px;
-    left: 12px;
-    line-height: 1;
-  }
-
-  /* HOW IT WORKS */
-  .how-section {
-    position: relative;
-    z-index: 1;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 60px 40px 80px;
-    border-top: 1px solid var(--vault-border);
-  }
-
-  .section-header {
-    text-align: center;
-    margin-bottom: 48px;
-  }
-
-  .section-tag {
-    display: inline-block;
-    font-size: 10px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--gold);
-    border: 1px solid rgba(201,168,76,0.3);
-    padding: 5px 14px;
-    border-radius: 2px;
-    margin-bottom: 16px;
-  }
-
-  .section-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(30px, 4vw, 44px);
-    font-weight: 300;
-    color: var(--text-primary);
-    line-height: 1.2;
-  }
-
-  .how-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 32px;
-  }
-
-  .how-card {
-    position: relative;
-    padding: 28px 24px;
-    background: var(--vault-panel);
-    border: 1px solid var(--vault-border);
-    border-radius: 4px;
-  }
-
-  .how-card::before {
-    content: attr(data-num);
-    position: absolute;
-    top: -14px;
-    left: 20px;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 48px;
-    font-weight: 700;
-    color: rgba(201,168,76,0.12);
-    line-height: 1;
-  }
-
-  .how-icon { font-size: 28px; margin-bottom: 12px; }
-
-  .how-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-  }
-
-  .how-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-
-  /* QSM SECTION */
-  .qsm-section {
-    position: relative;
-    z-index: 1;
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 0 40px 80px;
-  }
-
-  /* FORM STEPPER */
-  .stepper {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    margin-bottom: 48px;
-  }
-
-  .step {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-  }
-
-  .step:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    top: 18px;
-    left: 50%;
-    width: 100%;
-    height: 1px;
-    background: var(--vault-border);
-    z-index: 0;
-  }
-
-  .step.completed:not(:last-child)::after { background: var(--gold-dim); }
-
-  .step-circle {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--vault-panel);
-    border: 2px solid var(--vault-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-muted);
-    position: relative;
-    z-index: 1;
-    transition: all 0.3s;
-  }
-
-  .step.active .step-circle {
-    border-color: var(--gold);
-    color: var(--gold);
-    background: rgba(201,168,76,0.1);
-    box-shadow: 0 0 20px rgba(201,168,76,0.2);
-  }
-
-  .step.completed .step-circle {
-    border-color: var(--gold-dim);
-    background: var(--gold-dim);
-    color: var(--vault-dark);
-  }
-
-  .step-label {
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    text-align: center;
-  }
-
-  .step.active .step-label { color: var(--gold); }
-  .step.completed .step-label { color: var(--gold-dim); }
-
-  /* FORM CARD */
-  .form-card {
-    background: var(--vault-panel);
-    border: 1px solid var(--vault-border);
-    border-radius: 4px;
-    padding: 48px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .form-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  }
-
-  .form-step { display: none; }
-  .form-step.active { display: block; animation: fadeIn 0.3s ease; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .form-step-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 28px;
-    font-weight: 400;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-  }
-
-  .form-step-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 32px; }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
-  }
-
-  .form-grid.single { grid-template-columns: 1fr; }
-  .form-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
-
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  .field.span2 { grid-column: span 2; }
-
-  label {
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    font-weight: 500;
-  }
-
-  input[type="text"],
-  input[type="number"],
-  input[type="email"],
-  input[type="tel"],
-  select,
-  textarea {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--vault-border);
-    border-radius: 2px;
-    padding: 12px 14px;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    color: var(--text-primary);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    width: 100%;
-    -webkit-appearance: none;
-  }
-
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--gold-dim);
-    box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
-  }
-
-  select option { background: var(--vault-mid); color: var(--text-primary); }
-  textarea { resize: vertical; min-height: 100px; }
-
-  .field-hint { font-size: 11px; color: var(--text-muted); font-style: italic; }
-
-  /* LOAN TYPE CARDS */
-  .loan-type-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .loan-type-card {
-    border: 1px solid var(--vault-border);
-    border-radius: 4px;
-    padding: 20px 16px;
-    cursor: pointer;
-    transition: all 0.25s;
-    text-align: center;
-    background: rgba(255,255,255,0.02);
-  }
-
-  .loan-type-card:hover { border-color: var(--gold-dim); background: rgba(201,168,76,0.04); }
-
-  .loan-type-card.selected {
-    border-color: var(--gold);
-    background: rgba(201,168,76,0.08);
-    box-shadow: 0 0 20px rgba(201,168,76,0.1);
-  }
-
-  .loan-type-icon { font-size: 24px; margin-bottom: 8px; }
-
-  .loan-type-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-  }
-
-  .loan-type-desc { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
-
-  /* RANGE SLIDER */
-  .range-group { margin-bottom: 24px; }
-
-  .range-label-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 8px;
-  }
-
-  .range-value {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--gold);
-  }
-
-  input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 3px;
-    background: var(--vault-border);
-    border-radius: 2px;
-    outline: none;
-    border: none;
-    padding: 0;
-    box-shadow: none;
-  }
-
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    background: var(--gold);
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 0 10px rgba(201,168,76,0.4);
-    transition: box-shadow 0.2s;
-  }
-
-  input[type="range"]::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 20px rgba(201,168,76,0.6);
-  }
-
-  .range-ticks {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 6px;
-  }
-
-  .range-ticks span { font-size: 10px; color: var(--text-muted); }
-
-  /* LTV METER */
-  .ltv-meter {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--vault-border);
-    border-radius: 4px;
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-
-  .ltv-label-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-
-  .ltv-label {
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-  }
-
-  .ltv-value {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px;
-    font-weight: 600;
-  }
-
-  .ltv-bar-bg { height: 8px; background: var(--vault-border); border-radius: 4px; overflow: hidden; }
-
-  .ltv-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.4s ease, background-color 0.4s;
-    background: var(--accent-green-bright);
-  }
-
-  .ltv-zones {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 6px;
-  }
-
-  .ltv-zone { font-size: 10px; color: var(--text-muted); }
-
-  /* FORM NAV */
-  .form-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 40px;
-    padding-top: 24px;
-    border-top: 1px solid var(--vault-border);
-  }
-
-  .btn-back {
-    background: none;
-    border: 1px solid var(--vault-border);
-    color: var(--text-secondary);
-    padding: 12px 24px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 2px;
-    transition: all 0.2s;
-  }
-
-  .btn-back:hover { border-color: var(--gold-dim); color: var(--text-primary); }
-
-  .btn-next {
-    background: var(--gold);
-    color: var(--vault-dark);
-    border: none;
-    padding: 14px 36px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 2px;
-    transition: all 0.25s;
-  }
-
-  .btn-next:hover {
-    background: var(--gold-light);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 24px rgba(201,168,76,0.3);
-  }
-
-  .btn-next:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .form-save-note { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
-
-  /* FIREBASE STATUS */
-  .firebase-status {
-    display: none;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 12px;
-  }
-
-  .firebase-status.visible { display: flex; }
-
-  .fs-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--gold);
-    animation: fsPulse 1.2s infinite;
-  }
-
-  @keyframes fsPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  .fs-dot.success { background: var(--accent-green-bright); animation: none; }
-  .fs-dot.error { background: var(--danger-bright); animation: none; }
-
-  /* SUCCESS STATE */
-  .success-card { text-align: center; padding: 60px 40px; }
-
-  .success-icon {
-    width: 72px;
-    height: 72px;
-    background: rgba(76,175,112,0.15);
-    border: 2px solid var(--accent-green-bright);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
-    margin: 0 auto 24px;
-    animation: popIn 0.4s ease;
-  }
-
-  @keyframes popIn {
-    from { transform: scale(0); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  .success-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 36px;
-    font-weight: 400;
-    color: var(--text-primary);
-    margin-bottom: 12px;
-  }
-
-  .success-sub {
-    font-size: 15px;
-    color: var(--text-secondary);
-    max-width: 480px;
-    margin: 0 auto 32px;
-    line-height: 1.7;
-  }
-
-  .success-ref { font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase; }
-  .success-ref span {
-    color: var(--gold);
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    font-style: italic;
-    letter-spacing: 0;
-  }
-
-  /* RATES TABLE */
-  .rates-section {
-    position: relative;
-    z-index: 1;
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 0 40px 80px;
-  }
-
-  .rates-table { width: 100%; border-collapse: collapse; margin-top: 40px; }
-
-  .rates-table thead tr {
-    background: rgba(201,168,76,0.08);
-    border-bottom: 2px solid var(--gold-dim);
-  }
-
-  .rates-table th {
-    padding: 14px 20px;
-    text-align: left;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--gold);
-    font-weight: 600;
-  }
-
-  .rates-table td {
-    padding: 14px 20px;
-    font-size: 14px;
-    color: var(--text-secondary);
-    border-bottom: 1px solid var(--vault-border);
-  }
-
-  .rates-table tr:hover td { background: rgba(201,168,76,0.03); }
-
-  .rate-badge {
-    display: inline-block;
-    background: rgba(76,175,112,0.15);
-    color: var(--accent-green-bright);
-    padding: 3px 10px;
-    border-radius: 2px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  /* AI HELPER */
-  .ai-helper { position: fixed; bottom: 32px; right: 32px; z-index: 200; }
-
-  .ai-helper-toggle {
-    width: 64px;
-    height: 64px;
-    background: var(--vault-panel);
-    border: 2px solid var(--gold-dim);
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 40px rgba(201,168,76,0.15);
-    transition: all 0.25s;
-    position: relative;
-  }
-
-  .ai-helper-toggle:hover {
-    border-color: var(--gold);
-    box-shadow: 0 4px 32px rgba(201,168,76,0.3);
-    transform: scale(1.05);
-  }
-
-  .ai-helper-badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    width: 18px;
-    height: 18px;
-    background: var(--gold);
-    border-radius: 50%;
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--vault-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.5); }
-    50% { box-shadow: 0 0 0 6px rgba(201,168,76,0); }
-  }
-
-  .ai-chat-panel {
-    position: absolute;
-    bottom: 80px;
-    right: 0;
-    width: 340px;
-    background: var(--vault-panel);
-    border: 1px solid var(--vault-border);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 16px 64px rgba(0,0,0,0.6);
-    display: none;
-  }
-
-  .ai-chat-panel.open { display: flex; flex-direction: column; animation: slideUp 0.25s ease; }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .ai-chat-header {
-    background: rgba(201,168,76,0.08);
-    border-bottom: 1px solid var(--vault-border);
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .ai-chat-avatar {
-    width: 36px;
-    height: 36px;
-    background: rgba(201,168,76,0.15);
-    border: 1px solid var(--gold-dim);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-  }
-
-  .ai-chat-info strong {
-    display: block;
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    color: var(--gold);
-  }
-
-  .ai-chat-info span { font-size: 11px; color: var(--text-muted); }
-
-  .online-dot {
-    width: 7px;
-    height: 7px;
-    background: var(--accent-green-bright);
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 4px;
-    animation: blink 2s infinite;
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  .ai-chat-messages {
-    padding: 16px;
-    height: 240px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--vault-border) transparent;
-  }
-
-  .msg { max-width: 85%; padding: 10px 14px; border-radius: 6px; font-size: 13px; line-height: 1.5; }
-
-  .msg.bot {
-    background: rgba(201,168,76,0.07);
-    border: 1px solid rgba(201,168,76,0.12);
-    color: var(--text-secondary);
-    align-self: flex-start;
-  }
-
-  .msg.user { background: rgba(201,168,76,0.15); color: var(--text-primary); align-self: flex-end; }
-
-  .ai-chat-input-row {
-    padding: 12px 16px;
-    border-top: 1px solid var(--vault-border);
-    display: flex;
-    gap: 8px;
-  }
-
-  .ai-chat-input {
-    flex: 1;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--vault-border);
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 13px;
-    color: var(--text-primary);
-    outline: none;
-  }
-
-  .ai-chat-input:focus { border-color: var(--gold-dim); }
-
-  .ai-send-btn {
-    background: var(--gold);
-    border: none;
-    border-radius: 4px;
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--vault-dark);
-    font-size: 14px;
-    transition: background 0.2s;
-  }
-
-  .ai-send-btn:hover { background: var(--gold-light); }
-
-  /* FOOTER */
-  footer {
-    position: relative;
-    z-index: 1;
-    border-top: 1px solid var(--vault-border);
-    padding: 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--gold-dim); letter-spacing: 0.02em; }
-
-  .footer-links { display: flex; gap: 28px; }
-
-  .footer-links a {
-    font-size: 12px;
-    color: var(--text-muted);
-    text-decoration: none;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    transition: color 0.2s;
-  }
-
-  .footer-links a:hover { color: var(--gold); }
-  .footer-copy { font-size: 11px; color: var(--text-muted); }
-
-  /* RESPONSIVE */
-  @media (max-width: 900px) {
-    .hero { grid-template-columns: 1fr; padding: 48px 24px 40px; }
-    .character-card { display: none; }
-    nav { padding: 0 24px; }
-    .nav-links { gap: 16px; }
-    .qsm-section, .how-section, .rates-section { padding-left: 24px; padding-right: 24px; }
-    .form-card { padding: 28px 24px; }
-    .form-grid { grid-template-columns: 1fr; }
-    .form-grid .field.span2 { grid-column: span 1; }
-    .loan-type-grid { grid-template-columns: 1fr; }
-    .how-grid { grid-template-columns: 1fr 1fr; }
-    footer { flex-direction: column; gap: 20px; text-align: center; }
-  }
+:root {
+  --cream:   #f7f4ee;
+  --cream2:  #eee9de;
+  --white:   #ffffff;
+  --ink:     #1a1510;
+  --ink2:    #3a3028;
+  --muted:   #8a7f6e;
+  --border:  #d8d0c0;
+  --border2: #c8bfae;
+  --gold:    #9a7c2e;
+  --gold-l:  #c89b28;
+  --gold-bg: rgba(154,124,46,0.08);
+  --teal:    #0a7b6a;
+  --teal-bg: rgba(10,123,106,0.07);
+  --green:   #1a6a3a;
+  --red:     #8b2020;
+  --dark:    #02040a;
+  --r:       4px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(247,244,238,0.97);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; height: 62px;
+}
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 21px; font-weight: 600;
+  color: var(--ink); text-decoration: none; letter-spacing: 0.02em;
+}
+.nav-logo span { color: var(--gold); }
+.nav-links { display:flex; align-items:center; gap:28px; list-style:none; }
+.nav-links a { color: var(--muted); text-decoration:none; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; transition:color 0.2s; font-family:'DM Mono',monospace; }
+.nav-links a:hover { color: var(--ink); }
+.nav-cta { background: var(--ink); color: var(--cream)!important; padding: 8px 18px; border-radius: var(--r); }
+.nav-cta:hover { background: var(--ink2)!important; color: var(--cream)!important; }
+
+/* ── HERO ── */
+.hero {
+  background: var(--dark);
+  color: #f0ebe0;
+  padding: 100px 40px 80px;
+  position: relative; overflow: hidden;
+  min-height: 520px;
+  display: flex; align-items: center;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 50%, rgba(154,124,46,0.15) 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M0 30 L60 30 M30 0 L30 60' stroke='rgba(255,255,255,0.02)' stroke-width='1'/%3E%3C/svg%3E");
+}
+.hero-inner { max-width: 1100px; margin: 0 auto; width: 100%; position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.hero-eyebrow { font-family:'DM Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.18em; color: var(--gold-l); margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+.hero-eyebrow::after { content:''; flex:1; height:1px; background:rgba(200,155,40,0.3); max-width:50px; }
+.hero-title { font-family:'Cormorant Garamond',serif; font-size:clamp(38px,5vw,58px); font-weight:300; line-height:1.1; letter-spacing:-0.02em; margin-bottom:20px; }
+.hero-title em { font-style:italic; color: var(--gold-l); }
+.hero-sub { font-size:15px; color:rgba(240,235,224,0.6); line-height:1.75; max-width:440px; margin-bottom:32px; }
+.hero-btn { display:inline-flex; align-items:center; gap:8px; background:var(--gold-l); color:var(--dark); padding:14px 28px; border-radius:var(--r); font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600; text-decoration:none; transition:all 0.2s; }
+.hero-btn:hover { background:#d4a82e; transform:translateY(-1px); box-shadow:0 8px 24px rgba(200,155,40,0.3); }
+.hero-stats { display:flex; gap:32px; margin-top:40px; padding-top:32px; border-top:1px solid rgba(255,255,255,0.1); }
+.stat-item { }
+.stat-num { font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:300; color: var(--gold-l); line-height:1; }
+.stat-label { font-family:'DM Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.12em; color:rgba(240,235,224,0.4); margin-top:4px; }
+
+/* Hero right — property image collage */
+.hero-visual { position:relative; height:380px; }
+.hero-img-main {
+  position:absolute; top:0; right:0;
+  width:85%; height:280px;
+  background: linear-gradient(135deg, #1a2a1a, #0d1a2a);
+  border-radius:6px; overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);
+}
+.hero-img-main img { width:100%; height:100%; object-fit:cover; opacity:0.8; }
+.hero-img-thumb {
+  position:absolute; bottom:0; left:0;
+  width:55%; height:160px;
+  background:linear-gradient(135deg,#2a1a0a,#1a0d0a);
+  border-radius:6px; overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.hero-img-thumb img { width:100%; height:100%; object-fit:cover; opacity:0.75; }
+.hero-tag {
+  position:absolute; bottom:14px; right:8%; 
+  background:rgba(2,4,10,0.85); backdrop-filter:blur(8px);
+  border:1px solid rgba(200,155,40,0.3);
+  color:var(--gold-l); font-family:'DM Mono',monospace; font-size:10px;
+  padding:6px 14px; border-radius:20px; letter-spacing:0.08em;
+}
+
+/* ── TRUST BAR ── */
+.trust-bar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 40px;
+}
+.trust-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; }
+.trust-item { display:flex; align-items:center; gap:8px; }
+.trust-icon { font-size:18px; }
+.trust-text { font-family:'DM Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
+.trust-text strong { color:var(--ink); display:block; font-size:12px; }
+.trust-divider { width:1px; height:32px; background:var(--border); }
+
+/* ── HOW IT WORKS ── */
+.section { padding: 80px 40px; }
+.section-inner { max-width: 1100px; margin: 0 auto; }
+.section-alt { background: var(--white); }
+.section-dark { background: var(--dark); color: #f0ebe0; }
+
+.eyebrow { font-family:'DM Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.16em; color:var(--gold); margin-bottom:14px; }
+.section-title { font-family:'Cormorant Garamond',serif; font-size:clamp(28px,4vw,42px); font-weight:300; line-height:1.15; letter-spacing:-0.01em; margin-bottom:16px; }
+.section-sub { font-size:14px; color:var(--muted); max-width:520px; line-height:1.8; margin-bottom:40px; }
+
+.steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:24px; }
+.step-card { background:var(--cream); border:1px solid var(--border); border-radius:var(--r); padding:28px 24px; position:relative; }
+.step-num { font-family:'Cormorant Garamond',serif; font-size:56px; font-weight:300; color:var(--border2); line-height:1; margin-bottom:12px; }
+.step-title { font-family:'Cormorant Garamond',serif; font-size:19px; font-weight:600; margin-bottom:8px; }
+.step-desc { font-size:13px; color:var(--muted); line-height:1.7; }
+.step-rule { width:32px; height:2px; background:var(--gold); margin-bottom:12px; }
+
+/* ── RATES BAND ── */
+.rates-band {
+  background: var(--ink2);
+  padding: 40px;
+}
+.rates-inner { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.08); border-radius:var(--r); overflow:hidden; }
+.rate-item { background:var(--ink2); padding:24px; text-align:center; }
+.rate-type { font-family:'DM Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.12em; color:rgba(240,235,224,0.4); margin-bottom:8px; }
+.rate-range { font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:300; color:var(--gold-l); }
+.rate-detail { font-size:11px; color:rgba(240,235,224,0.35); margin-top:4px; font-family:'DM Mono',monospace; }
+
+/* ── APPLICATION FORM ── */
+#apply { background: var(--white); padding: 80px 40px; }
+.form-wrap { max-width:800px; margin:0 auto; }
+.form-card {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+/* Stepper */
+.stepper { display:flex; border-bottom:1px solid var(--border); }
+.step {
+  flex:1; padding:16px 12px; text-align:center;
+  font-family:'DM Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.1em;
+  color:var(--muted); cursor:pointer; transition:all 0.2s;
+  border-right:1px solid var(--border); user-select:none;
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+}
+.step:last-child { border-right:none; }
+.step .step-dot { width:8px; height:8px; border-radius:50%; background:var(--border2); transition:all 0.2s; }
+.step.active { color:var(--gold); background:var(--gold-bg); }
+.step.active .step-dot { background:var(--gold); }
+.step.completed { color:var(--green); }
+.step.completed .step-dot { background:var(--green); }
+
+/* Form body */
+.form-body { padding: 36px; }
+.form-step { display:none; }
+.form-step.active { display:block; }
+.form-step-title { font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:400; margin-bottom:4px; }
+.form-step-sub { font-size:13px; color:var(--muted); margin-bottom:28px; }
+
+/* Loan type cards */
+.loan-type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:8px; }
+.loan-type-card {
+  border:1px solid var(--border); border-radius:var(--r);
+  padding:14px 12px; cursor:pointer; transition:all 0.15s;
+  background:var(--white); text-align:center;
+}
+.loan-type-card:hover { border-color:var(--gold); }
+.loan-type-card.selected { border-color:var(--gold); background:var(--gold-bg); }
+.loan-type-icon { font-size:22px; margin-bottom:6px; }
+.loan-type-name { font-size:13px; font-weight:600; color:var(--ink); margin-bottom:2px; }
+.loan-type-desc { font-size:10px; color:var(--muted); line-height:1.4; }
+
+/* Form fields */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.form-grid .full { grid-column:1/-1; }
+.field { display:flex; flex-direction:column; gap:5px; }
+.field label { font-family:'DM Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); }
+.field label .req { color:var(--gold); }
+input[type=text],input[type=email],input[type=tel],input[type=number],
+input[type=range],select,textarea {
+  background:var(--white); border:1px solid var(--border); border-radius:var(--r);
+  padding:10px 13px; font-family:'Libre Baskerville',serif; font-size:13.5px;
+  color:var(--ink); transition:border-color 0.2s; width:100%;
+}
+input:focus,select:focus,textarea:focus { outline:none; border-color:var(--gold); }
+select option { background:#fff; }
+textarea { min-height:80px; resize:vertical; }
+.field-note { font-size:10px; color:var(--muted); font-style:italic; }
+
+/* LTV bar */
+.ltv-display { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.ltv-bar-wrap { height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+#ltv_bar { height:100%; width:0%; background:var(--gold); border-radius:3px; transition:all 0.3s; }
+
+/* Minimum rate floor — new field */
+.rate-floor-box {
+  background:var(--gold-bg); border:1px solid rgba(154,124,46,0.25);
+  border-radius:var(--r); padding:16px 18px; margin-top:14px;
+}
+.rate-floor-title { font-family:'DM Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--gold); margin-bottom:6px; }
+.rate-floor-note { font-size:11px; color:var(--muted); margin-top:6px; line-height:1.6; font-style:italic; }
+
+/* Slider */
+input[type=range] {
+  -webkit-appearance:none; padding:0; height:4px;
+  background:var(--border); border:none; border-radius:3px; cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:18px; height:18px;
+  background:var(--gold); border-radius:50%; cursor:pointer;
+  border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* Nav buttons */
+.form-nav { display:flex; justify-content:space-between; align-items:center; margin-top:28px; padding-top:20px; border-top:1px solid var(--border); }
+.btn-back { background:none; border:1px solid var(--border); color:var(--muted); padding:10px 20px; border-radius:var(--r); cursor:pointer; font-family:'Libre Baskerville',serif; font-size:13px; transition:all 0.15s; }
+.btn-back:hover { border-color:var(--gold); color:var(--gold); }
+.btn-next { background:var(--ink); color:var(--cream); padding:12px 28px; border:none; border-radius:var(--r); cursor:pointer; font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600; transition:all 0.2s; }
+.btn-next:hover { background:var(--ink2); transform:translateY(-1px); }
+
+/* Review table */
+.review-table { width:100%; border-collapse:collapse; }
+.review-table td { padding:10px 14px; border-bottom:1px solid var(--border); font-size:13.5px; }
+.review-table td:first-child { font-family:'DM Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); width:40%; }
+
+/* Consent */
+.consent-box { background:var(--cream2); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; margin-top:20px; font-size:11px; color:var(--muted); line-height:1.7; }
+
+/* Success */
+.success-msg { display:none; text-align:center; padding:40px 20px; }
+.success-icon { font-size:52px; margin-bottom:16px; }
+.success-title { font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:300; margin-bottom:10px; }
+.success-ref { font-family:'DM Mono',monospace; font-size:14px; color:var(--gold); letter-spacing:0.1em; }
+
+/* ── OFFER NOTIFICATION ── */
+#offer-section { display:none; padding:80px 40px; background:var(--teal-bg); border-top:3px solid var(--teal); }
+.offer-banner {
+  max-width:800px; margin:0 auto;
+  background:var(--white); border:1px solid rgba(10,123,106,0.25);
+  border-radius:var(--r); overflow:hidden;
+  box-shadow:0 4px 24px rgba(0,0,0,0.08);
+}
+.offer-banner-head {
+  background:var(--teal); color:#fff;
+  padding:18px 28px; display:flex; align-items:center; gap:12px;
+}
+.offer-banner-head .oh-icon { font-size:24px; }
+.offer-banner-head .oh-title { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:400; }
+.offer-banner-head .oh-sub { font-size:11px; opacity:0.75; font-family:'DM Mono',monospace; letter-spacing:0.06em; }
+.offer-body { padding:28px; }
+.offer-terms-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:24px; }
+.offer-term { background:var(--cream); border:1px solid var(--border); border-radius:var(--r); padding:14px; }
+.ot-label { font-family:'DM Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:4px; }
+.ot-value { font-family:'Cormorant Garamond',serif; font-size:20px; color:var(--ink); }
+.offer-explain {
+  background:var(--gold-bg); border:1px solid rgba(154,124,46,0.2);
+  border-radius:var(--r); padding:16px 18px; margin-bottom:20px;
+}
+.offer-explain-title { font-family:'DM Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--gold); margin-bottom:8px; }
+.offer-explain p { font-size:13px; color:var(--ink2); line-height:1.75; }
+.next-steps-list { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
+.ns-item {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 14px; background:var(--cream); border:1px solid var(--border); border-radius:var(--r);
+}
+.ns-check { width:20px; height:20px; border:1.5px solid var(--border2); border-radius:3px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; }
+.ns-item.complete .ns-check { background:var(--green); border-color:var(--green); color:#fff; }
+.ns-name { font-size:13.5px; color:var(--ink); flex:1; }
+.ns-badge { font-family:'DM Mono',monospace; font-size:9px; padding:2px 8px; border-radius:3px; background:var(--teal-bg); color:var(--teal); border:1px solid rgba(10,123,106,0.2); }
+.ns-ai-note { font-size:11px; color:var(--muted); margin-top:2px; font-style:italic; }
+.offer-accept-btn { width:100%; background:var(--teal); color:#fff; border:none; border-radius:var(--r); padding:16px; font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.offer-accept-btn:hover { background:#0a9070; transform:translateY(-1px); }
+.offer-decline { text-align:center; margin-top:10px; font-size:12px; color:var(--muted); cursor:pointer; text-decoration:underline; }
+
+/* ── DISCLOSURES ── */
+.disclosures {
+  background: var(--ink2);
+  color: rgba(240,235,224,0.45);
+  padding: 48px 40px;
+  font-size: 11px;
+  line-height: 1.9;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.02em;
+}
+.disc-inner { max-width:1100px; margin:0 auto; }
+.disc-title { font-size:10px; text-transform:uppercase; letter-spacing:0.14em; color:rgba(240,235,224,0.25); margin-bottom:16px; }
+.disc-text { margin-bottom:12px; }
+.disc-text a { color:rgba(200,155,40,0.6); text-decoration:none; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--dark);
+  color: rgba(240,235,224,0.35);
+  padding: 32px 40px;
+  display: flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:14px;
+  font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.06em;
+}
+footer .footer-logo { font-family:'Cormorant Garamond',serif; font-size:18px; color:rgba(200,155,40,0.6); }
+footer a { color:rgba(240,235,224,0.35); text-decoration:none; }
+
+/* ── CHAT ── */
+.chat-btn {
+  position:fixed; bottom:28px; right:28px; z-index:300;
+  width:52px; height:52px; border-radius:50%;
+  background:var(--ink); color:var(--cream); border:2px solid var(--gold);
+  font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 20px rgba(0,0,0,0.25); transition:all 0.2s;
+}
+.chat-btn:hover { transform:scale(1.08); }
+.chat-panel {
+  position:fixed; bottom:92px; right:28px; z-index:300;
+  width:320px; background:var(--white); border:1px solid var(--border);
+  border-radius:8px; box-shadow:0 8px 40px rgba(0,0,0,0.15);
+  display:none; flex-direction:column; overflow:hidden;
+}
+.chat-panel.open { display:flex; }
+.chat-head { background:var(--ink); color:var(--cream); padding:14px 16px; display:flex; justify-content:space-between; align-items:center; }
+.chat-head-title { font-family:'Cormorant Garamond',serif; font-size:16px; }
+.chat-head-sub { font-size:10px; color:rgba(240,235,224,0.5); font-family:'DM Mono',monospace; }
+.chat-close { background:none; border:none; color:rgba(240,235,224,0.5); cursor:pointer; font-size:18px; }
+.chat-messages { flex:1; overflow-y:auto; padding:14px; max-height:260px; display:flex; flex-direction:column; gap:8px; }
+.msg { padding:10px 13px; border-radius:var(--r); font-size:13px; max-width:85%; line-height:1.55; }
+.msg.bot { background:var(--cream); color:var(--ink); align-self:flex-start; border:1px solid var(--border); }
+.msg.user { background:var(--ink); color:var(--cream); align-self:flex-end; }
+.chat-input-row { display:flex; gap:8px; padding:12px; border-top:1px solid var(--border); }
+.chat-input { flex:1; border:1px solid var(--border); border-radius:var(--r); padding:9px 12px; font-size:13px; font-family:'Libre Baskerville',serif; background:var(--cream); color:var(--ink); outline:none; }
+.chat-send { background:var(--ink); color:var(--cream); border:none; border-radius:var(--r); padding:9px 14px; cursor:pointer; font-size:14px; }
+
+@media(max-width:768px) {
+  nav { padding:0 20px; }
+  .hero { padding:60px 20px 50px; }
+  .hero-inner { grid-template-columns:1fr; }
+  .hero-visual { display:none; }
+  .loan-type-grid { grid-template-columns:repeat(2,1fr); }
+  .form-grid { grid-template-columns:1fr; }
+  .trust-inner { justify-content:flex-start; }
+  .section { padding:50px 20px; }
+  #apply { padding:50px 20px; }
+  .form-body { padding:22px; }
+}
 </style>
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
-  <a href="vault-animation-v6_33.html" class="nav-logo">FirstLien<span>.Capital</span></a>
+  <a href="/" class="nav-logo">FirstLien<span>.Capital</span></a>
   <ul class="nav-links">
-    <li><a href="borrower.html" class="active">Borrow</a></li>
-    <li><a href="lender.html">Lend</a></li>
-    <li><a href="borrower.html#apply" class="nav-cta">Apply Now</a></li>
+    <li><a href="/">Home</a></li>
+    <li><a href="/lender.html">Lend</a></li>
+    <li><a href="#apply" class="nav-cta">Apply Now</a></li>
   </ul>
 </nav>
 
 <!-- HERO -->
-<section class="hero">
-  <div class="hero-content">
-    <div class="hero-eyebrow">Bridge & Hard Money Lending</div>
-    <h1>Capital that closes<br><em>in days, not months.</em></h1>
-    <p class="hero-sub">FirstLien.Capital connects real estate investors and developers with private capital — no bank committees, no endless underwriting, no broken timelines.</p>
-    <div class="hero-stats">
-      <div class="stat">
-        <div class="stat-num">$250K</div>
-        <div class="stat-label">Minimum Loan</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">75%</div>
-        <div class="stat-label">Max LTV</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">7–14</div>
-        <div class="stat-label">Days to Close</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">47</div>
-        <div class="stat-label">States Active</div>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Private Lending Marketplace</div>
+      <h1 class="hero-title">One application.<br><em>1,000+ lenders</em><br>competing for you.</h1>
+      <p class="hero-sub">Submit once and instantly reach our network of private lenders. No credit pull to apply. Term sheets in as little as 24 hours.</p>
+      <a href="#apply" class="hero-btn">Submit Your Deal →</a>
+      <div class="hero-stats">
+        <div class="stat-item"><div class="stat-num">1,000+</div><div class="stat-label">Active Lenders</div></div>
+        <div class="stat-item"><div class="stat-num">$2.4B+</div><div class="stat-label">Funded</div></div>
+        <div class="stat-item"><div class="stat-num">24 hr</div><div class="stat-label">Avg Response</div></div>
       </div>
     </div>
-    <a href="#apply" class="hero-cta">Submit Your Deal →</a>
-  </div>
-
-  <div class="character-card">
-    <div class="character-figure">
-      <svg viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg" width="140" height="160">
-        <rect x="30" y="85" width="80" height="60" rx="2" fill="#1a1a1a" stroke="#C9A84C" stroke-width="1.5"/>
-        <polygon points="20,88 70,40 120,88" fill="#C9A84C" opacity="0.8"/>
-        <polygon points="20,88 70,40 120,88" fill="none" stroke="#E8C97A" stroke-width="1.5"/>
-        <rect x="85" y="50" width="14" height="22" fill="#8A6F2E"/>
-        <rect x="54" y="110" width="22" height="35" rx="2" fill="#0A0A0A" stroke="#C9A84C" stroke-width="1"/>
-        <circle cx="72" cy="128" r="2.5" fill="#C9A84C"/>
-        <rect x="35" y="95" width="20" height="18" rx="1" fill="#C9A84C" opacity="0.3" stroke="#C9A84C" stroke-width="1"/>
-        <line x1="45" y1="95" x2="45" y2="113" stroke="#C9A84C" stroke-width="0.8" opacity="0.5"/>
-        <line x1="35" y1="104" x2="55" y2="104" stroke="#C9A84C" stroke-width="0.8" opacity="0.5"/>
-        <rect x="85" y="95" width="20" height="18" rx="1" fill="#C9A84C" opacity="0.3" stroke="#C9A84C" stroke-width="1"/>
-        <line x1="95" y1="95" x2="95" y2="113" stroke="#C9A84C" stroke-width="0.8" opacity="0.5"/>
-        <line x1="85" y1="104" x2="105" y2="104" stroke="#C9A84C" stroke-width="0.8" opacity="0.5"/>
-        <line x1="30" y1="100" x2="8" y2="118" stroke="#C9A84C" stroke-width="3" stroke-linecap="round"/>
-        <line x1="110" y1="100" x2="132" y2="118" stroke="#C9A84C" stroke-width="3" stroke-linecap="round"/>
-        <rect x="120" y="116" width="18" height="13" rx="2" fill="#8A6F2E" stroke="#C9A84C" stroke-width="1"/>
-        <rect x="127" y="113" width="5" height="4" rx="1" fill="none" stroke="#C9A84C" stroke-width="1"/>
-        <ellipse cx="70" cy="149" rx="45" ry="5" fill="rgba(201,168,76,0.08)"/>
-      </svg>
-    </div>
-    <div class="character-name">Maxwell</div>
-    <div class="character-title">Your Loan Advisor</div>
-    <div class="character-bubble">
-      Ready to fund your next deal. I'll walk you through the application — most borrowers are pre-qualified in under 24 hours.
-    </div>
-  </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section class="how-section" id="how">
-  <div class="section-header">
-    <div class="section-tag">Process</div>
-    <h2 class="section-title">Simple. Private. Fast.</h2>
-  </div>
-  <div class="how-grid">
-    <div class="how-card" data-num="1">
-      <div class="how-icon">📋</div>
-      <div class="how-title">Submit Your Deal</div>
-      <div class="how-desc">5-minute application. Property details, loan amount, exit strategy.</div>
-    </div>
-    <div class="how-card" data-num="2">
-      <div class="how-icon">🔍</div>
-      <div class="how-title">Instant Screening</div>
-      <div class="how-desc">AI pre-screens your deal against our lender pool — no human gatekeeping on day 1.</div>
-    </div>
-    <div class="how-card" data-num="3">
-      <div class="how-icon">🤝</div>
-      <div class="how-title">Lender Match</div>
-      <div class="how-desc">Matched lenders review your deal and issue term sheets within 48–72 hours.</div>
-    </div>
-    <div class="how-card" data-num="4">
-      <div class="how-icon">🔑</div>
-      <div class="how-title">Close & Fund</div>
-      <div class="how-desc">Choose your lender, execute docs, and close in as few as 7 business days.</div>
-    </div>
-  </div>
-</section>
-
-<!-- QSM FORM -->
-<section class="qsm-section" id="apply">
-  <div class="section-header">
-    <div class="section-tag">Application</div>
-    <h2 class="section-title">Submit Your Deal</h2>
-  </div>
-
-  <div class="stepper" id="stepper">
-    <div class="step active" data-step="1"><div class="step-circle">1</div><div class="step-label">Property</div></div>
-    <div class="step" data-step="2"><div class="step-circle">2</div><div class="step-label">Loan</div></div>
-    <div class="step" data-step="3"><div class="step-circle">3</div><div class="step-label">Borrower</div></div>
-    <div class="step" data-step="4"><div class="step-circle">4</div><div class="step-label">Review</div></div>
-  </div>
-
-  <div class="form-card">
-
-    <!-- STEP 1: Property -->
-    <div class="form-step active" id="step1">
-      <div class="form-step-title">Property Details</div>
-      <div class="form-step-sub">Tell us about the asset you're financing.</div>
-
-      <div style="margin-bottom:20px">
-        <label style="display:block;margin-bottom:10px">Loan Purpose</label>
-        <div class="loan-type-grid">
-          <div class="loan-type-card selected" onclick="selectLoanType(this,'Purchase')">
-            <div class="loan-type-icon">🏠</div>
-            <div class="loan-type-name">Purchase</div>
-            <div class="loan-type-desc">Acquisition financing for investment properties</div>
-          </div>
-          <div class="loan-type-card" onclick="selectLoanType(this,'Refinance')">
-            <div class="loan-type-icon">🔄</div>
-            <div class="loan-type-name">Refinance</div>
-            <div class="loan-type-desc">Cash-out or rate/term refi on existing asset</div>
-          </div>
-          <div class="loan-type-card" onclick="selectLoanType(this,'Construction')">
-            <div class="loan-type-icon">🏗️</div>
-            <div class="loan-type-name">Construction</div>
-            <div class="loan-type-desc">Ground-up or heavy rehab draw schedule</div>
-          </div>
-          <div class="loan-type-card" onclick="selectLoanType(this,'Bridge')">
-            <div class="loan-type-icon">🌉</div>
-            <div class="loan-type-name">Bridge</div>
-            <div class="loan-type-desc">Short-term bridge to permanent financing</div>
-          </div>
-          <div class="loan-type-card" onclick="selectLoanType(this,'Fix & Flip')">
-            <div class="loan-type-icon">🔨</div>
-            <div class="loan-type-name">Fix & Flip</div>
-            <div class="loan-type-desc">Purchase + renovation with quick sale exit</div>
-          </div>
-          <div class="loan-type-card" onclick="selectLoanType(this,'DSCR')">
-            <div class="loan-type-icon">📊</div>
-            <div class="loan-type-name">DSCR / Rental</div>
-            <div class="loan-type-desc">Cash-flow based rental property loan</div>
-          </div>
-        </div>
-        <input type="hidden" id="loan_purpose" value="Purchase">
+    <div class="hero-visual">
+      <div class="hero-img-main">
+        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80" alt="Investment property" onerror="this.parentElement.style.background='linear-gradient(135deg,#1a2a3a,#0d1a2a)'">
       </div>
-
-      <div class="form-grid">
-        <div class="field">
-          <label>Property Address</label>
-          <input type="text" id="prop_address" placeholder="123 Main St">
-        </div>
-        <div class="field">
-          <label>City</label>
-          <input type="text" id="prop_city" placeholder="Chicago">
-        </div>
-        <div class="field">
-          <label>State</label>
-          <select id="prop_state">
-            <option value="">Select State</option>
-            <option>Alabama</option><option>Alaska</option><option>Arizona</option>
-            <option>Arkansas</option><option>California</option><option>Colorado</option>
-            <option>Connecticut</option><option>Delaware</option><option>Florida</option>
-            <option>Georgia</option><option>Hawaii</option><option>Idaho</option>
-            <option>Illinois</option><option>Indiana</option><option>Iowa</option>
-            <option>Kansas</option><option>Kentucky</option><option>Louisiana</option>
-            <option>Maine</option><option>Maryland</option><option>Massachusetts</option>
-            <option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
-            <option>Missouri</option><option>Montana</option><option>Nebraska</option>
-            <option>Nevada</option><option>New Hampshire</option><option>New Jersey</option>
-            <option>New Mexico</option><option>New York</option><option>North Carolina</option>
-            <option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
-            <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option>
-            <option>South Carolina</option><option>South Dakota</option><option>Tennessee</option>
-            <option>Texas</option><option>Utah</option><option>Vermont</option>
-            <option>Virginia</option><option>Washington</option><option>West Virginia</option>
-            <option>Wisconsin</option><option>Wyoming</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Zip Code</label>
-          <input type="text" id="prop_zip" placeholder="60637">
-        </div>
-        <div class="field">
-          <label>Property Type</label>
-          <select id="prop_type">
-            <option>Single Family Residence</option>
-            <option>2–4 Unit Multifamily</option>
-            <option>5+ Unit Apartment</option>
-            <option>Mixed-Use</option>
-            <option>Commercial</option>
-            <option>Land / Lot</option>
-            <option>Industrial</option>
-            <option>Self-Storage</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Property Condition</label>
-          <select id="prop_condition">
-            <option>Stabilized / Rent Ready</option>
-            <option>Light Rehab (Cosmetic)</option>
-            <option>Value-Add / Moderate Rehab</option>
-            <option>Heavy Rehab / Gut Renovation</option>
-            <option>Ground-Up Construction</option>
-          </select>
-        </div>
+      <div class="hero-img-thumb">
+        <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&q=80" alt="Property" onerror="this.parentElement.style.background='linear-gradient(135deg,#2a1a0a,#1a1010)'">
       </div>
-
-      <div class="form-nav">
-        <div class="form-save-note">🔒 Secure — Your information is never sold</div>
-        <button class="btn-next" onclick="goToStep(2)">Continue to Loan Details →</button>
-      </div>
-    </div>
-
-    <!-- STEP 2: Loan -->
-    <div class="form-step" id="step2">
-      <div class="form-step-title">Loan Parameters</div>
-      <div class="form-step-sub">Define your financing needs.</div>
-
-      <div class="range-group">
-        <div class="range-label-row">
-          <label>Requested Loan Amount</label>
-          <div class="range-value" id="loan_amt_display">$1,500,000</div>
-        </div>
-        <input type="range" id="loan_amount" min="250000" max="20000000" step="50000" value="1500000"
-          oninput="updateLoanAmt(this.value)">
-        <div class="range-ticks">
-          <span>$250K</span><span>$5M</span><span>$10M</span><span>$20M+</span>
-        </div>
-      </div>
-
-      <div class="form-grid triple">
-        <div class="field">
-          <label>As-Is Property Value</label>
-          <input type="number" id="as_is_value" placeholder="2000000" oninput="updateLTV()">
-          <span class="field-hint">Current market value estimate</span>
-        </div>
-        <div class="field">
-          <label>After Repair Value (ARV)</label>
-          <input type="number" id="arv" placeholder="2500000" oninput="updateLTV()">
-          <span class="field-hint">For rehab projects</span>
-        </div>
-        <div class="field">
-          <label>Purchase Price</label>
-          <input type="number" id="purchase_price" placeholder="1800000">
-          <span class="field-hint">If applicable</span>
-        </div>
-      </div>
-
-      <div class="ltv-meter">
-        <div class="ltv-label-row">
-          <span class="ltv-label">Estimated LTV</span>
-          <span class="ltv-value" id="ltv_display" style="color: var(--accent-green-bright)">—</span>
-        </div>
-        <div class="ltv-bar-bg"><div class="ltv-bar-fill" id="ltv_bar" style="width:0%"></div></div>
-        <div class="ltv-zones">
-          <span class="ltv-zone">Conservative</span>
-          <span class="ltv-zone">Sweet Spot 55–70%</span>
-          <span class="ltv-zone">Max 75%</span>
-        </div>
-      </div>
-
-      <div class="form-grid">
-        <div class="field">
-          <label>Desired Term</label>
-          <select id="loan_term">
-            <option>6 Months</option><option>12 Months</option><option>18 Months</option>
-            <option>24 Months</option><option>36 Months</option><option>5 Years</option>
-            <option>30 Years (DSCR)</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Exit Strategy</label>
-          <select id="exit_strategy">
-            <option>Sell / Flip</option><option>Refinance to Conventional</option>
-            <option>Refinance to DSCR / Perm</option><option>Hold as Rental</option>
-            <option>Development / Sale</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Timeline to Close</label>
-          <select id="close_timeline">
-            <option>ASAP (7–10 Days)</option><option>2–3 Weeks</option>
-            <option>30 Days</option><option>45–60 Days</option><option>Flexible</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Interest Reserve</label>
-          <select id="int_reserve">
-            <option>No Preference</option><option>3 Months</option>
-            <option>6 Months</option><option>12 Months</option>
-          </select>
-        </div>
-        <div class="field span2">
-          <label>Deal Summary</label>
-          <textarea id="deal_summary" placeholder="Briefly describe the deal: what you're buying, the business plan, and why it's a strong investment..."></textarea>
-        </div>
-      </div>
-
-      <div class="form-nav">
-        <button class="btn-back" onclick="goToStep(1)">← Back</button>
-        <button class="btn-next" onclick="goToStep(3)">Continue to Borrower Info →</button>
-      </div>
-    </div>
-
-    <!-- STEP 3: Borrower -->
-    <div class="form-step" id="step3">
-      <div class="form-step-title">Borrower Information</div>
-      <div class="form-step-sub">Basic contact and experience — no SSN required at this stage.</div>
-
-      <div class="form-grid">
-        <div class="field">
-          <label>First Name</label>
-          <input type="text" id="first_name" placeholder="Jane">
-        </div>
-        <div class="field">
-          <label>Last Name</label>
-          <input type="text" id="last_name" placeholder="Smith">
-        </div>
-        <div class="field">
-          <label>Email Address</label>
-          <input type="email" id="email" placeholder="jane@example.com">
-        </div>
-        <div class="field">
-          <label>Phone Number</label>
-          <input type="tel" id="phone" placeholder="(555) 000-0000">
-        </div>
-        <div class="field">
-          <label>Entity Type</label>
-          <select id="entity_type">
-            <option>LLC</option><option>Corporation (C or S)</option>
-            <option>Limited Partnership</option><option>Trust</option><option>Individual</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Estimated Credit Score</label>
-          <select id="credit_score">
-            <option>700+</option><option>680–699</option><option>660–679</option>
-            <option>640–659</option><option>620–639</option><option>Below 620</option>
-            <option>Prefer not to say</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Real Estate Experience</label>
-          <select id="re_experience">
-            <option>First Investment</option><option>1–3 Transactions</option>
-            <option>4–10 Transactions</option><option>11–25 Transactions</option>
-            <option>25+ Transactions</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Working with a Broker?</label>
-          <select id="has_broker">
-            <option>No, direct borrower</option><option>Yes, broker is submitting</option>
-          </select>
-        </div>
-        <div class="field span2">
-          <label>Referral / How Did You Hear About Us?</label>
-          <input type="text" id="referral" placeholder="Optional">
-        </div>
-      </div>
-
-      <div class="form-nav">
-        <button class="btn-back" onclick="goToStep(2)">← Back</button>
-        <button class="btn-next" onclick="goToStep(4)">Review Submission →</button>
-      </div>
-    </div>
-
-    <!-- STEP 4: Review -->
-    <div class="form-step" id="step4">
-      <div class="form-step-title">Review & Submit</div>
-      <div class="form-step-sub">Confirm your deal details before submission.</div>
-
-      <div id="review-content" style="margin-bottom:32px"></div>
-
-      <div id="consent-box" style="background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:4px;padding:20px;margin-bottom:24px">
-        <p style="font-size:13px;color:var(--text-secondary);line-height:1.7">
-          By submitting, you authorize FirstLien.Capital to share your deal information with private lenders in our network for the purpose of obtaining financing quotes. No credit pull occurs at this stage.
-        </p>
-      </div>
-
-      <div class="firebase-status" id="firebaseStatus">
-        <div class="fs-dot" id="fsDot"></div>
-        <span id="fsMsg">Saving deal to lender network...</span>
-      </div>
-
-      <div id="success-msg" style="display:none">
-        <div class="success-card">
-          <div class="success-icon">✓</div>
-          <div class="success-title">Deal Submitted Successfully</div>
-          <div class="success-sub">Your deal is now live in our lender network. Expect term sheet inquiries within 24–48 business hours.</div>
-          <div class="success-ref">Reference ID: <span id="deal-ref">FL-2025-XXXX</span></div>
-        </div>
-      </div>
-
-      <div id="submit-form-nav" class="form-nav">
-        <button class="btn-back" onclick="goToStep(3)">← Back</button>
-        <button class="btn-next" id="submitBtn" onclick="submitDeal()">Submit Deal to Lenders ✓</button>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- RATES REFERENCE -->
-<section class="rates-section">
-  <div class="section-header">
-    <div class="section-tag">Rates & Terms</div>
-    <h2 class="section-title">What to Expect</h2>
-  </div>
-  <table class="rates-table">
-    <thead>
-      <tr>
-        <th>Loan Type</th><th>Rate Range</th><th>Max LTV</th><th>Term</th><th>Points</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>Bridge / Purchase</td><td><span class="rate-badge">9 – 11.5%</span></td><td>70%</td><td>6–24 mo</td><td>1.5–2.5</td></tr>
-      <tr><td>Fix & Flip</td><td><span class="rate-badge">10 – 12%</span></td><td>75% of ARV</td><td>6–18 mo</td><td>2–3</td></tr>
-      <tr><td>Ground-Up Construction</td><td><span class="rate-badge">10.5 – 13%</span></td><td>65% LTC</td><td>12–24 mo</td><td>2–3</td></tr>
-      <tr><td>DSCR / Rental</td><td><span class="rate-badge">7.5 – 9.5%</span></td><td>75%</td><td>30 yr</td><td>1–2</td></tr>
-      <tr><td>Multifamily Value-Add</td><td><span class="rate-badge">9.5 – 12%</span></td><td>70%</td><td>12–36 mo</td><td>1.5–2.5</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<footer>
-  <div class="footer-logo">FirstLien.Capital</div>
-  <div class="footer-links">
-    <a href="borrower.html">Borrow</a>
-    <a href="lender.html">Lend</a>
-    <a href="#">Privacy</a>
-    <a href="#">Terms</a>
-  </div>
-  <div class="footer-copy">© 2025 FirstLien.Capital. Private Lending, Not a Bank.</div>
-</footer>
-
-<!-- AI HELPER -->
-<div class="ai-helper">
-  <div class="ai-helper-toggle" onclick="toggleChat()" title="Chat with Maxwell">
-    <svg width="32" height="32" viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
-      <rect x="25" y="72" width="90" height="68" rx="2" fill="#1a1a1a" stroke="#C9A84C" stroke-width="2"/>
-      <polygon points="15,75 70,28 125,75" fill="#C9A84C" opacity="0.9"/>
-      <rect x="50" y="100" width="24" height="40" rx="2" fill="#0A0A0A" stroke="#C9A84C" stroke-width="1"/>
-      <circle cx="70" cy="120" r="2" fill="#C9A84C"/>
-    </svg>
-    <div class="ai-helper-badge">!</div>
-  </div>
-
-  <div class="ai-chat-panel" id="chatPanel">
-    <div class="ai-chat-header">
-      <div class="ai-chat-avatar">🏠</div>
-      <div class="ai-chat-info">
-        <strong>Maxwell</strong>
-        <span><span class="online-dot"></span>Loan Advisor · Online</span>
-      </div>
-    </div>
-    <div class="ai-chat-messages" id="chatMessages">
-      <div class="msg bot">Hey! I'm Maxwell — I'll help you navigate the application. Quick question: is this a purchase or a refi?</div>
-    </div>
-    <div class="ai-chat-input-row">
-      <input class="ai-chat-input" id="chatInput" type="text" placeholder="Ask Maxwell anything..." onkeydown="if(event.key==='Enter')sendChat()">
-      <button class="ai-send-btn" onclick="sendChat()">→</button>
+      <div class="hero-tag">✓ No SSN Required to Apply</div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════
-     FIREBASE SDK + DEAL SUBMISSION
-     ═══════════════════════════════════════════════════ -->
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getFirestore, collection, addDoc, serverTimestamp }
-    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-inner">
+    <div class="trust-item">
+      <span class="trust-icon">🔒</span>
+      <div class="trust-text"><strong>256-bit SSL</strong>Bank-grade encryption</div>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <span class="trust-icon">🏛</span>
+      <div class="trust-text"><strong>NMLS Licensed</strong>CA DRE Licensed Broker</div>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <span class="trust-icon">🚫</span>
+      <div class="trust-text"><strong>No Hard Pull</strong>Soft check only</div>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <span class="trust-icon">⚡</span>
+      <div class="trust-text"><strong>1,000+ Lenders</strong>One submission</div>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <span class="trust-icon">🤝</span>
+      <div class="trust-text"><strong>No Fee</strong>Unless we close</div>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <span class="trust-icon">🏠</span>
+      <div class="trust-text"><strong>Equal Housing</strong>Lender</div>
+    </div>
+  </div>
+</div>
 
-  // ── Firebase config ──────────────────────────────
-  const firebaseConfig = {
-    apiKey:    "AIzaSyAw7KJpB2yu_i9OVDrYOoZZkbNK-4oCKoE",
-    authDomain: "firstlien-capital.firebaseapp.com",
-    projectId:  "firstlien-capital",
-    storageBucket: "firstlien-capital.appspot.com",
-    messagingSenderId: "867672127759",
-    appId:     "1:867672127759:web:d24b328c6f55592b4d667a"
-  };
+<!-- HOW IT WORKS -->
+<section class="section section-alt" id="how">
+  <div class="section-inner">
+    <div class="eyebrow">How It Works</div>
+    <h2 class="section-title">From application to<br>funded in 4 steps.</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-rule"></div>
+        <div class="step-title">Submit Your Deal</div>
+        <div class="step-desc">One 4-minute form. Tell us about your property, loan needs, and timeline. No SSN or credit pull required at this stage.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-rule"></div>
+        <div class="step-title">AI Matches Lenders</div>
+        <div class="step-desc">Our matching engine instantly surfaces lenders actively deploying capital in your asset class, location, and loan size — ranked by fit.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-rule"></div>
+        <div class="step-title">Receive Term Sheets</div>
+        <div class="step-desc">Lenders review your deal and send competing offers. You'll see their rate, term, points, and required docs — all in one place.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-rule"></div>
+        <div class="step-title">Choose & Close</div>
+        <div class="step-desc">Accept the offer that fits. Our AI guides you through each closing step. 1 point due at close — nothing if we don't fund.</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-  const app = initializeApp(firebaseConfig);
-  const db  = getFirestore(app);
+<!-- RATES BAND -->
+<div class="rates-band">
+  <div class="rates-inner">
+    <div class="rate-item"><div class="rate-type">Bridge</div><div class="rate-range">9–12%</div><div class="rate-detail">12–36 month</div></div>
+    <div class="rate-item"><div class="rate-type">Fix & Flip</div><div class="rate-range">10–13%</div><div class="rate-detail">6–18 month</div></div>
+    <div class="rate-item"><div class="rate-type">DSCR / Rental</div><div class="rate-range">7.5–10%</div><div class="rate-detail">30 year</div></div>
+    <div class="rate-item"><div class="rate-type">Construction</div><div class="rate-range">11–14%</div><div class="rate-detail">12–24 month</div></div>
+    <div class="rate-item"><div class="rate-type">Commercial</div><div class="rate-range">8–12%</div><div class="rate-detail">2–10 year</div></div>
+    <div class="rate-item"><div class="rate-type">Max LTV</div><div class="rate-range">80%</div><div class="rate-detail">Asset dependent</div></div>
+  </div>
+</div>
 
-  // Expose save function globally so onclick can call it
-  window._saveDealToFirebase = async function(dealData) {
-    const statusEl = document.getElementById('firebaseStatus');
-    const dotEl    = document.getElementById('fsDot');
-    const msgEl    = document.getElementById('fsMsg');
+<!-- ── OFFER NOTIFICATION (shown when lender sends offer) ── -->
+<div id="offer-section">
+  <div class="section-inner" style="max-width:800px;">
+    <div class="eyebrow">You Have a New Offer</div>
+    <h2 class="section-title" style="margin-bottom:28px;">A lender has reviewed<br>your deal and made an offer.</h2>
+    <div class="offer-banner">
+      <div class="offer-banner-head">
+        <span class="oh-icon">🏦</span>
+        <div>
+          <div class="oh-title">Term Sheet Received</div>
+          <div class="oh-sub">Lender identity disclosed at closing · Offer expires in 72 hours</div>
+        </div>
+      </div>
+      <div class="offer-body">
+        <div class="offer-terms-grid" id="offer-terms">
+          <!-- Populated by JS -->
+        </div>
+        <div class="offer-explain">
+          <div class="offer-explain-title">What this offer means</div>
+          <p id="offer-explanation">This lender is offering to fund your loan at the terms above. The interest rate is a fixed annual rate — your monthly payment is calculated on this. Points are paid at closing as a percentage of the loan amount. Review all terms carefully before accepting.</p>
+        </div>
+        <div class="eyebrow" style="margin-bottom:12px;">Steps to Close — Selected by Your Lender</div>
+        <div class="next-steps-list" id="next-steps-list">
+          <!-- Populated by JS -->
+        </div>
+        <button class="offer-accept-btn" onclick="acceptOffer()">✓ Accept This Offer — Begin Closing Process</button>
+        <div class="offer-decline" onclick="declineOffer()">Decline this offer — view other lenders</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    statusEl.classList.add('visible');
-    dotEl.className   = 'fs-dot';
-    msgEl.textContent = 'Saving deal to lender network...';
+<!-- APPLICATION FORM -->
+<section id="apply">
+  <div class="form-wrap">
+    <div class="eyebrow">Submit Your Deal</div>
+    <h2 class="section-title" style="margin-bottom:8px;">Get competing offers<br>from 1,000+ lenders.</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:32px;">No SSN required · No hard credit pull · Free to apply</p>
 
-    try {
-      const docRef = await addDoc(collection(db, 'deals'), {
-        ...dealData,
-        status:      'pending_review',
-        createdAt:   serverTimestamp(),
-        updatedAt:   serverTimestamp()
-      });
+    <div class="form-card" id="main-form">
+      <!-- STEPPER -->
+      <div class="stepper" id="stepper">
+        <div class="step active" onclick="goToStep(1)"><div class="step-dot"></div>Property</div>
+        <div class="step" onclick="goToStep(2)"><div class="step-dot"></div>Loan</div>
+        <div class="step" onclick="goToStep(3)"><div class="step-dot"></div>Borrower</div>
+        <div class="step" onclick="goToStep(4)"><div class="step-dot"></div>Review</div>
+      </div>
 
-      dotEl.className   = 'fs-dot success';
-      msgEl.textContent = 'Deal saved ✓';
+      <div class="form-body">
 
-      return docRef.id;
+        <!-- STEP 1: PROPERTY -->
+        <div class="form-step active" id="step1">
+          <div class="form-step-title">Property Details</div>
+          <div class="form-step-sub">Tell us about the asset you're financing.</div>
 
-    } catch (err) {
-      console.error('Firebase error:', err);
-      dotEl.className   = 'fs-dot error';
-      msgEl.textContent = 'Could not reach database — deal logged locally.';
-      return null;
-    }
-  };
-</script>
+          <div style="margin-bottom:20px">
+            <label style="display:block;margin-bottom:10px;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)">Loan Purpose</label>
+            <div class="loan-type-grid">
+              <div class="loan-type-card selected" onclick="selectLoanType(this,'Purchase')"><div class="loan-type-icon">🏠</div><div class="loan-type-name">Purchase</div><div class="loan-type-desc">Acquisition financing</div></div>
+              <div class="loan-type-card" onclick="selectLoanType(this,'Refinance')"><div class="loan-type-icon">🔄</div><div class="loan-type-name">Refinance</div><div class="loan-type-desc">Cash-out or rate/term</div></div>
+              <div class="loan-type-card" onclick="selectLoanType(this,'Construction')"><div class="loan-type-icon">🏗️</div><div class="loan-type-name">Construction</div><div class="loan-type-desc">Ground-up or heavy rehab</div></div>
+              <div class="loan-type-card" onclick="selectLoanType(this,'Bridge')"><div class="loan-type-icon">🌉</div><div class="loan-type-name">Bridge</div><div class="loan-type-desc">Short-term bridge loan</div></div>
+              <div class="loan-type-card" onclick="selectLoanType(this,'Fix & Flip')"><div class="loan-type-icon">🔨</div><div class="loan-type-name">Fix & Flip</div><div class="loan-type-desc">Purchase + renovation</div></div>
+              <div class="loan-type-card" onclick="selectLoanType(this,'DSCR')"><div class="loan-type-icon">📊</div><div class="loan-type-name">DSCR / Rental</div><div class="loan-type-desc">Cash-flow based loan</div></div>
+            </div>
+            <input type="hidden" id="loan_purpose" value="Purchase">
+          </div>
+
+          <div class="form-grid">
+            <div class="field full">
+              <label>Property Address <span class="req">*</span></label>
+              <input type="text" id="prop_address" placeholder="123 Main Street">
+            </div>
+            <div class="field"><label>City</label><input type="text" id="prop_city" placeholder="Chicago"></div>
+            <div class="field">
+              <label>State</label>
+              <select id="prop_state"><option value="">Select State</option><option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option></select>
+            </div>
+            <div class="field"><label>Zip Code</label><input type="text" id="prop_zip" placeholder="60637"></div>
+            <div class="field">
+              <label>Property Type</label>
+              <select id="prop_type"><option value="">Select Type</option><option>Single Family (SFR)</option><option>Multifamily 2–4</option><option>Multifamily 5+</option><option>Mixed-Use</option><option>Commercial / Retail</option><option>Industrial / Warehouse</option><option>Office</option><option>Self-Storage</option><option>Hospitality / Hotel</option><option>Land / Lot</option><option>Mobile Home Park</option></select>
+            </div>
+            <div class="field">
+              <label>Property Condition</label>
+              <select id="prop_condition"><option value="">Select Condition</option><option>Stabilized / Move-in Ready</option><option>Light Rehab (&lt;$50K)</option><option>Medium Rehab ($50K–$150K)</option><option>Heavy Rehab ($150K+)</option><option>Distressed / Vacant</option><option>New Construction</option></select>
+            </div>
+          </div>
+          <div class="form-nav">
+            <span></span>
+            <button class="btn-next" onclick="goToStep(2)">Next: Loan Details →</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: LOAN -->
+        <div class="form-step" id="step2">
+          <div class="form-step-title">Loan Details</div>
+          <div class="form-step-sub">Tell us what you need and how you plan to exit.</div>
+          <div class="form-grid">
+            <div class="field full">
+              <label>Loan Amount: <strong id="loan_amt_display">$500K</strong></label>
+              <input type="range" id="loan_amount" min="100000" max="10000000" step="50000" value="500000" oninput="updateLoanAmt(this.value)">
+              <div style="display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;"><span>$100K</span><span>$10M</span></div>
+            </div>
+            <div class="field"><label>As-Is Value ($)</label><input type="number" id="as_is_value" placeholder="750000" oninput="updateLTV()"></div>
+            <div class="field"><label>ARV ($) — if applicable</label><input type="number" id="arv" placeholder="950000"></div>
+            <div class="field"><label>Purchase Price ($)</label><input type="number" id="purchase_price" placeholder="600000"></div>
+            <div class="field">
+              <div class="ltv-display"><label>LTV</label><span id="ltv_display" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--gold);">—</span></div>
+              <div class="ltv-bar-wrap"><div id="ltv_bar"></div></div>
+            </div>
+            <div class="field">
+              <label>Loan Term</label>
+              <select id="loan_term"><option>12 months</option><option>18 months</option><option>24 months</option><option>36 months</option><option>5 years</option><option>10 years</option><option>30 years</option></select>
+            </div>
+            <div class="field">
+              <label>Exit Strategy</label>
+              <select id="exit_strategy"><option value="">Select Strategy</option><option>Sell / Flip</option><option>Refinance to Conventional</option><option>Refinance to Agency (Fannie/Freddie)</option><option>Cash-Flow Hold</option><option>Stabilize then Sell</option></select>
+            </div>
+            <div class="field">
+              <label>Close Timeline</label>
+              <select id="close_timeline"><option>ASAP (Under 2 weeks)</option><option>2–4 weeks</option><option>30–45 days</option><option>45–60 days</option><option>60+ days</option></select>
+            </div>
+            <div class="field">
+              <label>Interest Reserve Requested</label>
+              <select id="int_reserve"><option>No reserve needed</option><option>1 month</option><option>3 months</option><option>6 months</option><option>12 months</option></select>
+            </div>
+            <div class="field full">
+              <label>Deal Summary / Notes</label>
+              <textarea id="deal_summary" placeholder="Tell lenders what makes this deal compelling. Include any value-add upside, market context, or sponsorship highlights."></textarea>
+            </div>
+          </div>
+
+          <!-- BORROWER RATE FLOOR — Lowball Protection -->
+          <div class="rate-floor-box">
+            <div class="rate-floor-title">🛡 Your Rate Floor — Lowball Protection</div>
+            <div class="form-grid" style="margin-top:10px;">
+              <div class="field">
+                <label>Minimum Acceptable Rate (%)</label>
+                <input type="number" id="min_rate_floor" placeholder="e.g. 9.5" step="0.25" min="6" max="18">
+              </div>
+              <div class="field">
+                <label>Maximum Points You'll Accept</label>
+                <input type="number" id="max_points_floor" placeholder="e.g. 3" step="0.5" min="0" max="10">
+              </div>
+            </div>
+            <div class="rate-floor-note">Lenders submitting offers below your floor will be flagged automatically. You can still review any offer, but our platform monitors lender behavior — repeat lowballers are removed from the network.</div>
+          </div>
+
+          <div class="form-nav">
+            <button class="btn-back" onclick="goToStep(1)">← Back</button>
+            <button class="btn-next" onclick="goToStep(3)">Next: About You →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: BORROWER -->
+        <div class="form-step" id="step3">
+          <div class="form-step-title">About You</div>
+          <div class="form-step-sub">Basic borrower information for lender matching.</div>
+          <div class="form-grid">
+            <div class="field"><label>First Name <span class="req">*</span></label><input type="text" id="first_name" placeholder="First"></div>
+            <div class="field"><label>Last Name <span class="req">*</span></label><input type="text" id="last_name" placeholder="Last"></div>
+            <div class="field"><label>Email <span class="req">*</span></label><input type="email" id="email" placeholder="you@example.com"></div>
+            <div class="field"><label>Phone</label><input type="tel" id="phone" placeholder="(555) 000-0000"></div>
+            <div class="field">
+              <label>Borrowing Entity Type</label>
+              <select id="entity_type"><option>Individual</option><option>LLC</option><option>Corporation</option><option>Trust</option><option>LP / LLP</option><option>TBD</option></select>
+            </div>
+            <div class="field">
+              <label>Credit Score (approximate)</label>
+              <select id="credit_score"><option>720+</option><option>680–719</option><option>640–679</option><option>600–639</option><option>Below 600</option><option>Prefer not to say</option></select>
+            </div>
+            <div class="field">
+              <label>Real Estate Experience</label>
+              <select id="re_experience"><option>First deal</option><option>1–3 transactions</option><option>4–10 transactions</option><option>10–25 transactions</option><option>25+ transactions</option></select>
+            </div>
+            <div class="field">
+              <label>Working with a Broker?</label>
+              <select id="has_broker"><option value="no">No — direct borrower</option><option value="yes">Yes — have a broker</option></select>
+            </div>
+            <div class="field full">
+              <label>How did you hear about us?</label>
+              <select id="referral"><option value="">Select</option><option>Google / Search</option><option>Referral from broker</option><option>Referral from investor</option><option>Social media</option><option>BiggerPockets</option><option>Conference / Event</option><option>Other</option></select>
+            </div>
+          </div>
+          <div class="form-nav">
+            <button class="btn-back" onclick="goToStep(2)">← Back</button>
+            <button class="btn-next" onclick="goToStep(4)">Review & Submit →</button>
+          </div>
+        </div>
+
+        <!-- STEP 4: REVIEW + SUBMIT -->
+        <div class="form-step" id="step4">
+          <div class="form-step-title">Review Your Application</div>
+          <div class="form-step-sub">Confirm your details before submitting to 1,000+ lenders.</div>
+          <div id="review-content"></div>
+
+          <div class="consent-box" id="consent-box">
+            <strong style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink);">Business Purpose Certification & Consent</strong><br><br>
+            By submitting this application, I certify that: (1) this loan is for <strong>business, investment, or commercial purposes only</strong> and not for personal, family, or household use; (2) all information provided is true and accurate to the best of my knowledge; (3) I authorize FirstLien.Capital and its network of participating lenders to review this application; (4) I understand this is not a commitment to lend and rates/terms are subject to change; (5) I understand the lender's identity will remain anonymous until a term sheet is issued; (6) this platform is a licensed mortgage broker marketplace, not a direct lender; (7) a broker fee of 1 point (0.5 point on loans above $2M) is due at closing only if a loan funds — no fee if no close. This application does not constitute a consumer mortgage application and TILA/RESPA disclosures do not apply. This loan is exempt from consumer protection regulations under applicable business purpose exemptions.
+          </div>
+
+          <div id="submit-form-nav" class="form-nav">
+            <button class="btn-back" onclick="goToStep(3)">← Back</button>
+            <button class="btn-next" id="submitBtn" onclick="submitDeal()">Submit to 1,000+ Lenders →</button>
+          </div>
+
+          <!-- SUCCESS -->
+          <div class="success-msg" id="success-msg">
+            <div class="success-icon">✅</div>
+            <div class="success-title">Your deal is live.</div>
+            <p style="color:var(--muted);margin-bottom:16px;font-size:13px;">You'll receive email notifications as lenders express interest. Most borrowers hear back within 24 hours.</p>
+            <div class="success-ref">Reference: <span id="deal-ref">FL-2026-XXXX</span></div>
+            <p style="margin-top:20px;font-size:12px;color:var(--muted);">Questions? <a href="mailto:info@firstlien.capital" style="color:var(--gold)">info@firstlien.capital</a></p>
+          </div>
+        </div>
+
+      </div><!-- /form-body -->
+    </div><!-- /form-card -->
+  </div><!-- /form-wrap -->
+</section>
+
+<!-- DISCLOSURES -->
+<div class="disclosures">
+  <div class="disc-inner">
+    <div class="disc-title">Important Disclosures & Legal Notices</div>
+    <p class="disc-text">FIRSTLIEN.CAPITAL IS A LICENSED REAL ESTATE MORTGAGE BROKER MARKETPLACE, NOT A LENDER. All loans are originated exclusively by participating third-party private lenders. FirstLien.Capital acts solely as a technology-enabled broker marketplace connecting borrowers with institutional and private capital sources. We do not make credit decisions, fund loans, guarantee loan approval, or hold any ownership interest in loans originated through this platform. Submission of a loan request does not constitute a commitment to lend.</p>
+    <p class="disc-text">ALL LOANS ORIGINATED THROUGH THIS PLATFORM ARE FOR BUSINESS, INVESTMENT, OR COMMERCIAL PURPOSES ONLY. These loans are not subject to the Truth in Lending Act (TILA), Real Estate Settlement Procedures Act (RESPA), or the Home Mortgage Disclosure Act (HMDA). By using this platform, borrowers represent and warrant that the loan proceeds will be used solely for business or investment purposes and not for personal, family, or household use. These transactions are exempt from consumer mortgage lending laws under the business purpose exemption.</p>
+    <p class="disc-text">NOT A COMMITMENT TO LEND. Submission of an application through this platform does not constitute a commitment, pre-approval, or guarantee of financing. All terms, rates, and availability are subject to change without notice and are contingent upon satisfactory underwriting, appraisal, title review, and lender approval. Rates shown are representative ranges only and individual loan terms will vary based on creditworthiness, property condition, loan-to-value ratio, market conditions, and lender criteria.</p>
+    <p class="disc-text">LENDER ANONYMITY. The identity of participating lenders is kept confidential until a term sheet is formally issued. FirstLien Capital reserves the right to withhold lender identification to protect its proprietary lender network. Borrowers may not circumvent the platform to deal directly with lenders identified through FirstLien Capital's network.</p>
+    <p class="disc-text">BROKER COMPENSATION. FirstLien Capital charges a broker fee of 1.0 point (1% of the funded loan amount) on loans up to $2,000,000, and 0.5 points on loans exceeding $2,000,000, payable solely at closing. No upfront fees are charged. If a loan does not fund, no broker fee is owed. Individual lenders may charge additional origination points, processing fees, and closing costs independent of FirstLien Capital's broker fee.</p>
+    <p class="disc-text">EQUAL HOUSING LENDER. All loans are made without regard to race, color, religion, national origin, sex, handicap, or familial status. Participating lenders comply with all applicable federal and state fair lending laws including the Fair Housing Act and Equal Credit Opportunity Act.</p>
+    <p class="disc-text">RATE FLOOR & LOWBALL PROTECTION. The minimum acceptable rate and maximum points set by borrowers serve as a notification threshold only — they do not constitute a binding agreement and do not prevent any lender from submitting an offer at any terms. Borrowers retain full discretion to accept or reject any offer regardless of floor settings. FirstLien Capital monitors lender offer patterns and may remove lenders from the network for systematic lowball behavior at its sole discretion.</p>
+    <p class="disc-text">For questions, contact <a href="mailto:info@firstlien.capital">info@firstlien.capital</a>. © 2026 FirstLien.Capital, Inc. All rights reserved. FirstLien.Capital is a licensed mortgage broker marketplace. NMLS ID available upon request. Equal Housing Opportunity.</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">FirstLien.Capital</div>
+  <div>FirstLien.Capital · Licensed Mortgage Broker Marketplace · Equal Housing Opportunity</div>
+  <div><a href="/">Home</a> · <a href="/lender.html">Lenders</a> · <a href="mailto:info@firstlien.capital">Contact</a></div>
+</footer>
+
+<!-- CHAT -->
+<button class="chat-btn" onclick="toggleChat()" title="Ask Scout AI">💬</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-head">
+    <div><div class="chat-head-title">Scout — AI Assistant</div><div class="chat-head-sub">Powered by FirstLien · Instant answers</div></div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg bot">Hi! I'm Scout. Ask me anything about the application process, rates, or what lenders are looking for.</div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" class="chat-input" id="chatInput" placeholder="Ask a question..." onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="chat-send" onclick="sendChat()">→</button>
+  </div>
+</div>
 
 <script>
   // ── STEPPER ──────────────────────────────────────
@@ -1577,14 +771,12 @@
     document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // ── LOAN TYPE SELECTOR ───────────────────────────
   function selectLoanType(el, type) {
     document.querySelectorAll('.loan-type-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     document.getElementById('loan_purpose').value = type;
   }
 
-  // ── LOAN AMOUNT SLIDER ───────────────────────────
   function updateLoanAmt(val) {
     const v = parseInt(val);
     const fmt = v >= 1000000
@@ -1594,7 +786,6 @@
     updateLTV();
   }
 
-  // ── LTV CALCULATOR ───────────────────────────────
   function updateLTV() {
     const loan = parseInt(document.getElementById('loan_amount').value) || 0;
     const asIs = parseFloat(document.getElementById('as_is_value').value) || 0;
@@ -1603,126 +794,119 @@
       document.getElementById('ltv_bar').style.width = '0%';
       return;
     }
-    const ltv = (loan / asIs * 100);
+    const ltv = loan / asIs * 100;
     const display = document.getElementById('ltv_display');
-    const bar     = document.getElementById('ltv_bar');
+    const bar = document.getElementById('ltv_bar');
     display.textContent = ltv.toFixed(1) + '%';
     bar.style.width = Math.min(ltv, 100) + '%';
-
-    if (ltv <= 60) {
-      display.style.color = 'var(--accent-green-bright)';
-      bar.style.backgroundColor = 'var(--accent-green-bright)';
-    } else if (ltv <= 75) {
-      display.style.color = 'var(--gold)';
-      bar.style.backgroundColor = 'var(--gold)';
-    } else {
-      display.style.color = 'var(--danger-bright)';
-      bar.style.backgroundColor = 'var(--danger-bright)';
-    }
+    if (ltv <= 60) { display.style.color='var(--green)'; bar.style.background='var(--green)'; }
+    else if (ltv <= 75) { display.style.color='var(--gold)'; bar.style.background='var(--gold)'; }
+    else { display.style.color='var(--red)'; bar.style.background='var(--red)'; }
   }
 
-  // ── REVIEW BUILDER ───────────────────────────────
   function buildReview() {
     const loanAmt = document.getElementById('loan_amount').value;
-    const fmt = v => {
-      const n = parseInt(v);
-      return n >= 1000000 ? '$' + (n/1000000).toFixed(2) + 'M' : '$' + (n/1000).toFixed(0) + 'K';
-    };
-
+    const fmt = v => { const n = parseInt(v); return n >= 1000000 ? '$'+(n/1000000).toFixed(2)+'M' : '$'+(n/1000).toFixed(0)+'K'; };
+    const rateFloor = document.getElementById('min_rate_floor').value;
+    const maxPts    = document.getElementById('max_points_floor').value;
     const rows = [
-      ['Loan Purpose',  document.getElementById('loan_purpose').value],
-      ['Property',      [document.getElementById('prop_address').value, document.getElementById('prop_city').value, document.getElementById('prop_state').value].filter(Boolean).join(', ') || '—'],
+      ['Loan Purpose', document.getElementById('loan_purpose').value],
+      ['Property', [document.getElementById('prop_address').value, document.getElementById('prop_city').value, document.getElementById('prop_state').value].filter(Boolean).join(', ') || '—'],
       ['Property Type', document.getElementById('prop_type').value],
-      ['Loan Amount',   fmt(loanAmt)],
-      ['As-Is Value',   document.getElementById('as_is_value').value ? '$' + parseInt(document.getElementById('as_is_value').value).toLocaleString() : '—'],
-      ['Term',          document.getElementById('loan_term').value],
+      ['Loan Amount', fmt(loanAmt)],
+      ['As-Is Value', document.getElementById('as_is_value').value ? '$'+parseInt(document.getElementById('as_is_value').value).toLocaleString() : '—'],
+      ['Term', document.getElementById('loan_term').value],
       ['Exit Strategy', document.getElementById('exit_strategy').value],
-      ['Borrower',      [document.getElementById('first_name').value, document.getElementById('last_name').value].join(' ')],
-      ['Email',         document.getElementById('email').value],
-      ['Entity Type',   document.getElementById('entity_type').value],
-      ['RE Experience', document.getElementById('re_experience').value],
+      ['Rate Floor', rateFloor ? rateFloor + '%' : 'Not set'],
+      ['Max Points', maxPts ? maxPts + ' pts' : 'Not set'],
+      ['Borrower', [document.getElementById('first_name').value, document.getElementById('last_name').value].join(' ')],
+      ['Email', document.getElementById('email').value],
+      ['Entity Type', document.getElementById('entity_type').value],
     ];
-
-    const html = `<table style="width:100%;border-collapse:collapse">` +
-      rows.map(([k, v]) => `
-        <tr>
-          <td style="padding:10px 16px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);width:40%;border-bottom:1px solid var(--vault-border)">${k}</td>
-          <td style="padding:10px 16px;font-size:14px;color:var(--text-primary);border-bottom:1px solid var(--vault-border)">${v || '—'}</td>
-        </tr>`).join('') + `</table>`;
-
+    const html = `<table class="review-table">` +
+      rows.map(([k, v]) => `<tr><td>${k}</td><td>${v || '—'}</td></tr>`).join('') +
+      `</table>`;
     document.getElementById('review-content').innerHTML = html;
   }
 
-  // ── SUBMIT DEAL → FIREBASE ───────────────────────
   async function submitDeal() {
     const btn = document.getElementById('submitBtn');
-    btn.textContent = 'Submitting...';
-    btn.disabled = true;
-
-    // Build deal object
+    btn.textContent = 'Submitting...'; btn.disabled = true;
     const dealData = {
-      loanPurpose:   document.getElementById('loan_purpose').value,
-      property: {
-        address:   document.getElementById('prop_address').value,
-        city:      document.getElementById('prop_city').value,
-        state:     document.getElementById('prop_state').value,
-        zip:       document.getElementById('prop_zip').value,
-        type:      document.getElementById('prop_type').value,
-        condition: document.getElementById('prop_condition').value
-      },
-      loan: {
-        amount:        parseInt(document.getElementById('loan_amount').value),
-        asIsValue:     parseFloat(document.getElementById('as_is_value').value) || null,
-        arv:           parseFloat(document.getElementById('arv').value) || null,
-        purchasePrice: parseFloat(document.getElementById('purchase_price').value) || null,
-        term:          document.getElementById('loan_term').value,
-        exitStrategy:  document.getElementById('exit_strategy').value,
-        closeTimeline: document.getElementById('close_timeline').value,
-        intReserve:    document.getElementById('int_reserve').value,
-        summary:       document.getElementById('deal_summary').value
-      },
-      borrower: {
-        firstName:    document.getElementById('first_name').value,
-        lastName:     document.getElementById('last_name').value,
-        email:        document.getElementById('email').value,
-        phone:        document.getElementById('phone').value,
-        entityType:   document.getElementById('entity_type').value,
-        creditScore:  document.getElementById('credit_score').value,
-        reExperience: document.getElementById('re_experience').value,
-        hasBroker:    document.getElementById('has_broker').value,
-        referral:     document.getElementById('referral').value
-      }
+      loanPurpose: document.getElementById('loan_purpose').value,
+      property: { address: document.getElementById('prop_address').value, city: document.getElementById('prop_city').value, state: document.getElementById('prop_state').value, zip: document.getElementById('prop_zip').value, type: document.getElementById('prop_type').value, condition: document.getElementById('prop_condition').value },
+      loan: { amount: parseInt(document.getElementById('loan_amount').value), asIsValue: parseFloat(document.getElementById('as_is_value').value)||null, arv: parseFloat(document.getElementById('arv').value)||null, purchasePrice: parseFloat(document.getElementById('purchase_price').value)||null, term: document.getElementById('loan_term').value, exitStrategy: document.getElementById('exit_strategy').value, closeTimeline: document.getElementById('close_timeline').value, intReserve: document.getElementById('int_reserve').value, summary: document.getElementById('deal_summary').value, rateFloor: document.getElementById('min_rate_floor').value, maxPoints: document.getElementById('max_points_floor').value },
+      borrower: { firstName: document.getElementById('first_name').value, lastName: document.getElementById('last_name').value, email: document.getElementById('email').value, phone: document.getElementById('phone').value, entityType: document.getElementById('entity_type').value, creditScore: document.getElementById('credit_score').value, reExperience: document.getElementById('re_experience').value, hasBroker: document.getElementById('has_broker').value, referral: document.getElementById('referral').value }
     };
-
-    // Save to Firebase
     let firebaseId = null;
-    if (window._saveDealToFirebase) {
-      firebaseId = await window._saveDealToFirebase(dealData);
-    }
-
-    // Generate reference ID  (use Firebase doc ID if available)
+    if (window._saveDealToFirebase) firebaseId = await window._saveDealToFirebase(dealData);
     const year = new Date().getFullYear();
-    const shortId = firebaseId
-      ? firebaseId.substring(0, 6).toUpperCase()
-      : Math.floor(1000 + Math.random() * 9000).toString();
+    const shortId = firebaseId ? firebaseId.substring(0,6).toUpperCase() : Math.floor(1000+Math.random()*9000).toString();
     const ref = `FL-${year}-${shortId}`;
-
     document.getElementById('deal-ref').textContent = ref;
-
-    // Hide form, show success
     document.getElementById('submit-form-nav').style.display = 'none';
     document.getElementById('review-content').style.display = 'none';
     document.getElementById('consent-box').style.display = 'none';
     document.getElementById('success-msg').style.display = 'block';
-
-    // Mark all steps complete
     document.querySelectorAll('.step').forEach(s => s.classList.add('completed'));
   }
 
-  // ── AI CHAT ──────────────────────────────────────
-  const chatPanel = document.getElementById('chatPanel');
-  const chatMessages = document.getElementById('chatMessages');
+  // ── OFFER FLOW ────────────────────────────────────
+  // Called when lender sends an offer (via URL param or Firebase listener)
+  function showOffer(offerData) {
+    const offer = offerData || {
+      rate: '10.5%', term: '18 months', points: '2 pts', amount: '$875,000',
+      loanType: 'Bridge Loan', expires: '72 hours',
+      steps: [
+        { name: 'Sign Term Sheet', required: true, ai: 'Digitally sign and return within 24 hours' },
+        { name: 'Order Appraisal', required: true, ai: 'Lender-approved appraisers only — we can refer one' },
+        { name: 'Complete 1003 Application', required: true, ai: 'Upload via your Doc Request link' },
+        { name: 'Submit Bank Statements (3 months)', required: true, ai: 'All pages of all accounts' },
+        { name: 'Provide Entity Documents', required: false, ai: 'Articles of Org + Operating Agreement' },
+        { name: 'Title Commitment', required: true, ai: 'Order from a licensed title company' },
+      ]
+    };
+    const termsEl = document.getElementById('offer-terms');
+    termsEl.innerHTML = [
+      ['Loan Amount', offer.amount],
+      ['Interest Rate', offer.rate],
+      ['Term', offer.term],
+      ['Points', offer.points],
+      ['Loan Type', offer.loanType],
+      ['Offer Expires', offer.expires],
+    ].map(([l,v]) => `<div class="offer-term"><div class="ot-label">${l}</div><div class="ot-value">${v}</div></div>`).join('');
 
+    const stepsEl = document.getElementById('next-steps-list');
+    stepsEl.innerHTML = offer.steps.map(s => `
+      <div class="ns-item">
+        <div class="ns-check">${s.required ? '' : '○'}</div>
+        <div><div class="ns-name">${s.name}</div><div class="ns-ai-note">🤖 ${s.ai}</div></div>
+        <span class="ns-badge">${s.required ? 'Required' : 'Optional'}</span>
+      </div>`).join('');
+
+    document.getElementById('offer-section').style.display = 'block';
+    document.getElementById('offer-section').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function acceptOffer() {
+    const items = document.querySelectorAll('.ns-item');
+    items[0].classList.add('complete');
+    items[0].querySelector('.ns-check').textContent = '✓';
+    alert('Offer accepted! Your closing checklist has been activated. Check your email for next steps from our team.');
+  }
+
+  function declineOffer() {
+    if (confirm('Decline this offer? You can still view other lenders in the marketplace.')) {
+      document.getElementById('offer-section').style.display = 'none';
+    }
+  }
+
+  // Show offer if URL has ?offer=1 (for demo/testing)
+  if (new URLSearchParams(window.location.search).get('offer') === '1') {
+    window.addEventListener('DOMContentLoaded', () => setTimeout(showOffer, 500));
+  }
+
+  // ── AI CHAT ──────────────────────────────────────
   const botReplies = [
     "Great question. Our lenders typically move fastest on bridge loans in major metros — what market are you in?",
     "For fix & flip, we see the best rates when LTV is under 70% of ARV. Do you have an ARV estimate yet?",
@@ -1730,31 +914,24 @@
     "Construction draws are typically released monthly based on inspection. Is this a ground-up or heavy rehab?",
     "DSCR loans are underwritten off property cash flow, not personal income. Great for investors with multiple LLCs.",
     "I'd recommend filling out the full application — our AI matching engine will surface lenders actively deploying in your asset class.",
-    "Closing costs typically run 2–4 points plus title and escrow. We'll show you lender-specific estimates with each term sheet.",
+    "Closing costs typically run 2–4 points plus title and escrow. We'll show lender-specific estimates with each term sheet.",
     "Got it. I'll flag your deal as time-sensitive — some lenders in our network can close in 5–7 business days.",
   ];
-
   let botIdx = 0;
-
-  function toggleChat() { chatPanel.classList.toggle('open'); }
-
+  function toggleChat() { document.getElementById('chatPanel').classList.toggle('open'); }
   function sendChat() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
     if (!text) return;
-    addMsg(text, 'user');
-    input.value = '';
+    addMsg(text, 'user'); input.value = '';
     setTimeout(() => { addMsg(botReplies[botIdx % botReplies.length], 'bot'); botIdx++; }, 800);
   }
-
   function addMsg(text, type) {
     const div = document.createElement('div');
-    div.className = 'msg ' + type;
-    div.textContent = text;
-    chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    div.className = 'msg ' + type; div.textContent = text;
+    const msgs = document.getElementById('chatMessages');
+    msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
   }
-
   if (window.location.hash === '#apply') {
     setTimeout(() => document.getElementById('apply').scrollIntoView({ behavior: 'smooth' }), 300);
   }
