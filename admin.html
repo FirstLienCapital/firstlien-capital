@@ -3,1132 +3,1137 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin | FirstLien.Capital</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>FirstLien Capital — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-  :root {
-    --gold: #C9A84C;
-    --gold-light: #E8C97A;
-    --gold-dim: #8A6F2E;
-    --vault-dark: #0A0A0A;
-    --vault-mid: #111111;
-    --vault-panel: #161616;
-    --vault-border: #2A2A2A;
-    --text-primary: #F0E6CC;
-    --text-secondary: #9A8A6A;
-    --text-muted: #5A5040;
-    --green: #4CAF70;
-    --green-dim: #2A5A3A;
-    --red: #E05555;
-    --blue: #4A7FA5;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--vault-dark);
-    color: var(--text-primary);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.04) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ── LOGIN SCREEN ─────────────────────────────── */
-  #login-screen {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--vault-dark);
-  }
-
-  .login-card {
-    background: var(--vault-panel);
-    border: 1px solid var(--vault-border);
-    border-radius: 4px;
-    padding: 48px;
-    width: 100%;
-    max-width: 400px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .login-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  }
-
-  .login-logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--gold);
-    text-align: center;
-    margin-bottom: 6px;
-    letter-spacing: 0.02em;
-  }
-
-  .login-logo span { color: var(--text-secondary); font-weight: 300; }
-
-  .login-sub {
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    text-align: center;
-    margin-bottom: 36px;
-  }
-
-  .login-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-
-  .login-field label {
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-    font-weight: 500;
-  }
-
-  .login-field input {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--vault-border);
-    border-radius: 2px;
-    padding: 12px 14px;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    color: var(--text-primary);
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-  }
-
-  .login-field input:focus { border-color: var(--gold-dim); }
-
-  .login-btn {
-    width: 100%;
-    background: var(--gold);
-    color: var(--vault-dark);
-    border: none;
-    padding: 14px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 2px;
-    margin-top: 8px;
-    transition: background 0.2s;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .login-btn:hover { background: var(--gold-light); }
-  .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .login-error {
-    font-size: 12px;
-    color: var(--red);
-    text-align: center;
-    margin-top: 12px;
-    min-height: 18px;
-  }
-
-  /* ── DASHBOARD ────────────────────────────────── */
-  #dashboard { display: none; position: relative; z-index: 1; }
-
-  /* NAV */
-  .admin-nav {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 40px;
-    height: 60px;
-    background: rgba(10,10,10,0.97);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--vault-border);
-  }
-
-  .admin-nav-left { display: flex; align-items: center; gap: 24px; }
-
-  .admin-logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--gold);
-    letter-spacing: 0.02em;
-  }
-
-  .admin-logo span { color: var(--text-secondary); font-weight: 300; }
-
-  .admin-badge {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--gold);
-    border: 1px solid rgba(201,168,76,0.3);
-    padding: 3px 10px;
-    border-radius: 2px;
-  }
-
-  .admin-nav-right { display: flex; align-items: center; gap: 20px; }
-
-  .admin-user {
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-
-  .admin-user span { color: var(--text-secondary); }
-
-  .logout-btn {
-    background: none;
-    border: 1px solid var(--vault-border);
-    color: var(--text-muted);
-    padding: 6px 14px;
-    font-size: 12px;
-    cursor: pointer;
-    border-radius: 2px;
-    transition: all 0.2s;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .logout-btn:hover { border-color: var(--red); color: var(--red); }
-
-  /* METRICS BAR */
-  .metrics-bar {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: var(--vault-border);
-    border-bottom: 1px solid var(--vault-border);
-  }
-
-  .metric-cell {
-    background: var(--vault-dark);
-    padding: 24px 32px;
-    text-align: center;
-  }
-
-  .metric-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 36px;
-    font-weight: 600;
-    color: var(--gold);
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-
-  .metric-label {
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  /* MAIN LAYOUT */
-  .dashboard-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    min-height: calc(100vh - 120px);
-  }
-
-  .dashboard-col {
-    border-right: 1px solid var(--vault-border);
-    overflow: hidden;
-  }
-
-  .dashboard-col:last-child { border-right: none; }
-
-  /* COLUMN HEADER */
-  .col-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--vault-border);
-    background: var(--vault-dark);
-    position: relative;
-    z-index: 10;
-  }
-
-  .col-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .col-count {
-    background: rgba(201,168,76,0.12);
-    color: var(--gold);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 2px;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .col-actions { display: flex; gap: 8px; }
-
-  .col-filter {
-    background: none;
-    border: 1px solid var(--vault-border);
-    color: var(--text-muted);
-    padding: 5px 12px;
-    font-size: 11px;
-    cursor: pointer;
-    border-radius: 2px;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.15s;
-  }
-
-  .col-filter:hover, .col-filter.active {
-    border-color: var(--gold-dim);
-    color: var(--gold);
-  }
-
-  /* LOADING */
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    gap: 12px;
-  }
-
-  .loading-spinner {
-    width: 28px;
-    height: 28px;
-    border: 2px solid var(--vault-border);
-    border-top-color: var(--gold);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .loading-text { font-size: 12px; color: var(--text-muted); }
-
-  /* EMPTY STATE */
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    gap: 8px;
-  }
-
-  .empty-icon { font-size: 32px; opacity: 0.3; }
-  .empty-text { font-size: 13px; color: var(--text-muted); }
-
-  /* DEAL ROWS */
-  .records-list { overflow-y: auto; }
-
-  .deal-row {
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--vault-border);
-    cursor: pointer;
-    transition: background 0.15s;
-    position: relative;
-  }
-
-  .deal-row:hover { background: rgba(201,168,76,0.03); }
-
-  .deal-row-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-
-  .deal-row-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1.2;
-  }
-
-  .deal-row-sub {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 2px;
-  }
-
-  .status-badge {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-
-  .status-pending { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.25); }
-  .status-active  { background: rgba(76,175,112,0.12); color: var(--green); border: 1px solid rgba(76,175,112,0.25); }
-  .status-closed  { background: rgba(90,80,64,0.3); color: var(--text-muted); border: 1px solid var(--vault-border); }
-
-  .deal-row-meta {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-
-  .meta-item { display: flex; flex-direction: column; gap: 1px; }
-
-  .meta-val {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--gold);
-    line-height: 1;
-  }
-
-  .meta-key {
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .deal-row-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255,255,255,0.04);
-  }
-
-  .deal-borrower {
-    font-size: 12px;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .deal-time { font-size: 11px; color: var(--text-muted); }
-
-  .deal-email-link {
-    font-size: 11px;
-    color: var(--gold-dim);
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-
-  .deal-email-link:hover { color: var(--gold); }
-
-  /* LENDER ROWS */
-  .lender-row {
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--vault-border);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-
-  .lender-row:hover { background: rgba(201,168,76,0.03); }
-
-  .lender-row-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-
-  .lender-name {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .lender-type-badge {
-    font-size: 10px;
-    color: var(--blue);
-    border: 1px solid rgba(74,127,165,0.3);
-    background: rgba(74,127,165,0.08);
-    padding: 3px 8px;
-    border-radius: 2px;
-    letter-spacing: 0.06em;
-  }
-
-  .lender-row-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; }
-
-  .lender-row-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 10px;
-    border-top: 1px solid rgba(255,255,255,0.04);
-  }
-
-  .lender-contact {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .lender-contact a {
-    font-size: 11px;
-    color: var(--gold-dim);
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-
-  .lender-contact a:hover { color: var(--gold); }
-
-  /* DETAIL DRAWER */
-  .detail-drawer {
-    position: fixed;
-    top: 0;
-    right: -520px;
-    width: 520px;
-    height: 100vh;
-    background: var(--vault-panel);
-    border-left: 1px solid var(--vault-border);
-    z-index: 500;
-    transition: right 0.3s ease;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .detail-drawer.open { right: 0; }
-
-  .drawer-header {
-    padding: 24px 28px;
-    border-bottom: 1px solid var(--vault-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    background: var(--vault-panel);
-    z-index: 1;
-  }
-
-  .drawer-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .drawer-close {
-    background: none;
-    border: 1px solid var(--vault-border);
-    color: var(--text-muted);
-    width: 32px;
-    height: 32px;
-    border-radius: 2px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-  }
-
-  .drawer-close:hover { border-color: var(--gold-dim); color: var(--text-primary); }
-
-  .drawer-body { padding: 28px; flex: 1; }
-
-  .drawer-section { margin-bottom: 28px; }
-
-  .drawer-section-title {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--vault-border);
-  }
-
-  .drawer-table { width: 100%; border-collapse: collapse; }
-
-  .drawer-table tr td:first-child {
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    padding: 8px 0;
-    width: 40%;
-    vertical-align: top;
-  }
-
-  .drawer-table tr td:last-child {
-    font-size: 13px;
-    color: var(--text-primary);
-    padding: 8px 0 8px 12px;
-    vertical-align: top;
-  }
-
-  .drawer-actions {
-    padding: 20px 28px;
-    border-top: 1px solid var(--vault-border);
-    display: flex;
-    gap: 10px;
-  }
-
-  .drawer-btn {
-    flex: 1;
-    padding: 10px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-radius: 2px;
-    font-family: 'Inter', sans-serif;
-    transition: all 0.2s;
-    border: none;
-  }
-
-  .drawer-btn-primary { background: var(--gold); color: var(--vault-dark); }
-  .drawer-btn-primary:hover { background: var(--gold-light); }
-
-  .drawer-btn-secondary { background: none; border: 1px solid var(--vault-border) !important; color: var(--text-secondary); }
-  .drawer-btn-secondary:hover { border-color: var(--gold-dim) !important; color: var(--text-primary); }
-
-  /* OVERLAY */
-  .drawer-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 499;
-    display: none;
-  }
-
-  .drawer-overlay.visible { display: block; }
-
-  /* REFRESH INDICATOR */
-  .live-dot {
-    width: 7px;
-    height: 7px;
-    background: var(--green);
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 6px;
-    animation: livePulse 2s infinite;
-  }
-
-  @keyframes livePulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  @media (max-width: 900px) {
-    .dashboard-body { grid-template-columns: 1fr; }
-    .metrics-bar { grid-template-columns: 1fr 1fr; }
-    .detail-drawer { width: 100%; right: -100%; }
-    .admin-nav { padding: 0 20px; }
-  }
+:root {
+  --bg:     #02040a;
+  --s1:     #070f1e;
+  --s2:     #0b1829;
+  --border: #162035;
+  --b2:     #1e2e48;
+  --gold:   #c89b28;
+  --gdim:   rgba(200,155,40,0.1);
+  --gmed:   rgba(200,155,40,0.18);
+  --teal:   #0d9882;
+  --tdim:   rgba(13,152,130,0.1);
+  --text:   #ddd8cc;
+  --muted:  #4a5a70;
+  --green:  #3ecf8e;
+  --red:    #e05252;
+  --r:      6px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;min-height:100vh;}
+
+/* ── LOGIN SCREEN ── */
+#login-screen {
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  background: radial-gradient(ellipse at 50% 40%, #0d1a30 0%, #02040a 70%);
+  position:relative;overflow:hidden;
+}
+#login-screen::before {
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(200,155,40,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(200,155,40,0.03) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+.login-box {
+  width:100%;max-width:400px;margin:20px;
+  background:var(--s1);
+  border:1px solid var(--b2);
+  border-radius:10px;
+  padding:48px 40px;
+  position:relative;
+  box-shadow:0 40px 100px rgba(0,0,0,0.7);
+}
+.login-box::after {
+  content:'';position:absolute;top:0;left:20%;right:20%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.login-logo {
+  width:50px;height:50px;
+  background:linear-gradient(135deg,var(--gold),#8a6c1a);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:500;color:#02040a;
+  margin:0 auto 24px;
+}
+.login-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;font-weight:300;
+  color:var(--text);text-align:center;
+  margin-bottom:6px;letter-spacing:0.02em;
+}
+.login-sub {
+  font-size:9px;text-transform:uppercase;letter-spacing:0.16em;
+  color:var(--muted);text-align:center;margin-bottom:36px;
+}
+.login-input {
+  width:100%;background:var(--s2);
+  border:1px solid var(--border);border-radius:var(--r);
+  padding:13px 16px;font-family:'DM Mono',monospace;
+  font-size:15px;color:var(--text);letter-spacing:0.1em;
+  outline:none;transition:border-color 0.2s;margin-bottom:12px;
+}
+.login-input:focus{border-color:rgba(200,155,40,0.5);}
+.login-input.wrong{border-color:var(--red);animation:shake 0.35s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.login-btn {
+  width:100%;background:var(--gold);border:none;border-radius:var(--r);
+  padding:14px;font-family:'Cormorant Garamond',serif;
+  font-size:16px;font-weight:600;color:#02040a;
+  cursor:pointer;transition:all 0.2s;position:relative;
+}
+.login-btn:hover{background:#d4a82e;transform:translateY(-1px);}
+.login-err{font-size:10px;color:var(--red);text-align:center;margin-top:10px;min-height:14px;}
+.login-hint{font-size:9px;color:var(--muted);text-align:center;margin-top:20px;letter-spacing:0.06em;}
+
+/* ── ADMIN SHELL ── */
+#admin-shell{display:none;min-height:100vh;flex-direction:column;}
+#admin-shell.visible{display:flex;}
+
+/* ── TOP NAV ── */
+.topnav {
+  background:var(--s1);border-bottom:1px solid var(--b2);
+  padding:0 24px;height:54px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  flex-shrink:0;
+}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-logo{
+  width:30px;height:30px;background:linear-gradient(135deg,var(--gold),#8a6c1a);
+  border-radius:4px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:500;color:#02040a;
+}
+.nav-name{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold);}
+.nav-tabs{display:flex;gap:2px;}
+.nav-tab {
+  padding:8px 18px;border-radius:var(--r);
+  font-size:10px;text-transform:uppercase;letter-spacing:0.1em;
+  color:var(--muted);cursor:pointer;transition:all 0.15s;
+  border:none;background:none;
+}
+.nav-tab:hover{color:var(--text);background:var(--s2);}
+.nav-tab.active{background:var(--gdim);color:var(--gold);border:1px solid rgba(200,155,40,0.2);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-badge{
+  font-size:8px;padding:3px 9px;border-radius:20px;
+  background:var(--tdim);border:1px solid rgba(13,152,130,0.3);color:var(--teal);
+  text-transform:uppercase;letter-spacing:0.1em;
+}
+.logout-btn{
+  font-size:9px;color:var(--muted);background:none;border:none;
+  cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;
+  padding:4px 8px;transition:color 0.15s;
+}
+.logout-btn:hover{color:var(--red);}
+
+/* ── CONTENT AREA ── */
+.content{flex:1;overflow:auto;}
+.tab-panel{display:none;padding:28px 24px;}
+.tab-panel.active{display:block;}
+
+/* ── DASHBOARD ── */
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:28px;}
+.dash-card{
+  background:var(--s1);border:1px solid var(--b2);border-radius:var(--r);
+  padding:22px;cursor:pointer;transition:all 0.18s;text-decoration:none;display:block;
+}
+.dash-card:hover{border-color:var(--gold);background:var(--gdim);transform:translateY(-2px);}
+.dash-card.teal:hover{border-color:var(--teal);background:var(--tdim);}
+.dc-icon{font-size:28px;margin-bottom:12px;}
+.dc-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--text);margin-bottom:4px;}
+.dc-desc{font-size:10px;color:var(--muted);line-height:1.6;}
+.dc-arrow{font-size:18px;color:var(--muted);float:right;margin-top:-30px;}
+
+.section-head{
+  font-size:9px;text-transform:uppercase;letter-spacing:0.14em;
+  color:var(--teal);margin:24px 0 14px;
+  display:flex;align-items:center;gap:8px;
+}
+.section-head::before{content:'';width:3px;height:11px;background:var(--teal);border-radius:2px;flex-shrink:0;}
+
+/* ── QUICK LINK GENERATOR ── */
+.qlink-box{
+  background:var(--s1);border:1px solid var(--b2);border-radius:var(--r);padding:22px;
+}
+.qlink-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px;}
+.qlink-field{display:flex;flex-direction:column;gap:5px;}
+.ql-label{font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);}
+.ql-input{
+  background:var(--s2);border:1px solid var(--border);border-radius:var(--r);
+  padding:9px 12px;font-family:'DM Mono',monospace;font-size:12px;
+  color:var(--text);outline:none;transition:border-color 0.2s;
+}
+.ql-input:focus{border-color:rgba(200,155,40,0.4);}
+.doc-checks{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;}
+.doc-check-opt{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 12px;border:1px solid var(--border);border-radius:var(--r);
+  cursor:pointer;font-size:10px;color:var(--muted);transition:all 0.15s;
+  user-select:none;
+}
+.doc-check-opt:hover{border-color:var(--gold);color:var(--text);}
+.doc-check-opt.sel{background:var(--gdim);border-color:rgba(200,155,40,0.4);color:var(--gold);}
+.doc-check-opt input{display:none;}
+.link-output{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 14px;display:flex;align-items:center;gap:10px;margin-top:12px;
+}
+.link-output code{flex:1;font-size:10px;color:var(--teal);word-break:break-all;font-family:'DM Mono',monospace;}
+.copy-btn{
+  background:var(--gold);border:none;border-radius:4px;
+  padding:6px 14px;font-size:10px;color:#02040a;font-weight:600;
+  cursor:pointer;white-space:nowrap;transition:background 0.15s;
+}
+.copy-btn:hover{background:#d4a82e;}
+.copy-btn.copied{background:var(--green);color:#02040a;}
+
+/* ── CARDS / FORMS ── */
+.card{background:var(--s1);border:1px solid var(--b2);border-radius:var(--r);padding:22px;margin-bottom:14px;}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold);}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.full{grid-column:1/-1;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.flbl{font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);}
+.flbl .req{color:var(--gold);}
+input[type=text],input[type=date],input[type=email],input[type=number],select,textarea{
+  background:var(--s2);border:1px solid var(--border);border-radius:var(--r);
+  padding:9px 12px;font-family:'DM Mono',monospace;font-size:12px;
+  color:var(--text);outline:none;transition:border-color 0.2s;width:100%;
+}
+input:focus,select:focus,textarea:focus{border-color:rgba(200,155,40,0.4);}
+select option{background:var(--s2);}
+.fnote{font-size:9px;color:var(--muted);font-style:italic;}
+
+/* ── TILES ── */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0;}
+.tile{background:var(--gdim);border:1px solid rgba(200,155,40,0.15);border-radius:var(--r);padding:12px 14px;}
+.tile.tl{background:var(--tdim);border-color:rgba(13,152,130,0.2);}
+.tl-l{font-size:8px;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);margin-bottom:4px;}
+.tl-v{font-size:14px;color:var(--gold);font-weight:500;}
+.tile.tl .tl-v{color:var(--teal);font-size:11px;}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:10px 20px;border:none;border-radius:var(--r);
+  font-size:12px;font-family:'DM Mono',monospace;
+  cursor:pointer;transition:all 0.18s;letter-spacing:0.04em;
+}
+.btn-gold{background:var(--gold);color:#02040a;font-weight:600;}
+.btn-gold:hover{background:#d4a82e;transform:translateY(-1px);}
+.btn-ghost{background:var(--s2);color:var(--muted);border:1px solid var(--border);}
+.btn-ghost:hover{color:var(--text);border-color:var(--gold);}
+.btn-teal{background:var(--teal);color:#fff;}
+.btn-teal:hover{background:#0bb89a;}
+.btn:disabled{opacity:0.35;cursor:not-allowed;transform:none!important;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+
+/* ── PROGRESS / LOG ── */
+.prog-wrap{margin:14px 0;}
+.prog-lbl{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:5px;}
+.prog-bar{height:3px;background:var(--border);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:3px;transition:width 0.3s;width:0%;}
+.logbox{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;font-size:11px;color:var(--muted);max-height:180px;overflow-y:auto;
+  line-height:1.9;margin-top:10px;
+}
+.logbox .ok{color:var(--green);}
+.logbox .warn{color:#e8a020;}
+.logbox .err{color:var(--red);}
+
+/* ── DOC ORDER ITEMS ── */
+.doc-items{display:flex;flex-direction:column;gap:8px;}
+.doc-item{
+  background:var(--s2);border:1px solid var(--border);border-radius:var(--r);
+  padding:12px 16px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:all 0.15s;
+}
+.doc-item:hover{border-color:var(--gold);}
+.doc-item.sel{background:var(--gdim);border-color:rgba(200,155,40,0.3);}
+.di-check{
+  width:18px;height:18px;border:1.5px solid var(--border);border-radius:3px;
+  display:flex;align-items:center;justify-content:center;font-size:10px;
+  flex-shrink:0;transition:all 0.15s;
+}
+.doc-item.sel .di-check{background:var(--gold);border-color:var(--gold);color:#02040a;}
+.di-icon{font-size:18px;flex-shrink:0;}
+.di-info{flex:1;}
+.di-name{font-size:12px;color:var(--text);margin-bottom:2px;}
+.di-desc{font-size:9px;color:var(--muted);}
+.di-badge{
+  font-size:8px;padding:2px 7px;border-radius:3px;
+  text-transform:uppercase;letter-spacing:0.06em;flex-shrink:0;
+}
+.br{background:rgba(200,155,40,0.12);border:1px solid rgba(200,155,40,0.2);color:var(--gold);}
+.bo{background:var(--s1);border:1px solid var(--border);color:var(--muted);}
+
+/* ── ALERT ── */
+.alert{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-radius:var(--r);font-size:11px;margin-bottom:14px;}
+.alert-warn{background:rgba(200,155,40,0.07);border:1px solid rgba(200,155,40,0.2);color:#c89b28;}
+.alert-info{background:var(--tdim);border:1px solid rgba(13,152,130,0.2);color:var(--teal);}
+.alert-ok{background:rgba(62,207,142,0.07);border:1px solid rgba(62,207,142,0.2);color:var(--green);}
+
+@media(max-width:640px){
+  .fg2,.fg3{grid-template-columns:1fr;}
+  .nav-tabs{display:none;}
+  .tab-panel{padding:16px;}
+}
 </style>
 </head>
 <body>
 
-<!-- ── LOGIN SCREEN ──────────────────────────────── -->
+<!-- ══════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════ -->
 <div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">FirstLien<span>.Capital</span></div>
-    <div class="login-sub">Admin Portal</div>
-
-    <div class="login-field">
-      <label>Email</label>
-      <input type="email" id="login-email" placeholder="admin@firstlien.capital" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-    <div class="login-field">
-      <label>Password</label>
-      <input type="password" id="login-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-      <input type="checkbox" id="remember-me" style="width:14px;height:14px;accent-color:var(--gold);cursor:pointer">
-      <label for="remember-me" style="font-size:12px;color:var(--text-muted);cursor:pointer;text-transform:none;letter-spacing:0;font-weight:400">Remember me</label>
-    </div>
-    <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In →</button>
-    <div class="login-error" id="login-error"></div>
+  <div class="login-box">
+    <div class="login-logo">FL</div>
+    <div class="login-title">FirstLien Capital</div>
+    <div class="login-sub">Admin Dashboard</div>
+    <input type="password" class="login-input" id="lpass"
+           placeholder="Access code" autocomplete="off"
+           onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Enter</button>
+    <div class="login-err" id="lerr"></div>
+    <div class="login-hint">🔒 Authorized personnel only</div>
   </div>
 </div>
 
-<!-- ── DASHBOARD ─────────────────────────────────── -->
-<div id="dashboard">
+<!-- ══════════════════════════════════════════
+     ADMIN SHELL
+══════════════════════════════════════════ -->
+<div id="admin-shell">
 
-  <nav class="admin-nav">
-    <div class="admin-nav-left">
-      <div class="admin-logo">FirstLien<span>.Capital</span></div>
-      <div class="admin-badge">Admin</div>
+  <!-- TOP NAV -->
+  <div class="topnav">
+    <div class="nav-brand">
+      <div class="nav-logo">FL</div>
+      <div class="nav-name">FirstLien Capital</div>
     </div>
-    <div class="admin-nav-right">
-      <div class="admin-user"><span class="live-dot"></span>Live · <span id="admin-email-display"></span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showTab('dash',this)">Dashboard</button>
+      <button class="nav-tab" onclick="showTab('docorder',this)">Doc Request</button>
+      <button class="nav-tab" onclick="showTab('docprep',this)">Doc Prep Engine</button>
+    </div>
+    <div class="nav-right">
+      <span class="nav-badge">Admin</span>
       <button class="logout-btn" onclick="doLogout()">Sign Out</button>
     </div>
-  </nav>
-
-  <div class="metrics-bar">
-    <div class="metric-cell">
-      <div class="metric-num" id="m-deals">—</div>
-      <div class="metric-label">Deal Submissions</div>
-    </div>
-    <div class="metric-cell">
-      <div class="metric-num" id="m-lenders">—</div>
-      <div class="metric-label">Lender Profiles</div>
-    </div>
-    <div class="metric-cell">
-      <div class="metric-num" id="m-volume">—</div>
-      <div class="metric-label">Total Loan Volume</div>
-    </div>
-    <div class="metric-cell">
-      <div class="metric-num" id="m-today">—</div>
-      <div class="metric-label">New Today</div>
-    </div>
   </div>
 
-  <div class="dashboard-body">
+  <div class="content">
 
-    <!-- DEALS COLUMN -->
-    <div class="dashboard-col">
-      <div class="col-header">
-        <div class="col-title">
-          📋 Deal Submissions
-          <span class="col-count" id="deals-count">0</span>
+    <!-- ── DASHBOARD TAB ── -->
+    <div class="tab-panel active" id="tab-dash">
+
+      <div class="section-head" style="margin-top:0;">Quick Access</div>
+      <div class="dash-grid">
+        <div class="dash-card" onclick="showTab('docorder',document.querySelectorAll('.nav-tab')[1])">
+          <div class="dc-icon">📋</div>
+          <div class="dc-title">Send Doc Request</div>
+          <div class="dc-desc">Generate a custom link and send to borrower to collect required documents</div>
+          <div class="dc-arrow">→</div>
         </div>
-        <div class="col-actions">
-          <button class="col-filter active" onclick="filterDeals('all',this)">All</button>
-          <button class="col-filter" onclick="filterDeals('pending_review',this)">Pending</button>
-          <button class="col-filter" onclick="filterDeals('active',this)">Active</button>
+        <div class="dash-card" onclick="showTab('docprep',document.querySelectorAll('.nav-tab')[2])">
+          <div class="dc-icon">⚙️</div>
+          <div class="dc-title">Doc Prep Engine</div>
+          <div class="dc-desc">Upload template + deal info → generate completed loan document package</div>
+          <div class="dc-arrow">→</div>
+        </div>
+        <div class="dash-card teal" onclick="window.open('/borrower.html','_blank')">
+          <div class="dc-icon">🏠</div>
+          <div class="dc-title">Borrower Portal</div>
+          <div class="dc-desc">View the borrower-facing deal submission page</div>
+          <div class="dc-arrow">↗</div>
+        </div>
+        <div class="dash-card teal" onclick="window.open('/lender.html','_blank')">
+          <div class="dc-icon">💼</div>
+          <div class="dc-title">Lender Portal</div>
+          <div class="dc-desc">View the lender-facing criteria and deal matching page</div>
+          <div class="dc-arrow">↗</div>
         </div>
       </div>
-      <div class="records-list" id="deals-list">
-        <div class="loading-state">
-          <div class="loading-spinner"></div>
-          <div class="loading-text">Loading deals...</div>
-        </div>
+
+      <div class="section-head">Site Links</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <button class="btn btn-ghost" onclick="window.open('/','_blank')">🏠 Homepage</button>
+        <button class="btn btn-ghost" onclick="window.open('/borrower.html','_blank')">📝 Borrower</button>
+        <button class="btn btn-ghost" onclick="window.open('/lender.html','_blank')">💰 Lender</button>
+        <button class="btn btn-ghost" onclick="window.open('/docorder.html','_blank')">📁 Doc Order (standalone)</button>
+        <button class="btn btn-ghost" onclick="window.open('/docprep.html','_blank')">⚙️ Doc Prep (standalone)</button>
       </div>
+
     </div>
 
-    <!-- LENDERS COLUMN -->
-    <div class="dashboard-col">
-      <div class="col-header">
-        <div class="col-title">
-          💰 Lender Profiles
-          <span class="col-count" id="lenders-count">0</span>
+    <!-- ── DOC ORDER TAB ── -->
+    <div class="tab-panel" id="tab-docorder">
+
+      <div class="alert alert-info">
+        <span>ℹ</span>
+        <span>Fill in the deal details below, select which documents to request, then copy the link and send it to your borrower via text or email.</span>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span style="font-size:18px">🔗</span>
+          <div class="card-title">Generate Document Request Link</div>
         </div>
-        <div class="col-actions">
-          <button class="col-filter active" onclick="filterLenders('all',this)">All</button>
-          <button class="col-filter" onclick="filterLenders('active',this)">Active</button>
+
+        <div class="fg2">
+          <div class="field">
+            <div class="flbl">Our File Number</div>
+            <input type="text" id="ql-file" placeholder="49559" oninput="buildLink()">
+          </div>
+          <div class="field">
+            <div class="flbl">Borrower / Entity Name</div>
+            <input type="text" id="ql-name" placeholder="Map and Map, LLC" oninput="buildLink()">
+          </div>
+          <div class="field">
+            <div class="flbl">Property (short)</div>
+            <input type="text" id="ql-prop" placeholder="Champions Inn, Del Rio TX" oninput="buildLink()">
+          </div>
+          <div class="field">
+            <div class="flbl">Loan Amount ($)</div>
+            <input type="text" id="ql-amt" placeholder="399000" oninput="buildLink()">
+          </div>
+          <div class="field">
+            <div class="flbl">Custom Message (optional)</div>
+            <input type="text" id="ql-msg" placeholder="Please upload the items below at your earliest convenience" oninput="buildLink()">
+          </div>
+          <div class="field">
+            <div class="flbl">Assigned Contact</div>
+            <input type="text" id="ql-contact" placeholder="FirstLien Capital" oninput="buildLink()">
+          </div>
+        </div>
+
+        <div class="section-head" style="margin-top:20px;">Select Documents to Request</div>
+        <div class="doc-items" id="doc-items">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div id="link-wrap" style="display:none;margin-top:16px;">
+          <div class="link-output">
+            <code id="link-code"></code>
+            <button class="copy-btn" id="copy-btn" onclick="copyLink()">Copy</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+            <button class="btn btn-gold" onclick="openPreview()">Preview Form →</button>
+            <button class="btn btn-ghost" onclick="copyLink()">📋 Copy Link</button>
+          </div>
         </div>
       </div>
-      <div class="records-list" id="lenders-list">
-        <div class="loading-state">
-          <div class="loading-spinner"></div>
-          <div class="loading-text">Loading lenders...</div>
-        </div>
-      </div>
+
     </div>
 
-  </div>
-</div>
+    <!-- ── DOC PREP TAB ── -->
+    <div class="tab-panel" id="tab-docprep">
 
-<!-- DETAIL DRAWER -->
-<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
-<div class="detail-drawer" id="detail-drawer">
-  <div class="drawer-header">
-    <div class="drawer-title" id="drawer-title">Details</div>
-    <button class="drawer-close" onclick="closeDrawer()">✕</button>
-  </div>
-  <div class="drawer-body" id="drawer-body"></div>
-  <div class="drawer-actions" id="drawer-actions"></div>
-</div>
+      <!-- STEP INDICATOR -->
+      <div style="display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;">
+        <div class="dp-step active" data-step="1" onclick="dpGo(1)" style="flex:1;padding:12px;text-align:center;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;background:var(--gdim);color:var(--gold);border-right:1px solid var(--border);">01 Template</div>
+        <div class="dp-step" data-step="2" onclick="dpGo(2)" style="flex:1;padding:12px;text-align:center;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border-right:1px solid var(--border);">02 Deal Details</div>
+        <div class="dp-step" data-step="3" onclick="dpGo(3)" style="flex:1;padding:12px;text-align:center;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);border-right:1px solid var(--border);">03 Review</div>
+        <div class="dp-step" data-step="4" onclick="dpGo(4)" style="flex:1;padding:12px;text-align:center;cursor:pointer;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);">04 Generate</div>
+      </div>
 
-<!-- ── FIREBASE ───────────────────────────────────── -->
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import {
-    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
-    setPersistence, browserLocalPersistence, browserSessionPersistence
-  } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import {
-    getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp
-  } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+      <!-- STEP 1: TEMPLATE -->
+      <div id="dp-panel-1">
+        <div class="card">
+          <div class="card-head"><span style="font-size:18px">📄</span><div class="card-title">Upload Lender Funds Template</div></div>
+          <div class="alert alert-warn"><span>⚠</span><span>Upload the master .docx template. All formatting, margins, fonts, and layout are preserved exactly — only the deal data changes.</span></div>
+          <div id="dp-dropzone" onclick="document.getElementById('dp-tpl-file').click()"
+               style="border:2px dashed var(--border);border-radius:var(--r);padding:36px;text-align:center;cursor:pointer;transition:all 0.2s;"
+               onmouseover="this.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--gold')"
+               onmouseout="this.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--border')">
+            <input type="file" id="dp-tpl-file" accept=".docx" style="display:none" onchange="dpLoadTemplate(this)">
+            <div style="font-size:32px;margin-bottom:10px;">📋</div>
+            <div style="color:var(--gold);margin-bottom:4px;">Click to upload template .docx</div>
+            <div style="font-size:10px;color:var(--muted);">Lender Funds master template</div>
+          </div>
+          <div id="dp-tpl-info" style="display:none;margin-top:14px;">
+            <div class="alert alert-ok"><span>✓</span><div id="dp-tpl-stats"></div></div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-gold" id="dp-btn1" disabled onclick="dpGo(2)">Next: Deal Details →</button>
+        </div>
+      </div>
 
-  const firebaseConfig = {
-    apiKey:    "AIzaSyAw7KJpB2yu_i9OVDrYOoZZkbNK-4oCKoE",
-    authDomain: "firstlien-capital.firebaseapp.com",
-    projectId:  "firstlien-capital",
-    storageBucket: "firstlien-capital.appspot.com",
-    messagingSenderId: "867672127759",
-    appId:     "1:867672127759:web:d24b328c6f55592b4d667a"
-  };
+      <!-- STEP 2: DEAL DETAILS -->
+      <div id="dp-panel-2" style="display:none;">
 
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
+        <div class="card">
+          <div class="card-head"><span style="font-size:18px">📅</span><div class="card-title">Dates & Closing</div></div>
+          <div class="fg3">
+            <div class="field">
+              <div class="flbl">Document Date <span class="req">*</span></div>
+              <input type="date" id="dp-docdate" onchange="dpCalc()">
+            </div>
+            <div class="field">
+              <div class="flbl">Closing Month <span class="req">*</span></div>
+              <select id="dp-closemon" onchange="dpCalc()">
+                <option value="">— Select —</option>
+                <option value="2026-04">April 2026</option>
+                <option value="2026-05" selected>May 2026</option>
+                <option value="2026-06">June 2026</option>
+                <option value="2026-07">July 2026</option>
+                <option value="2026-08">August 2026</option>
+                <option value="2026-09">September 2026</option>
+                <option value="2026-10">October 2026</option>
+                <option value="2026-11">November 2026</option>
+                <option value="2026-12">December 2026</option>
+                <option value="2027-01">January 2027</option>
+                <option value="2027-03">March 2027</option>
+              </select>
+            </div>
+            <div class="field">
+              <div class="flbl">Loan Term</div>
+              <select id="dp-term" onchange="dpCalc()">
+                <option value="12">12 months</option>
+                <option value="24" selected>24 months</option>
+                <option value="36">36 months</option>
+              </select>
+            </div>
+          </div>
+          <div class="tiles" id="dp-date-tiles" style="margin-top:14px;">
+            <div class="tile tl"><div class="tl-l">Document Date</div><div class="tl-v" id="dt-doc">—</div></div>
+            <div class="tile tl"><div class="tl-l">Reserve Month 1</div><div class="tl-v" id="dt-r1">—</div></div>
+            <div class="tile tl"><div class="tl-l">Reserve Month 2</div><div class="tl-v" id="dt-r2">—</div></div>
+            <div class="tile tl"><div class="tl-l">Reserve Month 3</div><div class="tl-v" id="dt-r3">—</div></div>
+            <div class="tile tl"><div class="tl-l">First Payment</div><div class="tl-v" id="dt-fp">—</div></div>
+            <div class="tile tl"><div class="tl-l">Per Diem Through</div><div class="tl-v" id="dt-pd">—</div></div>
+            <div class="tile tl"><div class="tl-l">Prepay Lockout</div><div class="tl-v" id="dt-lk">—</div></div>
+            <div class="tile tl"><div class="tl-l">Maturity</div><div class="tl-v" id="dt-mat">—</div></div>
+          </div>
+        </div>
 
-  // ── AUTH ─────────────────────────────────────────
-  // Pre-fill saved email
-  const savedEmail = localStorage.getItem('fl_admin_email');
-  if (savedEmail) {
-    document.getElementById('login-email').value = savedEmail;
-    document.getElementById('remember-me').checked = true;
+        <div class="card">
+          <div class="card-head"><span style="font-size:18px">🔢</span><div class="card-title">File & Identifiers</div></div>
+          <div class="fg3">
+            <div class="field"><div class="flbl">File Number <span class="req">*</span></div><input type="text" id="dp-fileno" placeholder="49559"></div>
+            <div class="field"><div class="flbl">Escrow Number</div><input type="text" id="dp-escrow" placeholder="GF#260125A"><div class="fnote">Pages 2–8 only</div></div>
+            <div class="field"><div class="flbl">State (DOT)</div><select id="dp-state"><option value="Texas" selected>Texas</option><option value="California">California</option><option value="Nevada">Nevada</option><option value="Arizona">Arizona</option><option value="Florida">Florida</option></select></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span style="font-size:18px">💰</span><div class="card-title">Loan Terms — Term Sheet Controls</div></div>
+          <div class="fg3">
+            <div class="field"><div class="flbl">Loan Amount ($) <span class="req">*</span></div><input type="text" id="dp-loan" placeholder="399000" oninput="dpCalc()"></div>
+            <div class="field"><div class="flbl">Interest Rate (%)</div><input type="text" id="dp-rate" placeholder="12.990" oninput="dpCalc()"></div>
+            <div class="field"><div class="flbl">Monthly P&I ($) <span class="req">*</span></div><input type="text" id="dp-monthly" placeholder="4354.80" oninput="dpCalc()"></div>
+            <div class="field"><div class="flbl">Amortization (months)</div><input type="text" id="dp-amort" value="480" oninput="dpCalc()"></div>
+            <div class="field"><div class="flbl">Origination Fee (%)</div><input type="text" id="dp-origpct" placeholder="3.5" oninput="dpCalc()"></div>
+            <div class="field"><div class="flbl">Default Rate (%)</div><input type="text" id="dp-defrate" value="24.99"></div>
+          </div>
+          <div class="tiles" style="margin-top:14px;">
+            <div class="tile"><div class="tl-l">Orig Fee</div><div class="tl-v" id="dt-of">—</div></div>
+            <div class="tile"><div class="tl-l">3-Mo Reserve</div><div class="tl-v" id="dt-res">—</div></div>
+            <div class="tile"><div class="tl-l">Per Diem/day</div><div class="tl-v" id="dt-pdd">—</div></div>
+            <div class="tile"><div class="tl-l">ALTA (125%)</div><div class="tl-v" id="dt-alta">—</div></div>
+            <div class="tile"><div class="tl-l">Balloon</div><div class="tl-v" id="dt-bal">—</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span style="font-size:18px">🏢</span><div class="card-title">Broker & Fees</div></div>
+          <div class="fg2">
+            <div class="field"><div class="flbl">Originating Broker <span class="req">*</span></div><input type="text" id="dp-origbroker" placeholder="West Capital Lending, Inc."><div class="fnote">Company that sourced borrower</div></div>
+            <div class="field"><div class="flbl">Originating Broker Fee ($)</div><input type="text" id="dp-origfee" placeholder="Auto from %"></div>
+            <div class="field"><div class="flbl">Doc Prep Fee ($)</div><input type="text" id="dp-docprep" value="1595.00"></div>
+            <div class="field"><div class="flbl">Processing Fee ($)</div><input type="text" id="dp-procfee" value="995.00"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span style="font-size:18px">🏗</span><div class="card-title">Borrower Entity</div></div>
+          <div class="fg">
+            <div class="field"><div class="flbl">Entity Name <span class="req">*</span></div><input type="text" id="dp-entity" placeholder="Map and Map, LLC"></div>
+            <div class="field"><div class="flbl">Entity Type</div><select id="dp-etype"><option value="Texas limited liability company" selected>Texas LLC</option><option value="California limited liability company">California LLC</option><option value="Nevada limited liability company">Nevada LLC</option><option value="Texas corporation">Texas Corporation</option><option value="Revocable Living Trust">Revocable Trust</option></select></div>
+            <div class="field full"><div class="flbl">Entity Address</div><input type="text" id="dp-eaddr" placeholder="11704 West U.S. Highway 90"></div>
+            <div class="field"><div class="flbl">City, State ZIP</div><input type="text" id="dp-ecsz" placeholder="Del Rio, Texas 78840"></div>
+            <div class="field"><div class="flbl">Signor Title</div><select id="dp-signor"><option value="Managing Member" selected>Managing Member</option><option value="Manager">Manager</option><option value="President">President</option><option value="Trustee">Trustee</option></select></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span style="font-size:18px">👤</span><div class="card-title">Personal Guarantor</div></div>
+          <div class="fg3">
+            <div class="field"><div class="flbl">Full Legal Name <span class="req">*</span></div><input type="text" id="dp-gname" placeholder="Mario Alberto Perez"></div>
+            <div class="field"><div class="flbl">Home Address (Street)</div><input type="text" id="dp-gaddr" placeholder="108 Covey Ridge Drive"><div class="fnote">Confirmed residential only</div></div>
+            <div class="field"><div class="flbl">City, State ZIP</div><input type="text" id="dp-gcsz" placeholder="Del Rio, Texas 78840"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span style="font-size:18px">📍</span><div class="card-title">Subject Property</div></div>
+          <div class="fg">
+            <div class="field full"><div class="flbl">Property Common Name/Description</div><input type="text" id="dp-propcommon" placeholder="Champions Inn & Cafe at Lake Amistad, 11704 West U.S. Highway 90, Del Rio, Texas 78840"></div>
+            <div class="field"><div class="flbl">Street Address</div><input type="text" id="dp-propaddr" placeholder="11704 West U.S. Highway 90"></div>
+            <div class="field"><div class="flbl">City, State ZIP</div><input type="text" id="dp-propcsz" placeholder="Del Rio, Texas 78840"></div>
+            <div class="field"><div class="flbl">County <span class="req">*</span></div><input type="text" id="dp-county" placeholder="Val Verde"></div>
+            <div class="field"><div class="flbl">APN / Tax ID</div><input type="text" id="dp-apn" placeholder="13631"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span style="font-size:18px">🏛</span><div class="card-title">Title & Escrow</div></div>
+          <div class="fg2">
+            <div class="field"><div class="flbl">Title Company <span class="req">*</span></div><input type="text" id="dp-titleco" placeholder="Del Rio Title Company"></div>
+            <div class="field"><div class="flbl">Closing Officer</div><input type="text" id="dp-titleoff" placeholder="Aracely Martinez"></div>
+            <div class="field"><div class="flbl">Title Address</div><input type="text" id="dp-titleaddr" placeholder="300 East Losoya Street"></div>
+            <div class="field"><div class="flbl">City, State ZIP</div><input type="text" id="dp-titlecsz" placeholder="Del Rio, Texas 78840"></div>
+            <div class="field"><div class="flbl">Title Phone</div><input type="text" id="dp-titleph" placeholder="(830) 778-1837"></div>
+            <div class="field"><div class="flbl">Title Email</div><input type="email" id="dp-titleem" placeholder="aracely@delriotitle.com"></div>
+            <div class="field"><div class="flbl">Underwriter</div><input type="text" id="dp-titleund" value="First American Title Guaranty Company"></div>
+            <div class="field"><div class="flbl">Loan Servicer</div><input type="text" id="dp-servicer" value="Superior Loan Servicing"></div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="dpGo(1)">← Back</button>
+          <button class="btn btn-gold" onclick="dpBuildReview();dpGo(3)">Review All Fields →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: REVIEW -->
+      <div id="dp-panel-3" style="display:none;">
+        <div class="card">
+          <div class="card-head"><span style="font-size:18px">🔍</span><div class="card-title">Review All Substitutions</div></div>
+          <div class="alert alert-warn"><span>⚠</span><span>Attorney review required before execution. Verify all calculated amounts (highlighted) before generating.</span></div>
+          <div id="dp-review-body"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="dpGo(2)">← Edit</button>
+          <button class="btn btn-gold" onclick="dpGo(4);dpRun()">✓ Generate Documents →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: GENERATE -->
+      <div id="dp-panel-4" style="display:none;">
+        <div class="card">
+          <div class="card-head"><span style="font-size:18px">⚙️</span><div class="card-title">Generating Documents</div></div>
+          <div class="prog-wrap">
+            <div class="prog-lbl"><span id="dp-msg">Initializing...</span><span id="dp-pct">0%</span></div>
+            <div class="prog-bar"><div class="prog-fill" id="dp-fill"></div></div>
+          </div>
+          <div class="logbox" id="dp-log"></div>
+          <div id="dp-done" style="display:none;margin-top:18px;">
+            <div class="alert alert-ok"><span>✓</span><div id="dp-summary"></div></div>
+            <div class="btn-row">
+              <button class="btn btn-gold" id="dp-dl-btn">⬇ Download .docx</button>
+              <button class="btn btn-ghost" onclick="dpReset()">🔄 New Document</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-docprep -->
+
+  </div><!-- /content -->
+</div><!-- /admin-shell -->
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+var PASS = 'firstlien2026';   // ← change this
+var KEY  = 'fl_adm_v2';
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function checkAuth() {
+  try {
+    var s = sessionStorage.getItem(KEY);
+    if (!s) return false;
+    var d = JSON.parse(s);
+    return Date.now() < d.e;
+  } catch(e) { return false; }
+}
+
+function doLogin() {
+  var val = document.getElementById('lpass').value;
+  var err = document.getElementById('lerr');
+  if (!val) return;
+  if (val === PASS) {
+    sessionStorage.setItem(KEY, JSON.stringify({e: Date.now() + 28800000}));
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-shell').classList.add('visible');
+    initDocOrder();
+    dpInitDate();
+  } else {
+    err.textContent = 'Incorrect access code';
+    var inp = document.getElementById('lpass');
+    inp.classList.add('wrong');
+    setTimeout(function(){inp.classList.remove('wrong');}, 400);
+    inp.value = '';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem(KEY);
+  location.reload();
+}
+
+// Auto-login if already authed
+window.addEventListener('DOMContentLoaded', function() {
+  if (checkAuth()) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-shell').classList.add('visible');
+    initDocOrder();
+    dpInitDate();
+  }
+  // Allow ?admin=1 to pre-focus
+  document.getElementById('lpass').focus();
+});
+
+// ── TAB NAVIGATION ────────────────────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('tab-'+id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ── DOC ORDER ─────────────────────────────────────────────────────────────────
+var DOC_DEFS = [
+  {id:'dl',       icon:'🪪', name:"Government-Issued Photo ID",       desc:"Driver's license or passport — all signing parties", req:true},
+  {id:'f1003',    icon:'📋', name:"Loan Application (1003 / URLA)",    desc:"Uniform Residential Loan Application",               req:true},
+  {id:'title',    icon:'📜', name:"Title Commitment / Prelim Report",   desc:"From title company showing ownership and liens",      req:false},
+  {id:'purchase', icon:'🤝', name:"Purchase Contract",                 desc:"Signed purchase agreement (acquisitions only)",      req:false},
+  {id:'appraisal',icon:'🏗', name:"Appraisal Report",                  desc:"Full appraisal by licensed MAI/state-certified",     req:false},
+  {id:'entitydocs',icon:'🏢',name:"Entity Documents",                  desc:"Articles, Operating Agreement, Good Standing",       req:false},
+  {id:'insurance',icon:'🛡', name:"Insurance Declaration Page",        desc:"Current hazard/property insurance policy",           req:false},
+  {id:'taxreturns',icon:'📊',name:"Tax Returns (2 years)",             desc:"Personal and/or business returns with all schedules",req:false},
+  {id:'bankstmts',icon:'🏦', name:"Bank Statements (3 months)",        desc:"All pages of all accounts",                         req:false},
+  {id:'rentroll', icon:'📈', name:"Rent Roll / Income Summary",        desc:"Current tenant list, rents, and lease terms",        req:false},
+  {id:'photos',   icon:'📸', name:"Property Photos",                   desc:"Interior and exterior — minimum 10 photos",          req:false},
+];
+
+var selectedDocs = {};
+
+function initDocOrder() {
+  var container = document.getElementById('doc-items');
+  container.innerHTML = DOC_DEFS.map(function(d) {
+    if (d.req) selectedDocs[d.id] = true;
+    return '<div class="doc-item '+(d.req?'sel':'')+'" id="di-'+d.id+'" onclick="toggleDoc(\''+d.id+'\')">' +
+      '<div class="di-check">'+(d.req?'✓':'')+'</div>' +
+      '<div class="di-icon">'+d.icon+'</div>' +
+      '<div class="di-info"><div class="di-name">'+d.name+'</div><div class="di-desc">'+d.desc+'</div></div>' +
+      '<span class="di-badge '+(d.req?'br':'bo')+'">'+(d.req?'Required':'Optional')+'</span>' +
+    '</div>';
+  }).join('');
+  buildLink();
+}
+
+function toggleDoc(id) {
+  selectedDocs[id] = !selectedDocs[id];
+  var el = document.getElementById('di-'+id);
+  var check = el.querySelector('.di-check');
+  el.classList.toggle('sel', selectedDocs[id]);
+  check.textContent = selectedDocs[id] ? '✓' : '';
+  buildLink();
+}
+
+function buildLink() {
+  var file    = document.getElementById('ql-file').value.trim();
+  var name    = document.getElementById('ql-name').value.trim();
+  var prop    = document.getElementById('ql-prop').value.trim();
+  var amt     = document.getElementById('ql-amt').value.trim();
+  var msg     = document.getElementById('ql-msg').value.trim();
+  var contact = document.getElementById('ql-contact').value.trim();
+
+  var docs = Object.keys(selectedDocs).filter(function(k){ return selectedDocs[k]; });
+  docs.push('other');
+
+  var base = window.location.origin + '/docorder.html';
+  var p = new URLSearchParams();
+  if (file)    p.set('file', file);
+  if (name)    p.set('name', name);
+  if (prop)    p.set('prop', prop);
+  if (amt)     p.set('amt',  amt);
+  if (msg)     p.set('msg',  msg);
+  if (contact) p.set('contact', contact);
+  p.set('docs', docs.join(','));
+
+  var url = base + '?' + p.toString();
+  document.getElementById('link-code').textContent = url;
+  document.getElementById('link-wrap').style.display = 'block';
+}
+
+function copyLink() {
+  var url = document.getElementById('link-code').textContent;
+  navigator.clipboard.writeText(url).then(function() {
+    var btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function openPreview() {
+  var url = document.getElementById('link-code').textContent;
+  window.open(url, '_blank');
+}
+
+// ── DOC PREP ──────────────────────────────────────────────────────────────────
+var MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var dpTplBytes = null;
+var dpCalcData = {};
+
+function dpInitDate() {
+  var t = new Date();
+  document.getElementById('dp-docdate').value =
+    t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+  dpCalc();
+}
+
+function dpGo(n) {
+  for (var i=1;i<=4;i++) {
+    var p = document.getElementById('dp-panel-'+i);
+    if(p) p.style.display = (i===n?'block':'none');
+  }
+  document.querySelectorAll('.dp-step').forEach(function(s){
+    var sn = parseInt(s.dataset.step);
+    s.style.background = sn===n ? 'var(--gdim)' : '';
+    s.style.color = sn===n ? 'var(--gold)' : 'var(--muted)';
+  });
+}
+
+function dpAddM(ym,n){
+  var p=ym.split('-').map(Number),y=p[0],m=p[1];
+  m+=n;while(m>12){m-=12;y++;}while(m<1){m+=12;y--;}
+  return {y:y,m:m};
+}
+function dpM1(ym,n){var d=dpAddM(ym,n||0);return MO[d.m-1]+' 1, '+d.y;}
+function dpME(ym,n){var d=dpAddM(ym,n||0),last=new Date(d.y,d.m,0).getDate();return MO[d.m-1]+' '+last+', '+d.y;}
+
+function dpCalc() {
+  var loan    = parseFloat((document.getElementById('dp-loan')||{value:''}).value.replace(/[^0-9.]/g,''))||0;
+  var rate    = parseFloat((document.getElementById('dp-rate')||{value:''}).value)||0;
+  var monthly = parseFloat((document.getElementById('dp-monthly')||{value:''}).value.replace(/[^0-9.]/g,''))||0;
+  var origpct = parseFloat((document.getElementById('dp-origpct')||{value:''}).value)||0;
+  var term    = parseInt((document.getElementById('dp-term')||{value:'24'}).value)||24;
+  var amort   = parseInt((document.getElementById('dp-amort')||{value:'480'}).value)||480;
+  var ym      = (document.getElementById('dp-closemon')||{value:''}).value;
+  var dateRaw = (document.getElementById('dp-docdate')||{value:''}).value;
+
+  var docDate = '';
+  if (dateRaw) {
+    var pts = dateRaw.split('-');
+    docDate = MO[parseInt(pts[1])-1]+' '+parseInt(pts[2])+', '+pts[0];
+  }
+  dpCalcData.docDate = docDate;
+  s('dt-doc', docDate||'—');
+
+  if (ym) {
+    dpCalcData.ym=ym;
+    dpCalcData.res1=dpM1(ym,1);dpCalcData.res2=dpM1(ym,2);dpCalcData.res3=dpM1(ym,3);
+    dpCalcData.first=dpM1(ym,4);dpCalcData.pdThru=dpME(ym,0);dpCalcData.maturity=dpM1(ym,term);
+    var lk=dpAddM(ym,6),lkLast=new Date(lk.y,lk.m,0).getDate();
+    dpCalcData.lockout=MO[lk.m-1]+' '+lkLast+', '+lk.y;
+    s('dt-r1',dpCalcData.res1);s('dt-r2',dpCalcData.res2);s('dt-r3',dpCalcData.res3);
+    s('dt-fp',dpCalcData.first);s('dt-pd',dpCalcData.pdThru);
+    s('dt-mat',dpCalcData.maturity);s('dt-lk',dpCalcData.lockout);
   }
 
-  window.doLogin = async function() {
-    const email    = document.getElementById('login-email').value.trim();
-    const pass     = document.getElementById('login-password').value;
-    const remember = document.getElementById('remember-me').checked;
-    const btn      = document.getElementById('login-btn');
-    const err      = document.getElementById('login-error');
+  var origFee=loan*origpct/100, reserve=monthly*3, perDiem=loan*rate/100/365, alta=loan*1.25;
+  var balloon=0;
+  if(loan>0&&rate>0&&monthly>0){var mr=rate/100/12,bal=loan;for(var i=0;i<term;i++){bal=bal*(1+mr)-monthly;}balloon=Math.max(0,bal);}
+  dpCalcData.loan=loan;dpCalcData.rate=rate;dpCalcData.monthly=monthly;dpCalcData.origFee=origFee;
+  dpCalcData.reserve=reserve;dpCalcData.perDiem=perDiem;dpCalcData.alta=alta;dpCalcData.balloon=balloon;
+  dpCalcData.term=term;dpCalcData.amort=amort;
 
-    if (!email || !pass) { err.textContent = 'Please enter email and password.'; return; }
+  var $ = function(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  s('dt-of',$(origFee));s('dt-res',$(reserve));s('dt-pdd','$'+perDiem.toFixed(2)+'/d');
+  s('dt-alta',$(alta));s('dt-bal',$(balloon));
+}
 
-    btn.textContent = 'Signing in...';
-    btn.disabled = true;
-    err.textContent = '';
+function s(id,t){var e=document.getElementById(id);if(e)e.textContent=t;}
+function v(id){return (document.getElementById(id)||{value:''}).value||'';}
+function f$(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 
-    try {
-      const persistence = remember ? browserLocalPersistence : browserSessionPersistence;
-      await setPersistence(auth, persistence);
-      await signInWithEmailAndPassword(auth, email, pass);
-      if (remember) localStorage.setItem('fl_admin_email', email);
-      else localStorage.removeItem('fl_admin_email');
-    } catch (e) {
-      err.textContent = 'Invalid email or password.';
-      btn.textContent = 'Sign In →';
-      btn.disabled = false;
-    }
+function n2w(num){
+  if(!num||isNaN(num))return '';
+  var ones=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  var tens=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function b1(n){if(n===0)return '';if(n<20)return ones[n];if(n<100)return tens[Math.floor(n/10)]+(n%10?'-'+ones[n%10]:'');return ones[Math.floor(n/100)]+' Hundred'+(n%100?' '+b1(n%100):'');}
+  var d=Math.floor(num),c=Math.round((num-d)*100),w='';
+  if(d>=1000000)w+=b1(Math.floor(d/1000000))+' Million ';
+  if(d%1000000>=1000)w+=b1(Math.floor((d%1000000)/1000))+' Thousand ';
+  w+=b1(d%1000);w=w.trim();
+  w+=' and '+(c>0?b1(c)+'/100':'00/100')+' Dollars';
+  return w.trim();
+}
+
+function dpLoadTemplate(inp) {
+  var f = inp.files[0];
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    dpTplBytes = e.target.result;
+    var z = JSZip.loadAsync(dpTplBytes).then(function(zip) {
+      return zip.file('word/document.xml').async('string');
+    }).then(function(xml) {
+      var sects = (xml.match(/<w:sectPr/g)||[]).length;
+      var runs  = (xml.match(/<w:t/g)||[]).length;
+      document.getElementById('dp-tpl-stats').textContent =
+        'Loaded: '+f.name+' · '+sects+' page sections · '+runs.toLocaleString()+' text runs';
+      document.getElementById('dp-tpl-info').style.display = 'block';
+      document.getElementById('dp-btn1').disabled = false;
+      document.getElementById('dp-dropzone').style.borderColor = 'var(--green)';
+    });
   };
+  reader.readAsArrayBuffer(f);
+}
 
-  window.doLogout = async function() {
-    await signOut(auth);
-  };
-
-  // ── AUTH STATE ───────────────────────────────────
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-      document.getElementById('admin-email-display').textContent = user.email;
-      loadData();
+function dpBuildReview() {
+  dpCalc();
+  var c = dpCalcData;
+  var origFee = parseFloat(v('dp-origfee').replace(/[^0-9.]/g,''))||c.origFee;
+  var rows = [
+    ['DATES',null],['Document Date',c.docDate,false],['Reserve Months',c.res1+' / '+c.res2+' / '+c.res3,true],
+    ['First Payment',c.first,true],['Per Diem Through',c.pdThru,true],['Prepay Lockout',c.lockout,true],['Maturity',c.maturity,true],
+    ['IDENTIFIERS',null],['File No. (p.1)',v('dp-fileno'),false],['Escrow No. (p.2-8)',v('dp-escrow'),false],
+    ['LOAN',null],['Loan Amount',f$(c.loan),true],['Written',n2w(c.loan),true],
+    ['Rate',c.rate+'%',false],['Monthly P&I',f$(c.monthly),false],
+    ['FINANCIALS',null],['Orig Fee',f$(origFee),true],['Written',n2w(origFee),true],
+    ['3-Mo Reserve',f$(c.reserve),true],['Written',n2w(c.reserve),true],
+    ['Per Diem','$'+c.perDiem.toFixed(2)+'/day',true],
+    ['ALTA (125%)',f$(c.alta),true],['Written',n2w(c.alta),true],
+    ['Balloon',f$(c.balloon),true],['Written',n2w(c.balloon),true],
+    ['Doc Prep',f$(parseFloat(v('dp-docprep'))||1595),false],
+    ['PARTIES',null],['Orig Broker',v('dp-origbroker'),false],['Entity',v('dp-entity')+', a '+v('dp-etype'),false],
+    ['Guarantor',v('dp-gname')+' · '+v('dp-gaddr')+', '+v('dp-gcsz'),false],
+    ['PROPERTY',null],['Description',v('dp-propcommon'),false],['County',v('dp-county')+' County',false],['APN',v('dp-apn'),false],
+    ['TITLE',null],['Company',v('dp-titleco'),false],['Officer',v('dp-titleoff'),false],['Email',v('dp-titleem'),false],
+  ];
+  var html = '<table style="width:100%;border-collapse:collapse;">' +
+    '<tr><th style="text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding:7px 12px;background:var(--s2);border:1px solid var(--border);">Field</th>' +
+    '<th style="text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding:7px 12px;background:var(--s2);border:1px solid var(--border);">Value</th></tr>';
+  rows.forEach(function(r) {
+    if (r[1]===null) {
+      html+='<tr><td colspan="2" style="padding:5px 12px;border:1px solid var(--border);background:var(--tdim);color:var(--teal);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;">'+r[0]+'</td></tr>';
     } else {
-      document.getElementById('login-screen').style.display = 'flex';
-      document.getElementById('dashboard').style.display = 'none';
+      var vc = r[2] ? 'color:var(--gold);' : '';
+      var dsp = r[1] || '<em style="color:var(--red)">⚠ MISSING</em>';
+      html+='<tr><td style="padding:8px 12px;border:1px solid var(--border);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;width:30%;">'+r[0]+'</td>' +
+            '<td style="padding:8px 12px;border:1px solid var(--border);font-family:\'DM Mono\',monospace;font-size:12px;'+vc+'">'+dsp+'</td></tr>';
     }
   });
+  html += '</table>';
+  document.getElementById('dp-review-body').innerHTML = html;
+}
 
-  // ── LIVE DATA ────────────────────────────────────
-  let allDeals   = [];
-  let allLenders = [];
-  let dealFilter   = 'all';
-  let lenderFilter = 'all';
+function dpLog(msg,cls){
+  var el=document.getElementById('dp-log');
+  el.innerHTML+='<span class="'+(cls||'')+'">'+msg+'</span>\n';
+  el.scrollTop=el.scrollHeight;
+}
+function dpProg(pct,msg){
+  document.getElementById('dp-fill').style.width=pct+'%';
+  document.getElementById('dp-pct').textContent=Math.round(pct)+'%';
+  document.getElementById('dp-msg').textContent=msg;
+}
 
-  function loadData() {
-    // Deals — live listener
-    const dealsQ = query(collection(db, 'deals'), orderBy('createdAt', 'desc'));
-    onSnapshot(dealsQ, snap => {
-      allDeals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderDeals();
-      updateMetrics();
-    }, err => {
-      console.error('Deals error:', err);
-      document.getElementById('deals-list').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Could not load deals. Check Firestore rules.</div></div>`;
+async function dpRun() {
+  if (!dpTplBytes) { alert('No template loaded.'); dpGo(1); return; }
+  document.getElementById('dp-log').innerHTML='';
+  document.getElementById('dp-done').style.display='none';
+
+  var c = dpCalcData;
+  var origFee = parseFloat(v('dp-origfee').replace(/[^0-9.]/g,''))||c.origFee;
+  var docPrep = parseFloat(v('dp-docprep'))||1595;
+  var procFee = parseFloat(v('dp-procfee'))||995;
+  var defRate = v('dp-defrate')||'24.99';
+  var entity  = v('dp-entity'), etype=v('dp-etype'), gname=v('dp-gname'), county=v('dp-county'), state=v('dp-state');
+  var $f = function(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+
+  dpLog('▶ Generating documents...','ok');
+  dpProg(5,'Loading template...');
+
+  try {
+    var zip = await JSZip.loadAsync(dpTplBytes);
+    var xml = await zip.file('word/document.xml').async('string');
+    dpLog('✓ Template loaded · '+(xml.match(/<w:t/g)||[]).length.toLocaleString()+' text runs','ok');
+    dpProg(20,'Merging text runs...');
+
+    var merged=0;
+    xml=xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t>/g,function(){merged++;return '';});
+    xml=xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t xml:space="preserve">/g,function(){merged++;return '';});
+    dpLog('✓ Merged '+merged+' run boundaries','ok');
+    dpProg(35,'Applying substitutions...');
+
+    var RULES=[
+      [entity+', a Texas Limited Liability Company',entity+', a '+etype,'entity caps fix'],
+      ['LAND TO SKY REALTY LLC, a Texas limited liability company',entity+', a '+etype,'old entity lower'],
+      ['LAND TO SKY REALTY LLC, a Texas Limited Liability Company',entity+', a '+etype,'old entity caps'],
+      ['LAND TO SKY REALTY LLC',entity,'old entity name'],
+      ['Map and Map, LLC, a Texas limited liability company',entity+', a '+etype,'prev entity lower'],
+      ['Map and Map, LLC, a Texas Limited Liability Company',entity+', a '+etype,'prev entity caps'],
+      ['Map and Map, LLC',entity,'prev entity name'],
+      ['a Texas Limited Liability Company','a '+etype,'caps LLC fix'],
+      ['By DERIC OUTLEY, Authorized Signor','By ___________________________, '+v('dp-signor'),'old signor'],
+      ['By Mario Alberto Perez, Managing Member','By ___________________________, '+v('dp-signor'),'prev signor'],
+      ['DERIC OUTLEY, an individual',gname+', an individual','old guar full'],
+      ['DERIC OUTLEY',gname,'old guar name'],
+      ['Mario Alberto Perez, an individual',gname+', an individual','prev guar full'],
+      ['Mario Alberto Perez',gname,'prev guar name'],
+      ['3138 Oakdale, Houston, TX 77004-0000',v('dp-gaddr')+', '+v('dp-gcsz'),'old guar addr'],
+      ['108 Covey Ridge Drive, Del Rio, Texas 78840-0000',v('dp-gaddr')+', '+v('dp-gcsz'),'prev guar addr -0000'],
+      ['108 Covey Ridge Drive, Del Rio, Texas 78840',v('dp-gaddr')+', '+v('dp-gcsz'),'prev guar addr'],
+      ['3138 Oakdale',v('dp-gaddr'),'old guar street'],
+      ['Houston, TX 77004',v('dp-gcsz'),'old guar csz'],
+      ['Del Rio, Texas 78840-0000',v('dp-gcsz'),'zip -0000 fix'],
+      ['Champions Inn &amp; Cafe at Lake Amistad, 11704 West U.S. Highway 90, Del Rio, Texas 78840',v('dp-propcommon').replace(/&/g,'&amp;'),'prev prop common'],
+      ['±40 Acre Industrial Tract, Port Arthur, Texas 77642',v('dp-propcommon').replace(/&/g,'&amp;'),'old prop common'],
+      ['Port Arthur, Texas 77642',v('dp-propcsz'),'old prop csz'],
+      ['Port Arthur',(v('dp-propcsz').split(',')[0]||'').trim(),'old prop city'],
+      ['Del Rio, Texas 78840',v('dp-propcsz'),'prev prop csz'],
+      ['Jefferson County',county+' County','old county full'],
+      ['>Jefferson<','>'+county+'<','old county bold'],
+      ['Val Verde County',county+' County','prev county'],
+      ['Val Verde',county,'prev county bare'],
+      ['>72810<','>'+v('dp-apn')+'<','old apn bold'],['72810',v('dp-apn'),'old apn'],
+      ['>13631<','>'+v('dp-apn')+'<','prev apn bold'],['13631',v('dp-apn'),'prev apn'],
+      ['Maryann Nguyen',v('dp-titleoff'),'old title off'],['Aracely Martinez',v('dp-titleoff'),'prev title off'],
+      ['Patten Title',v('dp-titleco'),'old title co'],['PATTEN TITLE',v('dp-titleco').toUpperCase(),'old title upper'],
+      ['DEL RIO TITLE COMPANY',v('dp-titleco').toUpperCase(),'prev title upper'],
+      ['Del Rio Title Company',v('dp-titleco'),'prev title co'],
+      ['4265 San Felipe St Suite 400',v('dp-titleaddr'),'old title addr'],
+      ['300 East Losoya Street',v('dp-titleaddr'),'prev title addr'],
+      ['maryann.nguyen@pattentitle.com',v('dp-titleem'),'old title email'],
+      ['aracely@delriotitle.com',v('dp-titleem'),'prev title email'],
+      ['Westcor Land Title Insurance Company',v('dp-titleund'),'old underwriter'],
+      ['First American Title Guaranty Company',v('dp-titleund'),'prev underwriter'],
+      ['7996-25-63029',v('dp-escrow'),'old escrow no'],['GF#260125A',v('dp-escrow'),'prev escrow no'],
+      ['File:\t48607','File:\t'+v('dp-fileno'),'old file no'],['File:\t49559','File:\t'+v('dp-fileno'),'prev file no'],
+      ['48607',v('dp-fileno'),'old file bare'],['49559',v('dp-fileno'),'prev file bare'],
+      ['Three Hundred Ninety-Nine Thousand and 00/100 Dollars ($399,000.00)',n2w(c.loan)+' ($'+$f(c.loan)+')','prev loan+written'],
+      ['Four Hundred Ninety-Nine Thousand and 00/100 Dollars ($499,000.00)',n2w(c.loan)+' ($'+$f(c.loan)+')','old loan+written'],
+      ['Three Hundred Ninety-Nine Thousand and 00/100 Dollars',n2w(c.loan),'prev loan written'],
+      ['Four Hundred Ninety-Nine Thousand and 00/100 Dollars',n2w(c.loan),'old loan written'],
+      ['$399,000.00','$'+$f(c.loan),'prev loan $'],['$499,000.00','$'+$f(c.loan),'old loan $'],
+      ['Four Thousand Three Hundred Fifty-Four and 80/100 Dollars ($4,354.80)',n2w(c.monthly)+' ($'+$f(c.monthly)+')','prev monthly'],
+      ['Five Thousand Four Hundred Thirty-Two and 62/100 Dollars ($5,432.62)',n2w(c.monthly)+' ($'+$f(c.monthly)+')','old monthly'],
+      ['Four Thousand Three Hundred Fifty-Four and 80/100 Dollars',n2w(c.monthly),'prev monthly written'],
+      ['Five Thousand Four Hundred Thirty-Two and 62/100 Dollars',n2w(c.monthly),'old monthly written'],
+      ['$4,354.80','$'+$f(c.monthly),'prev monthly $'],['$5,432.62','$'+$f(c.monthly),'old monthly $'],
+      ['Thirteen Thousand Sixty-Four and 40/100 Dollars ($13,064.40)',n2w(c.reserve)+' ($'+$f(c.reserve)+')','prev reserve'],
+      ['Sixteen Thousand Two Hundred Ninety-Seven and 86/100 Dollars ($16,297.86)',n2w(c.reserve)+' ($'+$f(c.reserve)+')','old reserve'],
+      ['Thirteen Thousand Sixty-Four and 40/100 Dollars',n2w(c.reserve),'prev reserve written'],
+      ['Sixteen Thousand Two Hundred Ninety-Seven and 86/100 Dollars',n2w(c.reserve),'old reserve written'],
+      ['$13,064.40','$'+$f(c.reserve),'prev reserve $'],['$16,297.86','$'+$f(c.reserve),'old reserve $'],
+      ['Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars ($398,326.09)',n2w(c.balloon)+' ($'+$f(c.balloon)+')','prev balloon'],
+      ['Five Hundred Three Thousand Five Hundred Eighty-Nine and 71/100 Dollars ($503,589.71)',n2w(c.balloon)+' ($'+$f(c.balloon)+')','old balloon'],
+      ['Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars',n2w(c.balloon),'prev balloon written'],
+      ['Five Hundred Three Thousand Five Hundred Eighty-Nine and 71/100 Dollars',n2w(c.balloon),'old balloon written'],
+      ['$398,326.09','$'+$f(c.balloon),'prev balloon $'],['$503,589.71','$'+$f(c.balloon),'old balloon $'],
+      ['Four Hundred Ninety-Eight Thousand Seven Hundred Fifty and 00/100 Dollars ($498,750.00)',n2w(c.alta)+' ($'+$f(c.alta)+')','prev ALTA'],
+      ['Six Hundred Twenty-Three Thousand Seven Hundred Fifty and 00/100 Dollars ($623,750.00)',n2w(c.alta)+' ($'+$f(c.alta)+')','old ALTA'],
+      ['Four Hundred Ninety-Eight Thousand Seven Hundred Fifty and 00/100 Dollars',n2w(c.alta),'prev ALTA written'],
+      ['Six Hundred Twenty-Three Thousand Seven Hundred Fifty and 00/100 Dollars',n2w(c.alta),'old ALTA written'],
+      ['($498,750.00) (125% of the principal balance)','($'+$f(c.alta)+') (125% of the principal balance)','prev ALTA num'],
+      ['($623,750.00) (125% of the principal balance)','($'+$f(c.alta)+') (125% of the principal balance)','old ALTA num'],
+      ['amount of $13,965.00; (Delivery instructions to be provided);','amount of $'+$f(origFee)+'; (Delivery instructions to be provided);','prev orig fee'],
+      ['amount of $13,965; (Delivery instructions to be provided);','amount of $'+$f(origFee)+'; (Delivery instructions to be provided);','prev orig fee2'],
+      ['amount of $17,465; (Delivery instructions to be provided);','amount of $'+$f(origFee)+'; (Delivery instructions to be provided);','old orig fee'],
+      ['Underwriting Fee payable to LENDER FUNDS, Inc. in the amount of $2,520.00;','Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f(docPrep)+';','old UW→docprep'],
+      ['Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,499.00;','Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f(docPrep)+';','prev docprep'],
+      ['Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,595.00;','Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f(docPrep)+';','prev docprep2'],
+      ['Processing Fee payable to LENDER FUNDS, Inc. in the amount of $995.00;','Processing Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f(procFee)+';','prev proc fee'],
+      ['Processing Fee payable to LENDER FUNDS, Inc. in the amount of $1,060.00;','Processing Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f(procFee)+';','old proc fee'],
+      ['Wire Fee payable to LENDER FUNDS, Inc. in the amount of $45.00;','','wire fee remove'],
+      ['Legal Fee payable to LENDER FUNDS, Inc.','','legal fee remove'],
+      ['Doc Service Pro CORPORATION','LENDER FUNDS, Inc.','doc service fix'],
+      ['$180.06 per day from date funds disbursed by escrow through November 30, 2025','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'old per diem line'],
+      ['$142.00 per day from date funds disbursed by escrow through April 30, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'prev per diem Apr'],
+      ['$142.00 per day from date funds disbursed by escrow through May 31, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'prev per diem May'],
+      ['$180.06','$'+c.perDiem.toFixed(2),'old per diem'],['$142.00','$'+c.perDiem.toFixed(2),'prev per diem'],
+      ['Twenty and 99/100 Percent (20.99%)','Twenty-Four and 99/100 Percent ('+defRate+'%)','old default rate'],
+      ['Twenty-Four and 99/100 Percent (24.99%)','Twenty-Four and 99/100 Percent ('+defRate+'%)','prev default rate'],
+      ['(20.99%)','('+defRate+'%)','old default paren'],['(24.99%)','('+defRate+'%)','prev default paren'],
+      ['January 1, 2026 through March 1, 2026',c.res1+' through '+c.res3,'old reserve range'],
+      ['May 1, 2026 through July 1, 2026',c.res1+' through '+c.res3,'prev reserve May-Jul'],
+      ['June 1, 2026 through August 1, 2026',c.res1+' through '+c.res3,'prev reserve Jun-Aug'],
+      ['November 30, 2025',c.pdThru,'old per diem through'],
+      ['April 30, 2026',c.pdThru,'prev per diem Apr'],['May 31, 2026',c.pdThru,'prev per diem May'],
+      ['April 1, 2026',c.first,'prev first Apr'],['August 1, 2026',c.first,'prev first Aug'],['September 1, 2026',c.first,'prev first Sep'],
+      ['January 1, 2026',c.res1,'old res1'],['May 1, 2026',c.res1,'prev res1'],['June 1, 2026',c.res1,'prev res1b'],
+      ['March 1, 2026',c.res3,'old res3'],['July 1, 2026',c.res3,'prev res3'],['August 1, 2026',c.res3,'prev res3b'],
+      ['June 30, 2026',c.lockout,'old lockout'],['October 31, 2026',c.lockout,'prev lockout Oct'],['November 30, 2026',c.lockout,'prev lockout Nov'],
+      ['December 1, 2027',c.maturity,'old maturity'],['April 1, 2028',c.maturity,'prev maturity Apr'],['May 1, 2028',c.maturity,'prev maturity May'],
+      ['October 27, 2025',c.docDate,'old doc date'],['April 15, 2026',c.docDate,'prev doc date'],
+      ['April __, 2026',c.docDate,'prev blank Apr'],['May __, 2026',c.docDate,'prev blank May'],
+      ['***Arbitration County TE***',county+' County, '+state,'arb county placeholder'],
+      ['Val Verde County, Texas',county+' County, '+state,'prev arb county'],
+    ];
+
+    dpProg(50,'Applying '+RULES.length+' substitution rules...');
+    var totalReps=0;
+    RULES.forEach(function(r){
+      if(!r[0]||!xml.includes(r[0]))return;
+      var cnt=xml.split(r[0]).length-1;
+      xml=xml.split(r[0]).join(r[1]);
+      totalReps+=cnt;
+      dpLog('  ✓ ['+cnt+'×] '+r[2],'ok');
     });
 
-    // Lenders — live listener
-    const lendersQ = query(collection(db, 'lenders'), orderBy('createdAt', 'desc'));
-    onSnapshot(lendersQ, snap => {
-      allLenders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderLenders();
-      updateMetrics();
-    }, err => {
-      console.error('Lenders error:', err);
-      document.getElementById('lenders-list').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">Could not load lenders. Check Firestore rules.</div></div>`;
-    });
-  }
-
-  // ── METRICS ──────────────────────────────────────
-  function updateMetrics() {
-    document.getElementById('m-deals').textContent   = allDeals.length;
-    document.getElementById('m-lenders').textContent = allLenders.length;
-
-    // Total volume
-    const vol = allDeals.reduce((sum, d) => sum + (d.loan?.amount || 0), 0);
-    document.getElementById('m-volume').textContent = vol >= 1000000
-      ? '$' + (vol/1000000).toFixed(1) + 'M'
-      : vol >= 1000 ? '$' + (vol/1000).toFixed(0) + 'K' : '$' + vol;
-
-    // New today
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const todayDeals   = allDeals.filter(d => d.createdAt?.toDate() >= today).length;
-    const todayLenders = allLenders.filter(l => l.createdAt?.toDate() >= today).length;
-    document.getElementById('m-today').textContent = todayDeals + todayLenders;
-  }
-
-  // ── RENDER DEALS ─────────────────────────────────
-  function renderDeals() {
-    const filtered = dealFilter === 'all'
-      ? allDeals
-      : allDeals.filter(d => d.status === dealFilter);
-
-    document.getElementById('deals-count').textContent = filtered.length;
-
-    if (!filtered.length) {
-      document.getElementById('deals-list').innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No deal submissions yet.</div></div>`;
-      return;
+    dpProg(70,'Targeted XML fixes...');
+    // Originating broker bold run
+    var oi=xml.indexOf('Originating');
+    if(oi>=0){
+      var seg=xml.slice(oi,oi+1800);
+      if(seg.includes('LENDER FUNDS, Inc.')){
+        var ob=v('dp-origbroker')||'West Capital Lending, Inc.';
+        var ns=seg.replace('<w:t>LENDER FUNDS, Inc.</w:t>','<w:t>'+ob+'</w:t>');
+        if(ns!==seg){xml=xml.slice(0,oi)+ns+xml.slice(oi+1800);totalReps++;dpLog('  ✓ [1×] originating broker bold run','ok');}
+      }
     }
+    // ALTA written amount regex
+    xml=xml.replace(/(<w:t xml:space="preserve">)[^<]*(Thousand[^<]*and 00\/100 Dollars\s*<\/w:t>)([\s\S]{0,600}?)(\(\$[0-9,]+\.00\) \(125% of the principal balance\))/,
+      function(m,pre,end,mid,num){
+        totalReps++;
+        dpLog('  ✓ [1×] ALTA written+numeric regex','ok');
+        return pre+n2w(c.alta)+' '+end.split('</w:t>')[0]+'</w:t>'+mid+'($'+$f(c.alta)+') (125% of the principal balance)';
+      });
 
-    const html = filtered.map(deal => {
-      const p = deal.property || {};
-      const l = deal.loan || {};
-      const b = deal.borrower || {};
-      const location = [p.city, p.state].filter(Boolean).join(', ') || '—';
-      const amt = l.amount >= 1000000
-        ? '$' + (l.amount/1000000).toFixed(2) + 'M'
-        : l.amount >= 1000 ? '$' + (l.amount/1000).toFixed(0) + 'K' : l.amount ? '$' + l.amount : '—';
-      const time = deal.createdAt?.toDate
-        ? timeAgo(deal.createdAt.toDate())
-        : 'Just now';
-      const statusClass = deal.status === 'active' ? 'status-active' : deal.status === 'closed' ? 'status-closed' : 'status-pending';
-      const statusLabel = deal.status === 'active' ? 'Active' : deal.status === 'closed' ? 'Closed' : 'Pending';
+    dpProg(85,'Verifying...');
+    var mustZero=['LAND TO SKY','DERIC OUTLEY','Port Arthur','October 27, 2025','78840-0000'];
+    var warns=0;
+    mustZero.forEach(function(t){if(xml.includes(t)){dpLog('  ⚠ Still found: "'+t+'"','warn');warns++;}});
+    dpLog(warns===0?'✓ All verifications passed':'⚠ '+warns+' warnings — review output carefully',warns?'warn':'ok');
+    dpLog('✓ Total substitutions: '+totalReps,'ok');
 
-      return `<div class="deal-row" onclick="openDealDrawer('${deal.id}')">
-        <div class="deal-row-top">
-          <div>
-            <div class="deal-row-title">${deal.loanPurpose || 'Deal'} · ${location}</div>
-            <div class="deal-row-sub">${p.type || ''} ${p.address ? '· ' + p.address : ''}</div>
-          </div>
-          <span class="status-badge ${statusClass}">${statusLabel}</span>
-        </div>
-        <div class="deal-row-meta">
-          <div class="meta-item"><div class="meta-val">${amt}</div><div class="meta-key">Loan</div></div>
-          ${l.term ? `<div class="meta-item"><div class="meta-val">${l.term}</div><div class="meta-key">Term</div></div>` : ''}
-          ${l.exitStrategy ? `<div class="meta-item"><div class="meta-val">${l.exitStrategy.split('/')[0].trim()}</div><div class="meta-key">Exit</div></div>` : ''}
-          ${b.creditScore ? `<div class="meta-item"><div class="meta-val">${b.creditScore}</div><div class="meta-key">Credit</div></div>` : ''}
-        </div>
-        <div class="deal-row-footer">
-          <div class="deal-borrower">
-            ${b.firstName ? b.firstName + ' ' + (b.lastName||'') : '—'}
-            ${b.email ? `· <a class="deal-email-link" href="mailto:${b.email}" onclick="event.stopPropagation()">${b.email}</a>` : ''}
-          </div>
-          <div class="deal-time">${time}</div>
-        </div>
-      </div>`;
-    }).join('');
+    dpProg(92,'Packaging...');
+    zip.file('word/document.xml',xml);
+    var out = await zip.generateAsync({type:'arraybuffer',compression:'DEFLATE',compressionOptions:{level:6}});
+    dpProg(100,'Done ✓');
 
-    document.getElementById('deals-list').innerHTML = html;
+    var blob=new Blob([out],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    var url=URL.createObjectURL(blob);
+    var safe=(entity||'LoanDoc').replace(/[^a-zA-Z0-9]/g,'_');
+    var fn=safe+'_File'+(v('dp-fileno')||'XXXX')+'_'+(c.docDate||'').replace(/[^a-zA-Z0-9]/g,'_')+'.docx';
+    document.getElementById('dp-dl-btn').onclick=function(){var a=document.createElement('a');a.href=url;a.download=fn;a.click();};
+    document.getElementById('dp-summary').textContent=totalReps+' substitutions · '+warns+' warnings · '+fn;
+    document.getElementById('dp-done').style.display='block';
+
+  } catch(err) {
+    dpLog('❌ ERROR: '+err.message,'err');
+    dpProg(0,'Error — see log');
   }
+}
 
-  // ── RENDER LENDERS ────────────────────────────────
-  function renderLenders() {
-    const filtered = lenderFilter === 'all'
-      ? allLenders
-      : allLenders.filter(l => l.status === lenderFilter);
+function dpReset(){dpTplBytes=null;dpGo(1);document.getElementById('dp-tpl-info').style.display='none';document.getElementById('dp-btn1').disabled=true;}
 
-    document.getElementById('lenders-count').textContent = filtered.length;
-
-    if (!filtered.length) {
-      document.getElementById('lenders-list').innerHTML = `<div class="empty-state"><div class="empty-icon">💰</div><div class="empty-text">No lender profiles yet.</div></div>`;
-      return;
-    }
-
-    const html = filtered.map(lender => {
-      const time = lender.createdAt?.toDate
-        ? timeAgo(lender.createdAt.toDate())
-        : 'Just now';
-
-      return `<div class="lender-row" onclick="openLenderDrawer('${lender.id}')">
-        <div class="lender-row-top">
-          <div class="lender-name">${lender.firstName || ''} ${lender.lastName || ''}</div>
-          <span class="lender-type-badge">${lender.lenderType || 'Investor'}</span>
-        </div>
-        <div class="lender-row-meta">
-          <div class="meta-item"><div class="meta-val">${lender.capital || '—'}</div><div class="meta-key">Capital</div></div>
-          <div class="meta-item"><div class="meta-val">${lender.experience || '—'}</div><div class="meta-key">Experience</div></div>
-          <div class="meta-item"><div class="meta-val">${lender.accredited?.includes('Yes') ? 'Yes' : 'No'}</div><div class="meta-key">Accredited</div></div>
-        </div>
-        <div class="lender-row-footer">
-          <div class="lender-contact">
-            ${lender.email ? `<a href="mailto:${lender.email}" onclick="event.stopPropagation()">${lender.email}</a>` : ''}
-            ${lender.phone ? `<a href="tel:${lender.phone}" onclick="event.stopPropagation()">${lender.phone}</a>` : ''}
-          </div>
-          <div class="deal-time">${time}</div>
-        </div>
-      </div>`;
-    }).join('');
-
-    document.getElementById('lenders-list').innerHTML = html;
-  }
-
-  // ── FILTERS ──────────────────────────────────────
-  window.filterDeals = function(f, btn) {
-    dealFilter = f;
-    document.querySelectorAll('.dashboard-col:first-child .col-filter').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderDeals();
-  };
-
-  window.filterLenders = function(f, btn) {
-    lenderFilter = f;
-    document.querySelectorAll('.dashboard-col:last-child .col-filter').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderLenders();
-  };
-
-  // ── DRAWERS ──────────────────────────────────────
-  window.openDealDrawer = function(id) {
-    const deal = allDeals.find(d => d.id === id);
-    if (!deal) return;
-    const p = deal.property || {};
-    const l = deal.loan || {};
-    const b = deal.borrower || {};
-
-    const amt = l.amount >= 1000000
-      ? '$' + (l.amount/1000000).toFixed(2) + 'M'
-      : l.amount >= 1000 ? '$' + (l.amount/1000).toFixed(0) + 'K' : l.amount || '—';
-
-    document.getElementById('drawer-title').textContent = (deal.loanPurpose || 'Deal') + ' · ' + ([p.city, p.state].filter(Boolean).join(', ') || '—');
-
-    document.getElementById('drawer-body').innerHTML = `
-      <div class="drawer-section">
-        <div class="drawer-section-title">Property</div>
-        <table class="drawer-table">
-          <tr><td>Address</td><td>${p.address || '—'}</td></tr>
-          <tr><td>City / State</td><td>${[p.city, p.state, p.zip].filter(Boolean).join(', ') || '—'}</td></tr>
-          <tr><td>Type</td><td>${p.type || '—'}</td></tr>
-          <tr><td>Condition</td><td>${p.condition || '—'}</td></tr>
-        </table>
-      </div>
-      <div class="drawer-section">
-        <div class="drawer-section-title">Loan</div>
-        <table class="drawer-table">
-          <tr><td>Purpose</td><td>${deal.loanPurpose || '—'}</td></tr>
-          <tr><td>Amount</td><td>${amt}</td></tr>
-          <tr><td>As-Is Value</td><td>${l.asIsValue ? '$' + l.asIsValue.toLocaleString() : '—'}</td></tr>
-          <tr><td>ARV</td><td>${l.arv ? '$' + l.arv.toLocaleString() : '—'}</td></tr>
-          <tr><td>Term</td><td>${l.term || '—'}</td></tr>
-          <tr><td>Exit Strategy</td><td>${l.exitStrategy || '—'}</td></tr>
-          <tr><td>Close Timeline</td><td>${l.closeTimeline || '—'}</td></tr>
-          <tr><td>Summary</td><td>${l.summary || '—'}</td></tr>
-        </table>
-      </div>
-      <div class="drawer-section">
-        <div class="drawer-section-title">Borrower</div>
-        <table class="drawer-table">
-          <tr><td>Name</td><td>${b.firstName || ''} ${b.lastName || ''}</td></tr>
-          <tr><td>Email</td><td><a href="mailto:${b.email}" style="color:var(--gold-dim)">${b.email || '—'}</a></td></tr>
-          <tr><td>Phone</td><td><a href="tel:${b.phone}" style="color:var(--gold-dim)">${b.phone || '—'}</a></td></tr>
-          <tr><td>Entity</td><td>${b.entityType || '—'}</td></tr>
-          <tr><td>Credit Score</td><td>${b.creditScore || '—'}</td></tr>
-          <tr><td>Experience</td><td>${b.reExperience || '—'}</td></tr>
-          <tr><td>Broker</td><td>${b.hasBroker || '—'}</td></tr>
-          <tr><td>Referral</td><td>${b.referral || '—'}</td></tr>
-        </table>
-      </div>
-      <div class="drawer-section">
-        <div class="drawer-section-title">Status</div>
-        <table class="drawer-table">
-          <tr><td>Current Status</td><td>${deal.status || 'pending_review'}</td></tr>
-          <tr><td>Deal ID</td><td style="font-family:monospace;font-size:11px">${deal.id}</td></tr>
-          <tr><td>Submitted</td><td>${deal.createdAt?.toDate ? deal.createdAt.toDate().toLocaleString() : '—'}</td></tr>
-        </table>
-      </div>`;
-
-    document.getElementById('drawer-actions').innerHTML = `
-      <button class="drawer-btn drawer-btn-primary" onclick="updateDealStatus('${deal.id}','active')">Mark Active</button>
-      <button class="drawer-btn drawer-btn-secondary" onclick="updateDealStatus('${deal.id}','closed')">Mark Closed</button>`;
-
-    openDrawer();
-  };
-
-  window.openLenderDrawer = function(id) {
-    const lender = allLenders.find(l => l.id === id);
-    if (!lender) return;
-
-    document.getElementById('drawer-title').textContent = (lender.firstName || '') + ' ' + (lender.lastName || '');
-
-    document.getElementById('drawer-body').innerHTML = `
-      <div class="drawer-section">
-        <div class="drawer-section-title">Profile</div>
-        <table class="drawer-table">
-          <tr><td>Name</td><td>${lender.firstName || ''} ${lender.lastName || ''}</td></tr>
-          <tr><td>Email</td><td><a href="mailto:${lender.email}" style="color:var(--gold-dim)">${lender.email || '—'}</a></td></tr>
-          <tr><td>Phone</td><td><a href="tel:${lender.phone}" style="color:var(--gold-dim)">${lender.phone || '—'}</a></td></tr>
-          <tr><td>Lender Type</td><td>${lender.lenderType || '—'}</td></tr>
-          <tr><td>Capital to Deploy</td><td>${lender.capital || '—'}</td></tr>
-          <tr><td>Experience</td><td>${lender.experience || '—'}</td></tr>
-          <tr><td>Accredited</td><td>${lender.accredited || '—'}</td></tr>
-        </table>
-      </div>
-      <div class="drawer-section">
-        <div class="drawer-section-title">Account</div>
-        <table class="drawer-table">
-          <tr><td>Status</td><td>${lender.status || 'active'}</td></tr>
-          <tr><td>Lender ID</td><td style="font-family:monospace;font-size:11px">${lender.id}</td></tr>
-          <tr><td>Registered</td><td>${lender.createdAt?.toDate ? lender.createdAt.toDate().toLocaleString() : '—'}</td></tr>
-        </table>
-      </div>`;
-
-    document.getElementById('drawer-actions').innerHTML = `
-      <button class="drawer-btn drawer-btn-primary" onclick="window.location.href='mailto:${lender.email}'">Email Lender</button>
-      <button class="drawer-btn drawer-btn-secondary" onclick="closeDrawer()">Close</button>`;
-
-    openDrawer();
-  };
-
-  // ── STATUS UPDATE ────────────────────────────────
-  window.updateDealStatus = async function(id, status) {
-    try {
-      await updateDoc(doc(db, 'deals', id), { status, updatedAt: serverTimestamp() });
-      closeDrawer();
-    } catch (e) {
-      console.error('Update error:', e);
-    }
-  };
-
-  function openDrawer() {
-    document.getElementById('detail-drawer').classList.add('open');
-    document.getElementById('drawer-overlay').classList.add('visible');
-  }
-
-  window.closeDrawer = function() {
-    document.getElementById('detail-drawer').classList.remove('open');
-    document.getElementById('drawer-overlay').classList.remove('visible');
-  };
-
-  // ── HELPERS ──────────────────────────────────────
-  function timeAgo(date) {
-    const diff = Math.floor((Date.now() - date) / 1000);
-    if (diff < 60)    return 'just now';
-    if (diff < 3600)  return Math.floor(diff/60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
-    return Math.floor(diff/86400) + 'd ago';
-  }
 </script>
 </body>
 </html>
