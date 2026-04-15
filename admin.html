@@ -518,24 +518,27 @@ select option{background:var(--s2);}
             <div class="extract-files-list" id="ex-files-list" style="margin-top:12px;"></div>
           </div>
 
-          <!-- Drop zone: MASTER TEMPLATE -->
+          <!-- Drop zone: TEMPLATES (multiple allowed) -->
           <div>
-            <div class="flbl" style="margin-bottom:8px;">Step B — Drop your master template .docx <span style="color:var(--muted)">(the blank template to merge into)</span></div>
-            <!-- Hidden template file input — outside drop zone -->
-            <input type="file" id="dp-tpl-file" accept=".docx"
-                   style="display:none" onchange="dpLoadTemplate(this)">
+            <div class="flbl" style="margin-bottom:8px;">Step B — Drop your template(s) <span style="color:var(--muted)">(main doc + security addendum + any others — all get merged)</span></div>
+            <!-- Hidden file input — outside drop zone, multiple allowed -->
+            <input type="file" id="dp-tpl-file" accept=".docx" multiple
+                   style="display:none" onchange="dpLoadTemplates(this)">
 
             <div class="extract-drop" id="dp-dropzone"
                  ondragover="exDragOver(event,true)" ondragleave="exDragLeave(event,true)" ondrop="exDropTpl(event)">
               <span class="extract-drop-icon">📄</span>
-              <div class="extract-drop-title">Drag & drop master template .docx</div>
-              <div class="extract-drop-sub">The blank master template — formatting preserved, only deal data changes</div>
+              <div class="extract-drop-title">Drag & drop template(s) here</div>
+              <div class="extract-drop-sub">Drop multiple templates at once — main doc, security addendum, any supporting docs<br>Each gets the same substitutions applied · All downloaded as a single ZIP</div>
             </div>
-            <div style="display:flex;gap:10px;margin-top:10px;align-items:center;">
+            <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;">
               <button class="btn btn-ghost" onclick="document.getElementById('dp-tpl-file').click()" type="button">
-                📂 Browse Template
+                📂 Browse Templates
               </button>
+              <span style="font-size:10px;color:var(--muted);">Click multiple times to add more templates</span>
             </div>
+            <!-- Template file list -->
+            <div class="extract-files-list" id="dp-tpl-list" style="margin-top:12px;"></div>
             <div id="dp-tpl-info" style="display:none;margin-top:10px;">
               <div class="alert alert-ok" style="margin:0;"><span>✓</span><div id="dp-tpl-stats"></div></div>
             </div>
@@ -1178,8 +1181,8 @@ function exDrop(e) {
 function exDropTpl(e) {
   e.preventDefault();
   document.getElementById('dp-dropzone').classList.remove('drag-over');
-  var f = e.dataTransfer.files[0];
-  if (f) dpLoadTemplate({files:[f]});
+  var files = Array.from(e.dataTransfer.files).filter(function(f){ return /\.docx?$/i.test(f.name); });
+  if (files.length) dpLoadTemplates({ files: files });
 }
 function exFilePicked(inp) {
   exHandleFiles(Array.from(inp.files));
@@ -1646,7 +1649,8 @@ function exSkipToManual() {
 }
 
 var MO = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-var dpTplBytes = null;
+var dpTplBytes = null;       // legacy single (kept for compat)
+var dpTemplateFiles = [];    // array of {name, bytes, fields} — supports multiple templates
 var dpCalcData = {};
 
 function dpInitDate() {
@@ -1763,35 +1767,98 @@ function n2w(num){
 // can build substitution rules dynamically — no hardcoding needed.
 var dpTemplateFields = {}; // what was found IN the template
 
-function dpLoadTemplate(inp) {
-  var f = inp.files[0];
-  if (!f) return;
+// ── Read one template file and add to dpTemplateFiles[] ─────────────────────
+function dpReadOneTemplate(file, onDone) {
   var reader = new FileReader();
   reader.onload = function(e) {
-    dpTplBytes = e.target.result;
-    JSZip.loadAsync(dpTplBytes).then(function(zip) {
+    var bytes = e.target.result;
+    JSZip.loadAsync(bytes).then(function(zip) {
       return zip.file('word/document.xml').async('string');
     }).then(function(xml) {
-      var sects = (xml.match(/<w:sectPr/g)||[]).length;
-      var runs  = (xml.match(/<w:t/g)||[]).length;
-
-      // ── Scan template for deal-specific values ──────────────────────────────
-      dpTemplateFields = dpScanTemplate(xml);
-      var found = Object.keys(dpTemplateFields).length;
-
-      document.getElementById('dp-tpl-stats').innerHTML =
-        'Loaded: <strong>'+f.name+'</strong> · '+sects+' sections · '+runs.toLocaleString()+' text runs' +
-        (found ? ' · <span style="color:var(--green)">'+found+' deal values auto-detected</span>' : '');
-      document.getElementById('dp-tpl-info').style.display = 'block';
-      document.getElementById('dp-btn1').disabled = false;
-      document.getElementById('dp-dropzone').style.borderColor = 'var(--green)';
-
-      // If fields are already filled (user extracted first), pre-fill any blanks
-      // from what we found in the template — gives user a sanity check
-      dpPreviewTemplateMatches();
+      var fields = dpScanTemplate(xml);
+      // Merge scanned fields into global dpTemplateFields (first template wins per field)
+      Object.keys(fields).forEach(function(k){
+        if (!dpTemplateFields[k]) dpTemplateFields[k] = fields[k];
+      });
+      dpTemplateFiles.push({ name: file.name, bytes: bytes, fields: fields });
+      if (onDone) onDone();
+    }).catch(function(err) {
+      console.error('Template read error:', file.name, err);
+      if (onDone) onDone();
     });
   };
-  reader.readAsArrayBuffer(f);
+  reader.readAsArrayBuffer(file);
+}
+
+// ── Handle multiple template files dropped or selected ────────────────────────
+function dpLoadTemplates(inp) {
+  var files = Array.from(inp.files);
+  if (!files.length) return;
+  // Dedupe by name
+  files = files.filter(function(f) {
+    return !dpTemplateFiles.some(function(t){ return t.name === f.name; });
+  });
+  if (!files.length) return;
+
+  var pending = files.length;
+  files.forEach(function(file) {
+    dpReadOneTemplate(file, function() {
+      pending--;
+      if (pending === 0) dpRenderTemplateList();
+    });
+  });
+  // Reset input so same file can be re-added after removal
+  setTimeout(function(){ inp.value = ''; }, 100);
+}
+
+// Legacy single-file entry point (kept so drag-and-drop still works)
+function dpLoadTemplate(inp) {
+  dpLoadTemplates(inp);
+}
+
+// ── Render the template file list in Zone B ───────────────────────────────────
+function dpRenderTemplateList() {
+  var list = document.getElementById('dp-tpl-list');
+  if (!dpTemplateFiles.length) {
+    list.innerHTML = '';
+    document.getElementById('dp-tpl-info').style.display = 'none';
+    document.getElementById('dp-btn1').disabled = true;
+    document.getElementById('dp-dropzone').style.borderColor = '';
+    return;
+  }
+
+  list.innerHTML = dpTemplateFiles.map(function(t, i) {
+    var fieldCount = Object.keys(t.fields).length;
+    return '<div class="extract-file-row" id="tpl-row-'+i+'">' +
+      '<span>📄</span>' +
+      '<span class="extract-file-name">'+t.name+'</span>' +
+      '<span class="extract-file-type">docx</span>' +
+      '<span class="extract-file-status efs-done">'+fieldCount+' values detected</span>' +
+      '<span style="cursor:pointer;color:var(--muted);font-size:11px;padding:2px 6px;" onclick="dpRemoveTemplate('+i+')">✕</span>' +
+    '</div>';
+  }).join('');
+
+  // Update tpl-info summary
+  var totalFields = Object.keys(dpTemplateFields).length;
+  document.getElementById('dp-tpl-stats').innerHTML =
+    '<strong>'+dpTemplateFiles.length+' template'+(dpTemplateFiles.length>1?'s':'')+' loaded</strong>' +
+    ' · '+totalFields+' deal values auto-detected · Will generate '+dpTemplateFiles.length+' document'+(dpTemplateFiles.length>1?'s':'')+' → ZIP download';
+  document.getElementById('dp-tpl-info').style.display = 'block';
+  document.getElementById('dp-btn1').disabled = false;
+  document.getElementById('dp-dropzone').style.borderColor = 'var(--green)';
+  dpPreviewTemplateMatches();
+}
+
+function dpRemoveTemplate(i) {
+  dpTemplateFiles.splice(i, 1);
+  // Rebuild merged fields from remaining templates
+  dpTemplateFields = {};
+  dpTemplateFiles.forEach(function(t) {
+    Object.keys(t.fields).forEach(function(k){
+      if (!dpTemplateFields[k]) dpTemplateFields[k] = t.fields[k];
+    });
+  });
+  dpRenderTemplateList();
 }
 
 // ── Scan template XML and extract all deal-specific text values ──────────────
@@ -1980,7 +2047,12 @@ function dpProg(pct,msg){
 }
 
 async function dpRun() {
-  if (!dpTplBytes) { alert('No template loaded.'); dpGo(1); return; }
+  // Support both multi-template (dpTemplateFiles) and legacy single (dpTplBytes)
+  if (!dpTemplateFiles.length && !dpTplBytes) { alert('No template loaded — drop your template(s) in Zone B first.'); dpGo(1); return; }
+  // If only legacy single loaded, wrap it
+  if (!dpTemplateFiles.length && dpTplBytes) {
+    dpTemplateFiles = [{ name: 'template.docx', bytes: dpTplBytes, fields: dpTemplateFields }];
+  }
   document.getElementById('dp-log').innerHTML='';
   document.getElementById('dp-done').style.display='none';
 
@@ -1996,16 +2068,29 @@ async function dpRun() {
   dpProg(5,'Loading template...');
 
   try {
-    var zip = await JSZip.loadAsync(dpTplBytes);
-    var xml = await zip.file('word/document.xml').async('string');
-    dpLog('✓ Template loaded · '+(xml.match(/<w:t/g)||[]).length.toLocaleString()+' text runs','ok');
-    dpProg(20,'Merging text runs...');
+    var outputZip = new JSZip(); // collects all generated docs
+    var totalRepsAll = 0, warnsAll = 0;
 
-    var merged=0;
-    xml=xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t>/g,function(){merged++;return '';});
-    xml=xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t xml:space="preserve">/g,function(){merged++;return '';});
-    dpLog('✓ Merged '+merged+' run boundaries','ok');
-    dpProg(35,'Applying substitutions...');
+    for (var tplIdx = 0; tplIdx < dpTemplateFiles.length; tplIdx++) {
+      var tplFile = dpTemplateFiles[tplIdx];
+      var isMulti = dpTemplateFiles.length > 1;
+      var tplLabel = isMulti ? ' ['+tplFile.name+']' : '';
+
+      dpLog((isMulti ? '\n── Template '+(tplIdx+1)+'/'+dpTemplateFiles.length+': '+tplFile.name+' ──' : '▶ Processing template...'), 'ok');
+      dpProg(5 + (tplIdx * 85 / dpTemplateFiles.length), 'Loading'+tplLabel+'...');
+
+      // Re-scan this specific template so its fields take priority in rules
+      dpTemplateFields = tplFile.fields || {};
+
+      var zip = await JSZip.loadAsync(tplFile.bytes);
+      var xml = await zip.file('word/document.xml').async('string');
+      dpLog('✓ Loaded · '+(xml.match(/<w:t/g)||[]).length.toLocaleString()+' text runs'+tplLabel,'ok');
+
+      var merged=0;
+      xml=xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t>/g,function(){merged++;return '';});
+      xml=xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t xml:space="preserve">/g,function(){merged++;return '';});
+      dpLog('✓ Merged '+merged+' run boundaries'+tplLabel,'ok');
+      dpProg(20 + (tplIdx * 60 / dpTemplateFiles.length), 'Substituting'+tplLabel+'...');
 
     // ── DYNAMIC RULE BUILDER ─────────────────────────────────────────────────────
     // Builds substitution rules from:
@@ -2238,6 +2323,7 @@ async function dpRun() {
     // Hardcoded date fallbacks (all known templates)
     addRule('December 19, 2024', c.docDate, 'NM doc date');
     addRule('February 1, 2027',  c.maturity, 'NM maturity');
+    addRule('March 1, 2025, through August 1, 2025', c.res1+' through '+c.res3, 'NM reserve range comma');
     addRule('March 1, 2025 through August 1, 2025', c.res1+' through '+c.res3, 'NM reserve range');
     addRule('March 1, 2025',    c.res1, 'NM res start');
     addRule('August 1, 2025',   c.res3, 'NM res end');
@@ -2360,31 +2446,58 @@ async function dpRun() {
 
     dpProg(85,'Verifying...');
     // FIX 8: Add borrower city check — warn if any known wrong city appears
-    var mustZero=['LAND TO SKY','DERIC OUTLEY','Port Arthur','October 27, 2025','78840-0000','Burbank, TX','Burbank, Texas','Val Verde County, Texas','Del Rio, Texas','ABUNDANT LIFE','STEPHEN MILL','SONRISA','Bernalillo','LAGUNA BEACH'];
+    var mustZero=['LAND TO SKY','DERIC OUTLEY','Port Arthur','October 27, 2025','78840-0000','Burbank, TX','Burbank, Texas','Val Verde County, Texas','Del Rio, Texas'];
     var warns=0;
     mustZero.forEach(function(t){if(xml.includes(t)){dpLog('  ⚠ Still found: "'+t+'"','warn');warns++;}});
     dpLog(warns===0?'✓ All verifications passed':'⚠ '+warns+' warnings — review output carefully',warns?'warn':'ok');
     dpLog('✓ Total substitutions: '+totalReps,'ok');
 
-    dpProg(92,'Packaging...');
-    zip.file('word/document.xml',xml);
-    var out = await zip.generateAsync({type:'arraybuffer',compression:'DEFLATE',compressionOptions:{level:6}});
-    dpProg(100,'Done ✓');
+      // ── Save this template's output into the zip ──────────────────────────
+      dpProg(80 + (tplIdx * 15 / dpTemplateFiles.length), 'Packaging '+tplFile.name+'...');
+      zip.file('word/document.xml', xml);
+      var out = await zip.generateAsync({type:'arraybuffer',compression:'DEFLATE',compressionOptions:{level:6}});
 
-    var blob=new Blob([out],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-    var url=URL.createObjectURL(blob);
-    var safe=(entity||'LoanDoc').replace(/[^a-zA-Z0-9]/g,'_');
-    var fn=safe+'_File'+(v('dp-fileno')||'XXXX')+'_'+(c.docDate||'').replace(/[^a-zA-Z0-9]/g,'_');
-    // Store for both download buttons
-    window._dpBlob = blob; window._dpUrl = url; window._dpFn = fn;
-    document.getElementById('dp-dl-btn').onclick=function(){
-      var a=document.createElement('a');a.href=url;a.download=fn+'.docx';a.click();
-    };
-    document.getElementById('dp-dl-pdf').onclick=function(){
-      dpDownloadAsPdf(blob, fn+'.pdf');
-    };
-    document.getElementById('dp-summary').textContent=totalReps+' substitutions · '+warns+' warnings · ready to download';
-    document.getElementById('dp-done').style.display='block';
+      // Use clean output filename: original name with entity prefix
+      var safe = (entity||'LoanDoc').replace(/[^a-zA-Z0-9]/g,'_');
+      var baseName = tplFile.name.replace(/\.docx$/i,'');
+      var outName = safe+'_'+baseName+'.docx';
+      outputZip.file(outName, out);
+      dpLog('✓ Packaged: '+outName, 'ok');
+      totalRepsAll += totalReps;
+      warnsAll += warns;
+
+    } // ── end template loop ────────────────────────────────────────────────
+
+    dpProg(95, 'Building download package...');
+
+    var safe = (entity||'LoanDoc').replace(/[^a-zA-Z0-9]/g,'_');
+    var fileId = v('dp-fileno')||'XXXX';
+
+    if (dpTemplateFiles.length === 1) {
+      // Single template — offer direct .docx download (no zip needed)
+      var singleOut = await outputZip.file(Object.keys(outputZip.files)[0]).async('arraybuffer');
+      var blob = new Blob([singleOut], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+      var url  = URL.createObjectURL(blob);
+      var fn   = safe+'_File'+fileId+'_'+(c.docDate||'').replace(/[^a-zA-Z0-9]/g,'_');
+      document.getElementById('dp-dl-btn').textContent = '⬇ Download Word (.docx)';
+      document.getElementById('dp-dl-btn').onclick = function(){ var a=document.createElement('a');a.href=url;a.download=fn+'.docx';a.click(); };
+      document.getElementById('dp-dl-pdf').style.display = 'inline-flex';
+      document.getElementById('dp-dl-pdf').onclick = function(){ dpDownloadAsPdf(blob, fn+'.pdf'); };
+    } else {
+      // Multiple templates — zip all outputs together
+      var zipBlob = await outputZip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+      var zipUrl  = URL.createObjectURL(zipBlob);
+      var zipName = safe+'_File'+fileId+'_LoanPackage.zip';
+      document.getElementById('dp-dl-btn').textContent = '⬇ Download All Docs (.zip)';
+      document.getElementById('dp-dl-btn').onclick = function(){ var a=document.createElement('a');a.href=zipUrl;a.download=zipName;a.click(); };
+      document.getElementById('dp-dl-pdf').style.display = 'none'; // PDF not applicable for multi-doc
+    }
+
+    dpProg(100, 'Done ✓');
+    document.getElementById('dp-summary').textContent =
+      dpTemplateFiles.length+' document'+(dpTemplateFiles.length>1?'s':'')+' generated · '+
+      totalRepsAll+' substitutions · '+warnsAll+' warnings';
+    document.getElementById('dp-done').style.display = 'block';
 
   } catch(err) {
     dpLog('❌ ERROR: '+err.message,'err');
@@ -2464,18 +2577,23 @@ function dpDownloadAsPdf(docxBlob, filename) {
 }
 
 function dpReset(){
-  dpTplBytes=null;exSourceFiles=[];exExtracted={};
+  // Clear template state
+  dpTplBytes=null; dpTemplateFiles=[]; dpTemplateFields={};
+  // Clear source docs
+  exSourceFiles=[]; exExtracted={};
+  // Clear template list UI
+  var tplList = document.getElementById('dp-tpl-list');
+  if (tplList) tplList.innerHTML='';
+  document.getElementById('dp-dropzone').style.borderColor='';
   dpGo(1);
   document.getElementById('dp-tpl-info').style.display='none';
   document.getElementById('dp-btn1').disabled=true;
   document.getElementById('ex-files-list').innerHTML='';
-  // no loaded class to remove
   document.getElementById('ex-progress').classList.remove('visible');
   document.getElementById('ex-steps').innerHTML='';
   document.getElementById('ex-skip-btn').style.display='none';
   var eb=document.getElementById('ex-extract-btn');if(eb)eb.style.display='none';
   var hint=document.getElementById('ex-addmore-hint');if(hint)hint.style.display='none';
-  // Clear all conf badges
   document.querySelectorAll('[id^="conf-"]').forEach(function(el){el.innerHTML='';});
 }
 
