@@ -336,6 +336,10 @@ select option{background:var(--s2);}
     <input type="password" class="login-input" id="lpass"
            placeholder="Access code" autocomplete="off"
            onkeydown="if(event.key==='Enter')doLogin()">
+    <div style="display:flex;align-items:center;gap:8px;margin:4px 0 8px;justify-content:center;">
+      <input type="checkbox" id="remember-me" style="accent-color:var(--gold);cursor:pointer;">
+      <label for="remember-me" style="color:var(--muted);font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:0.04em;">Remember me for 30 days</label>
+    </div>
     <button class="login-btn" onclick="doLogin()">Enter</button>
     <div class="login-err" id="lerr"></div>
     <div class="login-hint">🔒 Authorized personnel only</div>
@@ -1023,10 +1027,16 @@ var KEY  = 'fl_adm_v2';
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 function checkAuth() {
   try {
-    var s = sessionStorage.getItem(KEY);
+    // Check localStorage first (30-day remember me), then sessionStorage (8-hour)
+    var s = localStorage.getItem(KEY) || sessionStorage.getItem(KEY);
     if (!s) return false;
     var d = JSON.parse(s);
-    return Date.now() < d.e;
+    if (Date.now() >= d.e) {
+      localStorage.removeItem(KEY);
+      sessionStorage.removeItem(KEY);
+      return false;
+    }
+    return true;
   } catch(e) { return false; }
 }
 
@@ -1035,7 +1045,12 @@ function doLogin() {
   var err = document.getElementById('lerr');
   if (!val) return;
   if (val === PASS) {
-    sessionStorage.setItem(KEY, JSON.stringify({e: Date.now() + 28800000}));
+    var rememberMe = document.getElementById('remember-me');
+    var expiry = rememberMe && rememberMe.checked
+      ? Date.now() + (30 * 24 * 60 * 60 * 1000)  // 30 days
+      : Date.now() + 28800000;                      // 8 hours
+    var storage = rememberMe && rememberMe.checked ? localStorage : sessionStorage;
+    storage.setItem(KEY, JSON.stringify({e: expiry}));
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin-shell').classList.add('visible');
     initDocOrder();
@@ -1051,6 +1066,7 @@ function doLogin() {
 
 function doLogout() {
   sessionStorage.removeItem(KEY);
+  localStorage.removeItem(KEY);
   location.reload();
 }
 
@@ -1486,7 +1502,7 @@ function exExtractFields() {
     /Title\s+is[^:]*vested\s+in[:\s]+([^,\n]+)/i,
     /vested\s+in\s*:\s*([^,\n]+)/i,
     /Borrower:\s+([A-Z][^,()\n]+(?:LLC|Corp|Inc|Trust|LP|LLP))[^a-z]/i,
-    /([A-Z][a-zA-Z &,'.]+(?:LLC|Corp|Inc|Trust|LP))\s*,\s*a\s+[A-Z][a-z]+/,
+    /([A-Z][a-zA-Z &,.]+(?:LLC|Corp|Inc|Trust|LP))\s*,\s*a\s+[A-Z][a-z]+/,
     /Title\s+will\s+be\s+held\s+in\s+what\s+Name[^:]*:\s*([^\n]+?)(?:\s*Manner|\s*$)/i,
     /Borrowers?:\s*([A-Z][a-zA-Z ]+(?:Solution|Investment|Propert|Group|Holding|Partner)[a-zA-Z]*s?)/i,
     /([A-Z][a-zA-Z .]+DBA[^,\n]+)/i
@@ -1631,7 +1647,6 @@ function exExtractFields() {
   exExtracted = found;
   exStepDone('extract');
   exFillFields();
-} exFillFields();
 }
 
 // ── Fill form fields from extracted data ──────────────────────────
