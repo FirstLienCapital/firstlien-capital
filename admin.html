@@ -499,7 +499,7 @@ select option{background:var(--s2);}
               <span class="extract-drop-icon">📋</span>
               <div class="extract-drop-title">Drag & drop files here</div>
               <div class="extract-drop-sub">
-                .docx · .doc · .pdf · .txt · Drop as many as you need — all at once or one at a time
+                .docx · .doc · .pdf · .txt · .xlsx · images — Drop as many as you need
               </div>
             </div>
 
@@ -507,7 +507,7 @@ select option{background:var(--s2);}
             <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;">
               <label class="btn btn-ghost" style="cursor:pointer;margin:0;">
                 📂 Browse Files
-                <input type="file" accept=".docx,.doc,.pdf,.txt" multiple
+                <input type="file" accept=".docx,.doc,.pdf,.txt,.xlsx,.xls,.csv,.png,.jpg,.jpeg" multiple
                        style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;"
                        onchange="exHandleFilePick(this)">
               </label>
@@ -526,12 +526,12 @@ select option{background:var(--s2);}
                  ondragover="exDragOver(event,true)" ondragleave="exDragLeave(event,true)" ondrop="exDropTpl(event)">
               <span class="extract-drop-icon">📄</span>
               <div class="extract-drop-title">Drag & drop template(s) here</div>
-              <div class="extract-drop-sub">Drop multiple templates at once — main doc, security addendum, any supporting docs<br>Each gets the same substitutions applied · All downloaded as a single ZIP</div>
+              <div class="extract-drop-sub">Drop multiple templates at once — main doc, security addendum, any supporting docs<br>.docx and .pdf accepted · Each gets the same substitutions applied · All downloaded as a single ZIP</div>
             </div>
             <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;">
               <label class="btn btn-ghost" style="cursor:pointer;margin:0;">
                 📂 Browse Templates
-                <input type="file" accept=".docx" multiple
+                <input type="file" accept=".docx,.doc,.pdf" multiple
                        style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;"
                        onchange="dpHandleTemplateInput(this)">
               </label>
@@ -1178,7 +1178,7 @@ function exDrop(e) {
 function exDropTpl(e) {
   e.preventDefault();
   document.getElementById('dp-dropzone').classList.remove('drag-over');
-  var files = Array.from(e.dataTransfer.files).filter(function(f){ return /\.docx?$/i.test(f.name); });
+  var files = Array.from(e.dataTransfer.files).filter(function(f){ return /\.(docx?|pdf)$/i.test(f.name); });
   if (files.length) dpLoadTemplates({ files: files });
 }
 // ── Zone A file handler — called by label>input onchange (Firefox-safe) ───────
@@ -1186,7 +1186,6 @@ function exHandleFilePick(inp) {
   if (inp.files && inp.files.length) {
     exHandleFiles(Array.from(inp.files));
   }
-  setTimeout(function(){ inp.value = ''; }, 50);
 }
 
 // Legacy kept for any existing references
@@ -1778,11 +1777,11 @@ var dpTemplateFields = {}; // what was found IN the template
 
 // ── Template file handler — called by label>input onchange (Firefox-safe) ─────
 function dpHandleTemplateInput(inp) {
+  console.log('[DP] dpHandleTemplateInput called, files:', inp.files ? inp.files.length : 0);
   if (inp.files && inp.files.length) {
+    console.log('[DP] Calling dpLoadTemplates with', inp.files.length, 'file(s)');
     dpLoadTemplates({ files: inp.files });
   }
-  // Reset so same file can be added again after removal
-  setTimeout(function(){ inp.value = ''; }, 50);
 }
 
 // Legacy kept for any existing references
@@ -1792,36 +1791,118 @@ function dpBrowseTemplates() {
 
 // ── Read one template file and add to dpTemplateFiles[] ─────────────────────
 function dpReadOneTemplate(file, onDone) {
+  var ext = file.name.split('.').pop().toLowerCase();
   var reader = new FileReader();
   reader.onload = function(e) {
     var bytes = e.target.result;
-    JSZip.loadAsync(bytes).then(function(zip) {
-      return zip.file('word/document.xml').async('string');
-    }).then(function(xml) {
-      var fields = dpScanTemplate(xml);
-      // Merge scanned fields into global dpTemplateFields (first template wins per field)
+
+    if (ext === 'docx' || ext === 'doc') {
+      // Try as .docx (zip containing word/document.xml)
+      JSZip.loadAsync(bytes).then(function(zip) {
+        var docFile = zip.file('word/document.xml');
+        if (!docFile) {
+          // Zip opened but no document.xml — likely a .doc saved as zip, not true docx
+          throw new Error('NO_DOC_XML');
+        }
+        return docFile.async('string');
+      }).then(function(xml) {
+        var fields = dpScanTemplate(xml);
+        Object.keys(fields).forEach(function(k){
+          if (!dpTemplateFields[k]) dpTemplateFields[k] = fields[k];
+        });
+        dpTemplateFiles.push({ name: file.name, bytes: bytes, fields: fields });
+        if (onDone) onDone();
+      }).catch(function(err) {
+        if (err.message === 'NO_DOC_XML' || err.message.indexOf('not a zip') >= 0 || err.message.indexOf('NO_DOC_XML') >= 0) {
+          // Legacy .doc — can't process directly in browser
+          dpLog('⚠ ' + file.name + ' is a legacy .doc file the browser cannot open directly. ' +
+                'Open it in Word → File → Save As → Word Document (.docx) → re-upload.', 'warn');
+          // Don't add to list — it won't generate correctly
+        } else {
+          console.error('Template read error:', file.name, err);
+          dpTemplateFiles.push({ name: file.name, bytes: bytes, fields: {} });
+          dpLog('⚠ ' + file.name + ' added but could not scan for values.', 'warn');
+        }
+        if (onDone) onDone();
+      });
+
+    } else if (ext === 'doc') {
+      // Legacy .doc — binary OLE format, not a zip.
+      // Extract printable text for field scanning, but keep raw bytes for generation.
+      // Generation will try to open as zip — .doc files from Word 97+ sometimes
+      // contain an embedded zip stream. We store bytes and attempt generation.
+      var txt = '';
+      try {
+        // Try to extract readable text from the binary
+        var arr = new Uint8Array(bytes);
+        for (var i = 0; i < arr.length - 1; i++) {
+          // Unicode LE text runs in .doc files
+          if (arr[i] >= 32 && arr[i] < 127 && arr[i+1] === 0) {
+            txt += String.fromCharCode(arr[i]);
+          } else if (arr[i] >= 32 && arr[i] < 127 && arr[i+1] !== 0 && arr[i-1] !== 0) {
+            txt += String.fromCharCode(arr[i]);
+          }
+        }
+      } catch(e) { txt = ''; }
+
+      // Scan whatever text we got for field values
+      var fields = txt.length > 100 ? dpScanTemplatePlain(txt) : {};
       Object.keys(fields).forEach(function(k){
         if (!dpTemplateFields[k]) dpTemplateFields[k] = fields[k];
       });
-      dpTemplateFiles.push({ name: file.name, bytes: bytes, fields: fields });
+      dpTemplateFiles.push({ name: file.name, bytes: bytes, fields: fields, isDotDoc: true });
+      dpLog('⚠ ' + file.name + ' is legacy .doc format — values detected where possible. For best results convert to .docx first.', 'warn');
       if (onDone) onDone();
-    }).catch(function(err) {
-      console.error('Template read error:', file.name, err);
+
+    } else if (ext === 'pdf') {
+      // PDF template — extract readable text for field scanning.
+      // PDF files cannot have their text substituted in-browser, so we store
+      // them as-is and flag them — user will see a warning in the generate log.
+      var pdfText = '';
+      try {
+        var pdfBytes = new Uint8Array(bytes);
+        // Extract ASCII text runs from PDF byte stream
+        for (var pi = 0; pi < pdfBytes.length; pi++) {
+          if (pdfBytes[pi] >= 32 && pdfBytes[pi] < 127) {
+            pdfText += String.fromCharCode(pdfBytes[pi]);
+          } else {
+            pdfText += ' ';
+          }
+        }
+      } catch(e) { pdfText = ''; }
+      var pdfFields = pdfText.length > 50 ? dpScanTemplatePlain(pdfText) : {};
+      Object.keys(pdfFields).forEach(function(k){
+        if (!dpTemplateFields[k]) dpTemplateFields[k] = fields[k];
+      });
+      dpTemplateFiles.push({ name: file.name, bytes: bytes, fields: pdfFields, isPdf: true });
+      dpLog('ℹ ' + file.name + ' added as PDF. Values detected for reference — PDF text cannot be substituted in-browser. Download will include the original PDF unchanged alongside the generated .docx files.', 'warn');
       if (onDone) onDone();
-    });
+    }
   };
   reader.readAsArrayBuffer(file);
+}
+
+// ── Scan plain text (for .doc files where we extract text manually) ───────────
+function dpScanTemplatePlain(txt) {
+  // Reuse dpScanTemplate by wrapping text in fake XML w:t tags
+  var fakeXml = txt.split(' ').map(function(w){ return '<w:t>'+w+'</w:t>'; }).join(' ');
+  return dpScanTemplate(fakeXml);
 }
 
 // ── Handle multiple template files dropped or selected ────────────────────────
 function dpLoadTemplates(inp) {
   var files = Array.from(inp.files);
+  console.log('[TPL] dpLoadTemplates: got', files.length, 'file(s):', files.map(function(f){return f.name;}));
   if (!files.length) return;
   // Dedupe by name
   files = files.filter(function(f) {
     return !dpTemplateFiles.some(function(t){ return t.name === f.name; });
   });
-  if (!files.length) return;
+  console.log('[TPL] After dedupe:', files.length, 'new. Already have:', dpTemplateFiles.length);
+  if (!files.length) {
+    alert('That file is already loaded. Remove it with X first, then re-add it.');
+    return;
+  }
 
   var pending = files.length;
   files.forEach(function(file) {
@@ -1996,26 +2077,31 @@ function dpScanTemplate(xml) {
 function dpPreviewTemplateMatches() {
   var tf = dpTemplateFields;
   if (!Object.keys(tf).length) return;
+  // Remove old preview rows if they exist
+  var existing = document.getElementById('dp-tpl-preview');
+  if (existing) existing.remove();
+
   var rows = [];
   if (tf.entity)          rows.push(['Entity in template',     tf.entity]);
   if (tf.guarantor)       rows.push(['Guarantor in template',  tf.guarantor]);
-  if (tf.loan_numeric)    rows.push(['Loan amount in template', tf.loan_numeric]);
-  if (tf.monthly_numeric) rows.push(['Monthly in template',    tf.monthly_numeric]);
-  if (tf.reserve_numeric) rows.push(['Reserve in template',    tf.reserve_numeric]);
-  if (tf.balloon_numeric) rows.push(['Balloon in template',    tf.balloon_numeric]);
-  if (tf.rate_pct)        rows.push(['Rate in template',       tf.rate_pct]);
-  if (tf.maturity_date)   rows.push(['Maturity in template',   tf.maturity_date]);
-  if (tf.doc_date)        rows.push(['Doc date in template',   tf.doc_date]);
-  if (tf.prop_addr)       rows.push(['Property in template',   tf.prop_addr]);
-  if (tf.county)          rows.push(['County in template',     tf.county]);
-  if (tf.apn)             rows.push(['APN in template',        tf.apn]);
-  if (tf.res_start)       rows.push(['Reserve period',         tf.res_start + ' → ' + (tf.res_end||'?')]);
+  if (tf.loan_numeric)    rows.push(['Loan amount',            tf.loan_numeric]);
+  if (tf.monthly_numeric) rows.push(['Monthly payment',        tf.monthly_numeric]);
+  if (tf.reserve_numeric) rows.push(['Reserve',                tf.reserve_numeric]);
+  if (tf.balloon_numeric) rows.push(['Balloon',                tf.balloon_numeric]);
+  if (tf.rate_pct)        rows.push(['Rate',                   tf.rate_pct]);
+  if (tf.maturity_date)   rows.push(['Maturity',               tf.maturity_date]);
+  if (tf.doc_date)        rows.push(['Doc date',               tf.doc_date]);
+  if (tf.county)          rows.push(['County',                 tf.county]);
+  if (tf.apn)             rows.push(['APN',                    tf.apn]);
 
-  var table = '<div style="margin-top:10px;font-size:10px;"><div style="color:var(--teal);margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em;">Auto-detected in template:</div>' +
-    rows.map(function(r){ return '<div style="display:flex;gap:12px;margin-bottom:3px;"><span style="color:var(--muted);width:160px;flex-shrink:0;">'+r[0]+'</span><span style="color:var(--gold);">'+r[1]+'</span></div>'; }).join('') +
-    '</div>';
+  var div = document.createElement('div');
+  div.id = 'dp-tpl-preview';
+  div.style.cssText = 'margin-top:10px;font-size:10px;';
+  div.innerHTML = '<div style="color:var(--teal);margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em;">Auto-detected in template:</div>' +
+    rows.map(function(r){ return '<div style="display:flex;gap:12px;margin-bottom:3px;"><span style="color:var(--muted);width:160px;flex-shrink:0;">'+r[0]+'</span><span style="color:var(--gold);">'+r[1]+'</span></div>'; }).join('');
+
   var info = document.getElementById('dp-tpl-info');
-  info.innerHTML += table;
+  if (info) info.appendChild(div);
 }
 
 function dpBuildReview() {
@@ -2103,9 +2189,17 @@ async function dpRun() {
       // Re-scan this specific template so its fields take priority in rules
       dpTemplateFields = tplFile.fields || {};
 
-      var zip = await JSZip.loadAsync(tplFile.bytes);
-      var xml = await zip.file('word/document.xml').async('string');
-      dpLog('✓ Loaded · '+(xml.match(/<w:t/g)||[]).length.toLocaleString()+' text runs'+tplLabel,'ok');
+      var zip, xml;
+      try {
+        zip = await JSZip.loadAsync(tplFile.bytes);
+        xml = await zip.file('word/document.xml').async('string');
+        dpLog('✓ Loaded · '+(xml.match(/<w:t/g)||[]).length.toLocaleString()+' text runs'+tplLabel,'ok');
+      } catch(zipErr) {
+        dpLog('⚠ ' + tplFile.name + ' is legacy .doc format and cannot be processed directly in the browser.'+
+              ' Please open it in Word and Save As → .docx, then re-upload.', 'warn');
+        totalRepsAll += 0; warnsAll += 1;
+        continue; // skip this template, continue with others
+      }
 
       var merged=0;
       xml=xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t>/g,function(){merged++;return '';});
