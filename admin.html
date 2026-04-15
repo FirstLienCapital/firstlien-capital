@@ -505,9 +505,12 @@ select option{background:var(--s2);}
 
             <!-- Browse button sits OUTSIDE the drop zone — no conflict -->
             <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;">
-              <button class="btn btn-ghost" onclick="exBrowseFiles()" type="button">
+              <label class="btn btn-ghost" style="cursor:pointer;margin:0;">
                 📂 Browse Files
-              </button>
+                <input type="file" accept=".docx,.doc,.pdf,.txt" multiple
+                       style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;"
+                       onchange="exHandleFilePick(this)">
+              </label>
               <span style="font-size:10px;color:var(--muted);">Click to add files — keep clicking to add more</span>
             </div>
 
@@ -526,10 +529,13 @@ select option{background:var(--s2);}
               <div class="extract-drop-sub">Drop multiple templates at once — main doc, security addendum, any supporting docs<br>Each gets the same substitutions applied · All downloaded as a single ZIP</div>
             </div>
             <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;">
-              <button class="btn btn-ghost" onclick="dpBrowseTemplates()" type="button">
+              <label class="btn btn-ghost" style="cursor:pointer;margin:0;">
                 📂 Browse Templates
-              </button>
-              <span style="font-size:10px;color:var(--muted);">Click to add templates — keep clicking to add more one at a time</span>
+                <input type="file" accept=".docx" multiple
+                       style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;"
+                       onchange="dpHandleTemplateInput(this)">
+              </label>
+              <span style="font-size:10px;color:var(--muted);">Click to add templates — keep clicking to add more</span>
             </div>
             <!-- Template file list -->
             <div class="extract-files-list" id="dp-tpl-list" style="margin-top:12px;"></div>
@@ -1175,25 +1181,17 @@ function exDropTpl(e) {
   var files = Array.from(e.dataTransfer.files).filter(function(f){ return /\.docx?$/i.test(f.name); });
   if (files.length) dpLoadTemplates({ files: files });
 }
-// ── Zone A browse: reliable cross-browser file picker ────────────────────────
-function exBrowseFiles() {
-  var inp = document.getElementById('ex-src-picker');
-  if (!inp) {
-    inp = document.createElement('input');
-    inp.type = 'file';
-    inp.id   = 'ex-src-picker';
-    inp.accept   = '.docx,.doc,.pdf,.txt';
-    inp.multiple = true;
-    inp.style.cssText = 'position:fixed;top:-200px;left:-200px;opacity:0;pointer-events:none;';
-    inp.addEventListener('change', function() {
-      if (inp.files && inp.files.length) {
-        exHandleFiles(Array.from(inp.files));
-      }
-    });
-    document.body.appendChild(inp);
+// ── Zone A file handler — called by label>input onchange (Firefox-safe) ───────
+function exHandleFilePick(inp) {
+  if (inp.files && inp.files.length) {
+    exHandleFiles(Array.from(inp.files));
   }
-  inp.value = '';   // reset BEFORE click
-  inp.click();
+  setTimeout(function(){ inp.value = ''; }, 50);
+}
+
+// Legacy kept for any existing references
+function exBrowseFiles() {
+  // Now handled by label>input — no-op fallback
 }
 
 // Legacy kept for any existing references
@@ -1778,25 +1776,18 @@ function n2w(num){
 // can build substitution rules dynamically — no hardcoding needed.
 var dpTemplateFields = {}; // what was found IN the template
 
-// ── Browse templates: reliable cross-browser file picker ─────────────────────
-function dpBrowseTemplates() {
-  var inp = document.getElementById('dp-tpl-picker');
-  if (!inp) {
-    inp = document.createElement('input');
-    inp.type = 'file';
-    inp.id   = 'dp-tpl-picker';
-    inp.accept   = '.docx';
-    inp.multiple = true;
-    inp.style.cssText = 'position:fixed;top:-200px;left:-200px;opacity:0;pointer-events:none;';
-    inp.addEventListener('change', function() {
-      if (inp.files && inp.files.length) {
-        dpLoadTemplates({ files: inp.files });
-      }
-    });
-    document.body.appendChild(inp);
+// ── Template file handler — called by label>input onchange (Firefox-safe) ─────
+function dpHandleTemplateInput(inp) {
+  if (inp.files && inp.files.length) {
+    dpLoadTemplates({ files: inp.files });
   }
-  inp.value = '';   // reset BEFORE click so change fires even for same file
-  inp.click();
+  // Reset so same file can be added again after removal
+  setTimeout(function(){ inp.value = ''; }, 50);
+}
+
+// Legacy kept for any existing references
+function dpBrowseTemplates() {
+  // Now handled by label>input — this is a no-op fallback
 }
 
 // ── Read one template file and add to dpTemplateFiles[] ─────────────────────
