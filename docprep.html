@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FirstLien Capital — Doc Prep Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<style>
+:root {
+  --bg:        #02040a;
+  --surface:   #07101f;
+  --surface2:  #0b1829;
+  --border:    #162035;
+  --border2:   #1e2e48;
+  --gold:      rgba(200,155,40,0.9);
+  --gold-s:    #c89b28;
+  --gold-dim:  rgba(200,155,40,0.08);
+  --gold-med:  rgba(200,155,40,0.18);
+  --teal:      #0d9882;
+  --teal-dim:  rgba(13,152,130,0.1);
+  --text:      #ddd8cc;
+  --text2:     #a09880;
+  --muted:     #5a6b80;
+  --green:     #3ecf8e;
+  --red:       #e05252;
+  --amber:     #e8a020;
+  --r:         5px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 13.5px;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top:0; z-index:200;
+  background: rgba(2,4,10,0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border2);
+  padding: 0 32px;
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-left { display:flex; align-items:center; gap:14px; }
+.brand-mark {
+  width:34px; height:34px;
+  background: linear-gradient(135deg, var(--gold-s) 0%, #a07818 100%);
+  border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'JetBrains Mono', monospace;
+  font-size:13px; font-weight:500; color:#02040a;
+  letter-spacing:0.05em;
+}
+.brand-text { line-height:1.2; }
+.brand-name { font-family:'Cormorant Garamond', serif; font-size:17px; color:var(--gold); letter-spacing:0.04em; }
+.brand-sub  { font-family:'JetBrains Mono', monospace; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:0.14em; }
+.topbar-right { display:flex; gap:8px; align-items:center; }
+.pill {
+  font-family:'JetBrains Mono', monospace;
+  font-size:9px; letter-spacing:0.1em; text-transform:uppercase;
+  padding:3px 10px; border-radius:20px;
+}
+.pill-gold { background:var(--gold-med); border:1px solid rgba(200,155,40,0.35); color:var(--gold); }
+.pill-teal { background:var(--teal-dim); border:1px solid rgba(13,152,130,0.3); color:var(--teal); }
+
+/* ── STEP RAIL ── */
+.rail {
+  display:flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky; top:56px; z-index:190;
+  overflow-x: auto;
+}
+.rail::-webkit-scrollbar { display:none; }
+.rail-step {
+  flex: 1; min-width:120px;
+  padding: 13px 16px;
+  text-align:center;
+  cursor:pointer;
+  border-right: 1px solid var(--border);
+  transition: background 0.18s, color 0.18s;
+  user-select:none;
+}
+.rail-step:last-child { border-right:none; }
+.rail-step .sn {
+  display:block;
+  font-family:'JetBrains Mono', monospace;
+  font-size:18px; color:var(--border2); margin-bottom:2px;
+  transition:color 0.18s;
+}
+.rail-step .sl {
+  font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted);
+  transition:color 0.18s;
+}
+.rail-step.active  { background:var(--gold-dim); border-bottom:2px solid var(--gold-s); }
+.rail-step.active  .sn { color:var(--gold); }
+.rail-step.active  .sl { color:var(--text2); }
+.rail-step.done    .sn { color:var(--green); }
+.rail-step.done    .sl { color:var(--green); opacity:0.7; }
+
+/* ── PANELS ── */
+.panel { display:none; }
+.panel.active { display:block; }
+.main { max-width:1060px; margin:0 auto; padding:36px 24px 100px; }
+
+/* ── CARDS ── */
+.card {
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+  padding:26px 28px;
+  margin-bottom:18px;
+}
+.card + .card { border-top-color: var(--border2); }
+
+.card-head {
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:22px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--border);
+}
+.card-icon { font-size:18px; }
+.card-title {
+  font-family:'Cormorant Garamond', serif;
+  font-size:17px; color:var(--gold); letter-spacing:0.03em;
+}
+.card-sub { font-size:11px; color:var(--muted); margin-top:1px; font-family:'JetBrains Mono', monospace; }
+
+/* ── ALERTS ── */
+.alert {
+  display:flex; gap:12px; align-items:flex-start;
+  padding:12px 16px; border-radius:var(--r);
+  font-size:12.5px; margin-bottom:18px;
+}
+.alert-icon { font-size:15px; flex-shrink:0; margin-top:1px; }
+.alert-info    { background:var(--teal-dim);  border:1px solid rgba(13,152,130,0.25); color:#5cc4b0; }
+.alert-warn    { background:rgba(232,160,32,0.08); border:1px solid rgba(232,160,32,0.25); color:var(--amber); }
+.alert-success { background:rgba(62,207,142,0.07); border:1px solid rgba(62,207,142,0.25); color:var(--green); }
+.alert-error   { background:rgba(224,82,82,0.07); border:1px solid rgba(224,82,82,0.25); color:var(--red); }
+.alert strong  { font-weight:700; }
+
+/* ── UPLOAD ZONES ── */
+.upload-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr)); gap:12px; }
+
+.uzone {
+  position:relative;
+  border:2px dashed var(--border2);
+  border-radius:var(--r);
+  padding:22px 14px 16px;
+  text-align:center;
+  cursor:pointer;
+  transition: border-color 0.2s, background 0.2s;
+  display:flex; flex-direction:column; align-items:center; gap:7px;
+  min-height:110px; justify-content:center;
+}
+.uzone:hover           { border-color:var(--gold-s); background:var(--gold-dim); }
+.uzone.loaded          { border-color:var(--green); border-style:solid; background:rgba(62,207,142,0.05); }
+.uzone.req             { border-color:rgba(200,155,40,0.3); }
+.uzone input[type=file]{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.uzone-icon  { font-size:22px; }
+.uzone-label { font-size:10px; text-transform:uppercase; letter-spacing:0.09em; color:var(--muted); }
+.uzone-file  { font-size:10px; color:var(--green); font-family:'JetBrains Mono',monospace;
+               max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:none; }
+.uzone-badge {
+  font-size:8px; padding:2px 7px; border-radius:3px;
+  text-transform:uppercase; letter-spacing:0.07em; font-family:'JetBrains Mono',monospace;
+}
+.b-req  { background:rgba(200,155,40,0.15); border:1px solid rgba(200,155,40,0.3); color:var(--gold); }
+.b-opt  { background:var(--surface2); border:1px solid var(--border); color:var(--muted); }
+
+/* ── FORM ── */
+.fg  { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:15px; }
+.fg2 { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+.fg3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; }
+.full { grid-column:1/-1; }
+
+.field { display:flex; flex-direction:column; gap:5px; }
+label  {
+  font-size:10px; text-transform:uppercase; letter-spacing:0.1em;
+  color:var(--muted); display:flex; align-items:center; gap:6px;
+}
+label .req   { color:var(--gold); }
+label .badge-auto {
+  font-size:8px; background:var(--teal-dim); border:1px solid rgba(13,152,130,0.3);
+  color:var(--teal); padding:1px 5px; border-radius:3px; font-family:'JetBrains Mono',monospace;
+}
+label .badge-calc {
+  font-size:8px; background:var(--gold-dim); border:1px solid rgba(200,155,40,0.2);
+  color:var(--gold); padding:1px 5px; border-radius:3px; font-family:'JetBrains Mono',monospace;
+}
+
+input, select, textarea {
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  color:var(--text);
+  border-radius:var(--r);
+  padding:9px 13px;
+  font-size:13px;
+  font-family:'JetBrains Mono', monospace;
+  transition:border-color 0.2s, background 0.2s;
+  width:100%;
+}
+input:focus, select:focus, textarea:focus {
+  outline:none; border-color:var(--gold-s); background:rgba(7,16,31,0.9);
+}
+input.c { border-color:rgba(200,155,40,0.3); color:var(--gold); background:var(--gold-dim); cursor:default; }
+select option { background:var(--surface2); color:var(--text); }
+.field-note { font-size:10px; color:var(--muted); font-family:'Libre Baskerville',serif; font-style:italic; }
+
+/* ── SECTION HEADS ── */
+.sh {
+  font-size:10px; text-transform:uppercase; letter-spacing:0.13em;
+  color:var(--teal); margin:26px 0 14px;
+  padding-bottom:7px; border-bottom:1px solid var(--teal-dim);
+  display:flex; align-items:center; gap:8px;
+  font-family:'JetBrains Mono',monospace;
+}
+.sh::before { content:''; flex:none; width:3px; height:12px; background:var(--teal); border-radius:2px; }
+
+/* ── COMPUTED TILES ── */
+.tiles { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin-top:6px; }
+.tile {
+  background:var(--gold-dim);
+  border:1px solid rgba(200,155,40,0.16);
+  border-radius:var(--r);
+  padding:12px 15px;
+}
+.tile.teal { background:var(--teal-dim); border-color:rgba(13,152,130,0.2); }
+.tile-l { font-size:9px; text-transform:uppercase; letter-spacing:0.09em; color:var(--muted); font-family:'JetBrains Mono',monospace; margin-bottom:4px; }
+.tile-v { font-size:15px; font-family:'JetBrains Mono',monospace; color:var(--gold); font-weight:500; }
+.tile.teal .tile-v { color:var(--teal); font-size:12px; }
+.tile-s { font-size:9px; color:var(--muted); margin-top:2px; font-style:italic; font-family:'Libre Baskerville',serif; }
+
+/* ── REVIEW TABLE ── */
+.rtable { width:100%; border-collapse:collapse; }
+.rtable th {
+  font-size:9px; text-transform:uppercase; letter-spacing:0.1em;
+  color:var(--muted); padding:7px 12px;
+  background:var(--surface2); border:1px solid var(--border);
+  text-align:left; font-family:'JetBrains Mono',monospace;
+}
+.rtable td { padding:8px 12px; border:1px solid var(--border); font-size:12.5px; vertical-align:top; }
+.rtable tr:nth-child(even) td { background:rgba(11,24,41,0.5); }
+.rtable td.rl { color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:0.07em; width:33%; font-family:'JetBrains Mono',monospace; }
+.rtable td.rv { font-family:'JetBrains Mono',monospace; word-break:break-word; }
+.rtable td.rc { font-family:'JetBrains Mono',monospace; color:var(--gold); }
+.rtable tr.sec td { background:rgba(13,152,130,0.07); color:var(--teal); font-size:9px; text-transform:uppercase; letter-spacing:0.1em; padding:5px 12px; font-family:'JetBrains Mono',monospace; }
+.miss { color:var(--red); font-style:italic; }
+
+/* ── BUTTONS ── */
+.btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 22px; border:none; border-radius:var(--r);
+  font-size:13px; font-family:'Libre Baskerville',serif;
+  cursor:pointer; transition:all 0.18s; letter-spacing:0.03em;
+}
+.btn-gold    { background:var(--gold-s); color:#02040a; font-weight:700; }
+.btn-gold:hover { background:#d4a82e; transform:translateY(-1px); box-shadow:0 6px 20px rgba(200,155,40,0.25); }
+.btn-outline { background:transparent; color:var(--gold); border:1px solid rgba(200,155,40,0.5); }
+.btn-outline:hover { background:var(--gold-dim); }
+.btn-ghost   { background:var(--surface2); color:var(--text2); border:1px solid var(--border2); }
+.btn-ghost:hover   { color:var(--text); border-color:var(--gold-s); }
+.btn-teal    { background:var(--teal); color:#fff; }
+.btn-teal:hover    { background:#0bb89a; transform:translateY(-1px); }
+.btn:disabled      { opacity:0.35; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
+.btn-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:28px; }
+
+/* ── PROGRESS ── */
+.prog-wrap { margin:16px 0; }
+.prog-lbl  { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-bottom:6px; font-family:'JetBrains Mono',monospace; }
+.prog-bar  { height:3px; background:var(--border2); border-radius:3px; overflow:hidden; }
+.prog-fill { height:100%; background:linear-gradient(90deg,var(--teal),var(--gold-s)); border-radius:3px; transition:width 0.35s ease; width:0%; }
+
+/* ── LOG BOX ── */
+.logbox {
+  background:var(--bg); border:1px solid var(--border);
+  border-radius:var(--r); padding:16px 18px;
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  color:var(--muted); max-height:220px; overflow-y:auto;
+  line-height:1.9;
+}
+.logbox .ok   { color:var(--green); }
+.logbox .warn { color:var(--amber); }
+.logbox .err  { color:var(--red); }
+.logbox .dim  { color:var(--muted); }
+
+/* ── OUTPUT DOWNLOADS ── */
+.dl-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+.dl-card {
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+  padding:20px;
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  text-align:center;
+  transition: border-color 0.2s;
+}
+.dl-card:hover { border-color:var(--gold-s); }
+.dl-card.ready { border-color:rgba(62,207,142,0.4); }
+.dl-icon  { font-size:32px; }
+.dl-title { font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--text); }
+.dl-desc  { font-size:11px; color:var(--muted); line-height:1.5; }
+
+/* ── REP TAGS ── */
+.rep-tags { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }
+.rep-tag  {
+  background:var(--surface2); border:1px solid var(--border2);
+  border-radius:20px; padding:3px 11px;
+  font-size:10px; font-family:'JetBrains Mono',monospace; color:var(--muted);
+  display:flex; align-items:center; gap:5px;
+}
+.rep-tag .n { color:var(--gold); font-weight:500; }
+
+/* ── TEMPLATE DETECT ── */
+.detect-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; margin-top:10px; }
+.detect-item {
+  background:var(--teal-dim); border:1px solid rgba(13,152,130,0.2);
+  border-radius:var(--r); padding:8px 12px;
+  font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--teal);
+}
+.detect-item.miss { background:rgba(224,82,82,0.06); border-color:rgba(224,82,82,0.2); color:var(--red); }
+
+@media(max-width:680px) {
+  .fg2,.fg3,.dl-grid { grid-template-columns:1fr; }
+  .main { padding:20px 14px 80px; }
+  .rail-step .sl { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand-mark">FL</div>
+    <div class="brand-text">
+      <div class="brand-name">FirstLien Capital</div>
+      <div class="brand-sub">Doc Prep Engine</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="pill pill-teal">All processing is local — no data leaves your browser</span>
+    <span class="pill pill-gold">Admin Only</span>
+  </div>
+</div>
+
+<!-- STEP RAIL -->
+<div class="rail">
+  <div class="rail-step active" data-s="1" onclick="nav(1)">
+    <span class="sn">01</span><span class="sl">Template</span>
+  </div>
+  <div class="rail-step" data-s="2" onclick="nav(2)">
+    <span class="sn">02</span><span class="sl">Upload Docs</span>
+  </div>
+  <div class="rail-step" data-s="3" onclick="nav(3)">
+    <span class="sn">03</span><span class="sl">Deal Details</span>
+  </div>
+  <div class="rail-step" data-s="4" onclick="nav(4)">
+    <span class="sn">04</span><span class="sl">Review</span>
+  </div>
+  <div class="rail-step" data-s="5" onclick="nav(5)">
+    <span class="sn">05</span><span class="sl">Generate</span>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ══════════════════════════════════════════════════════
+     STEP 1 — TEMPLATE UPLOAD
+══════════════════════════════════════════════════════ -->
+<div class="panel active" id="p1">
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">📋</span>
+      <div>
+        <div class="card-title">Master Document Template</div>
+        <div class="card-sub">Upload the Lender Funds base .docx — formatting is preserved exactly</div>
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ</span>
+      <div>Upload your <strong>Lender Funds template .docx</strong>. The engine unpacks it, applies all deal-specific substitutions to the raw XML, then repacks it — preserving every margin, font, section break, footer, and page layout exactly as the original. What comes out looks identical to the template, just with new deal data.</div>
+    </div>
+
+    <div class="uzone req" id="uz-template" style="max-width:360px; min-height:130px;">
+      <input type="file" accept=".docx" onchange="loadTemplate(this)">
+      <div class="uzone-icon">📄</div>
+      <div class="uzone-label">Lender Funds Template .docx</div>
+      <span class="uzone-badge b-req">Required</span>
+      <div class="uzone-file" id="uf-template"></div>
+    </div>
+
+    <div id="tpl-result" style="display:none; margin-top:22px;">
+      <div class="alert alert-success" id="tpl-ok">
+        <span class="alert-icon">✓</span>
+        <div id="tpl-stats"></div>
+      </div>
+      <div class="sh">Placeholder Detection</div>
+      <div class="detect-grid" id="tpl-detect"></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-gold" id="btn1next" disabled onclick="nav(2)">
+      Next: Supporting Documents →
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     STEP 2 — SUPPORTING DOCS
+══════════════════════════════════════════════════════ -->
+<div class="panel" id="p2">
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">📁</span>
+      <div>
+        <div class="card-title">Supporting Documents</div>
+        <div class="card-sub">Upload available deal files — borrower, property, and title data auto-populates the form</div>
+      </div>
+    </div>
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠</span>
+      <div><strong>Term Sheet controls all loan amounts and rates.</strong> Where term sheet conflicts with other documents, the term sheet wins. Review and correct all auto-populated fields on the next step.</div>
+    </div>
+
+    <div class="upload-grid">
+      <div class="uzone req" id="uz-ts">
+        <input type="file" accept=".pdf,.docx,.doc" onchange="loadDoc(this,'ts')">
+        <div class="uzone-icon">📝</div>
+        <div class="uzone-label">Term Sheet / Loan Quote</div>
+        <span class="uzone-badge b-req">Required · Controls</span>
+        <div class="uzone-file" id="uf-ts"></div>
+      </div>
+      <div class="uzone" id="uz-1003">
+        <input type="file" accept=".pdf" onchange="loadDoc(this,'f1003')">
+        <div class="uzone-icon">🏠</div>
+        <div class="uzone-label">1003 Application</div>
+        <span class="uzone-badge b-opt">Optional</span>
+        <div class="uzone-file" id="uf-f1003"></div>
+      </div>
+      <div class="uzone" id="uz-appr">
+        <input type="file" accept=".pdf" onchange="loadDoc(this,'appr')">
+        <div class="uzone-icon">🏗</div>
+        <div class="uzone-label">Appraisal</div>
+        <span class="uzone-badge b-opt">Optional</span>
+        <div class="uzone-file" id="uf-appr"></div>
+      </div>
+      <div class="uzone" id="uz-title">
+        <input type="file" accept=".pdf" onchange="loadDoc(this,'titledoc')">
+        <div class="uzone-icon">📜</div>
+        <div class="uzone-label">Title Commitment</div>
+        <span class="uzone-badge b-opt">Optional</span>
+        <div class="uzone-file" id="uf-titledoc"></div>
+      </div>
+      <div class="uzone" id="uz-docord">
+        <input type="file" accept=".pdf" onchange="loadDoc(this,'docord')">
+        <div class="uzone-icon">📋</div>
+        <div class="uzone-label">Doc Order Form</div>
+        <span class="uzone-badge b-opt">Optional</span>
+        <div class="uzone-file" id="uf-docord"></div>
+      </div>
+      <div class="uzone" id="uz-dl">
+        <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="loadDoc(this,'dl')">
+        <div class="uzone-icon">🪪</div>
+        <div class="uzone-label">Driver's License</div>
+        <span class="uzone-badge b-opt">Optional</span>
+        <div class="uzone-file" id="uf-dl"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="nav(1)">← Back</button>
+    <button class="btn btn-gold" onclick="nav(3)">Next: Enter Deal Details →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     STEP 3 — DEAL DETAILS FORM
+══════════════════════════════════════════════════════ -->
+<div class="panel" id="p3">
+
+  <!-- DATES -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">📅</span>
+      <div>
+        <div class="card-title">Dates & Closing Month</div>
+        <div class="card-sub">All date cascades are calculated automatically from closing month</div>
+      </div>
+    </div>
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠</span>
+      <div><strong>Closing month drives 8 date fields automatically.</strong> The 3-month interest reserve, borrower's first payment, prepayment lockout, per-diem through date, and maturity all cascade from this selection. Verify the tiles below before proceeding.</div>
+    </div>
+    <div class="fg3">
+      <div class="field">
+        <label>Document Date <span class="req">*</span></label>
+        <input type="date" id="f-docdate" onchange="recalc()">
+        <div class="field-note">Printed on every document (April 15, 2026 standard)</div>
+      </div>
+      <div class="field">
+        <label>Expected Closing Month <span class="req">*</span></label>
+        <select id="f-closemon" onchange="recalc()">
+          <option value="">— Select —</option>
+          <option value="2026-04">April 2026</option>
+          <option value="2026-05" selected>May 2026</option>
+          <option value="2026-06">June 2026</option>
+          <option value="2026-07">July 2026</option>
+          <option value="2026-08">August 2026</option>
+          <option value="2026-09">September 2026</option>
+          <option value="2026-10">October 2026</option>
+          <option value="2026-11">November 2026</option>
+          <option value="2026-12">December 2026</option>
+          <option value="2027-01">January 2027</option>
+          <option value="2027-02">February 2027</option>
+          <option value="2027-03">March 2027</option>
+          <option value="2027-06">June 2027</option>
+        </select>
+        <div class="field-note">Drives reserve, maturity, lockout, per-diem</div>
+      </div>
+      <div class="field">
+        <label>Loan Term <span class="req">*</span></label>
+        <select id="f-term" onchange="recalc()">
+          <option value="12">12 months</option>
+          <option value="24" selected>24 months</option>
+          <option value="36">36 months</option>
+          <option value="48">48 months</option>
+        </select>
+      </div>
+    </div>
+    <div class="sh">Cascading Date Calculations</div>
+    <div class="tiles">
+      <div class="tile teal"><div class="tile-l">Document Date</div><div class="tile-v" id="t-docdate">—</div></div>
+      <div class="tile teal"><div class="tile-l">Reserve Month 1</div><div class="tile-v" id="t-res1">—</div></div>
+      <div class="tile teal"><div class="tile-l">Reserve Month 2</div><div class="tile-v" id="t-res2">—</div></div>
+      <div class="tile teal"><div class="tile-l">Reserve Month 3</div><div class="tile-v" id="t-res3">—</div></div>
+      <div class="tile teal"><div class="tile-l">First Payment Due</div><div class="tile-v" id="t-first">—</div></div>
+      <div class="tile teal"><div class="tile-l">Per Diem Through</div><div class="tile-v" id="t-pdthru">—</div></div>
+      <div class="tile teal"><div class="tile-l">Prepay Lockout</div><div class="tile-v" id="t-prepay">—</div></div>
+      <div class="tile teal"><div class="tile-l">Maturity Date</div><div class="tile-v" id="t-maturity">—</div></div>
+    </div>
+  </div>
+
+  <!-- FILE IDS -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🔢</span>
+      <div><div class="card-title">File Identifiers</div></div>
+    </div>
+    <div class="fg3">
+      <div class="field">
+        <label>Our File Number <span class="req">*</span></label>
+        <input type="text" id="f-fileno" placeholder="49559">
+        <div class="field-note">Appears on page 1 only</div>
+      </div>
+      <div class="field">
+        <label>Escrow / Title Order Number</label>
+        <input type="text" id="f-escrowno" placeholder="GF#260125A">
+        <div class="field-note">Appears pages 2–8 (not page 1)</div>
+      </div>
+      <div class="field">
+        <label>Governing Law State (DOT)</label>
+        <select id="f-state">
+          <option value="Texas" selected>Texas</option>
+          <option value="California">California</option>
+          <option value="Nevada">Nevada</option>
+          <option value="Arizona">Arizona</option>
+          <option value="Florida">Florida</option>
+          <option value="Colorado">Colorado</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOAN TERMS -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">💰</span>
+      <div>
+        <div class="card-title">Loan Terms</div>
+        <div class="card-sub">Term sheet controls — enter exactly as signed</div>
+      </div>
+    </div>
+    <div class="fg3">
+      <div class="field">
+        <label>Loan Amount ($) <span class="req">*</span></label>
+        <input type="text" id="f-loan" placeholder="399000" oninput="recalc()">
+        <div class="field-note">Numeric only — no $ or commas</div>
+      </div>
+      <div class="field">
+        <label>Interest Rate (%) <span class="req">*</span></label>
+        <input type="text" id="f-rate" placeholder="12.990" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>Monthly P&I Payment ($) <span class="req">*</span></label>
+        <input type="text" id="f-monthly" placeholder="4354.80" oninput="recalc()">
+        <div class="field-note">From signed term sheet — controls</div>
+      </div>
+      <div class="field">
+        <label>Amortization (months)</label>
+        <input type="text" id="f-amort" value="480" oninput="recalc()">
+        <div class="field-note">480 = 40 years</div>
+      </div>
+      <div class="field">
+        <label>Origination Fee (%)</label>
+        <input type="text" id="f-origpct" placeholder="3.5" oninput="recalc()">
+      </div>
+      <div class="field">
+        <label>Default Rate (%)</label>
+        <input type="text" id="f-defrate" value="24.99">
+        <div class="field-note">Or max allowed by law</div>
+      </div>
+    </div>
+    <div class="sh">Calculated Financials — Triple-check before proceeding</div>
+    <div class="tiles">
+      <div class="tile"><div class="tile-l">Origination Fee</div><div class="tile-v" id="t-orig">—</div><div class="tile-s" id="t-orig-w"></div></div>
+      <div class="tile"><div class="tile-l">3-Month Reserve</div><div class="tile-v" id="t-res">—</div><div class="tile-s" id="t-res-w"></div></div>
+      <div class="tile"><div class="tile-l">Per Diem ($/day)</div><div class="tile-v" id="t-pd">—</div></div>
+      <div class="tile"><div class="tile-l">ALTA Policy (125%)</div><div class="tile-v" id="t-alta">—</div><div class="tile-s" id="t-alta-w"></div></div>
+      <div class="tile"><div class="tile-l">Balloon (approx)</div><div class="tile-v" id="t-bal">—</div><div class="tile-s" id="t-bal-w"></div></div>
+    </div>
+  </div>
+
+  <!-- FEES -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🏢</span>
+      <div><div class="card-title">Broker & Fees</div></div>
+    </div>
+    <div class="fg2">
+      <div class="field">
+        <label>Originating Broker (Co-Broker) <span class="req">*</span></label>
+        <input type="text" id="f-origbroker" placeholder="West Capital Lending, Inc.">
+        <div class="field-note">Company that sourced the borrower — on fee schedule</div>
+      </div>
+      <div class="field">
+        <label>Originating Broker Fee Amount ($) <span class="badge-calc">auto</span></label>
+        <input type="text" id="f-origfeeamt" placeholder="Auto-calculated from %">
+        <div class="field-note">Leave blank to use origination % × loan amount</div>
+      </div>
+      <div class="field">
+        <label>Doc Prep Fee ($)</label>
+        <input type="text" id="f-docprep" value="1595.00">
+      </div>
+      <div class="field">
+        <label>Processing Fee ($)</label>
+        <input type="text" id="f-procfee" value="995.00">
+      </div>
+    </div>
+  </div>
+
+  <!-- BORROWER -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🏗</span>
+      <div><div class="card-title">Borrower Entity</div></div>
+    </div>
+    <div class="fg">
+      <div class="field">
+        <label>Entity Name <span class="req">*</span></label>
+        <input type="text" id="f-entity" placeholder="Map and Map, LLC">
+      </div>
+      <div class="field">
+        <label>Entity Type <span class="req">*</span></label>
+        <select id="f-etype">
+          <option value="Texas limited liability company" selected>Texas LLC</option>
+          <option value="California limited liability company">California LLC</option>
+          <option value="Nevada limited liability company">Nevada LLC</option>
+          <option value="Arizona limited liability company">Arizona LLC</option>
+          <option value="Florida limited liability company">Florida LLC</option>
+          <option value="Delaware limited liability company">Delaware LLC</option>
+          <option value="Texas limited partnership">Texas LP</option>
+          <option value="Texas corporation">Texas Corporation</option>
+          <option value="California corporation">California Corporation</option>
+          <option value="Revocable Living Trust">Revocable Trust</option>
+          <option value="individual">Individual</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label>Entity Street Address</label>
+        <input type="text" id="f-eaddr" placeholder="11704 West U.S. Highway 90">
+      </div>
+      <div class="field">
+        <label>Entity City, State ZIP</label>
+        <input type="text" id="f-ecsz" placeholder="Del Rio, Texas 78840">
+      </div>
+      <div class="field">
+        <label>Authorized Signor Title</label>
+        <select id="f-signor">
+          <option value="Managing Member" selected>Managing Member</option>
+          <option value="Manager">Manager</option>
+          <option value="President">President</option>
+          <option value="Trustee">Trustee</option>
+          <option value="General Partner">General Partner</option>
+          <option value="an individual">Individual (no entity)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- GUARANTOR -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">👤</span>
+      <div><div class="card-title">Personal Guarantor</div></div>
+    </div>
+    <div class="fg3">
+      <div class="field">
+        <label>Full Legal Name <span class="req">*</span></label>
+        <input type="text" id="f-gname" placeholder="Mario Alberto Perez">
+      </div>
+      <div class="field">
+        <label>Home Address (Street)</label>
+        <input type="text" id="f-gaddr" placeholder="108 Covey Ridge Drive">
+        <div class="field-note">Confirmed residential only — verify via Zillow/county records</div>
+      </div>
+      <div class="field">
+        <label>Home City, State ZIP</label>
+        <input type="text" id="f-gcsz" placeholder="Del Rio, Texas 78840">
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPERTY -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">📍</span>
+      <div><div class="card-title">Subject Property</div></div>
+    </div>
+    <div class="fg">
+      <div class="field full">
+        <label>Property Common Name / Full Description <span class="req">*</span></label>
+        <input type="text" id="f-propcommon" placeholder="Champions Inn & Cafe at Lake Amistad, 11704 West U.S. Highway 90, Del Rio, Texas 78840">
+      </div>
+      <div class="field">
+        <label>Street Address</label>
+        <input type="text" id="f-propaddr" placeholder="11704 West U.S. Highway 90">
+      </div>
+      <div class="field">
+        <label>City, State ZIP</label>
+        <input type="text" id="f-propcsz" placeholder="Del Rio, Texas 78840">
+      </div>
+      <div class="field">
+        <label>County <span class="req">*</span></label>
+        <input type="text" id="f-county" placeholder="Val Verde">
+      </div>
+      <div class="field">
+        <label>APN / Tax ID</label>
+        <input type="text" id="f-apn" placeholder="13631">
+      </div>
+    </div>
+  </div>
+
+  <!-- TITLE -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🏛</span>
+      <div><div class="card-title">Title & Escrow</div></div>
+    </div>
+    <div class="fg2">
+      <div class="field">
+        <label>Title Company <span class="req">*</span></label>
+        <input type="text" id="f-titleco" placeholder="Del Rio Title Company">
+      </div>
+      <div class="field">
+        <label>Escrow / Closing Officer</label>
+        <input type="text" id="f-titleoff" placeholder="Aracely Martinez">
+      </div>
+      <div class="field">
+        <label>Title Street Address</label>
+        <input type="text" id="f-titleaddr" placeholder="300 East Losoya Street">
+      </div>
+      <div class="field">
+        <label>Title City, State ZIP</label>
+        <input type="text" id="f-titlecsz" placeholder="Del Rio, Texas 78840">
+      </div>
+      <div class="field">
+        <label>Title Phone</label>
+        <input type="text" id="f-titleph" placeholder="(830) 778-1837">
+      </div>
+      <div class="field">
+        <label>Title Email</label>
+        <input type="email" id="f-titleem" placeholder="aracely@delriotitle.com">
+      </div>
+      <div class="field">
+        <label>Title Underwriter</label>
+        <input type="text" id="f-titleund" value="First American Title Guaranty Company">
+      </div>
+      <div class="field">
+        <label>Loan Servicer</label>
+        <input type="text" id="f-servicer" value="Superior Loan Servicing">
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="nav(2)">← Back</button>
+    <button class="btn btn-gold" onclick="buildReview(); nav(4)">Review All Fields →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     STEP 4 — REVIEW
+══════════════════════════════════════════════════════ -->
+<div class="panel" id="p4">
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🔍</span>
+      <div>
+        <div class="card-title">Full Substitution Review</div>
+        <div class="card-sub">Every field that will be written into the document — verify before generating</div>
+      </div>
+    </div>
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠</span>
+      <div><strong>Attorney review required before execution.</strong> Verify all calculated amounts (gold) are mathematically correct and all written amounts match their numeric counterparts. Gold = calculated, white = entered.</div>
+    </div>
+    <div id="review-body"></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="nav(3)">← Edit Details</button>
+    <button class="btn btn-gold" onclick="nav(5); runGeneration()">✓ Confirmed — Generate Documents →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     STEP 5 — GENERATE
+══════════════════════════════════════════════════════ -->
+<div class="panel" id="p5">
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">⚙️</span>
+      <div>
+        <div class="card-title">Generating Documents</div>
+        <div class="card-sub">Processing template XML — no data is sent to any server</div>
+      </div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-lbl"><span id="gen-msg">Initializing...</span><span id="gen-pct">0%</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="gen-fill"></div></div>
+    </div>
+    <div class="logbox" id="gen-log"></div>
+
+    <div id="gen-out" style="display:none; margin-top:24px;">
+      <div class="alert alert-success">
+        <span class="alert-icon">✓</span>
+        <div>
+          <strong>Documents generated.</strong>
+          <div id="gen-summary" style="font-size:11px;margin-top:3px;font-family:'JetBrains Mono',monospace;"></div>
+        </div>
+      </div>
+
+      <div class="dl-grid">
+        <div class="dl-card ready" id="dl-docx-card">
+          <div class="dl-icon">📄</div>
+          <div class="dl-title">Word Document (.docx)</div>
+          <div class="dl-desc">Exact template format preserved.<br>Open in Word, review, then send for attorney execution.</div>
+          <button class="btn btn-gold" id="btn-dl-docx">⬇ Download .docx</button>
+        </div>
+        <div class="dl-card" id="dl-pdf-card">
+          <div class="dl-icon">📑</div>
+          <div class="dl-title">PDF Output</div>
+          <div class="dl-desc">For the highest-fidelity PDF, open the .docx in Microsoft Word → File → Print → Save as PDF. This preserves all per-page margins and section formatting exactly.</div>
+          <button class="btn btn-ghost" style="cursor:default; opacity:0.5;">Best via Word → Print → PDF</button>
+        </div>
+      </div>
+
+      <div class="rep-tags" id="rep-tags"></div>
+
+      <div class="btn-row" style="margin-top:20px;">
+        <button class="btn btn-ghost" onclick="resetAll()">🔄 Start New Document</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT ENGINE
+══════════════════════════════════════════════════════ -->
+<script>
+// ─── GLOBALS ─────────────────────────────────────────────────────────────────
+const S = {
+  tplBytes: null,
+  tplName: '',
+  docs: {},
+  calc: {},
+  genBytes: null
+};
+
+const MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+function nav(n) {
+  document.querySelectorAll('.rail-step').forEach(el => {
+    const s = +el.dataset.s;
+    el.classList.toggle('active', s === n);
+    el.classList.toggle('done', s < n);
+  });
+  document.querySelectorAll('.panel').forEach(el => el.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ─── TEMPLATE UPLOAD ─────────────────────────────────────────────────────────
+async function loadTemplate(inp) {
+  const f = inp.files[0];
+  if (!f) return;
+  S.tplBytes = await f.arrayBuffer();
+  S.tplName  = f.name;
+
+  try {
+    const zip = await JSZip.loadAsync(S.tplBytes);
+    const xml = await zip.file('word/document.xml').async('string');
+
+    // Detect known template placeholders
+    const checks = [
+      { k:'LAND TO SKY REALTY LLC', l:'Old borrower entity' },
+      { k:'DERIC OUTLEY',           l:'Old guarantor' },
+      { k:'499,000',                l:'Old loan amount' },
+      { k:'5,432.62',               l:'Old monthly payment' },
+      { k:'503,589',                l:'Old balloon' },
+      { k:'16,297',                 l:'Old reserve' },
+      { k:'October 27, 2025',       l:'Old document date' },
+      { k:'December 1, 2027',       l:'Old maturity' },
+      { k:'180.06',                 l:'Old per diem' },
+      { k:'20.99',                  l:'Old default rate' },
+      { k:'623,750',                l:'Old ALTA amount' },
+      { k:'LENDER FUNDS',           l:'Broker (LENDER FUNDS)' },
+    ];
+
+    const sects   = (xml.match(/<w:sectPr/g) || []).length;
+    const runs    = (xml.match(/<w:t/g) || []).length;
+    const found   = checks.filter(c => xml.includes(c.k));
+    const missing = checks.filter(c => !xml.includes(c.k));
+
+    document.getElementById('uf-template').textContent = f.name;
+    document.getElementById('uf-template').style.display = 'block';
+    document.getElementById('uz-template').classList.add('loaded');
+
+    document.getElementById('tpl-stats').innerHTML =
+      `<strong>Template loaded:</strong> ${sects} page sections · ${runs.toLocaleString()} text runs<br>
+       <span style="font-family:'JetBrains Mono',monospace;font-size:11px;">${f.name} · ${(f.size/1024).toFixed(0)}KB</span>`;
+
+    const grid = document.getElementById('tpl-detect');
+    grid.innerHTML = found.map(c =>
+      `<div class="detect-item">✓ ${c.l}</div>`
+    ).join('') + missing.map(c =>
+      `<div class="detect-item miss">— ${c.l} not found</div>`
+    ).join('');
+
+    document.getElementById('tpl-result').style.display = 'block';
+    document.getElementById('btn1next').disabled = false;
+
+    // Pre-fill date to today
+    const t = new Date();
+    document.getElementById('f-docdate').value =
+      `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+    recalc();
+
+  } catch(e) {
+    alert('Error reading template: ' + e.message);
+  }
+}
+
+// ─── SUPPORTING DOCS ─────────────────────────────────────────────────────────
+function loadDoc(inp, key) {
+  const f = inp.files[0];
+  if (!f) return;
+  S.docs[key] = f;
+  const zone = inp.closest('.uzone');
+  zone.classList.add('loaded');
+  const nameEl = document.getElementById('uf-' + key);
+  if (nameEl) { nameEl.textContent = f.name; nameEl.style.display = 'block'; }
+}
+
+// ─── DATE MATH ───────────────────────────────────────────────────────────────
+function addM(ym, n) {
+  let [y, m] = ym.split('-').map(Number);
+  m += n;
+  while (m > 12) { m -= 12; y++; }
+  while (m < 1)  { m += 12; y--; }
+  return {y, m};
+}
+function m1(ym, n=0) {
+  const d = addM(ym, n);
+  return `${MONTHS[d.m-1]} 1, ${d.y}`;
+}
+function mEnd(ym, n=0) {
+  const d = addM(ym, n);
+  const last = new Date(d.y, d.m, 0).getDate();
+  return `${MONTHS[d.m-1]} ${last}, ${d.y}`;
+}
+
+// ─── NUMBER → WORDS ──────────────────────────────────────────────────────────
+function n2w(num) {
+  if (!num || isNaN(num)) return '';
+  const ones  = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+                  'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen',
+                  'Seventeen','Eighteen','Nineteen'];
+  const tens  = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+
+  function b1000(n) {
+    if (n === 0) return '';
+    if (n < 20)  return ones[n];
+    if (n < 100) return tens[Math.floor(n/10)] + (n%10 ? '-'+ones[n%10] : '');
+    return ones[Math.floor(n/100)] + ' Hundred' + (n%100 ? ' '+b1000(n%100) : '');
+  }
+
+  const dollars = Math.floor(num);
+  const cents   = Math.round((num - dollars)*100);
+  let w = '';
+  if (dollars >= 1000000) w += b1000(Math.floor(dollars/1000000)) + ' Million ';
+  if (dollars%1000000 >= 1000) w += b1000(Math.floor((dollars%1000000)/1000)) + ' Thousand ';
+  w += b1000(dollars%1000);
+  w = w.trim();
+  w += ' and ' + (cents > 0 ? b1000(cents)+'/100' : '00/100') + ' Dollars';
+  return w.trim();
+}
+
+// ─── DEFAULT RATE WRITTEN ────────────────────────────────────────────────────
+function rateWords(pct) {
+  // e.g. 24.99 → "Twenty-Four and 99/100 Percent (24.99%)"
+  const map = {
+    '24.99': 'Twenty-Four and 99/100',
+    '20.99': 'Twenty and 99/100',
+    '18':    'Eighteen',
+    '18.00': 'Eighteen',
+    '21':    'Twenty-One',
+    '25':    'Twenty-Five',
+  };
+  const key = String(parseFloat(pct));
+  const base = map[pct] || map[key] || 'Twenty-Four and 99/100';
+  return `${base} Percent (${pct}%)`;
+}
+
+// ─── RECALCULATE ─────────────────────────────────────────────────────────────
+function recalc() {
+  const loan    = parseFloat(v('f-loan').replace(/[^0-9.]/g,''))  || 0;
+  const rate    = parseFloat(v('f-rate'))   || 0;
+  const monthly = parseFloat(v('f-monthly').replace(/[^0-9.]/g,'')) || 0;
+  const origPct = parseFloat(v('f-origpct'))|| 0;
+  const term    = parseInt(v('f-term'))     || 24;
+  const amort   = parseInt(v('f-amort'))    || 480;
+  const ym      = v('f-closemon');
+  const dateRaw = v('f-docdate');
+
+  // Doc date
+  let docDate = '';
+  if (dateRaw) {
+    const [y,m,d] = dateRaw.split('-');
+    docDate = `${MONTHS[+m-1]} ${+d}, ${y}`;
+  }
+  S.calc.docDate = docDate;
+  set('t-docdate', docDate || '—');
+
+  if (ym) {
+    S.calc.ym       = ym;
+    S.calc.res1     = m1(ym, 1);
+    S.calc.res2     = m1(ym, 2);
+    S.calc.res3     = m1(ym, 3);
+    S.calc.first    = m1(ym, 4);
+    S.calc.pdThru   = mEnd(ym, 0);
+    S.calc.maturity = m1(ym, term);
+    const lk = addM(ym, 6);
+    const lkLast = new Date(lk.y, lk.m, 0).getDate();
+    S.calc.lockout  = `${MONTHS[lk.m-1]} ${lkLast}, ${lk.y}`;
+
+    set('t-res1',    S.calc.res1);
+    set('t-res2',    S.calc.res2);
+    set('t-res3',    S.calc.res3);
+    set('t-first',   S.calc.first);
+    set('t-pdthru',  S.calc.pdThru);
+    set('t-maturity',S.calc.maturity);
+    set('t-prepay',  S.calc.lockout);
+  }
+
+  // Financials
+  const origFee = loan * origPct / 100;
+  const reserve = monthly * 3;
+  const perDiem = loan * rate/100 / 365;
+  const alta    = loan * 1.25;
+
+  // Balloon: remaining balance after `term` payments
+  let balloon = 0;
+  if (loan > 0 && rate > 0 && monthly > 0) {
+    const mr = rate/100/12;
+    let bal = loan;
+    for (let i = 0; i < term; i++) {
+      bal = bal * (1 + mr) - monthly;
+    }
+    balloon = Math.max(0, bal);
+  }
+
+  S.calc.loan    = loan;
+  S.calc.rate    = rate;
+  S.calc.monthly = monthly;
+  S.calc.origFee = origFee;
+  S.calc.reserve = reserve;
+  S.calc.perDiem = perDiem;
+  S.calc.alta    = alta;
+  S.calc.balloon = balloon;
+  S.calc.term    = term;
+  S.calc.amort   = amort;
+
+  set('t-orig',   '$' + fmt(origFee));
+  set('t-orig-w', n2w(origFee).split(' and')[0] + '...');
+  set('t-res',    '$' + fmt(reserve));
+  set('t-res-w',  n2w(reserve).split(' and')[0] + '...');
+  set('t-pd',     '$' + perDiem.toFixed(2) + '/day');
+  set('t-alta',   '$' + fmt(alta));
+  set('t-alta-w', n2w(alta).split(' and')[0] + '...');
+  set('t-bal',    '$' + fmt(balloon));
+  set('t-bal-w',  n2w(balloon).split(' and')[0] + '...');
+}
+
+// ─── REVIEW ──────────────────────────────────────────────────────────────────
+function buildReview() {
+  recalc();
+  const c   = S.calc;
+  const origFeeAmt = parseFloat(v('f-origfeeamt').replace(/[^0-9.]/g,'')) || c.origFee;
+  const docPrep    = parseFloat(v('f-docprep'))   || 1595;
+  const procFee    = parseFloat(v('f-procfee'))   || 995;
+  const defRate    = v('f-defrate') || '24.99';
+
+  const rows = [
+    ['DATES',null],
+    ['Document Date',        c.docDate,      false],
+    ['Reserve Month 1',      c.res1,         true],
+    ['Reserve Month 2',      c.res2,         true],
+    ['Reserve Month 3',      c.res3,         true],
+    ['Borrower First Payment',c.first,       true],
+    ['Per Diem Through',     c.pdThru,       true],
+    ['Prepayment Lockout',   c.lockout,      true],
+    ['Maturity Date',        c.maturity,     true],
+    ['IDENTIFIERS',null],
+    ['Our File No. (page 1)',v('f-fileno'),   false],
+    ['Escrow/Title No. (p.2–8)',v('f-escrowno'),false],
+    ['Governing Law State',  v('f-state'),   false],
+    ['LOAN TERMS',null],
+    ['Loan Amount',          '$'+fmt(c.loan),  true],
+    ['Loan Amount (written)',  n2w(c.loan),   true],
+    ['Interest Rate',         c.rate+'%',    false],
+    ['Monthly P&I',          '$'+fmt(c.monthly),false],
+    ['Amortization',         c.amort+' months ('+Math.round(c.amort/12)+' yr)',false],
+    ['Loan Term',            c.term+' months',false],
+    ['Default Rate',         rateWords(defRate),false],
+    ['CALCULATED FINANCIALS',null],
+    ['Origination Fee',      '$'+fmt(origFeeAmt), true],
+    ['Origination Fee (written)', n2w(origFeeAmt), true],
+    ['3-Month Interest Reserve','$'+fmt(c.reserve),true],
+    ['Reserve (written)',    n2w(c.reserve),  true],
+    ['Per Diem Interest',    '$'+c.perDiem.toFixed(2)+'/day',true],
+    ['ALTA Policy (125%)',   '$'+fmt(c.alta), true],
+    ['ALTA (written)',       n2w(c.alta),     true],
+    ['Balloon Payment',      '$'+fmt(c.balloon),true],
+    ['Balloon (written)',    n2w(c.balloon),  true],
+    ['Doc Prep Fee',         '$'+fmt(docPrep), false],
+    ['Processing Fee',       '$'+fmt(procFee), false],
+    ['BROKER',null],
+    ['Originating Broker',   v('f-origbroker'), false],
+    ['Orig. Broker Fee',     '$'+fmt(origFeeAmt),true],
+    ['Doc Preparer',         'LENDER FUNDS, Inc.', false],
+    ['BORROWER',null],
+    ['Entity Name',          v('f-entity'),   false],
+    ['Entity Type',          'a '+v('f-etype'),false],
+    ['Entity Address',       v('f-eaddr')+', '+v('f-ecsz'),false],
+    ['Authorized Signor',    v('f-signor'),   false],
+    ['GUARANTOR',null],
+    ['Name',                 v('f-gname'),    false],
+    ['Home Address',         v('f-gaddr')+', '+v('f-gcsz'),false],
+    ['PROPERTY',null],
+    ['Common Description',   v('f-propcommon'),false],
+    ['Address',              v('f-propaddr')+', '+v('f-propcsz'),false],
+    ['County',               v('f-county')+' County',false],
+    ['APN / Tax ID',         v('f-apn'),      false],
+    ['TITLE & ESCROW',null],
+    ['Company',              v('f-titleco'),  false],
+    ['Officer',              v('f-titleoff'), false],
+    ['Address',              v('f-titleaddr')+', '+v('f-titlecsz'),false],
+    ['Phone',                v('f-titleph'),  false],
+    ['Email',                v('f-titleem'),  false],
+    ['Underwriter',          v('f-titleund'), false],
+    ['Loan Servicer',        v('f-servicer'), false],
+  ];
+
+  let html = '<table class="rtable"><tr><th>Field</th><th>Value</th></tr>';
+  rows.forEach(([lbl, val, calc]) => {
+    if (val === null) {
+      html += `<tr class="sec"><td colspan="2">${lbl}</td></tr>`;
+    } else {
+      const cls   = calc ? 'rc' : 'rv';
+      const disp  = val || '<em class="miss">⚠ MISSING — go back and fill in</em>';
+      html += `<tr><td class="rl">${lbl}</td><td class="${cls}">${disp}</td></tr>`;
+    }
+  });
+  html += '</table>';
+  document.getElementById('review-body').innerHTML = html;
+}
+
+// ─── GENERATION ENGINE ────────────────────────────────────────────────────────
+function log(msg, cls='dim') {
+  const el = document.getElementById('gen-log');
+  el.innerHTML += `<span class="${cls}">${msg}</span>\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function prog(pct, msg) {
+  document.getElementById('gen-fill').style.width = pct + '%';
+  document.getElementById('gen-pct').textContent  = Math.round(pct) + '%';
+  document.getElementById('gen-msg').textContent  = msg;
+}
+
+async function runGeneration() {
+  if (!S.tplBytes) { alert('No template loaded.'); return; }
+
+  document.getElementById('gen-log').innerHTML = '';
+  document.getElementById('gen-out').style.display = 'none';
+
+  const c        = S.calc;
+  const defRate  = v('f-defrate') || '24.99';
+  const origFee  = parseFloat(v('f-origfeeamt').replace(/[^0-9.]/g,'')) || c.origFee;
+  const docPrep  = parseFloat(v('f-docprep'))  || 1595;
+  const procFee  = parseFloat(v('f-procfee'))  || 995;
+
+  const entity   = v('f-entity');
+  const etype    = v('f-etype');
+  const gname    = v('f-gname');
+  const county   = v('f-county');
+  const state    = v('f-state');
+
+  log('▶ Starting FirstLien Doc Prep Engine', 'ok');
+  prog(5, 'Loading template...');
+
+  try {
+    const zip = await JSZip.loadAsync(S.tplBytes);
+    log('✓ Template unpacked', 'ok');
+    prog(15, 'Reading document XML...');
+
+    let xml = await zip.file('word/document.xml').async('string');
+    log(`✓ XML loaded · ${Math.round(xml.length/1024)}KB · ${(xml.match(/<w:t/g)||[]).length.toLocaleString()} runs`, 'ok');
+    prog(25, 'Merging split text runs...');
+
+    // Merge adjacent plain runs for reliable string replacement
+    // Collapse runs with no rPr that are adjacent — critical for matching template text
+    let merged = 0;
+    const before = (xml.match(/<w:t/g)||[]).length;
+    // Remove run boundaries between identical-format adjacent runs
+    xml = xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t>/g, () => { merged++; return ''; });
+    xml = xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t xml:space="preserve">/g, () => { merged++; return ''; });
+    const after = (xml.match(/<w:t/g)||[]).length;
+    log(`✓ Merged ${merged} run boundaries (${before} → ${after} runs)`, 'ok');
+    prog(38, 'Building replacement rules...');
+
+    // ── Helper: format numbers ──
+    const $ = (n) => n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+    // ── REPLACEMENT RULES (ordered — most specific first) ──
+    // Each entry: [find, replace, label]
+    const RULES = [
+
+      // ENTITY
+      [entity+', a Texas Limited Liability Company', entity+', a '+etype, 'entity caps fix'],
+      ['LAND TO SKY REALTY LLC, a Texas limited liability company', entity+', a '+etype, 'old borrower entity (lower)'],
+      ['LAND TO SKY REALTY LLC, a Texas Limited Liability Company', entity+', a '+etype, 'old borrower entity (caps)'],
+      ['LAND TO SKY REALTY LLC', entity, 'old borrower name'],
+      ['Map and Map, LLC, a Texas limited liability company', entity+', a '+etype, 'prev entity (lower)'],
+      ['Map and Map, LLC, a Texas Limited Liability Company', entity+', a '+etype, 'prev entity (caps)'],
+      ['Map and Map, LLC', entity, 'prev entity name'],
+      ['a Texas Limited Liability Company', 'a '+etype, 'caps LLC fix'],
+
+      // SIGNOR (in signature blocks)
+      ['By DERIC OUTLEY, Authorized Signor',     'By ___________________________, '+v('f-signor'), 'old signor'],
+      ['By Mario Alberto Perez, Managing Member', 'By ___________________________, '+v('f-signor'), 'prev signor'],
+      ['Mario Alberto Perez, Managing Member',    '___________________________, '+v('f-signor'), 'prev signor bare'],
+      ['By DERIC OUTLEY, Managing Member',        'By ___________________________, '+v('f-signor'), 'old signor 2'],
+
+      // GUARANTOR
+      ['DERIC OUTLEY, an individual', gname+', an individual', 'old guarantor full'],
+      ['DERIC OUTLEY', gname, 'old guarantor name'],
+      ['Mario Alberto Perez, an individual', gname+', an individual', 'prev guarantor full'],
+      ['Mario Alberto Perez', gname, 'prev guarantor name'],
+
+      // GUARANTOR ADDRESS
+      ['3138 Oakdale, Houston, TX 77004-0000', v('f-gaddr')+', '+v('f-gcsz'), 'old guar addr full'],
+      ['108 Covey Ridge Drive, Del Rio, Texas 78840-0000', v('f-gaddr')+', '+v('f-gcsz'), 'prev guar addr -0000'],
+      ['108 Covey Ridge Drive, Del Rio, Texas 78840', v('f-gaddr')+', '+v('f-gcsz'), 'prev guar addr'],
+      ['3138 Oakdale', v('f-gaddr'), 'old guar street'],
+      ['Houston, TX 77004-0000', v('f-gcsz'), 'old guar csz -0000'],
+      ['Houston, TX 77004', v('f-gcsz'), 'old guar csz'],
+      ['Del Rio, Texas 78840-0000', v('f-gcsz'), 'zip -0000 artifact'],
+      ['Houston, Texas 78840-0000', v('f-gcsz'), 'houston artifact'],
+
+      // PROPERTY
+      ['Champions Inn &amp; Cafe at Lake Amistad, 11704 West U.S. Highway 90, Del Rio, Texas 78840',
+       xmlEnc(v('f-propcommon')), 'prev property common'],
+      ['±40 Acre Industrial Tract, Port Arthur, Texas 77642', xmlEnc(v('f-propcommon')), 'old property common'],
+      ['±40 Acre Industrial Tract', xmlEnc(v('f-propaddr')), 'old property addr'],
+      ['Port Arthur, Texas 77642', v('f-propcsz'), 'old prop csz'],
+      ['Port Arthur', (v('f-propcsz').split(',')[0]||'').trim(), 'old prop city'],
+      ['Del Rio, Texas 78840', v('f-propcsz'), 'prev prop csz'],
+
+      // COUNTY
+      ['Jefferson County', county+' County', 'old county full'],
+      ['>Jefferson<', '>'+county+'<', 'old county bold run'],
+      ['Jefferson,', county+',', 'old county comma'],
+      ['Val Verde County', county+' County', 'prev county'],
+      ['Val Verde', county, 'prev county bare'],
+
+      // APN
+      ['>72810<', '>'+v('f-apn')+'<', 'old apn bold'],
+      ['72810', v('f-apn'), 'old apn'],
+      ['>13631<', '>'+v('f-apn')+'<', 'prev apn bold'],
+      ['13631', v('f-apn'), 'prev apn'],
+
+      // TITLE COMPANY
+      ['Maryann Nguyen', v('f-titleoff'), 'old title officer'],
+      ['Aracely Martinez', v('f-titleoff'), 'prev title officer'],
+      ['Patten Title', v('f-titleco'), 'old title co'],
+      ['PATTEN TITLE', v('f-titleco').toUpperCase(), 'old title co upper'],
+      ['DEL RIO TITLE COMPANY', v('f-titleco').toUpperCase(), 'prev title co upper'],
+      ['Del Rio Title Company', v('f-titleco'), 'prev title co'],
+      ['4265 San Felipe St Suite 400', v('f-titleaddr'), 'old title addr'],
+      ['300 East Losoya Street', v('f-titleaddr'), 'prev title addr'],
+      ['Houston, TX 77027 '+v('f-titleem'), v('f-titlecsz')+'  '+v('f-titleem'), 'old title csz+email'],
+      ['maryann.nguyen@pattentitle.com', v('f-titleem'), 'old title email'],
+      ['aracely@delriotitle.com', v('f-titleem'), 'prev title email'],
+      ['Westcor Land Title Insurance Company', v('f-titleund'), 'old title underwriter'],
+      ['First American Title Guaranty Company', v('f-titleund'), 'prev title underwriter'],
+
+      // FILE / ESCROW NUMBERS (careful order — escrow first)
+      ['Title Order No.:\t7996-25-63029', 'Escrow No.:\t'+v('f-escrowno'), 'old title order label'],
+      ['7996-25-63029', v('f-escrowno'), 'old escrow no'],
+      ['GF#260125A', v('f-escrowno'), 'prev escrow no'],
+      ['File No: GF#260125A', 'File No: '+v('f-fileno'), 'escrow→file on p2'],
+      ['File:\t48607', 'File:\t'+v('f-fileno'), 'old file no tab'],
+      ['File:\t49559', 'File:\t'+v('f-fileno'), 'prev file no tab'],
+      ['File No: 49559', 'File No: '+v('f-fileno'), 'prev file no p2'],
+      ['48607', v('f-fileno'), 'old file no bare'],
+      ['49559', v('f-fileno'), 'prev file no bare'],
+
+      // LOAN AMOUNT (written + numeric together, then separately)
+      ['Three Hundred Ninety-Nine Thousand and 00/100 Dollars ($399,000.00)', n2w(c.loan)+' ($'+$(c.loan)+')', 'prev loan amount+written'],
+      ['Four Hundred Ninety-Nine Thousand and 00/100 Dollars ($499,000.00)', n2w(c.loan)+' ($'+$(c.loan)+')', 'old loan amount+written'],
+      ['Three Hundred Ninety-Nine Thousand and 00/100 Dollars', n2w(c.loan), 'prev loan written'],
+      ['Four Hundred Ninety-Nine Thousand and 00/100 Dollars', n2w(c.loan), 'old loan written'],
+      ['$399,000.00', '$'+$(c.loan), 'prev loan $'],
+      ['$499,000.00', '$'+$(c.loan), 'old loan $'],
+
+      // MONTHLY PAYMENT
+      ['Four Thousand Three Hundred Fifty-Four and 80/100 Dollars ($4,354.80)', n2w(c.monthly)+' ($'+$(c.monthly)+')', 'prev monthly+written'],
+      ['Five Thousand Four Hundred Thirty-Two and 62/100 Dollars ($5,432.62)', n2w(c.monthly)+' ($'+$(c.monthly)+')', 'old monthly+written'],
+      ['Four Thousand Three Hundred Fifty-Four and 80/100 Dollars', n2w(c.monthly), 'prev monthly written'],
+      ['Five Thousand Four Hundred Thirty-Two and 62/100 Dollars', n2w(c.monthly), 'old monthly written'],
+      ['$4,354.80', '$'+$(c.monthly), 'prev monthly $'],
+      ['$5,432.62', '$'+$(c.monthly), 'old monthly $'],
+
+      // INTEREST RESERVE
+      ['Thirteen Thousand Sixty-Four and 40/100 Dollars ($13,064.40)', n2w(c.reserve)+' ($'+$(c.reserve)+')', 'prev reserve+written'],
+      ['Sixteen Thousand Two Hundred Ninety-Seven and 86/100 Dollars ($16,297.86)', n2w(c.reserve)+' ($'+$(c.reserve)+')', 'old reserve+written'],
+      ['Thirteen Thousand Sixty-Four and 40/100 Dollars', n2w(c.reserve), 'prev reserve written'],
+      ['Sixteen Thousand Two Hundred Ninety-Seven and 86/100 Dollars', n2w(c.reserve), 'old reserve written'],
+      ['$13,064.40', '$'+$(c.reserve), 'prev reserve $'],
+      ['$16,297.86', '$'+$(c.reserve), 'old reserve $'],
+
+      // BALLOON
+      ['Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars ($398,326.09)', n2w(c.balloon)+' ($'+$(c.balloon)+')', 'prev balloon+written'],
+      ['Five Hundred Three Thousand Five Hundred Eighty-Nine and 71/100 Dollars ($503,589.71)', n2w(c.balloon)+' ($'+$(c.balloon)+')', 'old balloon+written'],
+      ['Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars', n2w(c.balloon), 'prev balloon written'],
+      ['Five Hundred Three Thousand Five Hundred Eighty-Nine and 71/100 Dollars', n2w(c.balloon), 'old balloon written'],
+      ['$398,326.09', '$'+$(c.balloon), 'prev balloon $'],
+      ['$503,589.71', '$'+$(c.balloon), 'old balloon $'],
+
+      // ALTA POLICY (must match written+numeric together first, both old and new)
+      ['Four Hundred Ninety-Eight Thousand Seven Hundred Fifty and 00/100 Dollars ($498,750.00)', n2w(c.alta)+' ($'+$(c.alta)+')', 'prev ALTA+written'],
+      ['Six Hundred Twenty-Three Thousand Seven Hundred Fifty and 00/100 Dollars ($623,750.00)', n2w(c.alta)+' ($'+$(c.alta)+')', 'old ALTA+written'],
+      ['Four Hundred Ninety-Eight Thousand Seven Hundred Fifty and 00/100 Dollars', n2w(c.alta), 'prev ALTA written'],
+      ['Six Hundred Twenty-Three Thousand Seven Hundred Fifty and 00/100 Dollars', n2w(c.alta), 'old ALTA written'],
+      ['($498,750.00) (125% of the principal balance)', '($'+$(c.alta)+') (125% of the principal balance)', 'prev ALTA numeric'],
+      ['($623,750.00) (125% of the principal balance)', '($'+$(c.alta)+') (125% of the principal balance)', 'old ALTA numeric'],
+
+      // ORIGINATING BROKER (on fee line — specific)
+      ['amount of $13,965.00; (Delivery instructions to be provided);', 'amount of $'+$(origFee)+'; (Delivery instructions to be provided);', 'prev orig fee amt'],
+      ['amount of $13,965; (Delivery instructions to be provided);',    'amount of $'+$(origFee)+'; (Delivery instructions to be provided);', 'prev orig fee amt2'],
+      ['amount of $17,465; (Delivery instructions to be provided);',    'amount of $'+$(origFee)+'; (Delivery instructions to be provided);', 'old orig fee amt'],
+      ['amount of $17,465.00; (Delivery instructions to be provided);', 'amount of $'+$(origFee)+'; (Delivery instructions to be provided);', 'old orig fee amt2'],
+      // NOTE: Originating broker NAME on that line is in a bold run — handled by targeted XML replace below
+
+      // BROKER FEES (underwriting→doc prep, processing, wire)
+      ['Underwriting Fee payable to LENDER FUNDS, Inc. in the amount of $2,520.00;',   'Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$(docPrep)+';', 'old UW→docprep'],
+      ['Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,499.00;',       'Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$(docPrep)+';', 'prev docprep fee'],
+      ['Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,595.00;',       'Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$(docPrep)+';', 'prev docprep fee2'],
+      ['Processing Fee payable to LENDER FUNDS, Inc. in the amount of $1,060.00;',     'Processing Fee payable to LENDER FUNDS, Inc. in the amount of $'+$(procFee)+';', 'old proc fee'],
+      ['Processing Fee payable to LENDER FUNDS, Inc. in the amount of $995.00;',       'Processing Fee payable to LENDER FUNDS, Inc. in the amount of $'+$(procFee)+';', 'prev proc fee'],
+      ['Wire Fee payable to LENDER FUNDS, Inc. in the amount of $45.00;', '', 'wire fee remove'],
+      ['Legal Fee payable to LENDER FUNDS, Inc. in the amount of $1,600.00 (Delivery instructions to be provided)', '', 'old legal fee remove'],
+      ['Legal Fee payable to LENDER FUNDS, Inc.', '', 'legal fee label remove'],
+      ['Legal Fee payable to ', '', 'legal fee partial remove'],
+      ['Doc Service Pro CORPORATION', 'LENDER FUNDS, Inc.', 'doc service pro fix'],
+
+      // PER DIEM
+      ['$180.06 per day from date funds disbursed by escrow through November 30, 2025',
+       '$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru, 'old per diem line'],
+      ['$142.00 per day from date funds disbursed by escrow through April 30, 2026',
+       '$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru, 'prev per diem line Apr'],
+      ['$142.00 per day from date funds disbursed by escrow through May 31, 2026',
+       '$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru, 'prev per diem line May'],
+      ['$180.06', '$'+c.perDiem.toFixed(2), 'old per diem bare'],
+      ['$142.00', '$'+c.perDiem.toFixed(2), 'prev per diem bare'],
+
+      // DEFAULT RATE
+      ['Twenty and 99/100 Percent (20.99%)',         rateWords(defRate), 'old default rate written'],
+      ['Twenty-Four and 99/100 Percent (24.99%)',    rateWords(defRate), 'prev default rate written'],
+      ['(20.99%)', '('+defRate+'%)', 'old default rate paren'],
+      ['(24.99%)', '('+defRate+'%)', 'prev default rate paren'],
+      ['20.99%', defRate+'%', 'old default rate pct'],
+      ['24.99%', defRate+'%', 'prev default rate pct'],
+
+      // DATES — reserve months (combined phrase first, then individually)
+      ['January 1, 2026 through March 1, 2026',   c.res1+' through '+c.res3, 'old reserve range'],
+      ['May 1, 2026 through July 1, 2026',         c.res1+' through '+c.res3, 'prev reserve range May-Jul'],
+      ['June 1, 2026 through August 1, 2026',      c.res1+' through '+c.res3, 'prev reserve range Jun-Aug'],
+      // Per diem through
+      ['November 30, 2025', c.pdThru, 'old per diem through'],
+      ['April 30, 2026',    c.pdThru, 'prev per diem Apr'],
+      ['May 31, 2026',      c.pdThru, 'prev per diem May'],
+      // First payment (before individual reserve months to avoid overlap)
+      ['April 1, 2026',    c.first, 'prev first payment Apr'],
+      ['August 1, 2026',   c.first, 'prev first payment Aug'],
+      ['September 1, 2026',c.first, 'prev first payment Sep'],
+      // Individual reserve months
+      ['January 1, 2026',  c.res1, 'old res month 1'],
+      ['May 1, 2026',      c.res1, 'prev res month 1'],
+      ['June 1, 2026',     c.res1, 'prev res month 1b'],
+      ['March 1, 2026',    c.res3, 'old res month 3'],
+      ['July 1, 2026',     c.res3, 'prev res month 3'],
+      ['August 1, 2026',   c.res3, 'prev res month 3b'],
+      // Lockout
+      ['June 30, 2026',     c.lockout, 'old lockout'],
+      ['October 31, 2026',  c.lockout, 'prev lockout Oct'],
+      ['November 30, 2026', c.lockout, 'prev lockout Nov'],
+      // Maturity
+      ['December 1, 2027',  c.maturity, 'old maturity'],
+      ['April 1, 2028',     c.maturity, 'prev maturity Apr'],
+      ['May 1, 2028',       c.maturity, 'prev maturity May'],
+      // Document date (last — broadest)
+      ['October 27, 2025', c.docDate, 'old doc date'],
+      ['April 15, 2026',   c.docDate, 'prev doc date Apr15'],
+      ['April __, 2026',   c.docDate, 'prev doc date Apr blank'],
+      ['May __, 2026',     c.docDate, 'prev doc date May blank'],
+
+      // ARBITRATION COUNTY
+      ['***Arbitration County TE***', county+' County, '+state, 'arb county placeholder'],
+      ['Val Verde County, Texas', county+' County, '+state, 'prev arb county'],
+    ];
+
+    prog(48, 'Applying substitutions...');
+
+    let totalReps = 0;
+    const repLog  = [];
+
+    RULES.forEach(([from, to, label]) => {
+      if (!from || !xml.includes(from)) return;
+      const cnt = (xml.split(from).length - 1);
+      xml = xml.split(from).join(to);
+      totalReps += cnt;
+      repLog.push({label, cnt});
+      log(`  ✓ [${cnt}x] ${label}`, 'dim');
+    });
+
+    prog(65, 'Targeted XML fixes...');
+
+    // ── TARGETED XML FIX: Originating broker bold run name ──
+    // The originating broker name appears in a bold <w:r> run — replace LENDER FUNDS in the
+    // paragraph containing "Originating" + "13,965" or similar unique context
+    const origIdx = xml.indexOf('Originating');
+    if (origIdx >= 0) {
+      const seg = xml.slice(origIdx, origIdx + 1800);
+      const origBroker = v('f-origbroker') || 'West Capital Lending, Inc.';
+      if (seg.includes('LENDER FUNDS, Inc.')) {
+        const newSeg = seg.replace('<w:t>LENDER FUNDS, Inc.</w:t>', '<w:t>'+origBroker+'</w:t>');
+        if (newSeg !== seg) {
+          xml = xml.slice(0, origIdx) + newSeg + xml.slice(origIdx + 1800);
+          log('  ✓ [1x] originating broker name (bold run)', 'dim');
+          totalReps++;
+          repLog.push({label:'orig broker bold', cnt:1});
+        }
+      }
+    }
+
+    // ── TARGETED XML FIX: ALTA written amount (bold+italic run) ──
+    // The ALTA written amount is in a bold+italic run — use regex to replace
+    const altaWritten = n2w(c.alta);
+    const altaNumeric = '($'+$(c.alta)+') (125% of the principal balance)';
+    xml = xml.replace(
+      /(<w:t xml:space="preserve">)[^<]*(Thousand[^<]*and 00\/100 Dollars\s*<\/w:t>)([\s\S]{0,500}?)(\(\$[0-9,]+\.00\) \(125% of the principal balance\))/,
+      (m, pre, end, mid, num) => {
+        totalReps++;
+        repLog.push({label:'ALTA written+numeric', cnt:1});
+        log('  ✓ [1x] ALTA written+numeric (regex)', 'dim');
+        return pre + altaWritten + ' ' + end.split('</w:t>')[0] + '</w:t>' + mid + altaNumeric;
+      }
+    );
+
+    prog(78, 'Verification checks...');
+    log('', 'dim');
+    log('── Verification ──', 'dim');
+
+    const mustBeZero = ['LAND TO SKY', 'DERIC OUTLEY', 'Port Arthur', 'October 27, 2025',
+                        'Houston, TX 77', '78840-0000', 'County of Jefferson'];
+    let warns = 0;
+    mustBeZero.forEach(t => {
+      if (xml.includes(t)) {
+        log(`  ⚠ Still present: "${t}"`, 'warn');
+        warns++;
+      }
+    });
+
+    const mustExist = [entity, gname, v('f-propcsz'), county, c.docDate, c.maturity];
+    mustExist.forEach(t => {
+      if (t && !xml.includes(t)) {
+        log(`  ⚠ Not found after replacement: "${t}"`, 'warn');
+        warns++;
+      }
+    });
+
+    if (warns === 0) log('  ✓ All critical verifications passed', 'ok');
+    log('', 'dim');
+    log(`✓ Total substitutions: ${totalReps}  |  Warnings: ${warns}`, warns > 0 ? 'warn' : 'ok');
+
+    prog(88, 'Packaging output...');
+    zip.file('word/document.xml', xml);
+
+    const outArr = await zip.generateAsync({
+      type:'arraybuffer',
+      compression:'DEFLATE',
+      compressionOptions:{level:6}
+    });
+
+    S.genBytes = outArr;
+    log('✓ .docx package complete', 'ok');
+    prog(100, 'Done ✓');
+
+    // ── Set up download ──
+    const blob = new Blob([outArr], {
+      type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    });
+    const url  = URL.createObjectURL(blob);
+    const safe = (entity||'LoanDoc').replace(/[^a-zA-Z0-9]/g,'_');
+    const fn   = `${safe}_File${v('f-fileno')||'XXXX'}_${c.docDate.replace(/[^a-zA-Z0-9]/g,'_')}.docx`;
+
+    document.getElementById('btn-dl-docx').onclick = () => {
+      const a = document.createElement('a');
+      a.href = url; a.download = fn; a.click();
+    };
+
+    document.getElementById('gen-summary').textContent =
+      `${totalReps} substitutions applied  ·  ${warns} warnings  ·  Output: ${fn}`;
+
+    // Rep tags
+    document.getElementById('rep-tags').innerHTML = repLog
+      .filter(r => r.cnt > 0)
+      .map(r => `<span class="rep-tag"><span class="n">${r.cnt}×</span>${r.label}</span>`)
+      .join('');
+
+    document.getElementById('gen-out').style.display = 'block';
+
+  } catch(err) {
+    log('❌ ERROR: ' + err.message, 'err');
+    console.error(err);
+    prog(0, 'Error — see log');
+  }
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function v(id)      { return (document.getElementById(id)||{}).value || ''; }
+function set(id, t) { const el=document.getElementById(id); if(el) el.textContent=t; }
+function fmt(n)     { return (n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function xmlEnc(s)  { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function resetAll() {
+  S.tplBytes = null; S.docs = {}; S.calc = {}; S.genBytes = null;
+  document.querySelectorAll('.uzone').forEach(z => z.classList.remove('loaded'));
+  document.querySelectorAll('.uzone-file').forEach(e => { e.textContent=''; e.style.display='none'; });
+  document.getElementById('tpl-result').style.display = 'none';
+  document.getElementById('btn1next').disabled = true;
+  document.getElementById('gen-out').style.display = 'none';
+  document.getElementById('gen-log').innerHTML = '';
+  nav(1);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const t = new Date();
+  document.getElementById('f-docdate').value =
+    `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  recalc();
+});
+</script>
+</body>
+</html>
