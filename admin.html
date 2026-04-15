@@ -574,8 +574,17 @@ select option{background:var(--s2);}
                 <option value="2027-01">January 2027</option>
                 <option value="2027-02">February 2027</option>
                 <option value="2027-03">March 2027</option>
+                <option value="2027-04">April 2027</option>
+                <option value="2027-05">May 2027</option>
                 <option value="2027-06">June 2027</option>
+                <option value="2027-07">July 2027</option>
+                <option value="2027-08">August 2027</option>
                 <option value="2027-09">September 2027</option>
+                <option value="2027-10">October 2027</option>
+                <option value="2027-11">November 2027</option>
+                <option value="2027-12">December 2027</option>
+                <option value="2028-01">January 2028</option>
+                <option value="2028-06">June 2028</option>
               </select>
             </div>
             <div class="field">
@@ -617,11 +626,56 @@ select option{background:var(--s2);}
             <div class="field">
               <div class="flbl">State (DOT)</div>
               <select id="dp-state">
-                <option value="Texas" selected>Texas</option>
-                <option value="California">California</option>
-                <option value="Nevada">Nevada</option>
+                <option value="Alabama">Alabama</option>
+                <option value="Alaska">Alaska</option>
                 <option value="Arizona">Arizona</option>
+                <option value="Arkansas">Arkansas</option>
+                <option value="California">California</option>
+                <option value="Colorado">Colorado</option>
+                <option value="Connecticut">Connecticut</option>
+                <option value="Delaware">Delaware</option>
                 <option value="Florida">Florida</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Hawaii">Hawaii</option>
+                <option value="Idaho">Idaho</option>
+                <option value="Illinois">Illinois</option>
+                <option value="Indiana">Indiana</option>
+                <option value="Iowa">Iowa</option>
+                <option value="Kansas">Kansas</option>
+                <option value="Kentucky">Kentucky</option>
+                <option value="Louisiana">Louisiana</option>
+                <option value="Maine">Maine</option>
+                <option value="Maryland">Maryland</option>
+                <option value="Massachusetts">Massachusetts</option>
+                <option value="Michigan">Michigan</option>
+                <option value="Minnesota">Minnesota</option>
+                <option value="Mississippi">Mississippi</option>
+                <option value="Missouri">Missouri</option>
+                <option value="Montana">Montana</option>
+                <option value="Nebraska">Nebraska</option>
+                <option value="Nevada">Nevada</option>
+                <option value="New Hampshire">New Hampshire</option>
+                <option value="New Jersey">New Jersey</option>
+                <option value="New Mexico">New Mexico</option>
+                <option value="New York">New York</option>
+                <option value="North Carolina">North Carolina</option>
+                <option value="North Dakota">North Dakota</option>
+                <option value="Ohio">Ohio</option>
+                <option value="Oklahoma">Oklahoma</option>
+                <option value="Oregon">Oregon</option>
+                <option value="Pennsylvania">Pennsylvania</option>
+                <option value="Rhode Island">Rhode Island</option>
+                <option value="South Carolina">South Carolina</option>
+                <option value="South Dakota">South Dakota</option>
+                <option value="Tennessee">Tennessee</option>
+                <option value="Texas" selected>Texas</option>
+                <option value="Utah">Utah</option>
+                <option value="Vermont">Vermont</option>
+                <option value="Virginia">Virginia</option>
+                <option value="Washington">Washington</option>
+                <option value="West Virginia">West Virginia</option>
+                <option value="Wisconsin">Wisconsin</option>
+                <option value="Wyoming">Wyoming</option>
               </select>
             </div>
           </div>
@@ -702,10 +756,16 @@ select option{background:var(--s2);}
               <div class="flbl">Entity Type</div>
               <select id="dp-etype">
                 <option value="Texas limited liability company" selected>Texas LLC</option>
+                <option value="New Mexico limited liability company">New Mexico LLC</option>
                 <option value="California limited liability company">California LLC</option>
                 <option value="Nevada limited liability company">Nevada LLC</option>
+                <option value="Arizona limited liability company">Arizona LLC</option>
+                <option value="Florida limited liability company">Florida LLC</option>
+                <option value="Colorado limited liability company">Colorado LLC</option>
                 <option value="Texas corporation">Texas Corporation</option>
+                <option value="New Mexico corporation">New Mexico Corporation</option>
                 <option value="Revocable Living Trust">Revocable Trust</option>
+                <option value="individual">Individual (no entity)</option>
               </select>
             </div>
             <div class="field full">
@@ -1280,8 +1340,7 @@ function exExtractFields() {
 
   // Entity / borrower name
   tryPatterns([
-    /Borrower:\s+([A-Z][^,()
-]+(?:LLC|Corp|Inc|Trust|LP|LLP))[^a-z]/i,
+    /Borrower:\s+([A-Z][^,()\n]+(?:LLC|Corp|Inc|Trust|LP|LLP))[^a-z]/i,
     /([A-Z][a-zA-Z &,'.]+(?:LLC|Corp|Inc|Trust|LP))\s*,\s*a\s+[A-Z][a-z]+/,
     /Trustor[:\s(]+([^,\n()]+(?:LLC|Corp|Inc|Trust|LP))/i,
     /\b([A-Z][a-zA-Z &]+(?:LLC|Corp|Inc|Trust|LP))\b/
@@ -1771,6 +1830,8 @@ async function dpRun() {
     var RULES=[
       [entity+', a Texas Limited Liability Company',entity+', a '+etype,'entity caps fix'],
       ['LAND TO SKY REALTY LLC, a Texas limited liability company',entity+', a '+etype,'old entity lower'],
+      ['Map and Map, LLC, a New Mexico limited liability company',entity+', a '+etype,'prev NM entity lower'],
+      ['Map and Map, LLC, a New Mexico Limited Liability Company',entity+', a '+etype,'prev NM entity caps'],
       ['LAND TO SKY REALTY LLC, a Texas Limited Liability Company',entity+', a '+etype,'old entity caps'],
       ['LAND TO SKY REALTY LLC',entity,'old entity name'],
       ['Map and Map, LLC, a Texas limited liability company',entity+', a '+etype,'prev entity lower'],
@@ -1894,6 +1955,10 @@ async function dpRun() {
       ['May 31, 2026',c.pdThru,'v2 pdThru May31'],
       ['June 30, 2026',c.pdThru,'v2 pdThru Jun30'],
       ['***Arbitration County TE***',county+' County, '+state,'arb county placeholder'],
+      ['***Arbitration County NM***',county+' County, '+state,'arb county NM placeholder'],
+      ['Bernalillo County, New Mexico',county+' County, '+state,'prev arb NM Bernalillo'],
+      ['Dona Ana County, New Mexico',county+' County, '+state,'prev arb NM Dona Ana'],
+      ['San Juan County, New Mexico',county+' County, '+state,'prev arb NM San Juan'],
       ['Val Verde County, Texas',county+' County, '+state,'prev arb county'],
     ];
 
@@ -1928,7 +1993,7 @@ async function dpRun() {
 
     dpProg(85,'Verifying...');
     // FIX 8: Add borrower city check — warn if any known wrong city appears
-    var mustZero=['LAND TO SKY','DERIC OUTLEY','Port Arthur','October 27, 2025','78840-0000','Burbank, TX','Burbank, Texas'];
+    var mustZero=['LAND TO SKY','DERIC OUTLEY','Port Arthur','October 27, 2025','78840-0000','Burbank, TX','Burbank, Texas','Val Verde County, Texas','Del Rio, Texas'];
     var warns=0;
     mustZero.forEach(function(t){if(xml.includes(t)){dpLog('  ⚠ Still found: "'+t+'"','warn');warns++;}});
     dpLog(warns===0?'✓ All verifications passed':'⚠ '+warns+' warnings — review output carefully',warns?'warn':'ok');
