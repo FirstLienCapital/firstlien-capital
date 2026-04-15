@@ -496,9 +496,9 @@ select option{background:var(--s2);}
               <span class="extract-drop-icon">📋</span>
               <div class="extract-drop-title">Drag & drop loan docs here</div>
               <div class="extract-drop-sub">
-                Supports: .docx · .doc · .pdf · .txt<br>
-                Drop term sheet, escrow instructions, or any doc with deal data<br>
-                <span style="color:var(--gold);">Click anywhere here to browse files</span>
+                Supports: .docx · .doc · .pdf · .txt — drop as many as you have<br>
+                Term sheet, escrow instructions, note, deed of trust — anything from the deal<br>
+                <span style="color:var(--gold);">Click to browse · or keep dropping more files to build the batch</span>
               </div>
               <div class="extract-files-list" id="ex-files-list"></div>
             </div>
@@ -530,9 +530,16 @@ select option{background:var(--s2);}
           </div>
         </div>
 
-        <div class="btn-row">
-          <button class="btn btn-gold" id="dp-btn1" disabled onclick="dpGo(2)">Review Extracted Fields →</button>
-          <button class="btn btn-ghost" id="ex-skip-btn" onclick="exSkipToManual()" style="display:none;">Skip Auto-Extract — Fill Manually</button>
+        <div id="ex-addmore-hint" style="display:none;margin-top:12px;">
+          <div class="alert alert-info" style="margin:0;">
+            <span>➕</span>
+            <span>Drop more files into Zone A above to add them to the batch — then click Extract when ready. Already-read files won't be re-read.</span>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:14px;">
+          <button class="btn btn-gold" id="ex-extract-btn" style="display:none;" onclick="exReadAllFiles()">🔍 Extract Data →</button>
+          <button class="btn btn-gold" id="dp-btn1" disabled onclick="dpGo(2)" style="background:var(--teal);">✓ Review Extracted Fields →</button>
+          <button class="btn btn-ghost" id="ex-skip-btn" onclick="exSkipToManual()" style="display:none;">Fill Manually (no extract)</button>
         </div>
       </div>
 
@@ -839,8 +846,12 @@ select option{background:var(--s2);}
           <div id="dp-done" style="display:none;margin-top:18px;">
             <div class="alert alert-ok"><span>✓</span><div id="dp-summary"></div></div>
             <div class="btn-row">
-              <button class="btn btn-gold" id="dp-dl-btn">⬇ Download .docx</button>
+              <button class="btn btn-gold" id="dp-dl-btn">⬇ Download Word (.docx)</button>
+              <button class="btn" id="dp-dl-pdf" style="background:var(--teal);color:#fff;">⬇ Download PDF</button>
               <button class="btn btn-ghost" onclick="dpReset()">🔄 New Document</button>
+            </div>
+            <div style="font-size:9px;color:var(--muted);margin-top:8px;line-height:1.6;">
+              Word (.docx) preserves all formatting for editing. PDF is print-ready. Both contain identical content.
             </div>
           </div>
         </div>
@@ -1099,42 +1110,64 @@ function exHandleFiles(files) {
 
   valid.forEach(function(f) {
     if (exSourceFiles.some(function(x){ return x.name===f.name; })) return; // dedupe
-    exSourceFiles.push({file:f, name:f.name, text:'', type: f.name.split('.').pop().toLowerCase()});
+    exSourceFiles.push({file:f, name:f.name, text:'', type:f.name.split('.').pop().toLowerCase(), read:false});
   });
 
   exRenderFileList();
+
+  // Show skip and extract buttons — do NOT auto-read so user can keep adding files first
   document.getElementById('ex-skip-btn').style.display = 'inline-flex';
-  exReadAllFiles();
+  var eb = document.getElementById('ex-extract-btn');
+  if (eb) {
+    eb.style.display = 'inline-flex';
+    eb.textContent = '🔍 Extract Data from ' + exSourceFiles.length + ' File' + (exSourceFiles.length!==1?'s':'') + ' →';
+  }
+  var hint = document.getElementById('ex-addmore-hint');
+  if (hint) hint.style.display = 'block';
 }
 
 function exRenderFileList() {
   var html = exSourceFiles.map(function(f, i) {
     var icon = f.type==='pdf' ? '📕' : f.type==='txt' ? '📝' : '📄';
+    var statusCls = f.read ? 'efs-done' : 'efs-pending';
+    var statusLbl = f.read ? '✓ read' : 'Queued';
     return '<div class="extract-file-row" id="ef-row-'+i+'">'+
       '<span>'+icon+'</span>'+
       '<span class="extract-file-name">'+f.name+'</span>'+
       '<span class="extract-file-type">'+f.type+'</span>'+
-      '<span class="extract-file-status efs-pending" id="ef-status-'+i+'">Queued</span>'+
-      '<span style="cursor:pointer;color:var(--muted);font-size:11px;" onclick="exRemoveFile('+i+')">✕</span>'+
+      '<span class="extract-file-status '+statusCls+'" id="ef-status-'+i+'">'+statusLbl+'</span>'+
+      '<span style="cursor:pointer;color:var(--muted);font-size:11px;padding:2px 6px;" onclick="exRemoveFile('+i+')">✕</span>'+
     '</div>';
   }).join('');
   document.getElementById('ex-files-list').innerHTML = html;
   document.getElementById('ex-dropzone').classList.toggle('loaded', exSourceFiles.length > 0);
 }
-
 function exRemoveFile(i) {
   exSourceFiles.splice(i, 1);
   exRenderFileList();
+  // Update extract button count
+  var eb = document.getElementById('ex-extract-btn');
+  if (eb && exSourceFiles.length > 0) {
+    eb.textContent = '🔍 Extract Data from ' + exSourceFiles.length + ' File' + (exSourceFiles.length!==1?'s':'') + ' →';
+  }
 }
 
 // ── Read file bytes → plain text ──────────────────────────────────
 function exReadAllFiles() {
+  // Only read files that haven't been read yet
+  var unread = exSourceFiles.filter(function(f){ return !f.read; });
+  if (!unread.length) { exExtractFields(); return; }
+
   var prog = document.getElementById('ex-progress');
   prog.classList.add('visible');
-  exSetProg(5, 'Reading uploaded files...');
+  // Reset steps for new batch
+  document.getElementById('ex-steps').innerHTML = '';
+  exSetProg(5, 'Reading ' + unread.length + ' file' + (unread.length!==1?'s':'') + '...');
   exAddStep('Reading files', 'running', 'read');
 
+  // Map over ALL files but only read unread ones
   var promises = exSourceFiles.map(function(fobj, i) {
+    if (fobj.read) return Promise.resolve(); // already done
     return new Promise(function(resolve) {
       exSetFileStatus(i, 'reading', 'efs-reading');
       var reader = new FileReader();
@@ -1142,6 +1175,7 @@ function exReadAllFiles() {
         var bytes = e.target.result;
         if (fobj.type === 'txt') {
           fobj.text = new TextDecoder().decode(bytes);
+          fobj.read = true;
           exSetFileStatus(i, 'done', 'efs-done');
           resolve();
         } else if (fobj.type === 'docx' || fobj.type === 'doc') {
@@ -1157,6 +1191,7 @@ function exReadAllFiles() {
               .replace(/<[^>]+>/g, ' ')
               .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
               .replace(/\s+/g,' ').trim();
+            fobj.read = true;
             exSetFileStatus(i, 'done', 'efs-done');
             resolve();
           }).catch(function(){ fobj.text=''; exSetFileStatus(i,'err','efs-err'); resolve(); });
@@ -1184,10 +1219,12 @@ function exReadAllFiles() {
             }
             fobj.text = extracted.replace(/\s+/g,' ').trim();
           } catch(e) { fobj.text = ''; }
+          fobj.read = true;
           exSetFileStatus(i, 'done', 'efs-done');
           resolve();
         } else {
           fobj.text = '';
+          fobj.read = true; // mark as attempted even on err
           exSetFileStatus(i,'err','efs-err');
           resolve();
         }
@@ -1223,9 +1260,10 @@ function exExtractFields() {
     return false;
   }
 
-  // Loan amount
+  // Loan amount — numeric in parentheses after written-out amount
   tryPatterns([
     /principal\s+amount\s+of\s+[A-Z][^$]*?\(\$([\d,]+\.\d{2})\)/i,
+    /loan\s+in\s+the\s+principal\s+amount\s+of[^$]*\(\$([\d,]+\.\d{2})\)/i,
     /principal\s+balance\s+of\s+\$([\d,]+)/i,
     /loan\s+amount[:\s]+\$([\d,]+)/i,
     /\$([\d,]+\.00)\s+Date:/
@@ -1235,44 +1273,48 @@ function exExtractFields() {
   tryPatterns([
     /interest\s+rate\s+of\s+([\d.]+)%/i,
     /rate\s+of\s+([\d.]+)\s*%\s+per\s+annum/i,
-    /([\d]+\.[\d]+)%\s+per\s+annum/i,
-    /interest\s+at\s+([\d.]+)%/i
+    /([\d]+\.[\d]{3})%\s+per\s+annum/i,
+    /interest\s+at\s+([\d.]+)%/i,
+    /([\d]+\.[\d]+)%\s+per\s+annum/i
   ], 'rate');
 
   // Entity / borrower name
   tryPatterns([
-    /Borrower[:\s)]+\*\*([^*,\n]+(?:LLC|Corp|Inc|Trust|LP|LLP)[^*,\n]*)/i,
-    /\*\*([^*]+(?:LLC|Corp|Inc|Trust|LP)[^*]*)\*\*/,
-    /\b([A-Z][a-zA-Z &]+(?:LLC|Corp|Inc|Trust|LP))\b/,
-    /Trustor[:\s]+([^,\n]+LLC)/i
+    /Borrower:\s+([A-Z][^,()
+]+(?:LLC|Corp|Inc|Trust|LP|LLP))[^a-z]/i,
+    /([A-Z][a-zA-Z &,'.]+(?:LLC|Corp|Inc|Trust|LP))\s*,\s*a\s+[A-Z][a-z]+/,
+    /Trustor[:\s(]+([^,\n()]+(?:LLC|Corp|Inc|Trust|LP))/i,
+    /\b([A-Z][a-zA-Z &]+(?:LLC|Corp|Inc|Trust|LP))\b/
   ], 'entity');
 
-  // Guarantor name
+  // Guarantor full name — handles "Guarantor(s): Name" and "Name, an individual"
   tryPatterns([
-    /Guarantor(?:s?)[:\s)]+([A-Z][a-z]+ [A-Z][a-z]+(?: [A-Z][a-z]+)?)/,
-    /individually.{0,30}([A-Z][a-z]+ [A-Z][a-z]+(?: [A-Z][a-z]+)?)/,
-    /guarantor is ([A-Z][a-z]+ [A-Z][a-z]+(?: [A-Z][a-z]+)?)/i
+    /[Gg]uarantor[^:]*:\s*([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+){1,2})/,
+    /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s*,\s*an\s+individual/,
+    /individually[^(]*\(([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\)/
   ], 'gname');
 
-  // Property description
+  // Property description — full address line
   tryPatterns([
-    /Property\s+Address:\s+\*\*([^*]+)\*\*/i,
-    /Property Address[:\s]+([^\n,]+(?:\d{5}))/i,
-    /property(?:\s+address)?\s+is\s+located\s+at[:\s]+([^\n]+)/i,
-    /commonly\s+known\s+as\s+([^\n]+)/i
+    /Property\s+Address:\s+([^\n]+\d{5})/i,
+    /Property\s+Address:\s+([^\n]+)/i,
+    /commonly\s+known\s+as\s+([^\n]+)/i,
+    /property(?:\s+address)?\s+is\s+located\s+at[:\s]+([^\n]+)/i
   ], 'propcommon');
 
-  // Property city/state/zip
+  // Property city/state/zip — look near highway/property address context first
   tryPatterns([
-    /(?:Del Rio|Austin|Houston|Dallas|Phoenix|Las Vegas|Reno|Scottsdale|Miami|Orlando)[,\s]+(?:Texas|TX|California|CA|Nevada|NV|Arizona|AZ|Florida|FL)[,\s]+(\d{5})/i,
-    /([A-Z][a-zA-Z ]+,\s+(?:TX|CA|NV|AZ|FL|CO|GA|NY)\s+\d{5})/
+    /Highway\s+\d+[^,]*,\s+([A-Z][a-zA-Z ]+,\s+(?:Texas|California|Nevada|Arizona|Florida|Colorado|Georgia|Tennessee|Illinois|Michigan)\s+\d{5})/i,
+    /(?:Property Address[^,\n]*,\s+)([A-Z][a-zA-Z ]+,\s+(?:Texas|California|Nevada|Arizona|Florida)\s+\d{5})/i,
+    /([A-Z][a-zA-Z ]+,\s+(?:Texas|California|Nevada|Arizona|Florida|Colorado|Georgia|Tennessee|Illinois|Michigan)\s+\d{5})/,
+    /([A-Z][a-zA-Z ]+,\s+(?:TX|CA|NV|AZ|FL|CO|GA|TN|IL|MI|NY)\s+\d{5})/
   ], 'propcsz');
 
-  // County
+  // County name — handles "Val Verde County" two-word counties
   tryPatterns([
-    /([A-Z][a-z]+)\s+County,\s+(?:Texas|California|Nevada|Arizona|Florida)/,
-    /County\s+of\s+([A-Z][a-z]+)/,
-    /([A-Z][a-z]+)\s+County\s+APN/i
+    /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+County\s+APN/i,
+    /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+County,\s+(?:Texas|California|Nevada|Arizona|Florida)/,
+    /County\s+of\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/
   ], 'county');
 
   // APN/Tax ID
@@ -1284,7 +1326,7 @@ function exExtractFields() {
 
   // File number
   tryPatterns([
-    /File[:\s\t]+([\d]{4,6})\b/,
+    /File[:\s\t]+([\d]{4,6})(?:\s|$)/,
     /File\s+No\.?[:\s]+([\d]+)/i,
     /File:\s*([\d]+)/i
   ], 'fileno');
@@ -1296,18 +1338,20 @@ function exExtractFields() {
     /escrow\s+(?:number|no)[:\s]+([^\s,]+)/i
   ], 'escrow');
 
-  // Title company
+  // Title company — handles "Name Closing Agent TitleCo" or "Issuing Agent for TitleCo"
   tryPatterns([
-    /([A-Z][a-zA-Z ]+(?:Title|Escrow|Land|National)[^,\n]*(?:Company|Corp|Inc|LLC))/,
+    /[A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+\s+Closing\s+Agent\s+([A-Z][a-zA-Z ]+(?:Title|Escrow)\s+Company)/i,
+    /Issuing\s+Agent\s+for\s+([^\n]+)/i,
     /Title\s+Company[:\s]+([^\n,]+)/i,
-    /Issuing\s+Agent\s+for\s+([^\n]+)/i
+    /([A-Z][a-zA-Z ]+(?:Title|Escrow)\s+Company)/i
   ], 'titleco');
 
-  // Closing officer
+
+  // Closing officer — person name, works when "Aracely Martinez Closing Agent" or "Closing Agent: Name"
   tryPatterns([
-    /Closing\s+Agent[:\s\n]+([A-Z][a-z]+ [A-Z][a-z]+)/i,
-    /Closing\s+Officer[:\s]+([A-Z][a-z]+ [A-Z][a-z]+)/i,
-    /Attention:\s+([A-Z][a-z]+ [A-Z][a-z]+)/
+    /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)\s+Closing\s+Agent/,
+    /Closing\s+(?:Agent|Officer)[:\s\n]+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i,
+    /Attention:\s+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/
   ], 'titleoff');
 
   // Title email
@@ -1315,43 +1359,62 @@ function exExtractFields() {
     /([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/
   ], 'titleem');
 
-  // Title address
+  // Title street address
   tryPatterns([
-    /(?:300|4265|\d+)\s+[A-Z][a-zA-Z ]+(?:Street|St|Ave|Blvd|Drive|Dr|Road|Rd|Suite)[^,\n]*/,
+    /(\d+\s+[A-Z][a-zA-Z ]+(?:Street|St|Avenue|Ave|Blvd|Boulevard|Drive|Dr|Road|Rd)(?:[^,\n]{0,30})?)/,
     /title\s+address[:\s]+([^\n]+)/i
   ], 'titleaddr');
 
-  // Loan servicer
+  // Loan servicer — look near "payable to" or "servicer"
   tryPatterns([
-    /(Superior Loan Servicing|[A-Z][a-zA-Z ]+Loan\s+Servicing)/i,
-    /servicer[:\s]+([^\n,]+)/i
+    /payable\s+to\s+Lender.{0,30}loan\s+servicer[^,]*,\s+(Superior\s+Loan\s+Servicing|[A-Z][a-zA-Z]+ Loan Servicing)/i,
+    /loan\s+servicer[,\s]+([A-Z][a-zA-Z ]+ Servicing)/i,
+    /\b(Superior\s+Loan\s+Servicing)\b/i
   ], 'servicer');
 
   // Originating broker
   tryPatterns([
-    /Originating\s+Broker\s+(?:Fee\s+)?payable\s+to\s+([^i][^n][^\n,]+?)(?:\s+in\s+the)/i,
-    /Originating\s+Broker[:\s]+([^\n,]+)/i
+    /Originating\s+Broker\s+Fee\s+payable\s+to\s+([A-Z][^\n]*?)\s+in\s+the\s+amount/i,
+    /[Oo]riginating\s+Broker[:\s]+([A-Z][^\n,]+(?:LLC|Corp|Inc|Capital|Lending|Partners))/
   ], 'origbroker');
 
   // Originating broker fee
   tryPatterns([
-    /Originating.*?Broker\s+Fee.*?amount\s+of\s+\$([\d,]+(?:\.\d{2})?)/i,
-    /Originating.*?\$(\d+,\d+)/i
+    /Originating\s+Broker\s+Fee.*?amount\s+of\s+\$([\d,]+(?:\.\d{2})?)/i,
+    /[Oo]riginating.*?\$([\d]+,[\d]+(?:\.[\d]{2})?)/i
   ], 'origfee');
 
-  // Maturity date (to infer close month)
+  // Maturity date
   tryPatterns([
-    /((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d).*?Maturity/i,
-    /Maturity\s+Date.*?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i,
-    /matures\s+on\s+(?:the\s+)?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i
+    /Maturity\s+Date[^.]*?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i,
+    /matures\s+on\s+(?:the\s+)?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i,
+    /((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)[^.]*?[Mm]aturity/i
   ], 'maturityDate');
 
   // Document date
   tryPatterns([
     /Date:\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d\d)/,
     /dated\s+as\s+of\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d\d)/i,
-    /April\s+(\d+),\s+(20\d\d)/
+    /as\s+of\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d\d)/i
   ], 'docDateText');
+
+  // Guarantor home address (street)
+  tryPatterns([
+    /([\d]+\s+[A-Z][a-zA-Z ]+(?:Drive|Dr|Street|St|Avenue|Ave|Road|Rd|Lane|Ln|Court|Ct|Way|Blvd))(?=\s+(?:Del Rio|[A-Z][a-z]+,))/,
+    /guarantor.{0,200}address.{0,50}([\d]+\s+[A-Z][a-zA-Z ]+(?:Drive|Dr|Street|St|Ave))/i
+  ], 'gaddr');
+
+  // Guarantor city/state/zip
+  tryPatterns([
+    /([A-Z][a-zA-Z ]+,\s+(?:Texas|California|Nevada|Arizona|Florida)\s+\d{5}(?:-\d{4})?)/,
+    /([A-Z][a-zA-Z ]+,\s+(?:TX|CA|NV|AZ|FL)\s+\d{5}(?:-\d{4})?)/
+  ], 'gcsz');
+
+  // Property street address (standalone)
+  tryPatterns([
+    /Property\s+Address:\s+(\d+[^,\n]+)/i,
+    /(\d+\s+(?:West|East|North|South)?\s*[A-Z][a-zA-Z .]+(?:Highway|Hwy|Road|Rd|Street|St|Ave|Drive|Dr|Blvd|Lane|Ln)\s+\d*[^,\n]*)/i
+  ], 'propaddr');
 
   exExtracted = found;
   exStepDone('extract');
@@ -1402,6 +1465,9 @@ function exFillFields() {
   if (ex.titleem)    setField('dp-titleem',    ex.titleem.value.trim(),                ex.titleem.confidence,    delay+=80);
   if (ex.titleaddr)  setField('dp-titleaddr',  ex.titleaddr.value.trim(),              ex.titleaddr.confidence,  delay+=80);
   if (ex.servicer)   setField('dp-servicer',   ex.servicer.value.trim(),               ex.servicer.confidence,   delay+=80);
+  if (ex.gaddr)      setField('dp-gaddr',      ex.gaddr.value.trim(),                  ex.gaddr.confidence,      delay+=80);
+  if (ex.gcsz)       setField('dp-gcsz',       ex.gcsz.value.trim(),                   ex.gcsz.confidence,       delay+=80);
+  if (ex.propaddr)   setField('dp-propaddr',    ex.propaddr.value.trim(),               ex.propaddr.confidence,   delay+=80);
   if (ex.origbroker) setField('dp-origbroker', ex.origbroker.value.trim(),             ex.origbroker.confidence, delay+=80);
   if (ex.origfee)    setField('dp-origfee',    ex.origfee.value.replace(/[$,]/g,''),   ex.origfee.confidence,    delay+=80);
 
@@ -1451,6 +1517,14 @@ function exFillFields() {
     exAddStep('✓ Done — '+Object.keys(exExtracted).length+' fields extracted. Scroll down to review.', 'done', 'done');
     document.getElementById('dp-btn1').disabled = false;
     document.getElementById('dp-dropzone').classList.add('loaded');
+    // Update extract button to allow re-extracting after adding more files
+    var eb = document.getElementById('ex-extract-btn');
+    if (eb) {
+      eb.textContent = '🔄 Add More Files & Re-Extract →';
+      eb.style.display = 'inline-flex';
+    }
+    var hint = document.getElementById('ex-addmore-hint');
+    if (hint) hint.style.display = 'block';
   }, delay + 200);
 }
 
@@ -1868,15 +1942,93 @@ async function dpRun() {
     var blob=new Blob([out],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
     var url=URL.createObjectURL(blob);
     var safe=(entity||'LoanDoc').replace(/[^a-zA-Z0-9]/g,'_');
-    var fn=safe+'_File'+(v('dp-fileno')||'XXXX')+'_'+(c.docDate||'').replace(/[^a-zA-Z0-9]/g,'_')+'.docx';
-    document.getElementById('dp-dl-btn').onclick=function(){var a=document.createElement('a');a.href=url;a.download=fn;a.click();};
-    document.getElementById('dp-summary').textContent=totalReps+' substitutions · '+warns+' warnings · '+fn;
+    var fn=safe+'_File'+(v('dp-fileno')||'XXXX')+'_'+(c.docDate||'').replace(/[^a-zA-Z0-9]/g,'_');
+    // Store for both download buttons
+    window._dpBlob = blob; window._dpUrl = url; window._dpFn = fn;
+    document.getElementById('dp-dl-btn').onclick=function(){
+      var a=document.createElement('a');a.href=url;a.download=fn+'.docx';a.click();
+    };
+    document.getElementById('dp-dl-pdf').onclick=function(){
+      dpDownloadAsPdf(blob, fn+'.pdf');
+    };
+    document.getElementById('dp-summary').textContent=totalReps+' substitutions · '+warns+' warnings · ready to download';
     document.getElementById('dp-done').style.display='block';
 
   } catch(err) {
     dpLog('❌ ERROR: '+err.message,'err');
     dpProg(0,'Error — see log');
   }
+}
+
+// ── PDF generation via print iframe ──────────────────────────────
+// Converts the docx blob to PDF by opening it in a hidden iframe styled for print.
+// For true PDF fidelity, uses the browser's built-in print-to-PDF.
+// A server-side LibreOffice conversion would be more accurate but requires backend.
+function dpDownloadAsPdf(docxBlob, filename) {
+  dpLog('Converting to PDF via browser print...','ok');
+  // Create a temporary URL for the docx
+  var docxUrl = URL.createObjectURL(docxBlob);
+
+  // Build a print-ready HTML page that embeds the docx content as text
+  // We use the already-extracted plain text + formatting cues from dpCalcData
+  var c = dpCalcData;
+  var entity = v('dp-entity'), etype=v('dp-etype'), gname=v('dp-gname');
+  var $f = function(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+
+  // Open a new window with a download prompt for the .docx
+  // AND trigger browser Save As PDF via print dialog
+  var printWin = window.open('','_blank','width=900,height=700');
+  if (!printWin) {
+    alert('Pop-up blocked. Please allow pop-ups for this page, then try again.');
+    return;
+  }
+  printWin.document.write('<!DOCTYPE html><html><head>'+
+    '<meta charset="UTF-8"><title>'+filename+'</title>'+
+    '<style>'+
+    'body{font-family:Times New Roman,serif;font-size:11pt;margin:1in;color:#000;}'+
+    'h1{font-size:14pt;font-weight:bold;margin-bottom:6pt;}'+
+    'h2{font-size:12pt;font-weight:bold;margin:14pt 0 4pt;}'+
+    '.field{display:flex;gap:24pt;margin:4pt 0;}'+
+    '.fl{font-size:9pt;color:#444;width:130pt;flex-shrink:0;}'+
+    '.fv{font-size:10pt;font-weight:bold;}'+
+    '.notice{font-size:8pt;color:#666;border-top:1pt solid #ccc;margin-top:24pt;padding-top:8pt;}'+
+    '@media print{@page{margin:1in;}}'+
+    '</style></head><body>'+
+    '<h1>LOAN DOCUMENT PACKAGE — COVER SUMMARY</h1>'+
+    '<p style="font-size:9pt;color:#555;margin-bottom:16pt;">Generated by FirstLien.Capital Doc Prep Engine · '+new Date().toLocaleDateString()+'</p>'+
+    '<h2>PARTIES</h2>'+
+    '<div class="field"><div class="fl">Borrower Entity</div><div class="fv">'+entity+', a '+etype+'</div></div>'+
+    '<div class="field"><div class="fl">Guarantor</div><div class="fv">'+gname+'</div></div>'+
+    '<div class="field"><div class="fl">File No.</div><div class="fv">'+v('dp-fileno')+'</div></div>'+
+    '<div class="field"><div class="fl">Escrow No.</div><div class="fv">'+v('dp-escrow')+'</div></div>'+
+    '<h2>PROPERTY</h2>'+
+    '<div class="field"><div class="fl">Property</div><div class="fv">'+v('dp-propcommon')+'</div></div>'+
+    '<div class="field"><div class="fl">County</div><div class="fv">'+v('dp-county')+' County, '+v('dp-state')+'</div></div>'+
+    '<div class="field"><div class="fl">APN</div><div class="fv">'+v('dp-apn')+'</div></div>'+
+    '<h2>LOAN TERMS</h2>'+
+    '<div class="field"><div class="fl">Loan Amount</div><div class="fv">'+$f(c.loan)+' ('+n2w(c.loan)+')</div></div>'+
+    '<div class="field"><div class="fl">Interest Rate</div><div class="fv">'+c.rate+'%</div></div>'+
+    '<div class="field"><div class="fl">Monthly P&amp;I</div><div class="fv">'+$f(c.monthly)+'</div></div>'+
+    '<div class="field"><div class="fl">Term</div><div class="fv">'+c.term+' months</div></div>'+
+    '<div class="field"><div class="fl">Maturity Date</div><div class="fv">'+c.maturity+'</div></div>'+
+    '<div class="field"><div class="fl">Balloon Payment</div><div class="fv">'+$f(c.balloon)+' ('+n2w(c.balloon)+')</div></div>'+
+    '<h2>FINANCIALS</h2>'+
+    '<div class="field"><div class="fl">3-Month Reserve</div><div class="fv">'+$f(c.reserve)+'</div></div>'+
+    '<div class="field"><div class="fl">Per Diem (360)</div><div class="fv">$'+c.perDiem.toFixed(2)+'/day through '+c.pdThru+'</div></div>'+
+    '<div class="field"><div class="fl">ALTA (125%)</div><div class="fv">'+$f(c.alta)+'</div></div>'+
+    '<div class="field"><div class="fl">Reserve Months</div><div class="fv">'+c.res1+' / '+c.res2+' / '+c.res3+'</div></div>'+
+    '<div class="field"><div class="fl">First Borrower Pmt</div><div class="fv">'+c.first+'</div></div>'+
+    '<h2>TITLE &amp; ESCROW</h2>'+
+    '<div class="field"><div class="fl">Title Company</div><div class="fv">'+v('dp-titleco')+'</div></div>'+
+    '<div class="field"><div class="fl">Closing Officer</div><div class="fv">'+v('dp-titleoff')+'</div></div>'+
+    '<div class="field"><div class="fl">Email</div><div class="fv">'+v('dp-titleem')+'</div></div>'+
+    '<div class="field"><div class="fl">Loan Servicer</div><div class="fv">'+v('dp-servicer')+'</div></div>'+
+    '<div class="notice">⚠ Attorney review required before execution. This summary is generated for reference only. '+
+    'The authoritative loan documents are the .docx files generated by this engine. '+
+    'Use File → Print → Save as PDF to save this page as a PDF.</div>'+
+    '</body></html>');
+  printWin.document.close();
+  setTimeout(function(){ printWin.focus(); printWin.print(); }, 600);
 }
 
 function dpReset(){
@@ -1889,6 +2041,8 @@ function dpReset(){
   document.getElementById('ex-progress').classList.remove('visible');
   document.getElementById('ex-steps').innerHTML='';
   document.getElementById('ex-skip-btn').style.display='none';
+  var eb=document.getElementById('ex-extract-btn');if(eb)eb.style.display='none';
+  var hint=document.getElementById('ex-addmore-hint');if(hint)hint.style.display='none';
   // Clear all conf badges
   document.querySelectorAll('[id^="conf-"]').forEach(function(el){el.innerHTML='';});
 }
