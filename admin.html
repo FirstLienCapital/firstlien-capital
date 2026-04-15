@@ -487,36 +487,57 @@ select option{background:var(--s2);}
           <div class="alert alert-info"><span>ℹ</span><span>Drop your existing loan documents here. The engine reads them and auto-fills all deal fields — borrower name, entity, property address, loan amount, rate, dates, title company, and more. You review and fix anything before generating.</span></div>
 
           <!-- Drop zone: SOURCE docs (filled originals) -->
+          <!-- Hidden file input — completely separate from drop zone so it never interferes -->
+          <input type="file" id="ex-file-input" multiple accept=".docx,.doc,.pdf,.txt"
+                 style="display:none" onchange="exFilePicked(this)">
+
           <div style="margin-bottom:20px;">
-            <div class="flbl" style="margin-bottom:8px;">Step A — Drop your filled loan documents <span style="color:var(--muted)">(term sheet, escrow instructions, or any signed docs from the deal)</span></div>
-            <div class="extract-drop" id="ex-dropzone"
-                 ondragover="exDragOver(event)" ondragleave="exDragLeave(event)" ondrop="exDrop(event)"
-                 onclick="document.getElementById('ex-file-input').click()">
-              <input type="file" id="ex-file-input" multiple accept=".docx,.doc,.pdf,.txt" style="display:none" onchange="exFilePicked(this)">
-              <span class="extract-drop-icon">📋</span>
-              <div class="extract-drop-title">Drag & drop loan docs here</div>
-              <div class="extract-drop-sub">
-                Supports: .docx · .doc · .pdf · .txt — drop as many as you have<br>
-                Term sheet, escrow instructions, note, deed of trust — anything from the deal<br>
-                <span style="color:var(--gold);">Click to browse · or keep dropping more files to build the batch</span>
-              </div>
-              <div class="extract-files-list" id="ex-files-list"></div>
+            <div class="flbl" style="margin-bottom:8px;">Step A — Add your filled loan documents
+              <span style="color:var(--muted)">(term sheet, escrow instructions, note, addendum — as many as needed)</span>
             </div>
+
+            <!-- Drop zone: drag target only, no onclick, no nested input -->
+            <div class="extract-drop" id="ex-dropzone"
+                 ondragover="exDragOver(event)" ondragleave="exDragLeave(event)" ondrop="exDrop(event)">
+              <span class="extract-drop-icon">📋</span>
+              <div class="extract-drop-title">Drag & drop files here</div>
+              <div class="extract-drop-sub">
+                .docx · .doc · .pdf · .txt · Drop as many as you need — all at once or one at a time
+              </div>
+            </div>
+
+            <!-- Browse button sits OUTSIDE the drop zone — no conflict -->
+            <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;">
+              <button class="btn btn-ghost" onclick="document.getElementById('ex-file-input').click()" type="button">
+                📂 Browse Files
+              </button>
+              <span style="font-size:10px;color:var(--muted);">You can click this button multiple times to add more files</span>
+            </div>
+
+            <!-- File list renders here, outside the drop zone -->
+            <div class="extract-files-list" id="ex-files-list" style="margin-top:12px;"></div>
           </div>
 
           <!-- Drop zone: MASTER TEMPLATE -->
           <div>
             <div class="flbl" style="margin-bottom:8px;">Step B — Drop your master template .docx <span style="color:var(--muted)">(the blank template to merge into)</span></div>
+            <!-- Hidden template file input — outside drop zone -->
+            <input type="file" id="dp-tpl-file" accept=".docx"
+                   style="display:none" onchange="dpLoadTemplate(this)">
+
             <div class="extract-drop" id="dp-dropzone"
-                 ondragover="exDragOver(event,true)" ondragleave="exDragLeave(event,true)" ondrop="exDropTpl(event)"
-                 onclick="document.getElementById('dp-tpl-file').click()">
-              <input type="file" id="dp-tpl-file" accept=".docx" style="display:none" onchange="dpLoadTemplate(this)">
+                 ondragover="exDragOver(event,true)" ondragleave="exDragLeave(event,true)" ondrop="exDropTpl(event)">
               <span class="extract-drop-icon">📄</span>
               <div class="extract-drop-title">Drag & drop master template .docx</div>
-              <div class="extract-drop-sub">The blank master template — all formatting preserved, only data changes</div>
-              <div id="dp-tpl-info" style="display:none;margin-top:12px;text-align:left;">
-                <div class="alert alert-ok" style="margin:0;"><span>✓</span><div id="dp-tpl-stats"></div></div>
-              </div>
+              <div class="extract-drop-sub">The blank master template — formatting preserved, only deal data changes</div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:10px;align-items:center;">
+              <button class="btn btn-ghost" onclick="document.getElementById('dp-tpl-file').click()" type="button">
+                📂 Browse Template
+              </button>
+            </div>
+            <div id="dp-tpl-info" style="display:none;margin-top:10px;">
+              <div class="alert alert-ok" style="margin:0;"><span>✓</span><div id="dp-tpl-stats"></div></div>
             </div>
           </div>
 
@@ -1150,6 +1171,9 @@ function exDrop(e) {
   e.preventDefault();
   document.getElementById('ex-dropzone').classList.remove('drag-over');
   exHandleFiles(Array.from(e.dataTransfer.files));
+  // Reset input value so the same file can be re-added if removed
+  var inp = document.getElementById('ex-file-input');
+  if (inp) inp.value = '';
 }
 function exDropTpl(e) {
   e.preventDefault();
@@ -1159,6 +1183,8 @@ function exDropTpl(e) {
 }
 function exFilePicked(inp) {
   exHandleFiles(Array.from(inp.files));
+  // Reset so user can pick the same file again or add more on next click
+  setTimeout(function(){ inp.value = ''; }, 100);
 }
 
 // ── File list UI ──────────────────────────────────────────────────
@@ -1169,7 +1195,10 @@ function exHandleFiles(files) {
   if (!valid.length) { alert('Please upload .docx, .doc, .pdf, or .txt files.'); return; }
 
   valid.forEach(function(f) {
-    if (exSourceFiles.some(function(x){ return x.name===f.name; })) return; // dedupe
+    if (exSourceFiles.some(function(x){ return x.name===f.name; })) {
+      console.log('Skipping duplicate: ' + f.name);
+      return; // already in list
+    }
     exSourceFiles.push({file:f, name:f.name, text:'', type:f.name.split('.').pop().toLowerCase(), read:false});
   });
 
@@ -1200,7 +1229,7 @@ function exRenderFileList() {
     '</div>';
   }).join('');
   document.getElementById('ex-files-list').innerHTML = html;
-  document.getElementById('ex-dropzone').classList.toggle('loaded', exSourceFiles.length > 0);
+  // Drop zone always stays open for more files — no loaded state change
 }
 function exRemoveFile(i) {
   exSourceFiles.splice(i, 1);
@@ -1575,7 +1604,7 @@ function exFillFields() {
     exStepDone('fill');
     exAddStep('✓ Done — '+Object.keys(exExtracted).length+' fields extracted. Scroll down to review.', 'done', 'done');
     document.getElementById('dp-btn1').disabled = false;
-    document.getElementById('dp-dropzone').classList.add('loaded');
+    // dp-dropzone tpl info already shows via dp-tpl-info div
     // Update extract button to allow re-extracting after adding more files
     var eb = document.getElementById('ex-extract-btn');
     if (eb) {
@@ -1729,25 +1758,176 @@ function n2w(num){
   return w.trim();
 }
 
+// ── Template scanner: reads loaded template XML and extracts all deal-specific
+// text values (entity names, amounts, dates, addresses) so the generate step
+// can build substitution rules dynamically — no hardcoding needed.
+var dpTemplateFields = {}; // what was found IN the template
+
 function dpLoadTemplate(inp) {
   var f = inp.files[0];
   if (!f) return;
   var reader = new FileReader();
   reader.onload = function(e) {
     dpTplBytes = e.target.result;
-    var z = JSZip.loadAsync(dpTplBytes).then(function(zip) {
+    JSZip.loadAsync(dpTplBytes).then(function(zip) {
       return zip.file('word/document.xml').async('string');
     }).then(function(xml) {
       var sects = (xml.match(/<w:sectPr/g)||[]).length;
       var runs  = (xml.match(/<w:t/g)||[]).length;
-      document.getElementById('dp-tpl-stats').textContent =
-        'Loaded: '+f.name+' · '+sects+' page sections · '+runs.toLocaleString()+' text runs';
+
+      // ── Scan template for deal-specific values ──────────────────────────────
+      dpTemplateFields = dpScanTemplate(xml);
+      var found = Object.keys(dpTemplateFields).length;
+
+      document.getElementById('dp-tpl-stats').innerHTML =
+        'Loaded: <strong>'+f.name+'</strong> · '+sects+' sections · '+runs.toLocaleString()+' text runs' +
+        (found ? ' · <span style="color:var(--green)">'+found+' deal values auto-detected</span>' : '');
       document.getElementById('dp-tpl-info').style.display = 'block';
       document.getElementById('dp-btn1').disabled = false;
       document.getElementById('dp-dropzone').style.borderColor = 'var(--green)';
+
+      // If fields are already filled (user extracted first), pre-fill any blanks
+      // from what we found in the template — gives user a sanity check
+      dpPreviewTemplateMatches();
     });
   };
   reader.readAsArrayBuffer(f);
+}
+
+// ── Scan template XML and extract all deal-specific text values ──────────────
+function dpScanTemplate(xml) {
+  // Strip XML tags to get plain text, preserving spaces between runs
+  var plain = xml.replace(/<\/w:t>/g,' ').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/\s+/g,' ').trim();
+  var found = {};
+
+  // Dollar amounts — written out (e.g. "Four Hundred Thousand and 00/100 Dollars ($400,000.00)")
+  var amtPairs = plain.match(/([A-Z][a-zA-Z -]+(?:Hundred|Thousand|Million)[^$]{0,80}?and \d\d\/100 Dollars)\s*\(\$([0-9,]+\.\d{2})\)/g) || [];
+  amtPairs.forEach(function(m) {
+    var parts = m.match(/^(.+?)\s*\(\$([0-9,]+\.\d{2})\)$/);
+    if (parts) {
+      var written = parts[1].trim();
+      var numeric = '$' + parts[2];
+      var numOnly = parseFloat(parts[2].replace(/,/g,''));
+      // Categorise by approximate size
+      if (numOnly > 100000) {
+        if (!found.loan_written) { found.loan_written = written; found.loan_numeric = numeric; found.loan_value = numOnly; }
+        else if (!found.balloon_written && numOnly !== found.loan_value) {
+          // Balloon is usually slightly more than loan
+          if (numOnly > found.loan_value * 0.95) { found.balloon_written = written; found.balloon_numeric = numeric; }
+        }
+      } else if (numOnly > 5000 && numOnly < 100000) {
+        // Reserve or monthly x6
+        if (!found.reserve_written) { found.reserve_written = written; found.reserve_numeric = numeric; }
+      } else if (numOnly > 500 && numOnly < 30000) {
+        // Monthly payment
+        if (!found.monthly_written) { found.monthly_written = written; found.monthly_numeric = numeric; }
+      }
+    }
+  });
+
+  // Dollar amounts — numeric only
+  var numericAmts = plain.match(/\$[0-9,]+\.\d{2}/g) || [];
+  var seenAmts = {};
+  numericAmts.forEach(function(amt) {
+    var val = parseFloat(amt.replace(/[$,]/g,''));
+    if (seenAmts[amt]) return; seenAmts[amt] = true;
+    if (val > 500000 && !found.loan_numeric)  { found.loan_numeric = amt; found.loan_value = val; }
+  });
+
+  // Dates — "Month D, YYYY" and "Month 1, YYYY" (maturity always 1st)
+  var dates = plain.match(/(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+20\d{2}/g) || [];
+  var dateSeen = {};
+  dates.forEach(function(d) {
+    if (dateSeen[d]) return; dateSeen[d] = true;
+    var yr = parseInt(d.match(/20\d{2}/)[0]);
+    var day = parseInt(d.match(/\d+,/)[0]);
+    if (day === 1 && !found.maturity_date) { found.maturity_date = d; }
+    else if (!found.doc_date) { found.doc_date = d; }
+  });
+
+  // Interest rate — "X and XX/100 Percent (XX.XX%)"
+  var rateM = plain.match(/([A-Z][a-zA-Z -]+and\s+\d+\/100\s+Percent)\s*\(([\d.]+%)\)/);
+  if (rateM) { found.rate_written = rateM[1]; found.rate_pct = rateM[2]; }
+
+  // Percent bare — e.g. 13.99% or 12.990%
+  var pctBare = plain.match(/(\d{1,2}\.\d{2,3})%/g) || [];
+  if (pctBare.length && !found.rate_pct) { found.rate_pct = pctBare[0]; }
+
+  // Entity name — ALLCAPS words before "(" or comma
+  // Look for patterns like "ENTITY NAME, a [State] [type]"
+  var entityM = plain.match(/([A-Z][A-Z &.,]+(?:INC|LLC|LP|CORP|TRUST|CO)\.?)\s*[,("]/);
+  if (entityM) found.entity = entityM[1].trim();
+
+  // Guarantor — "[First Last], an individual"
+  var guarM = plain.match(/([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+){1,3}),\s+an individual/);
+  if (guarM) found.guarantor = guarM[1].trim();
+
+  // Property address — number + street pattern
+  var propM = plain.match(/(\d+ [A-Z][A-Z a-z]+(?:TRAIL|STREET|AVENUE|BOULEVARD|ROAD|HIGHWAY|DRIVE|LANE|WAY|COURT|PLACE)[^,]{0,30})/i);
+  if (propM) found.prop_addr = propM[1].trim();
+
+  // City/State/Zip
+  var cszM = plain.match(/([A-Z][a-zA-Z ]+),\s+([A-Z]{2})\s+(\d{5}(?:-\d{4})?)/);
+  if (cszM) found.prop_csz = cszM[1]+', '+cszM[2]+' '+cszM[3];
+
+  // County
+  var countyM = plain.match(/County of ([A-Z][a-zA-Z ]+?),/);
+  if (countyM) found.county = countyM[1].trim();
+
+  // APN
+  var apnM = plain.match(/APN[/\s]*Tax\s+Id?\s+No\.?\s*[:\s]+([A-Z0-9\-]+)/i);
+  if (apnM) found.apn = apnM[1].trim();
+
+  // Per diem — "$X.XX per day"
+  var pdM = plain.match(/\$(\d+\.\d{2})\s+per day/i);
+  if (pdM) found.per_diem = '$'+pdM[1];
+
+  // Reserve date range
+  var resRangeM = plain.match(/((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d{2})\s+through\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d{2})/);
+  if (resRangeM) { found.res_start = resRangeM[1]; found.res_end = resRangeM[2]; }
+
+  // File/Escrow number
+  var fileM = plain.match(/File[:	\s]+(\d{4,6})/i);
+  if (fileM) found.file_no = fileM[1];
+  var escM = plain.match(/(?:GF#|Escrow No\.?)\s*([A-Z0-9#\-]+)/i);
+  if (escM) found.escrow_no = escM[1];
+
+  // Servicer
+  var svcM = plain.match(/(Superior Loan Servicing|[A-Z][a-zA-Z ]+ Loan Servicing)/i);
+  if (svcM) found.servicer = svcM[1];
+
+  // Lender Funds address variant (Suite letter)
+  var suiteM = plain.match(/380 Beach Road,?\s+Suite\s+([A-Z])/i);
+  if (suiteM) found.suite = suiteM[1];
+
+  console.log('Template scan found:', JSON.stringify(found, null, 2));
+  return found;
+}
+
+// ── Show template scan results in tpl-info area ──────────────────────────────
+function dpPreviewTemplateMatches() {
+  var tf = dpTemplateFields;
+  if (!Object.keys(tf).length) return;
+  var rows = [];
+  if (tf.entity)          rows.push(['Entity in template',     tf.entity]);
+  if (tf.guarantor)       rows.push(['Guarantor in template',  tf.guarantor]);
+  if (tf.loan_numeric)    rows.push(['Loan amount in template', tf.loan_numeric]);
+  if (tf.monthly_numeric) rows.push(['Monthly in template',    tf.monthly_numeric]);
+  if (tf.reserve_numeric) rows.push(['Reserve in template',    tf.reserve_numeric]);
+  if (tf.balloon_numeric) rows.push(['Balloon in template',    tf.balloon_numeric]);
+  if (tf.rate_pct)        rows.push(['Rate in template',       tf.rate_pct]);
+  if (tf.maturity_date)   rows.push(['Maturity in template',   tf.maturity_date]);
+  if (tf.doc_date)        rows.push(['Doc date in template',   tf.doc_date]);
+  if (tf.prop_addr)       rows.push(['Property in template',   tf.prop_addr]);
+  if (tf.county)          rows.push(['County in template',     tf.county]);
+  if (tf.apn)             rows.push(['APN in template',        tf.apn]);
+  if (tf.res_start)       rows.push(['Reserve period',         tf.res_start + ' → ' + (tf.res_end||'?')]);
+
+  var table = '<div style="margin-top:10px;font-size:10px;"><div style="color:var(--teal);margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em;">Auto-detected in template:</div>' +
+    rows.map(function(r){ return '<div style="display:flex;gap:12px;margin-bottom:3px;"><span style="color:var(--muted);width:160px;flex-shrink:0;">'+r[0]+'</span><span style="color:var(--gold);">'+r[1]+'</span></div>'; }).join('') +
+    '</div>';
+  var info = document.getElementById('dp-tpl-info');
+  info.innerHTML += table;
 }
 
 function dpBuildReview() {
@@ -1827,140 +2007,327 @@ async function dpRun() {
     dpLog('✓ Merged '+merged+' run boundaries','ok');
     dpProg(35,'Applying substitutions...');
 
-    var RULES=[
-      [entity+', a Texas Limited Liability Company',entity+', a '+etype,'entity caps fix'],
-      ['LAND TO SKY REALTY LLC, a Texas limited liability company',entity+', a '+etype,'old entity lower'],
-      ['Map and Map, LLC, a New Mexico limited liability company',entity+', a '+etype,'prev NM entity lower'],
-      ['Map and Map, LLC, a New Mexico Limited Liability Company',entity+', a '+etype,'prev NM entity caps'],
-      ['LAND TO SKY REALTY LLC, a Texas Limited Liability Company',entity+', a '+etype,'old entity caps'],
-      ['LAND TO SKY REALTY LLC',entity,'old entity name'],
-      ['Map and Map, LLC, a Texas limited liability company',entity+', a '+etype,'prev entity lower'],
-      ['Map and Map, LLC, a Texas Limited Liability Company',entity+', a '+etype,'prev entity caps'],
-      ['Map and Map, LLC',entity,'prev entity name'],
-      ['a Texas Limited Liability Company','a '+etype,'caps LLC fix'],
-      ['By DERIC OUTLEY, Authorized Signor','By ___________________________, '+v('dp-signor'),'old signor'],
-      ['By Mario Alberto Perez, Managing Member','By ___________________________, '+v('dp-signor'),'prev signor'],
-      ['DERIC OUTLEY, an individual',gname+', an individual','old guar full'],
-      ['DERIC OUTLEY',gname,'old guar name'],
-      ['Mario Alberto Perez, an individual',gname+', an individual','prev guar full'],
-      ['Mario Alberto Perez',gname,'prev guar name'],
-      ['3138 Oakdale, Houston, TX 77004-0000',v('dp-gaddr')+', '+v('dp-gcsz'),'old guar addr'],
-      ['108 Covey Ridge Drive, Del Rio, Texas 78840-0000',v('dp-gaddr')+', '+v('dp-gcsz'),'prev guar addr -0000'],
-      ['108 Covey Ridge Drive, Del Rio, Texas 78840',v('dp-gaddr')+', '+v('dp-gcsz'),'prev guar addr'],
-      ['3138 Oakdale',v('dp-gaddr'),'old guar street'],
-      ['Houston, TX 77004',v('dp-gcsz'),'old guar csz'],
-      ['Del Rio, Texas 78840-0000',v('dp-gcsz'),'zip -0000 fix'],
-      ['Champions Inn &amp; Cafe at Lake Amistad, 11704 West U.S. Highway 90, Del Rio, Texas 78840',v('dp-propcommon').replace(/&/g,'&amp;'),'prev prop common'],
-      ['±40 Acre Industrial Tract, Port Arthur, Texas 77642',v('dp-propcommon').replace(/&/g,'&amp;'),'old prop common'],
-      ['Port Arthur, Texas 77642',v('dp-propcsz'),'old prop csz'],
-      ['Port Arthur',(v('dp-propcsz').split(',')[0]||'').trim(),'old prop city'],
-      ['Del Rio, Texas 78840',v('dp-propcsz'),'prev prop csz'],
-      ['Jefferson County',county+' County','old county full'],
-      ['>Jefferson<','>'+county+'<','old county bold'],
-      ['Val Verde County',county+' County','prev county'],
-      ['Val Verde',county,'prev county bare'],
-      ['>72810<','>'+v('dp-apn')+'<','old apn bold'],['72810',v('dp-apn'),'old apn'],
-      ['>13631<','>'+v('dp-apn')+'<','prev apn bold'],['13631',v('dp-apn'),'prev apn'],
-      ['Maryann Nguyen',v('dp-titleoff'),'old title off'],['Aracely Martinez',v('dp-titleoff'),'prev title off'],
-      ['Patten Title',v('dp-titleco'),'old title co'],['PATTEN TITLE',v('dp-titleco').toUpperCase(),'old title upper'],
-      ['DEL RIO TITLE COMPANY',v('dp-titleco').toUpperCase(),'prev title upper'],
-      ['Del Rio Title Company',v('dp-titleco'),'prev title co'],
-      ['4265 San Felipe St Suite 400',v('dp-titleaddr'),'old title addr'],
-      ['300 East Losoya Street',v('dp-titleaddr'),'prev title addr'],
-      ['maryann.nguyen@pattentitle.com',v('dp-titleem'),'old title email'],
-      ['aracely@delriotitle.com',v('dp-titleem'),'prev title email'],
-      ['Westcor Land Title Insurance Company',v('dp-titleund'),'old underwriter'],
-      ['First American Title Guaranty Company',v('dp-titleund'),'prev underwriter'],
-      // FIX 7: Fidelity title underwriter (v2 corrected)
-      ['Fidelity National Title Insurance Company',v('dp-titleund'),'v2 underwriter Fidelity'],
-      ['FIdelity National Title Insurance Company',v('dp-titleund'),'v2 underwriter FIdelity cap'],
-      ['FIDELITY NATIONAL TITLE INSURANCE COMPANY',v('dp-titleund').toUpperCase(),'v2 underwriter upper'],
-      ['7996-25-63029',v('dp-escrow'),'old escrow no'],['GF#260125A',v('dp-escrow'),'prev escrow no'],
-      ['File:\t48607','File:\t'+v('dp-fileno'),'old file no'],['File:\t49559','File:\t'+v('dp-fileno'),'prev file no'],
-      ['48607',v('dp-fileno'),'old file bare'],['49559',v('dp-fileno'),'prev file bare'],
-      ['Three Hundred Ninety-Nine Thousand and 00/100 Dollars ($399,000.00)',n2w(c.loan)+' ($'+$f(c.loan)+')','prev loan+written'],
-      ['Four Hundred Ninety-Nine Thousand and 00/100 Dollars ($499,000.00)',n2w(c.loan)+' ($'+$f(c.loan)+')','old loan+written'],
-      ['Three Hundred Ninety-Nine Thousand and 00/100 Dollars',n2w(c.loan),'prev loan written'],
-      ['Four Hundred Ninety-Nine Thousand and 00/100 Dollars',n2w(c.loan),'old loan written'],
-      ['$399,000.00','$'+$f(c.loan),'prev loan $'],['$499,000.00','$'+$f(c.loan),'old loan $'],
-      ['Four Thousand Three Hundred Fifty-Four and 80/100 Dollars ($4,354.80)',n2w(c.monthly)+' ($'+$f(c.monthly)+')','prev monthly (wrong)'],
-      ['Four Thousand Three Hundred Forty-Three and 92/100 Dollars ($4,343.92)',n2w(c.monthly)+' ($'+$f(c.monthly)+')','v2 monthly (correct base)'],
-      ['Five Thousand Four Hundred Thirty-Two and 62/100 Dollars ($5,432.62)',n2w(c.monthly)+' ($'+$f(c.monthly)+')','old monthly'],
-      ['Four Thousand Three Hundred Fifty-Four and 80/100 Dollars',n2w(c.monthly),'prev monthly written (wrong)'],
-      ['Four Thousand Three Hundred Forty-Three and 92/100 Dollars',n2w(c.monthly),'v2 monthly written (correct base)'],
-      ['Five Thousand Four Hundred Thirty-Two and 62/100 Dollars',n2w(c.monthly),'old monthly written'],
-      ['$4,354.80','$'+$f(c.monthly),'prev monthly $ (wrong)'],['$4,343.92','$'+$f(c.monthly),'v2 monthly $ (correct base)'],['$5,432.62','$'+$f(c.monthly),'old monthly $'],
-      ['Thirteen Thousand Sixty-Four and 40/100 Dollars ($13,064.40)',n2w(c.reserve)+' ($'+$f(c.reserve)+')','prev reserve (wrong)'],
-      ['Thirteen Thousand Thirty-One and 76/100 Dollars ($13,031.76)',n2w(c.reserve)+' ($'+$f(c.reserve)+')','v2 reserve (correct base)'],
-      ['Sixteen Thousand Two Hundred Ninety-Seven and 86/100 Dollars ($16,297.86)',n2w(c.reserve)+' ($'+$f(c.reserve)+')','old reserve'],
-      ['Thirteen Thousand Sixty-Four and 40/100 Dollars',n2w(c.reserve),'prev reserve written (wrong)'],
-      ['Thirteen Thousand Thirty-One and 76/100 Dollars',n2w(c.reserve),'v2 reserve written (correct base)'],
-      ['Sixteen Thousand Two Hundred Ninety-Seven and 86/100 Dollars',n2w(c.reserve),'old reserve written'],
-      ['$13,064.40','$'+$f(c.reserve),'prev reserve $ (wrong)'],['$13,031.76','$'+$f(c.reserve),'v2 reserve $ (correct base)'],['$16,297.86','$'+$f(c.reserve),'old reserve $'],
-      ['Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars ($398,326.09)',n2w(c.balloon)+' ($'+$f(c.balloon)+')','prev balloon (wrong)'],
-      ['Four Hundred Two Thousand Six Hundred Sixty-Nine and 90/100 Dollars ($402,669.90)',n2w(c.balloon)+' ($'+$f(c.balloon)+')','v2 balloon (correct base)'],
-      ['Five Hundred Three Thousand Five Hundred Eighty-Nine and 71/100 Dollars ($503,589.71)',n2w(c.balloon)+' ($'+$f(c.balloon)+')','old balloon'],
-      ['Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars',n2w(c.balloon),'prev balloon written (wrong)'],
-      ['Four Hundred Two Thousand Six Hundred Sixty-Nine and 90/100 Dollars',n2w(c.balloon),'v2 balloon written (correct base)'],
-      ['Five Hundred Three Thousand Five Hundred Eighty-Nine and 71/100 Dollars',n2w(c.balloon),'old balloon written'],
-      ['$398,326.09','$'+$f(c.balloon),'prev balloon $ (wrong)'],['$402,669.90','$'+$f(c.balloon),'v2 balloon $ (correct base)'],['$503,589.71','$'+$f(c.balloon),'old balloon $'],
-      ['Four Hundred Ninety-Eight Thousand Seven Hundred Fifty and 00/100 Dollars ($498,750.00)',n2w(c.alta)+' ($'+$f(c.alta)+')','prev ALTA'],
-      ['Six Hundred Twenty-Three Thousand Seven Hundred Fifty and 00/100 Dollars ($623,750.00)',n2w(c.alta)+' ($'+$f(c.alta)+')','old ALTA'],
-      ['Four Hundred Ninety-Eight Thousand Seven Hundred Fifty and 00/100 Dollars',n2w(c.alta),'prev ALTA written'],
-      ['Six Hundred Twenty-Three Thousand Seven Hundred Fifty and 00/100 Dollars',n2w(c.alta),'old ALTA written'],
-      ['($498,750.00) (125% of the principal balance)','($'+$f(c.alta)+') (125% of the principal balance)','prev ALTA num'],
-      ['($623,750.00) (125% of the principal balance)','($'+$f(c.alta)+') (125% of the principal balance)','old ALTA num'],
-      ['amount of $13,965.00; (Delivery instructions to be provided);','amount of $'+$f(origFee)+'; (Delivery instructions to be provided);','prev orig fee'],
-      ['amount of $13,965; (Delivery instructions to be provided);','amount of $'+$f(origFee)+'; (Delivery instructions to be provided);','prev orig fee2'],
-      ['amount of $17,465; (Delivery instructions to be provided);','amount of $'+$f(origFee)+'; (Delivery instructions to be provided);','old orig fee'],
-      ['Underwriting Fee payable to LENDER FUNDS, Inc. in the amount of $2,520.00;','Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f(docPrep)+';','old UW→docprep'],
-      ['Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,499.00;','Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f(docPrep)+';','prev docprep'],
-      ['Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,595.00;','Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f(docPrep)+';','prev docprep2'],
-      ['Processing Fee payable to LENDER FUNDS, Inc. in the amount of $995.00;','Processing Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f(procFee)+';','prev proc fee'],
-      ['Processing Fee payable to LENDER FUNDS, Inc. in the amount of $1,060.00;','Processing Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f(procFee)+';','old proc fee'],
-      ['Wire Fee payable to LENDER FUNDS, Inc. in the amount of $45.00;','','wire fee remove'],
-      ['Legal Fee payable to LENDER FUNDS, Inc.','','legal fee remove'],
-      ['Doc Service Pro CORPORATION','LENDER FUNDS, Inc.','template artifact fix'],
-      ['$180.06 per day from date funds disbursed by escrow through November 30, 2025','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'old per diem line'],
-      ['$142.00 per day from date funds disbursed by escrow through April 30, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'prev per diem Apr'],
-      ['$142.00 per day from date funds disbursed by escrow through May 31, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'prev per diem May (wrong 365-day)'],
-      // FIX 2: v2 corrected per diem patterns (360-day basis = $143.97)
-      ['$143.97.00 per day from date funds disbursed by escrow through May 31, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'v2 per diem May (correct 360-day)'],
-      ['$143.97 per day from date funds disbursed by escrow through May 31, 2026','$'+c.perDiem.toFixed(2)+' per day from date funds disbursed by escrow through '+c.pdThru,'v2 per diem May clean'],
-      ['$180.06','$'+c.perDiem.toFixed(2),'old per diem'],['$142.00','$'+c.perDiem.toFixed(2),'prev per diem (wrong 365-day)'],['$143.97','$'+c.perDiem.toFixed(2),'v2 per diem (correct 360-day base)'],
-      ['Twenty and 99/100 Percent (20.99%)','Twenty-Four and 99/100 Percent ('+defRate+'%)','old default rate'],
-      ['Twenty-Four and 99/100 Percent (24.99%)','Twenty-Four and 99/100 Percent ('+defRate+'%)','prev default rate'],
-      ['(20.99%)','('+defRate+'%)','old default paren'],['(24.99%)','('+defRate+'%)','prev default paren'],
-      ['January 1, 2026 through March 1, 2026',c.res1+' through '+c.res3,'old reserve range'],
-      ['May 1, 2026 through July 1, 2026',c.res1+' through '+c.res3,'prev reserve May-Jul'],
-      ['June 1, 2026 through August 1, 2026',c.res1+' through '+c.res3,'prev reserve Jun-Aug'],
-      ['November 30, 2025',c.pdThru,'old per diem through'],
-      ['April 30, 2026',c.pdThru,'prev per diem Apr'],['May 31, 2026',c.pdThru,'prev per diem May'],
-      ['April 1, 2026',c.first,'prev first Apr'],['August 1, 2026',c.first,'prev first Aug'],['September 1, 2026',c.first,'prev first Sep'],
-      ['January 1, 2026',c.res1,'old res1'],['May 1, 2026',c.res1,'prev res1'],['June 1, 2026',c.res1,'prev res1b'],
-      ['March 1, 2026',c.res3,'old res3'],['July 1, 2026',c.res3,'prev res3'],['August 1, 2026',c.res3,'prev res3b'],
-      ['June 30, 2026',c.lockout,'old lockout'],['October 31, 2026',c.lockout,'prev lockout Oct'],['November 30, 2026',c.lockout,'prev lockout Nov'],
-      ['December 1, 2027',c.maturity,'old maturity'],['April 1, 2028',c.maturity,'prev maturity Apr'],['May 1, 2028',c.maturity,'prev maturity May'],
-      ['October 27, 2025',c.docDate,'old doc date'],['April 15, 2026',c.docDate,'prev doc date'],
-      ['April __, 2026',c.docDate,'prev blank Apr'],['May __, 2026',c.docDate,'prev blank May'],
-      // FIX 4: Additional reserve range patterns (v2-corrected dates Jul-Sep 2026)
-      ['July 1, 2026 through September 1, 2026',c.res1+' through '+c.res3,'v2 reserve Jul-Sep'],
-      // FIX 5: Additional maturity date patterns
-      ['June 1, 2028',c.maturity,'v2 maturity Jun-2028'],
-      // FIX 4: Additional first/fourth payment patterns
-      ['October 1, 2026',c.first,'v2 fourth payment Oct'],
-      // FIX 4: Additional res1/res3 standalone patterns
-      ['July 1, 2026',c.res1,'v2 res1 Jul'],['September 1, 2026',c.res3,'v2 res3 Sep'],
-      // Additional per diem through patterns
-      ['May 31, 2026',c.pdThru,'v2 pdThru May31'],
-      ['June 30, 2026',c.pdThru,'v2 pdThru Jun30'],
-      ['***Arbitration County TE***',county+' County, '+state,'arb county placeholder'],
-      ['***Arbitration County NM***',county+' County, '+state,'arb county NM placeholder'],
-      ['Bernalillo County, New Mexico',county+' County, '+state,'prev arb NM Bernalillo'],
-      ['Dona Ana County, New Mexico',county+' County, '+state,'prev arb NM Dona Ana'],
-      ['San Juan County, New Mexico',county+' County, '+state,'prev arb NM San Juan'],
-      ['Val Verde County, Texas',county+' County, '+state,'prev arb county'],
-    ];
+    // ── DYNAMIC RULE BUILDER ─────────────────────────────────────────────────────
+    // Builds substitution rules from:
+    // 1. What the template scanner found IN the template (old values)
+    // 2. What the user filled in the form fields (new values)
+    // This means ANY deal with ANY template works — no hardcoding needed.
+
+    var tf = dpTemplateFields; // what was IN the old template
+    var RULES = [];
+
+    // ── Helper: add rule only if old value exists in xml ──────────────────────
+    function addRule(oldVal, newVal, label) {
+      if (!oldVal || !newVal || oldVal === newVal) return;
+      RULES.push([oldVal, newVal, label]);
+    }
+
+    var $f2 = function(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+    var loan$   = '$'+$f2(c.loan);
+    var monthly$= '$'+$f2(c.monthly);
+    var res$    = '$'+$f2(c.reserve);
+    var bal$    = '$'+$f2(c.balloon);
+    var alta$   = '$'+$f2(c.alta);
+    var loanW   = n2w(c.loan);
+    var monthlyW= n2w(c.monthly);
+    var resW    = n2w(c.reserve);
+    var balW    = n2w(c.balloon);
+    var altaW   = n2w(c.alta);
+
+    // ── ENTITY — replace whatever was in template with new entity ─────────────
+    if (tf.entity) {
+      // Replace "OLD ENTITY, a [old type]" → "new entity, a new type"
+      addRule(tf.entity+', a '+tf.entity_type_lower, entity+', a '+etype, 'tpl entity+type lower');
+      addRule(tf.entity+', a '+tf.entity_type_caps,  entity+', a '+etype, 'tpl entity+type caps');
+      addRule(tf.entity, entity, 'tpl entity bare');
+    }
+    // Fallback hardcoded patterns (catch template boilerplate regardless of scan)
+    addRule('LAND TO SKY REALTY LLC, a Texas limited liability company', entity+', a '+etype, 'old entity lower');
+    addRule('LAND TO SKY REALTY LLC, a Texas Limited Liability Company', entity+', a '+etype, 'old entity caps');
+    addRule('LAND TO SKY REALTY LLC', entity, 'old entity name');
+    addRule('Map and Map, LLC, a Texas limited liability company', entity+', a '+etype, 'prev TX entity lower');
+    addRule('Map and Map, LLC, a Texas Limited Liability Company', entity+', a '+etype, 'prev TX entity caps');
+    addRule('Map and Map, LLC, a New Mexico limited liability company', entity+', a '+etype, 'prev NM entity lower');
+    addRule('Map and Map, LLC', entity, 'prev entity name');
+    addRule('ABUNDANT LIFE SUCCESS INC., a New Mexico corporation', entity+', a '+etype, 'NM entity corp lower');
+    addRule('ABUNDANT LIFE SUCCESS INC., a New Mexico Corporation', entity+', a '+etype, 'NM entity corp caps');
+    addRule('ABUNDANT LIFE SUCCESS INC.', entity, 'NM entity name');
+    addRule('ABUNDANT LIFE SUCCESS INC', entity, 'NM entity name bare');
+    // Entity type casing fix
+    addRule('a Texas Limited Liability Company', 'a '+etype, 'caps LLC fix');
+    addRule(entity+', a Texas Limited Liability Company', entity+', a '+etype, 'entity caps fix');
+
+    // ── GUARANTOR — replace template guarantor with new guarantor ─────────────
+    var gaddr = v('dp-gaddr'), gcsz = v('dp-gcsz');
+    if (tf.guarantor) {
+      addRule(tf.guarantor+', an individual', gname+', an individual', 'tpl guar+individual');
+      addRule(tf.guarantor, gname, 'tpl guar bare');
+    }
+    // Hardcoded fallbacks
+    addRule('STEPHEN MILLSS, an individual', gname+', an individual', 'NM guar full typo');
+    addRule('STEPHEN MILLS, an individual',  gname+', an individual', 'NM guar full');
+    addRule('STEPHEN MILLSS', gname, 'NM guar typo');
+    addRule('STEPHEN MILLS',  gname, 'NM guar');
+    addRule('DERIC OUTLEY, an individual', gname+', an individual', 'old guar full');
+    addRule('DERIC OUTLEY', gname, 'old guar');
+    addRule('Mario Alberto Perez, an individual', gname+', an individual', 'prev guar full');
+    addRule('Mario Alberto Perez', gname, 'prev guar');
+    // Guarantor address
+    var guarFull = gaddr+', '+gcsz;
+    addRule('32091 POINT Pl, LAGUNA BEACH, CA 92651', guarFull, 'NM guar addr');
+    addRule('32091 POINT PL, LAGUNA BEACH, CA 92651', guarFull, 'NM guar addr caps');
+    addRule('32091 POINT Pl', gaddr, 'NM guar street');
+    addRule('LAGUNA BEACH, CA 92651', gcsz, 'NM guar csz');
+    addRule('108 Covey Ridge Drive, Del Rio, Texas 78840-0000', guarFull, 'prev guar addr -0000');
+    addRule('108 Covey Ridge Drive, Del Rio, Texas 78840', guarFull, 'prev guar addr');
+    addRule('108 Covey Ridge Drive', gaddr, 'prev guar street');
+    addRule('Del Rio, Texas 78840-0000', gcsz, 'zip -0000 fix');
+    addRule('3138 Oakdale, Houston, TX 77004-0000', guarFull, 'old guar addr');
+    addRule('3138 Oakdale', gaddr, 'old guar street');
+    addRule('Houston, TX 77004', gcsz, 'old guar csz');
+
+    // ── PROPERTY ──────────────────────────────────────────────────────────────
+    var propCommon = v('dp-propcommon'), propAddr = v('dp-propaddr'), propCsz = v('dp-propcsz');
+    if (tf.prop_addr) {
+      addRule(tf.prop_addr+', '+tf.prop_csz, propCommon, 'tpl prop full');
+      addRule(tf.prop_addr, propAddr, 'tpl prop street');
+    }
+    if (tf.prop_csz) addRule(tf.prop_csz, propCsz, 'tpl prop csz');
+    // Hardcoded fallbacks
+    addRule('41 SONRISA TRAIL, SANTA FE, NM 87506', propCommon, 'NM prop full');
+    addRule('41 SONRISA TRAIL SANTA FE, NM 87506', propCommon, 'NM prop no comma');
+    addRule('41 SONRISA TRAIL', propAddr||'41 SONRISA TRAIL', 'NM prop street');
+    addRule('SANTA FE, NM 87506', propCsz, 'NM prop csz');
+    addRule('Champions Inn &amp; Cafe at Lake Amistad, 11704 West U.S. Highway 90, Del Rio, Texas 78840', (propCommon||'').replace(/&/g,'&amp;'), 'prev prop common');
+    addRule('Del Rio, Texas 78840', propCsz, 'prev prop csz');
+    addRule('Port Arthur, Texas 77642', propCsz, 'old prop csz');
+
+    // ── COUNTY ────────────────────────────────────────────────────────────────
+    if (tf.county) {
+      addRule('County of '+tf.county, county+' County', 'tpl county of');
+      addRule(tf.county+' County', county+' County', 'tpl county');
+      addRule(tf.county, county, 'tpl county bare');
+    }
+    addRule('City of Albuquerque, County of Bernalillo, State of New Mexico',
+            'City of '+(propCsz.split(',')[0]||'')+', County of '+county+', State of '+state, 'NM city/county/state');
+    addRule('County of Bernalillo', county+' County', 'NM county of');
+    addRule('Bernalillo County', county+' County', 'NM county');
+    addRule('Bernalillo', county, 'NM county bare');
+    addRule('Jefferson County', county+' County', 'old county full');
+    addRule('Val Verde County', county+' County', 'prev county');
+    addRule('Val Verde', county, 'prev county bare');
+
+    // ── APN ───────────────────────────────────────────────────────────────────
+    var apn = v('dp-apn');
+    if (tf.apn) addRule(tf.apn, apn, 'tpl apn');
+    addRule('1-051-102-213-046', apn, 'NM apn');
+    addRule('>13631<', '>'+apn+'<', 'prev apn bold');
+    addRule('13631', apn, 'prev apn');
+    addRule('>72810<', '>'+apn+'<', 'old apn bold');
+    addRule('72810', apn, 'old apn');
+
+    // ── LOAN AMOUNT ───────────────────────────────────────────────────────────
+    if (tf.loan_written && tf.loan_numeric) {
+      addRule(tf.loan_written+' ('+tf.loan_numeric+')', loanW+' ('+loan$+')', 'tpl loan written+$');
+      addRule(tf.loan_written, loanW, 'tpl loan written');
+      addRule(tf.loan_numeric, loan$, 'tpl loan $');
+    }
+    // Hardcoded fallbacks for known templates
+    addRule('Nine Hundred Ninety-Nine Thousand and 00/100 Dollars ($999,000.00)', loanW+' ('+loan$+')', 'NM loan');
+    addRule('Nine Hundred Ninety-Nine Thousand and 00/100 Dollars', loanW, 'NM loan written');
+    addRule('$999,000.00', loan$, 'NM loan $');
+    addRule('Three Hundred Ninety-Nine Thousand and 00/100 Dollars ($399,000.00)', loanW+' ('+loan$+')', 'prev TX loan');
+    addRule('Three Hundred Ninety-Nine Thousand and 00/100 Dollars', loanW, 'prev TX loan written');
+    addRule('$399,000.00', loan$, 'prev TX loan $');
+    addRule('Four Hundred Ninety-Nine Thousand and 00/100 Dollars ($499,000.00)', loanW+' ('+loan$+')', 'old loan');
+    addRule('$499,000.00', loan$, 'old loan $');
+
+    // ── MONTHLY PAYMENT ───────────────────────────────────────────────────────
+    if (tf.monthly_written && tf.monthly_numeric) {
+      addRule(tf.monthly_written+' ('+tf.monthly_numeric+')', monthlyW+' ('+monthly$+')', 'tpl monthly written+$');
+      addRule(tf.monthly_written, monthlyW, 'tpl monthly written');
+      addRule(tf.monthly_numeric, monthly$, 'tpl monthly $');
+    }
+    addRule('Eleven Thousand Six Hundred Ninety-One and 51/100 Dollars ($11,691.51)', monthlyW+' ('+monthly$+')', 'NM monthly');
+    addRule('Eleven Thousand Six Hundred Ninety-One and 51/100 Dollars', monthlyW, 'NM monthly written');
+    addRule('$11,691.51', monthly$, 'NM monthly $');
+    addRule('Four Thousand Three Hundred Forty-Three and 92/100 Dollars ($4,343.92)', monthlyW+' ('+monthly$+')', 'prev TX monthly');
+    addRule('Four Thousand Three Hundred Fifty-Four and 80/100 Dollars ($4,354.80)', monthlyW+' ('+monthly$+')', 'prev TX monthly wrong');
+    addRule('$4,343.92', monthly$, 'prev TX monthly $');
+    addRule('$4,354.80', monthly$, 'prev TX monthly $ wrong');
+    addRule('Five Thousand Four Hundred Thirty-Two and 62/100 Dollars ($5,432.62)', monthlyW+' ('+monthly$+')', 'old monthly');
+    addRule('$5,432.62', monthly$, 'old monthly $');
+
+    // ── INTEREST RESERVE ──────────────────────────────────────────────────────
+    if (tf.reserve_written && tf.reserve_numeric) {
+      addRule(tf.reserve_written+' ('+tf.reserve_numeric+')', resW+' ('+res$+')', 'tpl reserve written+$');
+      addRule(tf.reserve_written, resW, 'tpl reserve written');
+      addRule(tf.reserve_numeric, res$, 'tpl reserve $');
+    }
+    addRule('Seventy Thousand One Hundred Forty-Nine and 06/100 Dollars ($70,149.06)', resW+' ('+res$+')', 'NM reserve');
+    addRule('Seventy Thousand One Hundred Forty-Nine and 06/100 Dollars', resW, 'NM reserve written');
+    addRule('$70,149.06', res$, 'NM reserve $');
+    addRule('Thirteen Thousand Thirty-One and 76/100 Dollars ($13,031.76)', resW+' ('+res$+')', 'prev TX reserve');
+    addRule('Thirteen Thousand Sixty-Four and 40/100 Dollars ($13,064.40)', resW+' ('+res$+')', 'prev TX reserve wrong');
+    addRule('$13,031.76', res$, 'prev TX reserve $');
+    addRule('$13,064.40', res$, 'prev TX reserve $ wrong');
+    addRule('Sixteen Thousand Two Hundred Ninety-Seven and 86/100 Dollars ($16,297.86)', resW+' ('+res$+')', 'old reserve');
+    addRule('$16,297.86', res$, 'old reserve $');
+
+    // ── BALLOON ───────────────────────────────────────────────────────────────
+    if (tf.balloon_written && tf.balloon_numeric) {
+      addRule(tf.balloon_written+' ('+tf.balloon_numeric+')', balW+' ('+bal$+')', 'tpl balloon written+$');
+      addRule(tf.balloon_written, balW, 'tpl balloon written');
+      addRule(tf.balloon_numeric, bal$, 'tpl balloon $');
+    }
+    addRule('One Million Nine Thousand Four Hundred Fifty-Eight and 10/100 Dollars ($1,009,458.10)', balW+' ('+bal$+')', 'NM balloon');
+    addRule('One Million Nine Thousand Four Hundred Fifty-Eight and 10/100 Dollars', balW, 'NM balloon written');
+    addRule('$1,009,458.10', bal$, 'NM balloon $');
+    addRule('Four Hundred Two Thousand Six Hundred Sixty-Nine and 90/100 Dollars ($402,669.90)', balW+' ('+bal$+')', 'prev TX balloon');
+    addRule('Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars ($398,326.09)', balW+' ('+bal$+')', 'prev TX balloon wrong');
+    addRule('$402,669.90', bal$, 'prev TX balloon $');
+    addRule('$398,326.09', bal$, 'prev TX balloon $ wrong');
+    addRule('Five Hundred Three Thousand Five Hundred Eighty-Nine and 71/100 Dollars ($503,589.71)', balW+' ('+bal$+')', 'old balloon');
+    addRule('$503,589.71', bal$, 'old balloon $');
+
+    // ── ALTA ──────────────────────────────────────────────────────────────────
+    if (tf.alta_written && tf.alta_numeric) {
+      addRule(tf.alta_written+' ('+tf.alta_numeric+')', altaW+' ('+alta$+')', 'tpl ALTA written+$');
+      addRule(tf.alta_written, altaW, 'tpl ALTA written');
+      addRule(tf.alta_numeric, alta$, 'tpl ALTA $');
+    }
+    addRule('One Million Two Hundred Forty-Eight Thousand Seven Hundred Fifty and 00/100 Dollars ($1,248,750.00)', altaW+' ('+alta$+')', 'NM ALTA');
+    addRule('($1,248,750.00) (125% of the principal balance)', '('+alta$+') (125% of the principal balance)', 'NM ALTA num');
+    addRule('$1,248,750.00', alta$, 'NM ALTA $');
+    addRule('Four Hundred Ninety-Eight Thousand Seven Hundred Fifty and 00/100 Dollars ($498,750.00)', altaW+' ('+alta$+')', 'prev TX ALTA');
+    addRule('($498,750.00) (125% of the principal balance)', '('+alta$+') (125% of the principal balance)', 'prev TX ALTA num');
+    addRule('$498,750.00', alta$, 'prev TX ALTA $');
+    addRule('Six Hundred Twenty-Three Thousand Seven Hundred Fifty and 00/100 Dollars ($623,750.00)', altaW+' ('+alta$+')', 'old ALTA');
+    addRule('$623,750.00', alta$, 'old ALTA $');
+
+    // ── PER DIEM ──────────────────────────────────────────────────────────────
+    var pd = '$'+c.perDiem.toFixed(2);
+    if (tf.per_diem) addRule(tf.per_diem+' per day', pd+' per day', 'tpl per diem');
+    addRule('$388.22 per day', pd+' per day', 'NM per diem');
+    addRule('$143.97.00 per day', pd+' per day', 'prev TX per diem typo');
+    addRule('$143.97 per day', pd+' per day', 'prev TX per diem');
+    addRule('$142.00 per day', pd+' per day', 'prev TX per diem 365');
+    addRule('$180.06 per day', pd+' per day', 'old per diem');
+    addRule('$388.22', pd, 'NM per diem bare');
+    addRule('$143.97', pd, 'prev TX per diem bare');
+    addRule('$142.00', pd, 'prev TX per diem bare 365');
+    addRule('$180.06', pd, 'old per diem bare');
+    // Per diem + through date
+    addRule('$388.22 per day from date funds disbursed by escrow through '+c.pdThru, pd+' per day from date funds disbursed by escrow through '+c.pdThru, 'NM per diem line');
+    addRule('$143.97 per day from date funds disbursed by escrow through May 31, 2026', pd+' per day from date funds disbursed by escrow through '+c.pdThru, 'prev TX per diem line');
+    addRule('$142.00 per day from date funds disbursed by escrow through May 31, 2026', pd+' per day from date funds disbursed by escrow through '+c.pdThru, 'prev TX per diem line 365');
+
+    // ── RATE ──────────────────────────────────────────────────────────────────
+    if (tf.rate_written) addRule(tf.rate_written+' ('+tf.rate_pct+')', c.rate+'%', 'tpl rate written');
+    if (tf.rate_pct)     addRule(tf.rate_pct, c.rate+'%', 'tpl rate %');
+    addRule('Thirteen and 99/100 Percent (13.99%)', c.rate+'%', 'NM rate written');
+    addRule('13.99%', c.rate+'%', 'NM rate %');
+
+    // ── DATES ─────────────────────────────────────────────────────────────────
+    if (tf.doc_date)      addRule(tf.doc_date, c.docDate, 'tpl doc date');
+    if (tf.maturity_date) addRule(tf.maturity_date, c.maturity, 'tpl maturity');
+    if (tf.res_start)     addRule(tf.res_start, c.res1, 'tpl res start');
+    if (tf.res_end)       addRule(tf.res_end,   c.res3, 'tpl res end');
+    if (tf.res_start && tf.res_end) addRule(tf.res_start+' through '+tf.res_end, c.res1+' through '+c.res3, 'tpl reserve range');
+
+    // Hardcoded date fallbacks (all known templates)
+    addRule('December 19, 2024', c.docDate, 'NM doc date');
+    addRule('February 1, 2027',  c.maturity, 'NM maturity');
+    addRule('March 1, 2025 through August 1, 2025', c.res1+' through '+c.res3, 'NM reserve range');
+    addRule('March 1, 2025',    c.res1, 'NM res start');
+    addRule('August 1, 2025',   c.res3, 'NM res end');
+    addRule('September 1, 2025',c.first, 'NM first bwr pmt');
+    addRule('October 27, 2025', c.docDate, 'old doc date');
+    addRule('April 15, 2026',   c.docDate, 'prev TX doc date');
+    addRule('April __, 2026',   c.docDate, 'prev TX blank date');
+    addRule('June 1, 2028',     c.maturity, 'prev TX maturity');
+    addRule('April 1, 2028',    c.maturity, 'prev TX maturity Apr');
+    addRule('July 1, 2026 through September 1, 2026', c.res1+' through '+c.res3, 'prev TX reserve range');
+    addRule('May 1, 2026 through July 1, 2026', c.res1+' through '+c.res3, 'prev TX reserve range 2');
+    addRule('June 1, 2026 through August 1, 2026', c.res1+' through '+c.res3, 'prev TX reserve range 3');
+    addRule('July 1, 2026', c.res1, 'prev TX res1');
+    addRule('June 1, 2026', c.res1, 'prev TX res1b');
+    addRule('May 1, 2026',  c.res1, 'prev TX res1c');
+    addRule('September 1, 2026', c.res3, 'prev TX res3');
+    addRule('August 1, 2026',    c.res3, 'prev TX res3b');
+    addRule('October 1, 2026',   c.first, 'prev TX first bwr');
+    addRule('August 1, 2026',    c.first, 'prev TX first bwr aug');
+    addRule('November 30, 2025', c.pdThru, 'old pdThru');
+    addRule('May 31, 2026',      c.pdThru, 'prev TX pdThru');
+    addRule('June 30, 2026',     c.lockout||c.pdThru, 'prev TX lockout');
+    addRule('October 31, 2026',  c.lockout||c.maturity, 'prev TX lockout Oct');
+    addRule('November 30, 2026', c.lockout||c.maturity, 'prev TX lockout Nov');
+    addRule('December 1, 2027',  c.maturity, 'old maturity');
+    addRule('January 1, 2026',   c.res1, 'old res1');
+    addRule('March 1, 2026',     c.res3, 'old res3');
+
+    // ── TITLE / ESCROW / FILE / SERVICER ──────────────────────────────────────
+    var titleco = v('dp-titleco'), titleoff = v('dp-titleoff'), titleem = v('dp-titleem');
+    var titleaddr = v('dp-titleaddr'), titleund = v('dp-titleund'), servicer = v('dp-servicer');
+    var fileno = v('dp-fileno'), escrow = v('dp-escrow');
+
+    addRule('Maryann Nguyen', titleoff, 'old title off');
+    addRule('Aracely Martinez', titleoff, 'prev title off');
+    addRule('Patten Title', titleco, 'old title co');
+    addRule('PATTEN TITLE', titleco.toUpperCase(), 'old title upper');
+    addRule('DEL RIO TITLE COMPANY', titleco.toUpperCase(), 'prev title upper');
+    addRule('Del Rio Title Company', titleco, 'prev title co');
+    addRule('4265 San Felipe St Suite 400', titleaddr, 'old title addr');
+    addRule('300 East Losoya Street', titleaddr, 'prev title addr');
+    addRule('maryann.nguyen@pattentitle.com', titleem, 'old title email');
+    addRule('aracely@delriotitle.com', titleem, 'prev title email');
+    addRule('Westcor Land Title Insurance Company', titleund, 'old underwriter');
+    addRule('First American Title Guaranty Company', titleund, 'prev underwriter');
+    addRule('Fidelity National Title Insurance Company', titleund, 'Fidelity underwriter');
+    addRule('FIdelity National Title Insurance Company', titleund, 'FIdelity underwriter');
+    addRule('FIDELITY NATIONAL TITLE INSURANCE COMPANY', titleund.toUpperCase(), 'Fidelity upper');
+    addRule('7996-25-63029', escrow, 'old escrow');
+    addRule('GF#260125A', escrow, 'prev escrow');
+    addRule('File:	48607', 'File:	'+fileno, 'old file no');
+    addRule('File:	49559', 'File:	'+fileno, 'prev file no');
+    addRule('48607', fileno, 'old file bare');
+    addRule('49559', fileno, 'prev file bare');
+    addRule('Superior Loan Servicing', servicer||'Superior Loan Servicing', 'servicer');
+    // Suite R → Suite N (NM template uses R, standard is N)
+    addRule('380 Beach Road, Suite R, Burlingame', '380 Beach Road, Suite N, Burlingame', 'suite R→N');
+    addRule('380 Beach Road, Suite R Burlingame',  '380 Beach Road, Suite N, Burlingame', 'suite R→N no comma');
+
+    // ── FEES ──────────────────────────────────────────────────────────────────
+    addRule('amount of $13,965.00; (Delivery instructions to be provided);', 'amount of $'+$f2(origFee)+'; (Delivery instructions to be provided);', 'prev orig fee');
+    addRule('amount of $13,965; (Delivery instructions to be provided);',    'amount of $'+$f2(origFee)+'; (Delivery instructions to be provided);', 'prev orig fee2');
+    addRule('amount of $17,465; (Delivery instructions to be provided);',    'amount of $'+$f2(origFee)+'; (Delivery instructions to be provided);', 'old orig fee');
+    addRule('Underwriting Fee payable to LENDER FUNDS, Inc. in the amount of $2,520.00;', 'Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f2(docPrep)+';', 'old UW→docprep');
+    addRule('Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,499.00;', 'Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f2(docPrep)+';', 'prev docprep');
+    addRule('Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,595.00;', 'Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f2(docPrep)+';', 'prev docprep2');
+    addRule('Processing Fee payable to LENDER FUNDS, Inc. in the amount of $995.00;',  'Processing Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f2(procFee)+';', 'prev proc fee');
+    addRule('Processing Fee payable to LENDER FUNDS, Inc. in the amount of $1,060.00;','Processing Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f2(procFee)+';', 'old proc fee');
+    addRule('Wire Fee payable to LENDER FUNDS, Inc. in the amount of $45.00;', '', 'wire fee remove');
+    addRule('Legal Fee payable to LENDER FUNDS, Inc.', '', 'legal fee remove');
+    addRule('Doc Service Pro CORPORATION', 'LENDER FUNDS, Inc.', 'template artifact');
+
+    // ── DEFAULT RATE ──────────────────────────────────────────────────────────
+    addRule('Twenty and 99/100 Percent (20.99%)',   'Twenty-Four and 99/100 Percent ('+defRate+'%)', 'old default rate');
+    addRule('Twenty-Four and 99/100 Percent (24.99%)','Twenty-Four and 99/100 Percent ('+defRate+'%)', 'prev default rate');
+    addRule('(20.99%)', '('+defRate+'%)', 'old default paren');
+    addRule('(24.99%)', '('+defRate+'%)', 'prev default paren');
+
+    // ── ARBITRATION COUNTY ────────────────────────────────────────────────────
+    addRule('***Arbitration County TE***', county+' County, '+state, 'arb county TE');
+    addRule('***Arbitration County NM***', county+' County, '+state, 'arb county NM');
+    addRule('Val Verde County, Texas', county+' County, '+state, 'prev arb county');
+    addRule('City of Albuquerque, County of Bernalillo', county+' County, '+state, 'NM arb city/county');
+    addRule('Bernalillo County, New Mexico', county+' County, '+state, 'NM arb Bernalillo');
+
+    // Remove empty/invalid rules
+    RULES = RULES.filter(function(r){ return r[0] && r[1] && r[0] !== r[1]; });
+    dpLog('✓ Built '+RULES.length+' substitution rules ('+Object.keys(tf).length+' from template scan)','ok');
+
+
 
     dpProg(50,'Applying '+RULES.length+' substitution rules...');
     var totalReps=0;
@@ -1993,7 +2360,7 @@ async function dpRun() {
 
     dpProg(85,'Verifying...');
     // FIX 8: Add borrower city check — warn if any known wrong city appears
-    var mustZero=['LAND TO SKY','DERIC OUTLEY','Port Arthur','October 27, 2025','78840-0000','Burbank, TX','Burbank, Texas','Val Verde County, Texas','Del Rio, Texas'];
+    var mustZero=['LAND TO SKY','DERIC OUTLEY','Port Arthur','October 27, 2025','78840-0000','Burbank, TX','Burbank, Texas','Val Verde County, Texas','Del Rio, Texas','ABUNDANT LIFE','STEPHEN MILL','SONRISA','Bernalillo','LAGUNA BEACH'];
     var warns=0;
     mustZero.forEach(function(t){if(xml.includes(t)){dpLog('  ⚠ Still found: "'+t+'"','warn');warns++;}});
     dpLog(warns===0?'✓ All verifications passed':'⚠ '+warns+' warnings — review output carefully',warns?'warn':'ok');
@@ -2102,7 +2469,7 @@ function dpReset(){
   document.getElementById('dp-tpl-info').style.display='none';
   document.getElementById('dp-btn1').disabled=true;
   document.getElementById('ex-files-list').innerHTML='';
-  document.getElementById('ex-dropzone').classList.remove('loaded');
+  // no loaded class to remove
   document.getElementById('ex-progress').classList.remove('visible');
   document.getElementById('ex-steps').innerHTML='';
   document.getElementById('ex-skip-btn').style.display='none';
