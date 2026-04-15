@@ -3,625 +3,785 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lend | FirstLien.Capital</title>
+<title>Deploy Capital | FirstLien.Capital — Private Lending Marketplace</title>
+<meta name="description" content="Access AI-matched private lending deals. First-lien secured. 1,000+ qualified borrowers. Set your criteria once — deals come to you.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --cream:   #f7f4ee;
-  --cream2:  #eee9de;
-  --white:   #ffffff;
-  --ink:     #1a1510;
-  --ink2:    #3a3028;
-  --muted:   #8a7f6e;
-  --border:  #d8d0c0;
-  --border2: #c8bfae;
-  --gold:    #9a7c2e;
-  --gold-l:  #c89b28;
-  --gold-bg: rgba(154,124,46,0.08);
-  --teal:    #0a7b6a;
-  --teal-bg: rgba(10,123,106,0.07);
-  --teal-l:  #0d9882;
-  --green:   #1a6a3a;
-  --red:     #8b2020;
-  --dark:    #02040a;
-  --r:       4px;
+  --ink:    #0b0a08; --ink2: #1c1a16;
+  --cream:  #f8f5ef; --cream2: #f0ebe0;
+  --white:  #ffffff; --border: #e2d9c8; --muted: #6b6254;
+  --gold:   #b8912a; --gold-l: #d4a92a; --gold-dim: rgba(184,145,42,0.08);
+  --teal:   #0a7b6a; --teal-l: #0d9882; --teal-dim: rgba(10,123,106,0.08);
+  --dark:   #07060a; --dark2: #0f0e12; --r: 4px;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
-body{background:var(--cream);color:var(--ink);font-family:'Libre Baskerville',Georgia,serif;font-size:14px;line-height:1.7;overflow-x:hidden;}
+body{background:var(--cream);color:var(--ink);font-family:"DM Sans",sans-serif;font-size:15px;line-height:1.65;overflow-x:hidden;}
 
-/* ── NAV ── */
-nav{position:sticky;top:0;z-index:200;background:rgba(247,244,238,0.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:62px;}
-.nav-logo{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:var(--ink);text-decoration:none;letter-spacing:0.02em;}
-.nav-logo span{color:var(--teal);}
-.nav-links{display:flex;align-items:center;gap:28px;list-style:none;}
-.nav-links a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;transition:color 0.2s;font-family:'DM Mono',monospace;}
+/* NAV */
+nav{position:sticky;top:0;z-index:600;background:rgba(248,245,239,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 56px;height:68px;}
+.nav-logo{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:600;color:var(--ink);text-decoration:none;letter-spacing:-0.01em;display:flex;align-items:center;gap:2px;}
+.nav-logo .dot{color:var(--teal);}
+.nav-links{display:flex;align-items:center;gap:36px;list-style:none;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;letter-spacing:0.02em;transition:color .18s;}
 .nav-links a:hover{color:var(--ink);}
-.nav-cta{background:var(--teal)!important;color:#fff!important;padding:8px 18px;border-radius:var(--r);}
+.nav-cta{background:var(--teal)!important;color:var(--white)!important;padding:10px 24px;border-radius:100px;font-size:13px!important;font-weight:600!important;transition:all .2s!important;}
+.nav-cta:hover{background:var(--teal-l)!important;transform:translateY(-1px);}
 
-/* ── HERO ── */
-.hero{background:var(--dark);color:#f0ebe0;padding:100px 40px 80px;position:relative;overflow:hidden;min-height:480px;display:flex;align-items:center;}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 20% 50%,rgba(13,152,130,0.12) 0%,transparent 60%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M0 30 L60 30 M30 0 L30 60' stroke='rgba(255,255,255,0.02)' stroke-width='1'/%3E%3C/svg%3E");}
-.hero-inner{max-width:1100px;margin:0 auto;width:100%;position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
-.hero-eyebrow{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.18em;color:var(--teal-l);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
-.hero-eyebrow::after{content:'';flex:1;height:1px;background:rgba(13,152,130,0.3);max-width:50px;}
-.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,54px);font-weight:300;line-height:1.1;letter-spacing:-0.02em;margin-bottom:20px;}
-.hero-title em{font-style:italic;color:var(--teal-l);}
-.hero-sub{font-size:15px;color:rgba(240,235,224,0.6);line-height:1.75;max-width:440px;margin-bottom:32px;}
-.hero-btn{display:inline-flex;align-items:center;gap:8px;background:var(--teal-l);color:var(--dark);padding:14px 28px;border-radius:var(--r);font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;text-decoration:none;transition:all 0.2s;}
-.hero-btn:hover{background:#0bb89a;transform:translateY(-1px);box-shadow:0 8px 24px rgba(13,152,130,0.3);}
-.hero-stats{display:flex;gap:32px;margin-top:40px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.08);}
-.stat-num{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--teal-l);line-height:1;}
-.stat-label{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:rgba(240,235,224,0.4);margin-top:4px;}
+/* HERO */
+.hero{background:var(--dark);min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.hero-glow{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 90% 70% at -5% 55%,rgba(10,123,106,0.18) 0%,transparent 50%),radial-gradient(ellipse 60% 50% at 105% 40%,rgba(184,145,42,0.09) 0%,transparent 45%);}
+.hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 90% 80% at 50% 30%,black 0%,transparent 80%);}
+.hero-content{flex:1;display:flex;align-items:center;padding:100px 56px 80px;position:relative;z-index:2;}
+.hero-inner{max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 440px;gap:90px;align-items:center;}
+.hero-overline{display:inline-flex;align-items:center;gap:10px;font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:var(--teal-l);margin-bottom:28px;}
+.hero-overline span{width:32px;height:1px;background:var(--teal-l);}
+.hero-h1{font-family:"Cormorant Garamond",serif;font-size:clamp(50px,6.2vw,80px);font-weight:700;line-height:.95;letter-spacing:-.035em;color:#f5f2eb;margin-bottom:28px;}
+.hero-h1 em{font-style:italic;color:var(--teal-l);display:block;}
+.hero-h1 .sub-line{display:block;font-size:.5em;font-weight:300;font-style:italic;color:rgba(245,242,235,.32);margin-top:14px;line-height:1.4;letter-spacing:-.01em;}
+.hero-desc{font-size:17px;font-weight:300;color:rgba(245,242,235,.48);line-height:1.8;max-width:440px;margin-bottom:44px;}
+.hero-desc strong{color:rgba(245,242,235,.85);font-weight:500;}
+.hero-btns{display:flex;gap:14px;align-items:center;margin-bottom:60px;}
+.btn-teal{display:inline-flex;align-items:center;gap:10px;background:var(--teal-l);color:var(--white);padding:17px 36px;border-radius:100px;font-size:15px;font-weight:600;text-decoration:none;border:none;cursor:pointer;transition:all .22s;font-family:"DM Sans",sans-serif;}
+.btn-teal:hover{background:#11b89e;transform:translateY(-2px);box-shadow:0 16px 48px rgba(13,152,130,.35);}
+.btn-ghost-l{display:inline-flex;align-items:center;gap:8px;color:rgba(245,242,235,.4);font-size:14px;text-decoration:none;transition:color .2s;}
+.btn-ghost-l:hover{color:rgba(245,242,235,.8);}
+.hero-stats{display:flex;gap:52px;padding-top:44px;border-top:1px solid rgba(255,255,255,.07);}
+.hstat-n{font-family:"Cormorant Garamond",serif;font-size:40px;font-weight:700;color:var(--teal-l);line-height:1;letter-spacing:-.03em;}
+.hstat-l{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(245,242,235,.28);margin-top:6px;}
 
-/* Returns visual */
-.returns-vis{display:flex;flex-direction:column;gap:12px;}
-.return-bar-item{display:flex;align-items:center;gap:12px;}
-.rbi-label{font-family:'DM Mono',monospace;font-size:10px;color:rgba(240,235,224,0.5);width:90px;flex-shrink:0;}
-.rbi-bar{height:6px;border-radius:3px;transition:width 0.8s;}
-.rbi-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--teal-l);flex-shrink:0;}
+/* Returns vis */
+.returns-panel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:26px;backdrop-filter:blur(12px);}
+.rp-head{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.16em;color:rgba(245,242,235,.3);margin-bottom:20px;}
+.rv-item{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.rv-label{font-family:"DM Mono",monospace;font-size:10px;color:rgba(245,242,235,.45);width:120px;flex-shrink:0;}
+.rv-track{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+.rv-fill{height:100%;border-radius:3px;}
+.rv-fill-teal{background:linear-gradient(90deg,var(--teal),var(--teal-l));}
+.rv-fill-gold{background:linear-gradient(90deg,var(--gold),var(--gold-l));}
+.rv-fill-dim{background:rgba(255,255,255,.15);}
+.rv-val{font-family:"DM Mono",monospace;font-size:12px;color:var(--teal-l);white-space:nowrap;width:60px;text-align:right;flex-shrink:0;}
+.rv-val.dim{color:rgba(245,242,235,.3);}
+.rp-note{font-size:10px;color:rgba(245,242,235,.2);line-height:1.6;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);}
 
-/* ── TRUST BAR ── */
-.trust-bar{background:var(--white);border-bottom:1px solid var(--border);padding:20px 40px;}
-.trust-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
-.trust-item{display:flex;align-items:center;gap:8px;}
-.trust-icon{font-size:18px;}
-.trust-text{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
-.trust-text strong{color:var(--ink);display:block;font-size:12px;}
-.trust-divider{width:1px;height:32px;background:var(--border);}
+/* TRUST BAR */
+.trust-bar{background:var(--dark2);border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);padding:18px 0;overflow:hidden;position:relative;}
+.trust-bar::before,.trust-bar::after{content:"";position:absolute;top:0;bottom:0;width:100px;z-index:2;}
+.trust-bar::before{left:0;background:linear-gradient(to right,var(--dark2),transparent);}
+.trust-bar::after{right:0;background:linear-gradient(to left,var(--dark2),transparent);}
+.trust-track{display:flex;gap:0;width:max-content;animation:marquee 40s linear infinite;}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.trust-item{display:flex;align-items:center;gap:9px;padding:0 32px;border-right:1px solid rgba(255,255,255,.06);white-space:nowrap;flex-shrink:0;}
+.ti-icon{font-size:14px;opacity:.6;}
+.ti-text{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(245,242,235,.3);}
+.ti-text strong{color:rgba(245,242,235,.7);display:block;font-size:11px;letter-spacing:.04em;}
 
-/* ── SECTIONS ── */
-.section{padding:80px 40px;}
-.section-inner{max-width:1100px;margin:0 auto;}
-.section-alt{background:var(--white);}
-.eyebrow{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.16em;color:var(--teal);margin-bottom:14px;}
-.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4vw,42px);font-weight:300;line-height:1.15;letter-spacing:-0.01em;margin-bottom:16px;}
-.section-sub{font-size:14px;color:var(--muted);max-width:520px;line-height:1.8;margin-bottom:40px;}
+/* SECTION UTIL */
+.section-tag{display:inline-flex;align-items:center;gap:8px;font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--teal);margin-bottom:20px;}
+.section-tag::before{content:"";width:20px;height:1px;background:var(--teal);}
+.section-h{font-family:"Cormorant Garamond",serif;font-size:clamp(32px,4.5vw,56px);font-weight:700;line-height:1.05;letter-spacing:-.025em;margin-bottom:18px;}
+.section-h em{font-style:italic;color:var(--teal);}
+.section-lead{font-size:16px;font-weight:300;color:var(--muted);line-height:1.8;}
 
-/* ── CRITERIA ENGINE ── */
-#criteria{padding:80px 40px;background:var(--white);}
-.criteria-wrap{max-width:780px;margin:0 auto;}
-.criteria-card{background:var(--cream);border:1px solid var(--border);border-radius:var(--r);padding:32px;margin-bottom:14px;}
-.criteria-title{font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
-.criteria-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.slider-field{display:flex;flex-direction:column;gap:8px;}
-.slider-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);display:flex;justify-content:space-between;}
-.slider-label span{color:var(--teal);font-size:12px;font-weight:500;}
-input[type=range]{-webkit-appearance:none;height:4px;background:var(--border);border:none;border-radius:3px;cursor:pointer;padding:0;width:100%;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--teal);border-radius:50%;cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.15);}
-.check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:4px;}
-.check-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:12px;transition:all 0.15s;background:var(--white);}
-.check-item:hover{border-color:var(--teal);}
-.check-item input{display:none;}
-.check-item.checked{background:var(--teal-bg);border-color:rgba(10,123,106,0.3);color:var(--teal);}
-.check-dot{width:14px;height:14px;border:1.5px solid var(--border2);border-radius:3px;flex-shrink:0;transition:all 0.15s;display:flex;align-items:center;justify-content:center;font-size:9px;}
-.check-item.checked .check-dot{background:var(--teal);border-color:var(--teal);color:#fff;}
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
-.toggle-row:last-child{border-bottom:none;}
-.toggle-label{font-size:13px;color:var(--ink);}
-.toggle-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.toggle{position:relative;width:40px;height:22px;flex-shrink:0;}
-.toggle input{display:none;}
-.toggle-track{position:absolute;inset:0;background:var(--border);border-radius:11px;cursor:pointer;transition:background 0.2s;}
-.toggle input:checked ~ .toggle-track{background:var(--teal);}
-.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.2);transition:transform 0.2s;pointer-events:none;}
-.toggle input:checked ~ .toggle-track ~ .toggle-thumb,
-.toggle input:checked + .toggle-track + .toggle-thumb{transform:translateX(18px);}
-.save-btn{width:100%;background:var(--teal);color:#fff;border:none;border-radius:var(--r);padding:14px;font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:16px;}
-.save-btn:hover{background:#0a9070;transform:translateY(-1px);}
-.criteria-status{text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:10px;min-height:16px;}
+/* WHY LEND HERE */
+.why{padding:130px 56px;background:var(--cream);}
+.why-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:start;}
+.why-left{position:sticky;top:100px;}
+.why-right{display:flex;flex-direction:column;gap:24px;}
+.why-feat{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:28px 30px;display:flex;gap:20px;align-items:flex-start;transition:all .22s;}
+.why-feat:hover{border-color:var(--teal);box-shadow:0 8px 40px rgba(0,0,0,.07);transform:translateX(4px);}
+.why-feat-icon{width:48px;height:48px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--teal-dim);border:1px solid rgba(10,123,106,.15);}
+.why-feat-title{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+.why-feat-desc{font-size:13px;color:var(--muted);line-height:1.7;font-weight:300;}
 
-/* ── DEAL CARDS ── */
-#deals{padding:80px 40px;background:var(--cream);}
-.deals-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:28px;}
-.filter-tabs{display:flex;gap:6px;flex-wrap:wrap;}
-.filter-tab{padding:7px 16px;border:1px solid var(--border);border-radius:20px;font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);cursor:pointer;transition:all 0.15s;background:var(--white);}
-.filter-tab:hover{border-color:var(--teal);color:var(--teal);}
-.filter-tab.active{background:var(--teal);border-color:var(--teal);color:#fff;}
-.deal-count{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
-.deal-count span{color:var(--ink);font-weight:500;}
+/* TECH */
+.tech{padding:130px 56px;background:var(--dark2);position:relative;overflow:hidden;}
+.tech::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(13,152,130,.3),transparent);}
+.tech-inner{max-width:1200px;margin:0 auto;}
+.tech-head{margin-bottom:70px;}
+.tech-head .section-tag{color:var(--teal-l);}
+.tech-head .section-h{color:#f5f2eb;}
+.tech-head .section-lead{color:rgba(245,242,235,.4);max-width:560px;}
+.tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.tech-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:36px 32px;position:relative;overflow:hidden;transition:all .25s;}
+.tech-card:hover{background:rgba(255,255,255,.05);border-color:rgba(13,152,130,.2);transform:translateY(-3px);}
+.tech-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal),transparent);opacity:0;transition:opacity .25s;}
+.tech-card:hover::before{opacity:1;}
+.tech-num{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(13,152,130,.4);margin-bottom:20px;}
+.tech-icon{font-size:30px;margin-bottom:16px;}
+.tech-title{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;color:#f5f2eb;margin-bottom:10px;line-height:1.2;}
+.tech-desc{font-size:13px;color:rgba(245,242,235,.4);line-height:1.75;font-weight:300;}
 
-.deals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
+/* DEALS */
+.deals{padding:120px 56px;background:var(--cream);}
+.deals-inner{max-width:1200px;margin:0 auto;}
+.deals-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;}
+.deals-head-left{}
+.deals-access-note{background:var(--teal-dim);border:1px solid rgba(10,123,106,.2);border-radius:8px;padding:14px 20px;font-size:13px;color:var(--teal);font-weight:300;display:flex;align-items:center;gap:12px;max-width:420px;}
 
-.deal-card{
-  background:var(--white);border:1px solid var(--border);border-radius:var(--r);
-  overflow:hidden;transition:all 0.2s;cursor:pointer;
-}
-.deal-card:hover{border-color:var(--teal-l);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.08);}
+/* Filter tabs */
+.filter-tabs{display:flex;gap:6px;margin-bottom:28px;flex-wrap:wrap;}
+.ftab{background:var(--white);border:1px solid var(--border);border-radius:100px;padding:7px 18px;font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);cursor:pointer;transition:all .18s;}
+.ftab:hover{border-color:var(--teal);color:var(--teal);}
+.ftab.on{background:var(--teal);border-color:var(--teal);color:var(--white);}
 
-/* Property image */
-.deal-img{
-  height:180px;position:relative;overflow:hidden;
-  background:linear-gradient(135deg,#1a2a1a,#0d1a2a);
-}
-.deal-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s;}
-.deal-card:hover .deal-img img{transform:scale(1.04);}
-.deal-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(2,4,10,0.6) 0%,transparent 50%);}
-.deal-badge{position:absolute;top:12px;left:12px;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;padding:4px 10px;border-radius:3px;}
-.badge-hot{background:rgba(138,32,32,0.9);color:#fff;}
-.badge-new{background:rgba(10,123,106,0.9);color:#fff;}
-.badge-funding{background:rgba(154,124,46,0.9);color:#fff;}
-.deal-score{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:rgba(2,4,10,0.8);border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:#fff;}
-.score-a{border-color:var(--teal-l);color:var(--teal-l);}
-.deal-img-addr{position:absolute;bottom:10px;left:12px;right:12px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.8);letter-spacing:0.04em;}
+/* Deal grid */
+.deals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.deal-card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative;transition:all .22s;}
+.deal-card:hover:not(.locked){box-shadow:0 12px 48px rgba(0,0,0,.1);border-color:var(--teal);transform:translateY(-3px);}
 
-/* Card body */
-.deal-body{padding:18px;}
-.deal-type-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.deal-type{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--teal);border:1px solid rgba(10,123,106,0.25);padding:3px 8px;border-radius:3px;}
-.deal-location{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;}
-.deal-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
-.metric{text-align:center;padding:8px 4px;background:var(--cream);border-radius:var(--r);}
-.metric-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--ink);line-height:1.2;}
-.metric-lbl{font-size:9px;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;}
+/* Blur/lock overlay */
+.deal-card.locked .deal-body{filter:blur(5px);pointer-events:none;user-select:none;}
+.deal-lock-overlay{display:none;position:absolute;inset:0;background:rgba(248,245,239,.85);backdrop-filter:blur(2px);z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;}
+.deal-card:not(.locked) .deal-lock-overlay{display:none!important;}
+.dlo-icon{font-size:32px;margin-bottom:12px;}
+.dlo-title{font-family:"Cormorant Garamond",serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.dlo-sub{font-size:12px;color:var(--muted);font-weight:300;margin-bottom:16px;line-height:1.6;}
+.dlo-btn{background:var(--teal);color:var(--white);border:none;border-radius:100px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;font-family:"DM Sans",sans-serif;}
+.dlo-btn:hover{background:var(--teal-l);}
+
+/* Deal card internals */
+.deal-img{height:160px;position:relative;overflow:hidden;background:var(--cream2);}
+.deal-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+.deal-card:hover .deal-img img{transform:scale(1.06);}
+.deal-img-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,6,10,.7) 0%,transparent 55%);}
+.deal-type-badge{position:absolute;top:12px;left:12px;background:rgba(7,6,10,.75);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:4px 10px;font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.8);}
+.deal-ai-badge{position:absolute;top:12px;right:12px;background:rgba(10,123,106,.85);border-radius:4px;padding:4px 10px;font-family:"DM Mono",monospace;font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--white);}
+.deal-body{padding:20px 20px 16px;}
+.deal-location{font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:300;}
+.deal-amt{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1;margin-bottom:14px;}
+.deal-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.dm-item .dm-l{font-family:"DM Mono",monospace;font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;}
+.dm-item .dm-v{font-size:13px;font-weight:600;color:var(--ink);}
+.dm-item .dm-v.teal{color:var(--teal);}
 .deal-funded{margin-bottom:12px;}
-.funded-row{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:4px;}
-.funded-bar{height:4px;background:var(--border);border-radius:3px;overflow:hidden;}
-.funded-fill{height:100%;border-radius:3px;background:var(--teal);transition:width 0.8s;}
+.funded-row{display:flex;justify-content:space-between;font-family:"DM Mono",monospace;font-size:9px;color:var(--muted);margin-bottom:5px;}
+.funded-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.funded-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-l));border-radius:2px;}
 .deal-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
-.deal-tag{font-family:'DM Mono',monospace;font-size:9px;padding:3px 8px;background:var(--cream);border:1px solid var(--border);border-radius:3px;color:var(--muted);}
-.deal-ai{font-size:11px;color:var(--muted);font-style:italic;margin-bottom:14px;line-height:1.6;border-left:2px solid var(--teal);padding-left:10px;}
+.deal-tag{font-family:"DM Mono",monospace;font-size:8px;text-transform:uppercase;letter-spacing:.08em;padding:3px 8px;border-radius:100px;background:var(--cream2);color:var(--muted);border:1px solid var(--border);}
+.deal-ai-note{font-size:11px;color:var(--teal);margin-bottom:12px;font-weight:300;}
 .deal-actions{display:flex;gap:8px;}
-.btn-interest{flex:1;background:var(--teal);color:#fff;border:none;border-radius:var(--r);padding:10px;font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;}
-.btn-interest:hover{background:#0a9070;}
-.btn-view{background:var(--cream);color:var(--ink);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.15s;text-transform:uppercase;letter-spacing:0.06em;}
+.btn-interest{flex:1;background:var(--teal);color:var(--white);border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;font-family:"DM Sans",sans-serif;}
+.btn-interest:hover{background:var(--teal-l);}
+.btn-view{flex:1;background:none;border:1.5px solid var(--border);border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;color:var(--muted);font-family:"DM Sans",sans-serif;}
 .btn-view:hover{border-color:var(--teal);color:var(--teal);}
 
-/* ── LENDER REGISTRATION ── */
-#register{padding:80px 40px;background:var(--white);}
-.reg-wrap{max-width:700px;margin:0 auto;}
-.reg-card{background:var(--cream);border:1px solid var(--border);border-radius:var(--r);padding:36px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.form-grid .full{grid-column:1/-1;}
-.field{display:flex;flex-direction:column;gap:5px;}
-.field label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);}
-.field label .req{color:var(--gold);}
-input[type=text],input[type=email],input[type=number],input[type=tel],select,textarea{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;font-family:'Libre Baskerville',serif;font-size:13.5px;color:var(--ink);transition:border-color 0.2s;width:100%;}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);}
-select option{background:#fff;}
-.submit-btn{width:100%;background:var(--ink);color:var(--cream);border:none;border-radius:var(--r);padding:14px;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:6px;}
-.submit-btn:hover{background:var(--ink2);transform:translateY(-1px);}
-.consent-box{background:var(--cream2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;font-size:11px;color:var(--muted);line-height:1.7;margin:14px 0;}
-.reg-success{display:none;text-align:center;padding:40px 0;}
+/* PROPERTY TYPES */
+.prop-types{padding:100px 56px;background:var(--cream2);}
+.prop-types-inner{max-width:1200px;margin:0 auto;}
+.prop-types-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px;}
+.prop-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.ptype-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:24px 20px;display:flex;align-items:flex-start;gap:14px;transition:all .2s;}
+.ptype-card:hover{border-color:var(--teal);box-shadow:0 4px 24px rgba(0,0,0,.07);}
+.ptc-icon{font-size:24px;flex-shrink:0;}
+.ptc-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.ptc-sub{font-size:11px;color:var(--muted);font-weight:300;line-height:1.5;}
 
-/* ── DISCLOSURES ── */
-.disclosures{background:var(--ink2);color:rgba(240,235,224,0.4);padding:48px 40px;font-size:11px;line-height:1.9;font-family:'DM Mono',monospace;letter-spacing:0.02em;}
-.disc-inner{max-width:1100px;margin:0 auto;}
-.disc-title{font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:rgba(240,235,224,0.2);margin-bottom:16px;}
-.disc-text{margin-bottom:12px;}
-.disc-text a{color:rgba(200,155,40,0.6);text-decoration:none;}
+/* STATES */
+.states-section{padding:80px 56px;background:var(--dark);text-align:center;}
+.states-head .section-h{color:#f5f2eb;}
+.states-head .section-tag{color:var(--teal-l);justify-content:center;}
+.states-head .section-tag::before{display:none;}
+.states-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:1000px;margin:0 auto;}
+.state-pill{font-family:"DM Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;padding:6px 14px;border-radius:100px;border:1px solid rgba(255,255,255,.1);color:rgba(245,242,235,.4);transition:all .18s;cursor:default;}
+.state-pill:hover{border-color:rgba(13,152,130,.4);color:var(--teal-l);}
 
-/* ── FOOTER ── */
-footer{background:var(--dark);color:rgba(240,235,224,0.35);padding:32px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.06em;}
-footer .footer-logo{font-family:'Cormorant Garamond',serif;font-size:18px;color:rgba(13,152,130,0.7);}
-footer a{color:rgba(240,235,224,0.35);text-decoration:none;}
+/* CRITERIA ENGINE */
+#criteria{padding:100px 56px;background:var(--ink);}
+.crit-inner{max-width:900px;margin:0 auto;}
+.crit-head{margin-bottom:40px;}
+.crit-head .section-tag{color:var(--teal-l);}
+.crit-head .section-h{color:#f5f2eb;}
+.crit-sub{font-size:15px;color:rgba(245,242,235,.4);font-weight:300;line-height:1.7;max-width:480px;}
+.crit-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:40px;}
+.crit-section{margin-bottom:32px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,.07);}
+.crit-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.crit-section-label{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:rgba(245,242,235,.3);margin-bottom:20px;}
+.slider-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.slider-label{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(245,242,235,.4);}
+.slider-val{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;color:var(--teal-l);}
+input[type="range"]{width:100%;height:4px;appearance:none;background:rgba(255,255,255,.12);border-radius:2px;outline:none;cursor:pointer;margin-bottom:16px;}
+input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;background:var(--teal-l);border-radius:50%;box-shadow:0 2px 8px rgba(13,152,130,.4);}
+.ck-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.ck-item{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(245,242,235,.5);padding:8px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .18s;font-family:"DM Mono",monospace;text-transform:uppercase;letter-spacing:.06em;font-size:10px;}
+.ck-item:hover{border-color:rgba(13,152,130,.3);}
+.ck-item.on{background:rgba(13,152,130,.12);border-color:rgba(13,152,130,.3);color:var(--teal-l);}
+.ck-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;transition:all .18s;}
+.ck-item.on .ck-dot{background:var(--teal-l);border-color:var(--teal-l);color:var(--dark);}
+.toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.toggle-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:12px 16px;cursor:pointer;transition:all .18s;}
+.toggle-item.on{background:rgba(13,152,130,.1);border-color:rgba(13,152,130,.25);}
+.ti-name{font-size:12px;color:rgba(245,242,235,.55);font-weight:300;}
+.ti-toggle{width:32px;height:18px;border-radius:9px;background:rgba(255,255,255,.12);position:relative;transition:all .25s;}
+.toggle-item.on .ti-toggle{background:var(--teal-l);}
+.ti-toggle::after{content:"";position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:50%;background:var(--white);transition:transform .25s;}
+.toggle-item.on .ti-toggle::after{transform:translateX(14px);}
+.state-ck-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.state-ck{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.08em;padding:5px 10px;border-radius:100px;border:1px solid rgba(255,255,255,.1);color:rgba(245,242,235,.35);cursor:pointer;transition:all .18s;}
+.state-ck:hover{border-color:rgba(13,152,130,.3);color:var(--teal-l);}
+.state-ck.on{background:rgba(13,152,130,.12);border-color:rgba(13,152,130,.3);color:var(--teal-l);}
+.save-crit-row{display:flex;align-items:center;justify-content:space-between;margin-top:24px;flex-wrap:wrap;gap:12px;}
+#crit-status{font-family:"DM Mono",monospace;font-size:11px;color:rgba(245,242,235,.3);letter-spacing:.04em;}
+.btn-save{background:var(--teal-l);color:var(--white);border:none;border-radius:100px;padding:14px 36px;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;font-family:"DM Sans",sans-serif;}
+.btn-save:hover{background:#11b89e;transform:translateY(-1px);}
 
-/* ── CHAT ── */
-.chat-btn{position:fixed;bottom:28px;right:28px;z-index:300;width:52px;height:52px;border-radius:50%;background:var(--dark);color:var(--cream);border:2px solid var(--teal-l);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.25);transition:all 0.2s;}
-.chat-btn:hover{transform:scale(1.08);}
-.chat-panel{position:fixed;bottom:92px;right:28px;z-index:300;width:320px;background:var(--white);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.15);display:none;flex-direction:column;overflow:hidden;}
-.chat-panel.open{display:flex;}
-.chat-head{background:var(--dark);color:var(--cream);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;}
-.chat-head-title{font-family:'Cormorant Garamond',serif;font-size:16px;}
-.chat-head-sub{font-size:10px;color:rgba(240,235,224,0.5);font-family:'DM Mono',monospace;}
-.chat-close{background:none;border:none;color:rgba(240,235,224,0.5);cursor:pointer;font-size:18px;}
-.chat-messages{flex:1;overflow-y:auto;padding:14px;max-height:260px;display:flex;flex-direction:column;gap:8px;}
-.msg{padding:10px 13px;border-radius:var(--r);font-size:13px;max-width:85%;line-height:1.55;}
+/* REGISTER */
+#register{padding:120px 56px;background:var(--cream);}
+.reg-inner{max-width:700px;margin:0 auto;}
+.reg-head{text-align:center;margin-bottom:60px;}
+.reg-head .section-tag{justify-content:center;}
+.reg-head .section-tag::before{display:none;}
+.reg-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:48px;}
+.fg{display:flex;flex-direction:column;gap:20px;}
+.fl{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.field-lbl{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:6px;display:block;}
+.field-inp{width:100%;background:var(--white);border:1.5px solid var(--border);border-radius:8px;padding:13px 16px;font-family:"DM Sans",sans-serif;font-size:15px;color:var(--ink);outline:none;transition:border-color .2s;appearance:none;}
+.field-inp:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(10,123,106,.08);}
+.field-inp::placeholder{color:rgba(107,98,84,.4);}
+.consent-box{background:var(--cream2);border:1px solid var(--border);border-radius:8px;padding:18px 20px;font-size:12px;color:var(--muted);line-height:1.75;font-weight:300;margin:4px 0;}
+.submit-btn{width:100%;background:var(--teal-l);color:var(--white);border:none;border-radius:100px;padding:17px;font-size:16px;font-weight:700;cursor:pointer;transition:all .22s;font-family:"DM Sans",sans-serif;margin-top:8px;}
+.submit-btn:hover{background:#11b89e;transform:translateY(-1px);box-shadow:0 12px 40px rgba(13,152,130,.3);}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+#reg-success{display:none;text-align:center;padding:40px 20px;}
+.rs-icon{font-size:52px;margin-bottom:20px;}
+.rs-h{font-family:"Cormorant Garamond",serif;font-size:32px;font-weight:700;color:var(--ink);margin-bottom:10px;}
+.rs-p{color:var(--muted);font-size:15px;font-weight:300;line-height:1.7;}
+
+/* DISCLOSURES */
+.disclosures{background:var(--dark);padding:80px 56px;border-top:1px solid rgba(255,255,255,.05);}
+.disc-inner{max-width:1000px;margin:0 auto;}
+.disc-title{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.2em;color:rgba(13,152,130,.5);margin-bottom:28px;}
+.disc-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px 48px;margin-bottom:36px;}
+.disc-block-title{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(245,242,235,.35);margin-bottom:8px;}
+.disc-text{font-size:11px;color:rgba(245,242,235,.22);line-height:1.9;font-weight:300;}
+.disc-text a{color:rgba(13,152,130,.5);}
+.disc-copy{font-family:"DM Mono",monospace;font-size:10px;color:rgba(245,242,235,.18);letter-spacing:.04em;padding-top:24px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;}
+.disc-copy a{color:rgba(13,152,130,.45);text-decoration:none;}
+
+/* FOOTER */
+.foot-bar{background:var(--dark);border-top:1px solid rgba(255,255,255,.04);padding:20px 56px;display:flex;align-items:center;justify-content:space-between;}
+.foot-logo{font-family:"Cormorant Garamond",serif;font-size:18px;font-weight:600;color:rgba(245,242,235,.5);text-decoration:none;display:flex;align-items:center;gap:2px;}
+.foot-logo .dot{color:var(--teal);}
+.foot-links{display:flex;gap:32px;}
+.foot-links a{font-size:12px;color:rgba(245,242,235,.25);text-decoration:none;letter-spacing:.04em;}
+.foot-links a:hover{color:rgba(245,242,235,.6);}
+.foot-copy{font-family:"DM Mono",monospace;font-size:10px;color:rgba(245,242,235,.18);}
+
+/* CHAT */
+#chat{position:fixed;bottom:28px;right:28px;z-index:900;display:flex;flex-direction:column;align-items:flex-end;gap:12px;}
+.chat-bubble{width:52px;height:52px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;box-shadow:0 4px 24px rgba(10,123,106,.4);transition:all .2s;}
+.chat-bubble:hover{transform:scale(1.08);}
+.chat-window{display:none;width:340px;background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.15);}
+#chat.open .chat-window{display:flex;flex-direction:column;}
+.chat-header{background:var(--teal);color:var(--white);padding:16px 20px;display:flex;align-items:center;gap:12px;}
+.chat-title{font-size:14px;font-weight:600;}
+.chat-sub{font-size:11px;opacity:.6;font-weight:300;}
+.chat-msgs{height:240px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:85%;font-size:13px;line-height:1.6;padding:10px 14px;border-radius:10px;}
 .msg.bot{background:var(--cream);color:var(--ink);align-self:flex-start;border:1px solid var(--border);}
-.msg.user{background:var(--ink);color:var(--cream);align-self:flex-end;}
-.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);}
-.chat-input{flex:1;border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;font-size:13px;font-family:'Libre Baskerville',serif;background:var(--cream);color:var(--ink);outline:none;}
-.chat-send{background:var(--dark);color:var(--cream);border:none;border-radius:var(--r);padding:9px 14px;cursor:pointer;font-size:14px;}
+.msg.user{background:var(--teal);color:var(--white);align-self:flex-end;}
+.chat-in-row{display:flex;border-top:1px solid var(--border);padding:12px 14px;gap:8px;}
+#chat-in{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:9px 13px;font-family:"DM Sans",sans-serif;font-size:13px;color:var(--ink);outline:none;background:var(--white);transition:border-color .18s;}
+#chat-in:focus{border-color:var(--teal);}
+.chat-send{background:var(--teal);color:var(--white);border:none;border-radius:8px;width:38px;height:38px;cursor:pointer;font-size:16px;transition:all .18s;}
+.chat-send:hover{background:var(--teal-l);}
 
-@media(max-width:768px){
-  nav{padding:0 20px;}
-  .hero{padding:60px 20px 50px;}
-  .hero-inner{grid-template-columns:1fr;}
-  .returns-vis{display:none;}
-  .criteria-grid{grid-template-columns:1fr;}
-  .deals-grid{grid-template-columns:1fr;}
-  .form-grid{grid-template-columns:1fr;}
-  .section{padding:50px 20px;}
-  #criteria,#deals,#register{padding:50px 20px;}
+@media(max-width:900px){
+  nav{padding:0 24px;}.nav-links{display:none;}
+  .hero-content{padding:80px 24px 60px;}.hero-inner{grid-template-columns:1fr;gap:48px;}.returns-panel{display:none;}
+  .why{padding:80px 24px;}.why-inner{grid-template-columns:1fr;gap:40px;}.why-left{position:static;}
+  .tech{padding:80px 24px;}.tech-grid{grid-template-columns:1fr;}
+  .deals{padding:80px 24px;}.deals-grid{grid-template-columns:1fr;}
+  .prop-types{padding:80px 24px;}.prop-grid{grid-template-columns:1fr 1fr;}
+  .states-section{padding:60px 24px;}
+  #criteria{padding:80px 24px;}.ck-grid{grid-template-columns:1fr 1fr;}.toggle-grid{grid-template-columns:1fr;}
+  #register{padding:80px 24px;}.reg-card{padding:28px;}.fl{grid-template-columns:1fr;}
+  .disclosures{padding:60px 24px;}.disc-grid{grid-template-columns:1fr;}
+  .foot-bar{padding:20px 24px;flex-direction:column;gap:12px;text-align:center;}
 }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-  <a href="/" class="nav-logo">FirstLien<span>.Capital</span></a>
+  <a href="/" class="nav-logo">FirstLien<span class="dot">.</span>Capital</a>
   <ul class="nav-links">
-    <li><a href="/">Home</a></li>
-    <li><a href="/borrower.html">Borrow</a></li>
-    <li><a href="#register" class="nav-cta">Join as Lender</a></li>
+    <li><a href="#deals">Live Deals</a></li>
+    <li><a href="#criteria">Set Criteria</a></li>
+    <li><a href="/borrower.html">For Borrowers</a></li>
+    <li><a href="#register" class="nav-cta">Apply for Access →</a></li>
   </ul>
 </nav>
 
 <!-- HERO -->
-<div class="hero">
-  <div class="hero-inner">
-    <div>
-      <div class="hero-eyebrow">Private Lending Marketplace</div>
-      <h1 class="hero-title">Deploy capital<br>into <em>curated deals</em><br>nationwide.</h1>
-      <p class="hero-sub">Access pre-vetted private real estate loans. Set your criteria once. Receive AI-matched deal flow. Invest whole or fractional.</p>
-      <a href="#deals" class="hero-btn">Browse Live Deals →</a>
-      <div class="hero-stats">
-        <div class="stat-item"><div class="stat-num">8–13%</div><div class="stat-label">Target Returns</div></div>
-        <div class="stat-item"><div class="stat-num">$250K</div><div class="stat-label">Min. Investment</div></div>
-        <div class="stat-item"><div class="stat-num">1st Lien</div><div class="stat-label">Senior Secured</div></div>
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="hero-overline"><span></span>Private Lending Marketplace</div>
+        <h1 class="hero-h1">
+          Deploy capital.<br>
+          <em>At your terms.</em>
+          <span class="sub-line">AI-matched deals. First-lien secured.<br>1,000+ qualified borrowers competing for your capital.</span>
+        </h1>
+        <p class="hero-desc">
+          Stop hunting for deals. Set your criteria once and let <strong>AI match you to borrowers who need exactly what you offer</strong> — by loan size, property type, geography, and LTV. Every position is first-lien only.
+        </p>
+        <div class="hero-btns">
+          <a href="#register" class="btn-teal">Apply for Lender Access →</a>
+          <a href="#deals" class="btn-ghost-l">Preview live deals ↓</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><div class="hstat-n" id="h-deals">Active</div><div class="hstat-l">Deal Flow</div></div>
+          <div class="hstat"><div class="hstat-n" id="h-yield">8–14%</div><div class="hstat-l">Yield Range</div></div>
+          <div class="hstat"><div class="hstat-n" id="h-pos">1st Lien</div><div class="hstat-l">Position Only</div></div>
+          <div class="hstat"><div class="hstat-n" id="h-states">50</div><div class="hstat-l">States Active</div></div>
+        </div>
       </div>
-    </div>
-    <div>
-      <div class="returns-vis" id="returns-vis">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:rgba(240,235,224,0.3);margin-bottom:16px;">Current Network Returns</div>
-        <div class="return-bar-item"><span class="rbi-label">Bridge</span><div class="rbi-bar" style="width:78%;background:var(--teal-l);"></div><span class="rbi-val">10.5%</span></div>
-        <div class="return-bar-item"><span class="rbi-label">Fix & Flip</span><div class="rbi-bar" style="width:88%;background:#e8a020;"></div><span class="rbi-val">11.75%</span></div>
-        <div class="return-bar-item"><span class="rbi-label">DSCR / Rental</span><div class="rbi-bar" style="width:62%;background:var(--teal-l);opacity:0.7"></div><span class="rbi-val">8.75%</span></div>
-        <div class="return-bar-item"><span class="rbi-label">Construction</span><div class="rbi-bar" style="width:93%;background:#c84040;opacity:0.8"></div><span class="rbi-val">12.5%</span></div>
-        <div class="return-bar-item"><span class="rbi-label">Commercial</span><div class="rbi-bar" style="width:68%;background:var(--teal-l);opacity:0.6"></div><span class="rbi-val">9.25%</span></div>
+      <div>
+        <div class="returns-panel">
+          <div class="rp-head">Indicative yield comparison — private lending vs alternatives</div>
+          <div class="rv-item"><div class="rv-label">Bridge / Fix-Flip</div><div class="rv-track"><div class="rv-fill rv-fill-teal" style="width:82%"></div></div><div class="rv-val">10–13%</div></div>
+          <div class="rv-item"><div class="rv-label">DSCR Rental</div><div class="rv-track"><div class="rv-fill rv-fill-teal" style="width:62%"></div></div><div class="rv-val">7.5–10%</div></div>
+          <div class="rv-item"><div class="rv-label">Construction</div><div class="rv-track"><div class="rv-fill rv-fill-gold" style="width:92%"></div></div><div class="rv-val">11–14%</div></div>
+          <div class="rv-item"><div class="rv-label">10-yr T-Note</div><div class="rv-track"><div class="rv-fill rv-fill-dim" style="width:28%"></div></div><div class="rv-val dim">~4.3%</div></div>
+          <div class="rv-item"><div class="rv-label">Investment Grade</div><div class="rv-track"><div class="rv-fill rv-fill-dim" style="width:38%"></div></div><div class="rv-val dim">~5.1%</div></div>
+          <div class="rv-item"><div class="rv-label">S&P 500 Avg</div><div class="rv-track"><div class="rv-fill rv-fill-dim" style="width:68%"></div></div><div class="rv-val dim">~10.5%</div></div>
+          <div class="rp-note">For informational purposes only. Private lending involves significant risk including possible loss of principal. Past performance does not guarantee future results. Not investment advice.</div>
+        </div>
       </div>
     </div>
   </div>
-</div>
+  <div class="trust-bar"><div class="trust-track" id="trust-track"></div></div>
+</section>
 
-<!-- TRUST BAR -->
-<div class="trust-bar">
-  <div class="trust-inner">
-    <div class="trust-item"><span class="trust-icon">🔒</span><div class="trust-text"><strong>1st Lien Position</strong>Senior secured only</div></div>
-    <div class="trust-divider"></div>
-    <div class="trust-item"><span class="trust-icon">🏛</span><div class="trust-text"><strong>NMLS Licensed</strong>CA DRE Licensed Broker</div></div>
-    <div class="trust-divider"></div>
-    <div class="trust-item"><span class="trust-icon">🤝</span><div class="trust-text"><strong>Fractional Available</strong>Co-invest from $50K</div></div>
-    <div class="trust-divider"></div>
-    <div class="trust-item"><span class="trust-icon">🧠</span><div class="trust-text"><strong>AI Deal Scoring</strong>Gemini-powered</div></div>
-    <div class="trust-divider"></div>
-    <div class="trust-item"><span class="trust-icon">📋</span><div class="trust-text"><strong>Anonymous</strong>Until term sheet issued</div></div>
-    <div class="trust-divider"></div>
-    <div class="trust-item"><span class="trust-icon">🏠</span><div class="trust-text"><strong>Equal Housing</strong>Lender</div></div>
+<!-- WHY LEND HERE -->
+<section class="why" id="why">
+  <div class="why-inner">
+    <div class="why-left">
+      <div class="section-tag" style="color:var(--teal);">Platform Advantage</div>
+      <h2 class="section-h">Why sophisticated lenders choose FirstLien.Capital</h2>
+      <p class="section-lead" style="margin-bottom:32px;">We built the infrastructure private lenders always needed but never had — AI screening, automated valuation, deal filtering, and fractional co-lending all in one place.</p>
+      <a href="#register" class="btn-teal" style="display:inline-flex;">Apply for Access →</a>
+    </div>
+    <div class="why-right">
+      <div class="why-feat"><div class="why-feat-icon">🧠</div><div><div class="why-feat-title">AI Deal Matching — No Manual Filtering</div><div class="why-feat-desc">Set your criteria once. Our AI scores every new deal submission against your profile in real time. You only see deals that genuinely match your loan size, property type, geography, and LTV range. No browsing. No wasted time.</div></div></div>
+      <div class="why-feat"><div class="why-feat-icon">📡</div><div><div class="why-feat-title">AVM Intelligence on Every Deal</div><div class="why-feat-desc">Every deal comes with automated property valuations from multiple independent data sources. You see the borrower's stated value alongside market-derived estimates — instantly flagging cases where stated value diverges from reality, before you commit a dollar.</div></div></div>
+      <div class="why-feat"><div class="why-feat-icon">🤝</div><div><div class="why-feat-title">Fractional Co-Lending</div><div class="why-feat-desc">Too large for your single-loan target? Invite another approved lender to co-fund. You set the split. Each party holds their own promissory note. Perfect for deals that exceed your concentration limits while maintaining full first-lien protection.</div></div></div>
+      <div class="why-feat"><div class="why-feat-icon">⚖️</div><div><div class="why-feat-title">Lender Conduct Standards</div><div class="why-feat-desc">Our platform enforces good-faith conduct. Systematic lowballing, bait-and-switch terms, and predatory behavior result in suspension. The result: a marketplace where borrowers trust the process — which means better deal flow for lenders who play fair.</div></div></div>
+      <div class="why-feat"><div class="why-feat-icon">🔒</div><div><div class="why-feat-title">First-Lien Only — No Junior Positions</div><div class="why-feat-desc">Every loan facilitated through FirstLien.Capital is secured by a first deed of trust or first mortgage on real property. No seconds. No mezzanine. No unsecured positions. If a deal doesn't support a clean first-lien, it doesn't come to market.</div></div></div>
+    </div>
   </div>
-</div>
+</section>
 
-<!-- CRITERIA ENGINE -->
-<section id="criteria">
-  <div class="criteria-wrap">
-    <div class="eyebrow">Your Lending Criteria</div>
-    <h2 class="section-title" style="margin-bottom:8px;">Set it once.<br>Get matched automatically.</h2>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:28px;">Only deals matching your criteria hit your inbox. Change anytime.</p>
-
-    <div class="criteria-card">
-      <div class="criteria-title">💰 Loan Size Range</div>
-      <div class="criteria-grid">
-        <div class="slider-field">
-          <div class="slider-label">Minimum Loan <span id="min_loan_disp">$250K</span></div>
-          <input type="range" id="min_loan" min="100000" max="5000000" step="50000" value="250000" oninput="updateDisp('min_loan','min_loan_disp')">
-        </div>
-        <div class="slider-field">
-          <div class="slider-label">Maximum Loan <span id="max_loan_disp">$3M</span></div>
-          <input type="range" id="max_loan" min="250000" max="20000000" step="250000" value="3000000" oninput="updateDisp('max_loan','max_loan_disp')">
-        </div>
-        <div class="slider-field">
-          <div class="slider-label">Maximum LTV <span id="max_ltv_disp">75%</span></div>
-          <input type="range" id="max_ltv" min="50" max="85" step="5" value="75" oninput="updatePct('max_ltv','max_ltv_disp')">
-        </div>
-      </div>
+<!-- TECH STACK -->
+<section class="tech" id="tech">
+  <div class="tech-inner">
+    <div class="tech-head">
+      <div class="section-tag">Platform Technology</div>
+      <h2 class="section-h" style="color:#f5f2eb;">The technology<br><em>behind the deal flow</em></h2>
+      <p class="section-lead">Private lending has always run on spreadsheets and phone calls. We built the platform that replaces all of that — real-time matching, automated valuation, AI screening, and intelligent routing.</p>
     </div>
-
-    <div class="criteria-card">
-      <div class="criteria-title">🗺 States</div>
-      <div class="check-grid">
-        <label class="check-item checked" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_ca" checked><div class="check-dot">✓</div>California</label>
-        <label class="check-item checked" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_tx" checked><div class="check-dot">✓</div>Texas</label>
-        <label class="check-item checked" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_fl" checked><div class="check-dot">✓</div>Florida</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_ny"><div class="check-dot"></div>New York</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_il"><div class="check-dot"></div>Illinois</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_az"><div class="check-dot"></div>Arizona</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_ga"><div class="check-dot"></div>Georgia</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_co"><div class="check-dot"></div>Colorado</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_nv"><div class="check-dot"></div>Nevada</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_wa"><div class="check-dot"></div>Washington</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_nc"><div class="check-dot"></div>N. Carolina</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="state_all"><div class="check-dot"></div>All States</label>
-      </div>
+    <div class="tech-grid">
+      <div class="tech-card"><div class="tech-num">01 — Matching</div><div class="tech-icon">🧠</div><div class="tech-title">Gemini AI Scoring</div><p class="tech-desc">Every deal submission is scored against your criteria profile across 40+ dimensions — LTV, geography, asset class, loan term, borrower experience, exit strategy, and more. High-match deals surface first.</p></div>
+      <div class="tech-card"><div class="tech-num">02 — Valuation</div><div class="tech-icon">📡</div><div class="tech-title">Multi-Source AVM</div><p class="tech-desc">Automated valuations from multiple independent data sources are pulled the moment a borrower enters their property address. You see verified market data alongside stated values — enabling faster, more confident underwriting decisions.</p></div>
+      <div class="tech-card"><div class="tech-num">03 — Screening</div><div class="tech-icon">🛡️</div><div class="tech-title">Deal Quality Filter</div><p class="tech-desc">Deals where the borrower's stated value diverges significantly from AVM data are flagged and require borrower explanation before reaching lenders. You see clean data — not wishful thinking.</p></div>
+      <div class="tech-card"><div class="tech-num">04 — Closing</div><div class="tech-icon">📋</div><div class="tech-title">Automated Doc Engine</div><p class="tech-desc">State-specific loan document packages generated automatically for AZ, TX, NV, NY, MI, and CA. Attorney-reviewed templates. Faster closings. Less back-and-forth.</p></div>
+      <div class="tech-card"><div class="tech-num">05 — Co-Lending</div><div class="tech-icon">🤝</div><div class="tech-title">Fractional Invite System</div><p class="tech-desc">Built-in co-lending infrastructure. Express interest in a deal, flag it as co-fund candidate, and invite another approved lender to split the position. Each party gets their own note. Tracked within the platform.</p></div>
+      <div class="tech-card"><div class="tech-num">06 — Monitoring</div><div class="tech-icon">📊</div><div class="tech-title">Live Deal Dashboard</div><p class="tech-desc">Track every deal you've expressed interest in. See competing offers, deal status, borrower responses, and closing progress — all from a single dashboard. Full transparency, no black boxes.</p></div>
     </div>
-
-    <div class="criteria-card">
-      <div class="criteria-title">🏗 Asset Classes</div>
-      <div class="check-grid">
-        <label class="check-item checked" onclick="this.classList.toggle('checked')"><input type="checkbox" id="ac_sfr" checked><div class="check-dot">✓</div>Single Family</label>
-        <label class="check-item checked" onclick="this.classList.toggle('checked')"><input type="checkbox" id="ac_mf" checked><div class="check-dot">✓</div>Multifamily</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="ac_mu"><div class="check-dot"></div>Mixed-Use</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="ac_com"><div class="check-dot"></div>Commercial</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="ac_flip"><div class="check-dot"></div>Fix & Flip</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="ac_gu"><div class="check-dot"></div>Ground-Up</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="ac_ind"><div class="check-dot"></div>Industrial</label>
-        <label class="check-item" onclick="this.classList.toggle('checked')"><input type="checkbox" id="ac_ss"><div class="check-dot"></div>Self-Storage</label>
-      </div>
-    </div>
-
-    <div class="criteria-card">
-      <div class="criteria-title">⚙️ Preferences</div>
-      <div class="toggle-row">
-        <div><div class="toggle-label">Fractional Lending</div><div class="toggle-sub">Participate in partial shares of larger loans</div></div>
-        <label class="toggle"><input type="checkbox" id="tog_frac"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-      </div>
-      <div class="toggle-row">
-        <div><div class="toggle-label">Construction / Draw Loans</div><div class="toggle-sub">Fund draws on construction projects</div></div>
-        <label class="toggle"><input type="checkbox" id="tog_con"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-      </div>
-      <div class="toggle-row">
-        <div><div class="toggle-label">Email Alerts on New Matches</div><div class="toggle-sub">Instant notification when a deal matches your criteria</div></div>
-        <label class="toggle"><input type="checkbox" id="tog_alerts" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-      </div>
-      <div class="toggle-row">
-        <div><div class="toggle-label">Broker-Sourced Deals</div><div class="toggle-sub">Include deals sourced by licensed mortgage brokers</div></div>
-        <label class="toggle"><input type="checkbox" id="tog_broker" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-      </div>
-      <div class="toggle-row">
-        <div><div class="toggle-label">Interest Reserve Required</div><div class="toggle-sub">Only show deals with 3+ months reserve funded at close</div></div>
-        <label class="toggle"><input type="checkbox" id="tog_reserve"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-      </div>
-    </div>
-
-    <button class="save-btn" id="saveCriteriaBtn" onclick="saveCriteria()">Save My Criteria →</button>
-    <div class="criteria-status" id="criteriaStatus"></div>
   </div>
 </section>
 
 <!-- LIVE DEALS -->
-<section id="deals">
-  <div class="section-inner">
-    <div class="deals-header">
-      <div>
-        <div class="eyebrow">Live Deal Flow</div>
-        <h2 class="section-title" style="margin-bottom:0;">Active opportunities<br>matching your criteria.</h2>
+<section class="deals" id="deals">
+  <div class="deals-inner">
+    <div class="deals-head">
+      <div class="deals-head-left">
+        <div class="section-tag">Live Deal Flow</div>
+        <h2 class="section-h">Active deals on the platform</h2>
       </div>
-      <div>
-        <div class="deal-count"><span id="deal-count">8</span> deals available</div>
-        <div class="filter-tabs" style="margin-top:10px;">
-          <div class="filter-tab active" onclick="filterDeals('all',this)">All</div>
-          <div class="filter-tab" onclick="filterDeals('bridge',this)">Bridge</div>
-          <div class="filter-tab" onclick="filterDeals('flip',this)">Fix & Flip</div>
-          <div class="filter-tab" onclick="filterDeals('dscr',this)">DSCR</div>
-          <div class="filter-tab" onclick="filterDeals('construction',this)">Construction</div>
-        </div>
+      <div class="deals-access-note">
+        🔐 Full deal details are visible to approved lenders only. Apply for access to see borrower info, full financials, and AVM data.
       </div>
     </div>
-    <div class="deals-grid" id="deals-grid"></div>
+    <div class="filter-tabs">
+      <div class="ftab on" onclick="filterDeals('all',this)">All Deals</div>
+      <div class="ftab" onclick="filterDeals('Bridge',this)">Bridge</div>
+      <div class="ftab" onclick="filterDeals('Fix & Flip',this)">Fix & Flip</div>
+      <div class="ftab" onclick="filterDeals('DSCR',this)">DSCR</div>
+      <div class="ftab" onclick="filterDeals('Commercial',this)">Commercial</div>
+      <div class="ftab" onclick="filterDeals('Construction',this)">Construction</div>
+    </div>
+    <div class="deals-grid" id="deals-grid"><!-- JS --></div>
   </div>
 </section>
 
-<!-- LENDER REGISTRATION -->
+<!-- PROPERTY TYPES -->
+<section class="prop-types">
+  <div class="prop-types-inner">
+    <div class="prop-types-head">
+      <div>
+        <div class="section-tag">Asset Classes</div>
+        <h2 class="section-h">Every property type.<br><em>All 50 states.</em></h2>
+      </div>
+      <p class="section-lead" style="max-width:320px;text-align:right;">From distressed SFRs to hospitality to land — set your preferred asset classes in your criteria profile.</p>
+    </div>
+    <div class="prop-grid" id="prop-types-grid"><!-- JS --></div>
+  </div>
+</section>
+
+<!-- STATES -->
+<section class="states-section">
+  <div class="states-head" style="margin-bottom:40px;">
+    <div class="section-tag" style="color:var(--teal-l);justify-content:center;display:inline-flex;margin-bottom:14px;">Coverage</div>
+    <h2 class="section-h" style="color:#f5f2eb;margin-bottom:12px;">All 50 States</h2>
+    <p class="section-lead" style="color:rgba(245,242,235,.4);max-width:480px;margin:0 auto 40px;">Our borrower network spans every state. Filter by geography in your criteria to focus on your target markets.</p>
+  </div>
+  <div class="states-list" id="states-list"><!-- JS --></div>
+</section>
+
+<!-- CRITERIA ENGINE -->
+<section id="criteria">
+  <div class="crit-inner">
+    <div class="crit-head">
+      <div class="section-tag">Deal Alerts</div>
+      <h2 class="section-h" style="color:#f5f2eb;">Set your criteria.<br><em>Deals find you.</em></h2>
+      <p class="crit-sub">Define your lending parameters once. Our AI sends you deals that match — no browsing required.</p>
+    </div>
+    <div class="crit-card">
+      <div class="crit-section">
+        <div class="crit-section-label">Loan Size Range</div>
+        <div class="slider-row"><div class="slider-label">Minimum</div><div class="slider-val" id="lv-min">$100K</div></div>
+        <input type="range" min="50000" max="5000000" step="25000" value="100000" id="cr-lmin" oninput="updCrit()">
+        <div class="slider-row"><div class="slider-label">Maximum</div><div class="slider-val" id="lv-max">$3M</div></div>
+        <input type="range" min="50000" max="20000000" step="25000" value="3000000" id="cr-lmax" oninput="updCrit()">
+      </div>
+      <div class="crit-section">
+        <div class="crit-section-label">Max LTV</div>
+        <div class="slider-row"><div class="slider-label">Maximum LTV I will fund</div><div class="slider-val" id="lv-ltv">75%</div></div>
+        <input type="range" min="40" max="90" step="5" value="75" id="cr-ltv" oninput="updCrit()">
+      </div>
+      <div class="crit-section">
+        <div class="crit-section-label">Minimum Rate</div>
+        <div class="slider-row"><div class="slider-label">I won't lend below</div><div class="slider-val" id="lv-rate">9%</div></div>
+        <input type="range" min="6" max="16" step="0.25" value="9" id="cr-rate" oninput="updCrit()">
+      </div>
+      <div class="crit-section">
+        <div class="crit-section-label">Property Types I Fund</div>
+        <div class="ck-grid" id="prop-type-checks"><!-- JS --></div>
+      </div>
+      <div class="crit-section">
+        <div class="crit-section-label">Geographic Focus</div>
+        <div class="state-ck-grid" id="state-checks"><!-- JS --></div>
+      </div>
+      <div class="crit-section">
+        <div class="crit-section-label">Preferences</div>
+        <div class="toggle-grid">
+          <div class="toggle-item on" onclick="this.classList.toggle('on')"><span class="ti-name">Accept distressed / REO properties</span><div class="ti-toggle"></div></div>
+          <div class="toggle-item on" onclick="this.classList.toggle('on')"><span class="ti-name">Open to co-lending / fractional</span><div class="ti-toggle"></div></div>
+          <div class="toggle-item" onclick="this.classList.toggle('on')"><span class="ti-name">First-time investors only</span><div class="ti-toggle"></div></div>
+          <div class="toggle-item on" onclick="this.classList.toggle('on')"><span class="ti-name">Cross-collateral acceptable</span><div class="ti-toggle"></div></div>
+          <div class="toggle-item on" onclick="this.classList.toggle('on')"><span class="ti-name">Receive AI deal match alerts</span><div class="ti-toggle"></div></div>
+          <div class="toggle-item" onclick="this.classList.toggle('on')"><span class="ti-name">Construction / ground-up only</span><div class="ti-toggle"></div></div>
+        </div>
+      </div>
+      <div class="save-crit-row">
+        <span id="crit-status"></span>
+        <button class="btn-save" onclick="saveCriteria()">Save Criteria & Activate Alerts</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REGISTRATION -->
 <section id="register">
-  <div class="reg-wrap">
-    <div class="eyebrow">Lender Registration</div>
-    <h2 class="section-title" style="margin-bottom:28px;">Create your lender profile<br>to access full deal rooms.</h2>
+  <div class="reg-inner">
+    <div class="reg-head">
+      <div class="section-tag">Lender Access</div>
+      <h2 class="section-h">Apply for lender access</h2>
+      <p class="section-lead">We review applications within 1 business day. Approved lenders gain immediate access to full deal details, AVM data, and borrower financials.</p>
+    </div>
     <div class="reg-card">
-      <div class="form-grid">
-        <div class="field"><label>First Name <span class="req">*</span></label><input type="text" id="l_first" placeholder="First"></div>
-        <div class="field"><label>Last Name <span class="req">*</span></label><input type="text" id="l_last" placeholder="Last"></div>
-        <div class="field"><label>Email <span class="req">*</span></label><input type="email" id="l_email" placeholder="you@fund.com"></div>
-        <div class="field"><label>Phone</label><input type="tel" id="l_phone" placeholder="(555) 000-0000"></div>
-        <div class="field">
-          <label>Investor Type</label>
-          <select id="l_type"><option>Family Office</option><option>Private Fund</option><option>High Net Worth Individual</option><option>Institutional / REIT</option><option>Self-Directed IRA</option><option>Hedge Fund</option><option>Other</option></select>
+      <div class="fg">
+        <div class="fl">
+          <div><label class="field-lbl">First Name *</label><input type="text" class="field-inp" id="r-fname" placeholder="First"></div>
+          <div><label class="field-lbl">Last Name *</label><input type="text" class="field-inp" id="r-lname" placeholder="Last"></div>
         </div>
-        <div class="field">
-          <label>Target Deployment (12 months)</label>
-          <select id="l_deploy"><option>$250K–$1M</option><option>$1M–$5M</option><option>$5M–$20M</option><option>$20M–$50M</option><option>$50M+</option></select>
+        <div><label class="field-lbl">Email Address *</label><input type="email" class="field-inp" id="r-email" placeholder="you@fund.com"></div>
+        <div><label class="field-lbl">Phone</label><input type="tel" class="field-inp" id="r-phone" placeholder="(555) 000-0000"></div>
+        <div><label class="field-lbl">Lender Type *</label>
+          <select class="field-inp" id="r-type">
+            <option value="">Select lender type</option>
+            <option>Private Individual / High-Net-Worth</option>
+            <option>Family Office</option>
+            <option>Private Equity / Debt Fund</option>
+            <option>Hard Money Lender</option>
+            <option>REIT / Mortgage REIT</option>
+            <option>Institutional Lender</option>
+            <option>Other</option>
+          </select>
         </div>
-        <div class="field full">
-          <label>Accredited Investor Status</label>
-          <select id="l_accredited"><option>Yes — I am an accredited investor</option><option>Yes — institutional investor / qualified purchaser</option><option>Not yet — seeking information only</option></select>
+        <div><label class="field-lbl">Typical Loan Size</label>
+          <select class="field-inp" id="r-size">
+            <option value="">Select range</option>
+            <option>Under $250K</option><option>$250K–$500K</option>
+            <option>$500K–$1M</option><option>$1M–$3M</option>
+            <option>$3M–$10M</option><option>$10M+</option>
+          </select>
+        </div>
+        <div><label class="field-lbl">Capital Available to Deploy</label>
+          <select class="field-inp" id="r-capital">
+            <option value="">Select range</option>
+            <option>Under $500K</option><option>$500K–$2M</option>
+            <option>$2M–$10M</option><option>$10M–$50M</option><option>$50M+</option>
+          </select>
         </div>
       </div>
-      <div class="consent-box">
-        By submitting this registration, I represent that: (1) I am an accredited investor as defined by SEC Rule 501(a) or an institutional investor; (2) all loans I may fund through this platform are for business/investment purposes only; (3) I understand lender identity is confidential until a term sheet is issued; (4) loans made through this platform are first-lien, interest-only private mortgages exempt from TILA/RESPA as business purpose transactions; (5) returns shown are historical/indicative only and not guaranteed — past performance does not predict future results; (6) I agree to FirstLien Capital's terms of service and privacy policy; (7) I acknowledge this platform is a licensed mortgage broker and not a registered investment adviser.
+      <div class="consent-box" style="margin-top:20px;">
+        By applying for lender access, I confirm that I am an accredited investor or institutional lender deploying capital for investment purposes. I agree to submit offers in good faith, disclose all material terms truthfully, and adhere to FirstLien.Capital's Lender Conduct Standards. I understand that predatory, discriminatory, or bad-faith conduct will result in immediate suspension.
       </div>
-      <button class="submit-btn" id="lenderSubmitBtn" onclick="submitLender()">Create Lender Profile →</button>
-      <div class="reg-success" id="lender-success">
-        <div style="font-size:44px;margin-bottom:14px">✅</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:26px;margin-bottom:8px;">Profile Created</div>
-        <p style="color:var(--muted);font-size:13px;">Welcome to FirstLien Capital. Our team will reach out within one business day to verify your accreditation and grant full deal room access.</p>
+      <button class="submit-btn" onclick="submitLender()">Apply for Lender Access →</button>
+      <div id="reg-success">
+        <div class="rs-icon">✅</div>
+        <div class="rs-h">Application received</div>
+        <p class="rs-p">We review lender applications within 1 business day. You'll receive an email when your access is approved. Approved lenders gain access to full deal details, AVM data, borrower financials, and the criteria matching engine.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- DISCLOSURES -->
-<div class="disclosures">
+<section class="disclosures">
   <div class="disc-inner">
-    <div class="disc-title">Important Disclosures & Legal Notices — Lender Platform</div>
-    <p class="disc-text">FIRSTLIEN.CAPITAL IS A LICENSED MORTGAGE BROKER MARKETPLACE, NOT A LENDER OR INVESTMENT ADVISER. All loans are originated exclusively by participating third-party private lenders. FirstLien.Capital acts solely as a technology-enabled broker marketplace. We do not hold, service, guarantee, or make credit decisions on any loans. Lending through this platform involves significant risk, including loss of principal. Past performance does not guarantee future results. All investments in private mortgage loans are illiquid and subject to borrower default risk.</p>
-    <p class="disc-text">ACCREDITED INVESTORS ONLY. Access to loan investment opportunities on this platform is restricted to accredited investors as defined under SEC Rule 501(a) of Regulation D, or qualified institutional buyers as defined under SEC Rule 144A. By accessing deal information, you represent and warrant that you meet applicable accreditation requirements under applicable federal and state securities laws.</p>
-    <p class="disc-text">NOT A SECURITIES OFFERING. Loan participations offered through this platform are not securities and have not been registered under the Securities Act of 1933. These are direct private mortgage loans — first-lien positions — exempt from securities registration requirements. Investors should consult their own legal and financial advisors before making any investment decision.</p>
-    <p class="disc-text">RISK DISCLOSURE. Private real estate lending involves substantial risk of loss. Borrowers may default. Properties may decline in value. Foreclosure may not recover the full loan balance. There is no FDIC insurance, SIPC protection, or government guarantee on any loan made through this platform. Past returns are not indicative of future performance. Rates shown are indicative only and are based on currently available deals — individual loan terms vary.</p>
-    <p class="disc-text">LENDER ANONYMITY. The identities of both lenders and borrowers are kept confidential until a term sheet is formally issued and executed. FirstLien Capital reserves the right to remove any lender from the platform for systematic lowball offer behavior, misrepresentation of accreditation status, or any conduct deemed harmful to the integrity of the marketplace.</p>
-    <p class="disc-text">FRACTIONAL LENDING. Fractional participation in loans is structured as a co-lending arrangement — not a securities syndication. Each participating lender holds a proportional interest in the first-lien note. Terms of fractional participation are governed by a Co-Lending Agreement executed at closing.</p>
-    <p class="disc-text">EQUAL HOUSING LENDER. All loans are made without regard to race, color, religion, national origin, sex, handicap, or familial status. Participating lenders comply with all applicable federal and state fair lending laws. © 2026 FirstLien.Capital. All rights reserved.</p>
+    <div class="disc-title">Important Disclosures &amp; Legal Notices — Lenders</div>
+    <div class="disc-grid">
+      <div><div class="disc-block-title">Broker Marketplace — Not a Lender or Investment Adviser</div><p class="disc-text">FIRSTLIEN.CAPITAL IS A LICENSED MORTGAGE BROKER MARKETPLACE, NOT A LENDER, INVESTMENT ADVISER, OR SECURITIES BROKER-DEALER. All loans are originated exclusively by participating third-party private lenders. We do not hold, service, guarantee, or make credit decisions on any loans facilitated through this platform.</p></div>
+      <div><div class="disc-block-title">Risk Disclosure — Private Mortgage Lending</div><p class="disc-text">PRIVATE MORTGAGE LENDING INVOLVES SIGNIFICANT RISK, INCLUDING THE POTENTIAL LOSS OF YOUR ENTIRE INVESTMENT. In the event of borrower default, recovery of principal depends on property value, foreclosure costs, and market conditions. Past performance does not guarantee future results. Consult your own legal, financial, and tax advisers before making any lending decision.</p></div>
+      <div><div class="disc-block-title">Not a Securities Offering</div><p class="disc-text">The loan opportunities presented on this platform do not constitute an offer or sale of securities. Fractional participation is structured as a direct lending arrangement, not an investment contract. Participants should conduct independent due diligence and seek independent legal counsel.</p></div>
+      <div><div class="disc-block-title">Due Diligence Responsibility</div><p class="disc-text">FirstLien.Capital does not independently verify the accuracy of deal information including property valuations, borrower financials, property condition, or title status. Lenders are solely responsible for conducting their own independent due diligence prior to making any lending commitment.</p></div>
+      <div><div class="disc-block-title">AVM Disclaimer</div><p class="disc-text">AVM estimates are provided by third-party data sources for informational purposes only. They do not constitute a formal appraisal. Actual property values may differ materially. Always obtain a licensed appraisal before committing to a loan.</p></div>
+      <div><div class="disc-block-title">Broker Compensation</div><p class="disc-text">FirstLien.Capital receives compensation from borrowers at closing. By participating, lenders acknowledge that FirstLien.Capital is a compensated intermediary and not acting as a fiduciary. For questions: <a href="mailto:info@firstlien.capital">info@firstlien.capital</a>.</p></div>
+    </div>
+    <div class="disc-copy">
+      <span>© 2026 FirstLien.Capital, Inc. · Licensed Mortgage Broker Marketplace · NMLS ID available upon request · Equal Housing Lender · <a href="mailto:info@firstlien.capital">info@firstlien.capital</a></span>
+      <span>⚖️</span>
+    </div>
   </div>
+</section>
+
+<div class="foot-bar">
+  <a href="/" class="foot-logo">FirstLien<span class="dot">.</span>Capital</a>
+  <div class="foot-links">
+    <a href="/borrower.html">For Borrowers</a>
+    <a href="#deals">Live Deals</a>
+    <a href="#register">Apply</a>
+    <a href="mailto:info@firstlien.capital">Contact</a>
+  </div>
+  <div class="foot-copy">firstlien.capital</div>
 </div>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">FirstLien.Capital</div>
-  <div>FirstLien.Capital · Licensed Mortgage Broker Marketplace · Equal Housing Lender</div>
-  <div><a href="/">Home</a> · <a href="/borrower.html">Borrowers</a> · <a href="mailto:info@firstlien.capital">Contact</a></div>
-</footer>
-
-<!-- CHAT -->
-<button class="chat-btn" onclick="toggleChat()">💬</button>
-<div class="chat-panel" id="chatPanel">
-  <div class="chat-head">
-    <div><div class="chat-head-title">Scout — AI Assistant</div><div class="chat-head-sub">Lender support · Instant answers</div></div>
-    <button class="chat-close" onclick="toggleChat()">✕</button>
+<div id="chat">
+  <div class="chat-window">
+    <div class="chat-header">
+      <div style="font-size:20px;">🤖</div>
+      <div><div class="chat-title">Scout AI</div><div class="chat-sub">Lender support</div></div>
+    </div>
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="msg bot">Hi! I help lenders navigate the platform. Ask me about deal flow, access requirements, or how the AI matching works.</div>
+    </div>
+    <div class="chat-in-row">
+      <input type="text" id="chat-in" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" onclick="sendChat()">↑</button>
+    </div>
   </div>
-  <div class="chat-messages" id="chatMessages">
-    <div class="msg bot">Hi! I'm Scout. Ask me about deal flow, underwriting criteria, or how the platform works.</div>
-  </div>
-  <div class="chat-input-row">
-    <input type="text" class="chat-input" id="chatInput" placeholder="Ask a question..." onkeydown="if(event.key==='Enter')sendChat()">
-    <button class="chat-send" onclick="sendChat()">→</button>
-  </div>
+  <div class="chat-bubble" onclick="toggleChat()">💬</div>
 </div>
 
 <script>
-  // ── PROPERTY IMAGES ── (Unsplash by property type — AVM images via deal.html)
-  const PROP_IMAGES = {
-    bridge:       'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80',
-    flip:         'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&q=80',
-    dscr:         'https://images.unsplash.com/photo-1460317442991-0ec209397118?w=600&q=80',
-    construction: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80',
-    default:      'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=600&q=80',
-  };
+var SITE_CONFIG = {
+  stats: { deals:"Active", yield:"8–14%", position:"1st Lien", states:"50" },
+  trustItems: [
+    {icon:"🔒",title:"First-Lien Only",sub:"No junior positions"},
+    {icon:"🧠",title:"AI Matched",sub:"Gemini-powered"},
+    {icon:"📡",title:"AVM Verified",sub:"Multi-source data"},
+    {icon:"🤝",title:"Co-Lending",sub:"Fractional available"},
+    {icon:"⚡",title:"24hr Review",sub:"Fast approval"},
+    {icon:"🛡️",title:"Conduct Standards",sub:"Lenders enforced"},
+    {icon:"📋",title:"Auto Doc Prep",sub:"6 states ready"},
+    {icon:"🌍",title:"All 50 States",sub:"Full coverage"},
+    {icon:"$0",title:"No Lender Fees",sub:"Borrower pays"},
+    {icon:"⚖️",title:"Equal Housing",sub:"Fair lending"}
+  ],
+  propertyTypes: [
+    {icon:"🏠",name:"Single Family",sub:"1-4 unit residential"},
+    {icon:"🔨",name:"Fix & Flip",sub:"Distressed / rehab"},
+    {icon:"🏢",name:"Multi-Family",sub:"5+ unit apartment"},
+    {icon:"🏬",name:"Commercial",sub:"Office / retail"},
+    {icon:"🏨",name:"Hospitality",sub:"Motels / hotels"},
+    {icon:"🏭",name:"Industrial",sub:"Warehouse / flex"},
+    {icon:"🏗️",name:"Construction",sub:"Ground-up / ADU"},
+    {icon:"🌳",name:"Land / Lots",sub:"Raw / entitled"},
+    {icon:"🏘️",name:"Mixed-Use",sub:"Retail + residential"},
+    {icon:"🏡",name:"Short-Term Rental",sub:"Airbnb / VRBO"},
+    {icon:"🏪",name:"NNN / Triple Net",sub:"Tenanted retail"},
+    {icon:"⛪",name:"Special Purpose",sub:"Church / school / flex"}
+  ],
+  states: ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],
+  deals: [
+    {id:1,type:"Fix & Flip",cat:"Fix & Flip",loan:"$875,000",rate:"10.25–12%",ltv:"72% LTV",loc:"Chicago, IL",term:"12 months",funded:45,tags:["SFR","Gut Rehab","ARV $1.35M"],ai:"Strong match — Chicago-area rehab, healthy LTV",img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",locked:true},
+    {id:2,type:"Bridge",cat:"Bridge",loan:"$2,400,000",rate:"9.5–11%",ltv:"68% LTV",loc:"Del Rio, TX",term:"24 months",funded:60,tags:["Hospitality","Motel","Value-Add"],ai:"Hospitality bridge — motivated seller, strong DSCR",img:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",locked:true},
+    {id:3,type:"DSCR",cat:"DSCR",loan:"$580,000",rate:"7.5–9%",ltv:"75% LTV",loc:"Phoenix, AZ",term:"30-yr fixed",funded:20,tags:["Multi-Family","4-Unit","DSCR 1.3x"],ai:"Clean DSCR — stable rental income, low vacancy",img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80",locked:false},
+    {id:4,type:"Construction",cat:"Construction",loan:"$1,100,000",rate:"11–13%",ltv:"70% LTC",loc:"Scottsdale, AZ",term:"18 months",funded:0,tags:["Ground-Up","SFR","Luxury"],ai:"Ground-up luxury SFR — experienced developer",img:"https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80",locked:true},
+    {id:5,type:"Commercial",cat:"Commercial",loan:"$3,200,000",rate:"9–11%",ltv:"65% LTV",loc:"Las Vegas, NV",term:"24 months",funded:35,tags:["Mixed-Use","Retail+Resi","Value-Add"],ai:"Mixed-use bridge — strong Vegas market fundamentals",img:"https://images.unsplash.com/photo-1460317442991-0ec209397118?w=600&q=80",locked:true},
+    {id:6,type:"Fix & Flip",cat:"Fix & Flip",loan:"$295,000",rate:"11–13%",ltv:"78% LTV",loc:"Detroit, MI",term:"9 months",funded:0,tags:["Distressed","Vacant","High-Yield"],ai:"Distressed SFR — high-yield opportunity, urban core",img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80",locked:false},
+    {id:7,type:"DSCR",cat:"DSCR",loan:"$1,750,000",rate:"8–9.5%",ltv:"72% LTV",loc:"Nashville, TN",term:"30-yr fixed",funded:55,tags:["Short-Term Rental","STR Portfolio","DSCR 1.4x"],ai:"STR portfolio — Airbnb cash-flowing above market",img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80",locked:true},
+    {id:8,type:"Bridge",cat:"Bridge",loan:"$650,000",rate:"10–12%",ltv:"70% LTV",loc:"Albuquerque, NM",term:"12 months",funded:0,tags:["Industrial","Flex","Owner-Occ"],ai:"Industrial flex — light manufacturing, owner-occ exit",img:"https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&q=80",locked:false},
+    {id:9,type:"Commercial",cat:"Commercial",loan:"$4,800,000",rate:"8.5–10%",ltv:"62% LTV",loc:"Miami, FL",term:"24 months",funded:70,tags:["NNN","Triple Net","Creditworthy Tenant"],ai:"NNN retail — national tenant, long-term lease in place",img:"https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80",locked:true}
+  ]
+};
 
-  const deals = [
-    { id:'d1', type:'bridge', typeName:'Bridge Loan', location:'Los Angeles, CA', address:'Brentwood Multifamily · 12 Units', amount:'$3.2M', ltv:'65%', rate:'10.5%', term:'18 mo', funded:72, badge:'hot', badgeLabel:'Hot', score:'A', tags:['Multifamily','12 Units','Cash-Out Refi'], ai:'Strong submarket. T-12 NOI supports LTV. Borrower has 15+ closed deals.' },
-    { id:'d2', type:'flip', typeName:'Fix & Flip', location:'Austin, TX', address:'Hyde Park SFR Flip', amount:'$875K', ltv:'68% ARV', rate:'11.75%', term:'12 mo', funded:45, badge:'new', badgeLabel:'New', score:'B', tags:['Single Family','Light Rehab','$1.28M ARV'], ai:'Comps support ARV. Experienced flipper — 8 exits in 24 months.' },
-    { id:'d3', type:'dscr', typeName:'DSCR / Rental', location:'Miami, FL', address:'Brickell Mixed-Use', amount:'$4.1M', ltv:'61%', rate:'9.25%', term:'30 yr', funded:88, badge:'funding', badgeLabel:'Funding', score:'A', tags:['Mixed-Use','DSCR 1.38x','Stabilized'], ai:'DSCR comfortably above 1.25x. Prime Brickell location.' },
-    { id:'d4', type:'construction', typeName:'Construction', location:'Denver, CO', address:'LoHi Ground-Up Condo · 6 Units', amount:'$2.6M', ltv:'63% LTC', rate:'12.5%', term:'20 mo', funded:31, badge:'new', badgeLabel:'New', score:'B', tags:['Ground-Up','6 Units','Presold 4/6'], ai:'Strong pre-sales reduce completion risk. Builder has 3 prior completions.' },
-    { id:'d5', type:'bridge', typeName:'Bridge Loan', location:'Nashville, TN', address:'East Nashville Value-Add · 8 Units', amount:'$1.4M', ltv:'70%', rate:'10.75%', term:'14 mo', funded:55, badge:'hot', badgeLabel:'Hot', score:'A', tags:['Multifamily','8 Units','Value-Add'], ai:'Rents 22% below market. Clear upside story on stabilization.' },
-    { id:'d6', type:'flip', typeName:'Fix & Flip', location:'Phoenix, AZ', address:'Scottsdale SFR Portfolio · 3 Props', amount:'$2.1M', ltv:'67% ARV', rate:'11.25%', term:'10 mo', funded:20, badge:'new', badgeLabel:'New', score:'A', tags:['3 Properties','Light Rehab','Experienced'], ai:'Portfolio flip across 3 properties. Borrower closed 22 AZ flips in 3 years.' },
-    { id:'d7', type:'dscr', typeName:'DSCR / Rental', location:'Charlotte, NC', address:'South End Apartments · 24 Units', amount:'$3.8M', ltv:'64%', rate:'8.75%', term:'30 yr', funded:62, badge:'funding', badgeLabel:'Funding', score:'A', tags:['24 Units','DSCR 1.44x','Class B'], ai:'Rare Class B multifamily at sub-65% LTV. Institutional-grade borrower.' },
-    { id:'d8', type:'bridge', typeName:'Bridge Loan', location:'Seattle, WA', address:'Capitol Hill Commercial', amount:'$5.5M', ltv:'58%', rate:'10.25%', term:'24 mo', funded:90, badge:'funding', badgeLabel:'Funding', score:'A', tags:['Retail + Office','Trophy Asset','2 Floors Leased'], ai:'Exceptional LTV on stabilized trophy asset. Near-term refi to agency.' },
-  ];
+document.addEventListener("DOMContentLoaded", function() {
+  renderTrust(); renderDeals("all"); renderPropTypes(); renderStates(); renderCriteriaChecks();
+  if(document.getElementById("h-yield")) document.getElementById("h-yield").textContent = SITE_CONFIG.stats.yield;
+});
 
-  function fmtMoney(v) {
-    if (v >= 1000000) return '$' + (v/1000000).toFixed(v%1000000===0?0:1) + 'M';
-    if (v >= 1000)    return '$' + (v/1000).toFixed(0) + 'K';
-    return '$' + v;
-  }
-  function updateDisp(sliderId, dispId) {
-    const v = parseInt(document.getElementById(sliderId).value);
-    document.getElementById(dispId).textContent = fmtMoney(v);
-  }
-  function updatePct(sliderId, dispId) {
-    const v = document.getElementById(sliderId).value;
-    document.getElementById(dispId).textContent = v + '%';
-  }
+function renderTrust() {
+  var items = SITE_CONFIG.trustItems;
+  var html = items.concat(items).map(function(t){
+    return "<div class=\"trust-item\"><div class=\"ti-icon\">"+t.icon+"</div><div class=\"ti-text\"><strong>"+t.title+"</strong>"+t.sub+"</div></div>";
+  }).join("");
+  document.getElementById("trust-track").innerHTML = html;
+}
 
-  function badgeClass(b) { return 'badge-' + b; }
-  function scoreClass(s) { return s === 'A' ? 'score-a' : ''; }
+function renderDeals(cat) {
+  var deals = cat === "all" ? SITE_CONFIG.deals : SITE_CONFIG.deals.filter(function(d){return d.cat===cat;});
+  var html = deals.map(function(d) {
+    var lockOverlay = d.locked
+      ? "<div class=\"deal-lock-overlay\"><div class=\"dlo-icon\">🔐</div><div class=\"dlo-title\">Access Required</div><div class=\"dlo-sub\">Approved lenders see full deal details, AVM data, borrower info, and financials.</div><button class=\"dlo-btn\" onclick=\"document.getElementById('register').scrollIntoView({behavior:'smooth'})\">Apply for Access</button></div>"
+      : "";
+    return "<div class=\"deal-card"+(d.locked?" locked":"")+"\">"+
+      lockOverlay+
+      "<div class=\"deal-body\">"+
+        "<div class=\"deal-img\">"+
+          "<img src=\""+d.img+"\" alt=\""+d.type+"\" loading=\"lazy\" onerror=\"this.parentElement.style.background='#e0d8c8'\">"+
+          "<div class=\"deal-img-overlay\"></div>"+
+          "<div class=\"deal-type-badge\">"+d.type+"</div>"+
+          "<div class=\"deal-ai-badge\">🧠 AI Matched</div>"+
+        "</div>"+
+        "<div style=\"padding:20px 20px 16px\">"+
+          "<div class=\"deal-location\">📍 "+d.loc+"</div>"+
+          "<div class=\"deal-amt\">"+d.loan+"</div>"+
+          "<div class=\"deal-metrics\">"+
+            "<div class=\"dm-item\"><div class=\"dm-l\">Rate Range</div><div class=\"dm-v teal\">"+d.rate+"</div></div>"+
+            "<div class=\"dm-item\"><div class=\"dm-l\">Max LTV</div><div class=\"dm-v\">"+d.ltv+"</div></div>"+
+            "<div class=\"dm-item\"><div class=\"dm-l\">Term</div><div class=\"dm-v\">"+d.term+"</div></div>"+
+          "</div>"+
+          (d.funded>0?"<div class=\"deal-funded\"><div class=\"funded-row\"><span>Funding progress</span><span>"+d.funded+"% committed</span></div><div class=\"funded-track\"><div class=\"funded-fill\" style=\"width:"+d.funded+"%\"></div></div></div>":"")+
+          "<div class=\"deal-tags\">"+d.tags.map(function(t){return "<span class=\"deal-tag\">"+t+"</span>";}).join("")+"</div>"+
+          "<div class=\"deal-ai-note\">🧠 "+d.ai+"</div>"+
+          "<div class=\"deal-actions\">"+
+            "<button class=\"btn-interest\" onclick=\"expressInterest("+d.id+")\">Express Interest</button>"+
+            "<button class=\"btn-view\" onclick=\"viewDeal("+d.id+")\">Details →</button>"+
+          "</div>"+
+        "</div>"+
+      "</div>"+
+    "</div>";
+  }).join("");
+  document.getElementById("deals-grid").innerHTML = html;
+}
 
-  function renderDeals(type) {
-    const filtered = type === 'all' ? deals : deals.filter(d => d.type === type);
-    document.getElementById('deal-count').textContent = filtered.length;
-    document.getElementById('deals-grid').innerHTML = filtered.map(d => {
-      const img = PROP_IMAGES[d.type] || PROP_IMAGES.default;
-      return `
-      <div class="deal-card" onclick="viewDeal('${d.id}')">
-        <div class="deal-img">
-          <img src="${img}" alt="${d.address}" onerror="this.parentElement.style.background='linear-gradient(135deg,#1a2a1a,#0d1a2a)'">
-          <div class="deal-img-overlay"></div>
-          <span class="deal-badge ${badgeClass(d.badge)}">${d.badgeLabel}</span>
-          <span class="deal-score ${scoreClass(d.score)}">${d.score}</span>
-          <div class="deal-img-addr">📍 ${d.address}</div>
-        </div>
-        <div class="deal-body">
-          <div class="deal-type-row">
-            <span class="deal-type">${d.typeName}</span>
-            <span class="deal-location">📍 ${d.location}</span>
-          </div>
-          <div class="deal-metrics">
-            <div class="metric"><div class="metric-val">${d.amount}</div><div class="metric-lbl">Amount</div></div>
-            <div class="metric"><div class="metric-val">${d.rate}</div><div class="metric-lbl">Rate</div></div>
-            <div class="metric"><div class="metric-val">${d.ltv}</div><div class="metric-lbl">LTV</div></div>
-            <div class="metric"><div class="metric-val">${d.term}</div><div class="metric-lbl">Term</div></div>
-          </div>
-          <div class="deal-funded">
-            <div class="funded-row"><span>Funded</span><span>${d.funded}%</span></div>
-            <div class="funded-bar"><div class="funded-fill" style="width:${d.funded}%"></div></div>
-          </div>
-          <div class="deal-tags">${d.tags.map(t=>`<span class="deal-tag">${t}</span>`).join('')}</div>
-          <div class="deal-ai">🤖 ${d.ai}</div>
-          <div class="deal-actions">
-            <button class="btn-interest" onclick="event.stopPropagation();expressInterest(this,'${d.id}')">Express Interest</button>
-            <button class="btn-view" onclick="event.stopPropagation();viewDeal('${d.id}')">Full Details</button>
-          </div>
-        </div>
-      </div>`;
-    }).join('');
-  }
+function filterDeals(cat, el) {
+  document.querySelectorAll(".ftab").forEach(function(t){t.classList.remove("on");});
+  el.classList.add("on");
+  renderDeals(cat);
+}
 
-  function filterDeals(type, el) {
-    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    renderDeals(type);
-  }
+function renderPropTypes() {
+  document.getElementById("prop-types-grid").innerHTML = SITE_CONFIG.propertyTypes.map(function(p){
+    return "<div class=\"ptype-card\"><div class=\"ptc-icon\">"+p.icon+"</div><div><div class=\"ptc-name\">"+p.name+"</div><div class=\"ptc-sub\">"+p.sub+"</div></div></div>";
+  }).join("");
+}
 
-  function expressInterest(btn, dealId) {
-    btn.textContent = '✓ Interest Sent';
-    btn.style.background = 'var(--green)';
-    btn.disabled = true;
-    // In production: save to Firebase + notify admin
-    setTimeout(() => {
-      btn.textContent = '✓ Sent — Awaiting Match';
-    }, 1500);
-  }
+function renderStates() {
+  document.getElementById("states-list").innerHTML = SITE_CONFIG.states.map(function(s){
+    return "<div class=\"state-pill\">"+s+"</div>";
+  }).join("");
+}
 
-  function viewDeal(dealId) {
-    // Navigate to full deal detail page
-    window.location.href = '/deal.html?id=' + dealId;
-  }
+function renderCriteriaChecks() {
+  var types = SITE_CONFIG.propertyTypes.map(function(p){return p.name;});
+  document.getElementById("prop-type-checks").innerHTML = types.map(function(t){
+    return "<div class=\"ck-item on\" onclick=\"this.classList.toggle('on')\"><div class=\"ck-dot\">✓</div>"+t+"</div>";
+  }).join("");
+  document.getElementById("state-checks").innerHTML = SITE_CONFIG.states.map(function(s){
+    return "<div class=\"state-ck on\" onclick=\"this.classList.toggle('on')\">"+s+"</div>";
+  }).join("");
+}
 
-  function saveCriteria() {
-    const btn = document.getElementById('saveCriteriaBtn');
-    const status = document.getElementById('criteriaStatus');
-    btn.textContent = 'Saving...'; btn.disabled = true;
-    setTimeout(() => {
-      btn.textContent = 'Save My Criteria →'; btn.disabled = false;
-      status.textContent = '✓ Criteria saved — you\'ll receive email alerts on matching deals.';
-      status.style.color = 'var(--teal)';
-    }, 800);
-  }
+function updCrit() {
+  var fmt = function(n){return n>=1000000?"$"+(n/1000000).toFixed(n%1000000===0?0:1)+"M":"$"+(n/1000).toFixed(0)+"K";};
+  document.getElementById("lv-min").textContent = fmt(document.getElementById("cr-lmin").value);
+  document.getElementById("lv-max").textContent = fmt(document.getElementById("cr-lmax").value);
+  document.getElementById("lv-ltv").textContent = document.getElementById("cr-ltv").value+"%";
+  document.getElementById("lv-rate").textContent = document.getElementById("cr-rate").value+"%";
+}
 
-  async function submitLender() {
-    const btn = document.getElementById('lenderSubmitBtn');
-    btn.textContent = 'Creating Profile...'; btn.disabled = true;
-    const lenderData = {
-      firstName: document.getElementById('l_first').value,
-      lastName: document.getElementById('l_last').value,
-      email: document.getElementById('l_email').value,
-      phone: document.getElementById('l_phone').value,
-      type: document.getElementById('l_type').value,
-      deploy: document.getElementById('l_deploy').value,
-      accredited: document.getElementById('l_accredited').value,
-    };
-    if (window._saveLenderToFirebase) await window._saveLenderToFirebase(lenderData);
-    btn.style.display = 'none';
-    document.getElementById('lender-success').style.display = 'block';
-  }
+function saveCriteria() {
+  var s = document.getElementById("crit-status");
+  s.textContent = "Saving...";
+  setTimeout(function(){s.textContent="✓ Criteria saved — AI deal alerts activated";s.style.color="var(--teal-l)";},800);
+}
 
-  // ── AI CHAT ──────────────────────────────────────
-  const lenderReplies = [
-    "Great question. Our A-scored deals typically fund within 3–5 days of term sheet. What asset class are you focused on?",
-    "For bridge loans, we require a minimum 6-month interest reserve at close. Does that work with your deployment strategy?",
-    "Fractional participation starts at $50K. You'd be in a first-lien co-lending position alongside other verified lenders.",
-    "Our AI scoring looks at borrower experience, LTV, market liquidity, and exit strategy probability. A = all strong.",
-    "Construction draws are released monthly after independent inspection sign-off. Lender has approval rights on each draw.",
-    "DSCR loans are underwritten off property cash flow — no personal income verification. Minimum 1.25x DSCR required.",
-    "Default rates on our network historically run under 2%. First-lien position means you're first to recover in any workout.",
-    "I'd suggest setting your criteria now — we have 3 new deals coming in this week that match common lender parameters.",
-  ];
-  let botIdx = 0;
-  function toggleChat() { document.getElementById('chatPanel').classList.toggle('open'); }
-  function sendChat() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if (!text) return;
-    addMsg(text, 'user'); input.value = '';
-    setTimeout(() => { addMsg(lenderReplies[botIdx % lenderReplies.length], 'bot'); botIdx++; }, 800);
-  }
-  function addMsg(text, type) {
-    const div = document.createElement('div');
-    div.className = 'msg ' + type; div.textContent = text;
-    const msgs = document.getElementById('chatMessages');
-    msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
-  }
+function expressInterest(id) {
+  var deal = SITE_CONFIG.deals.find(function(d){return d.id===id;});
+  if(!deal) return;
+  if(deal.locked){document.getElementById("register").scrollIntoView({behavior:"smooth"});return;}
+  alert("Interest recorded for deal FL-"+id+". Our team will follow up within 24 hours.");
+}
 
-  // Init
-  renderDeals('all');
+function viewDeal(id) {
+  var deal = SITE_CONFIG.deals.find(function(d){return d.id===id;});
+  if(!deal) return;
+  if(deal.locked){document.getElementById("register").scrollIntoView({behavior:"smooth"});return;}
+  window.location.href="/deal.html?id="+id;
+}
+
+function submitLender() {
+  var req = ["r-fname","r-lname","r-email","r-type"];
+  var missing = req.filter(function(id){return !document.getElementById(id).value.trim();});
+  if(missing.length){alert("Please fill in all required fields.");return;}
+  var btn = document.querySelector(".submit-btn");
+  btn.textContent="Submitting...";btn.disabled=true;
+  setTimeout(function(){
+    document.querySelector(".fg").style.display="none";
+    document.querySelector(".consent-box").style.display="none";
+    btn.style.display="none";
+    document.getElementById("reg-success").style.display="block";
+  },1000);
+}
+
+function toggleChat(){document.getElementById("chat").classList.toggle("open");}
+function sendChat(){
+  var inp=document.getElementById("chat-in");var val=inp.value.trim();if(!val)return;
+  addMsg(val,"user");inp.value="";
+  var r="I can help with deal specifics, criteria setup, or the application process. For fastest access, apply at the bottom of this page — we review within 1 business day.";
+  if(val.toLowerCase().includes("rate")||val.toLowerCase().includes("yield"))r="Current deals on the platform yield between 7.5% for DSCR and 14% for ground-up construction. All are first-lien secured positions.";
+  if(val.toLowerCase().includes("access")||val.toLowerCase().includes("apply"))r="Apply for lender access at the bottom of this page. We review within 1 business day. Approved lenders gain full access to deal details, AVM data, and borrower financials.";
+  if(val.toLowerCase().includes("co-lend")||val.toLowerCase().includes("fractional"))r="Yes — our co-lending feature lets you invite another approved lender to split a deal. You each hold your own note. Great for deals larger than your single-loan target.";
+  if(val.toLowerCase().includes("distressed"))r="Many of our lenders specialize in distressed and REO properties. Deals include fixer-uppers, vacant properties, and motivated-seller scenarios. Set your preference in the criteria engine.";
+  setTimeout(function(){addMsg(r,"bot");},700);
+}
+function addMsg(text,type){
+  var el=document.createElement("div");el.className="msg "+type;el.textContent=text;
+  document.getElementById("chat-msgs").appendChild(el);
+  document.getElementById("chat-msgs").scrollTop=9999;
+}
 </script>
 </body>
 </html>
