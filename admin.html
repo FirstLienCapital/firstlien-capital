@@ -493,52 +493,64 @@ select option{background:var(--s2);}
               <span style="color:var(--muted)">(term sheet, escrow instructions, note, addendum — as many as needed)</span>
             </div>
 
-            <!-- Drop zone: drag target only, no onclick, no nested input -->
-            <div class="extract-drop" id="ex-dropzone"
-                 ondragover="exDragOver(event)" ondragleave="exDragLeave(event)" ondrop="exDrop(event)">
-              <span class="extract-drop-icon">📋</span>
-              <div class="extract-drop-title">Drag & drop files here</div>
-              <div class="extract-drop-sub">
-                .docx · .doc · .pdf · .txt · .xlsx · images — Drop as many as you need
+            <!-- Drop zone: full-area input overlay for click-to-browse -->
+            <label style="display:block;cursor:pointer;position:relative;">
+              <div class="extract-drop" id="ex-dropzone"
+                   ondragover="exDragOver(event)" ondragleave="exDragLeave(event)" ondrop="exDrop(event)">
+                <span class="extract-drop-icon">📋</span>
+                <div class="extract-drop-title">Drag & drop files here — or click to browse</div>
+                <div class="extract-drop-sub">
+                  .docx · .doc · .pdf · .txt · .xlsx · images — drop as many as needed
+                </div>
               </div>
-            </div>
+              <input type="file" accept=".docx,.doc,.pdf,.txt,.xlsx,.xls,.csv,.png,.jpg,.jpeg" multiple
+                     style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;"
+                     onchange="exHandleFilePick(this)">
+            </label>
 
-            <!-- Browse button sits OUTSIDE the drop zone — no conflict -->
-            <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;">
-              <label class="btn btn-ghost" style="cursor:pointer;margin:0;">
-                📂 Browse Files
-                <input type="file" accept=".docx,.doc,.pdf,.txt,.xlsx,.xls,.csv,.png,.jpg,.jpeg" multiple
-                       style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;"
+            <!-- Zone A file list -->
+            <div class="extract-files-list" id="ex-files-list" style="margin-top:12px;"></div>
+            <!-- Add More button — always visible, creates fresh input each click -->
+            <div style="margin-top:8px;">
+              <label class="btn btn-ghost" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;position:relative;">
+                ➕ Add Files
+                <input type="file" id="ex-add-input"
+                       accept=".docx,.doc,.pdf,.txt,.xlsx,.xls,.csv,.png,.jpg,.jpeg" multiple
+                       style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;"
                        onchange="exHandleFilePick(this)">
               </label>
-              <span style="font-size:10px;color:var(--muted);">Click to add files — keep clicking to add more</span>
+              <span style="font-size:10px;color:var(--muted);margin-left:10px;">Click to add files — click again to add more</span>
             </div>
-
-            <!-- File list renders here, outside the drop zone -->
-            <div class="extract-files-list" id="ex-files-list" style="margin-top:12px;"></div>
           </div>
 
           <!-- Drop zone: TEMPLATES (multiple allowed) -->
           <div>
             <div class="flbl" style="margin-bottom:8px;">Step B — Drop your template(s) <span style="color:var(--muted)">(main doc + security addendum + any others — all get merged)</span></div>
             <!-- No persistent input — Browse button creates a fresh one each click -->
-            <div class="extract-drop" id="dp-dropzone"
-                 ondragover="exDragOver(event,true)" ondragleave="exDragLeave(event,true)" ondrop="exDropTpl(event)">
-              <span class="extract-drop-icon">📄</span>
-              <div class="extract-drop-title">Drag & drop template(s) here</div>
-              <div class="extract-drop-sub">Drop multiple templates at once — main doc, security addendum, any supporting docs<br>.docx and .pdf accepted · Each gets the same substitutions applied · All downloaded as a single ZIP</div>
-            </div>
-            <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap;">
-              <label class="btn btn-ghost" style="cursor:pointer;margin:0;">
-                📂 Browse Templates
-                <input type="file" accept=".docx,.doc,.pdf" multiple
-                       style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;"
-                       onchange="dpHandleTemplateInput(this)">
-              </label>
-              <span style="font-size:10px;color:var(--muted);">Click to add templates — keep clicking to add more</span>
-            </div>
+            <label style="display:block;cursor:pointer;position:relative;">
+              <div class="extract-drop" id="dp-dropzone"
+                   ondragover="exDragOver(event,true)" ondragleave="exDragLeave(event,true)" ondrop="exDropTpl(event)">
+                <span class="extract-drop-icon">📄</span>
+                <div class="extract-drop-title">Drag & drop template(s) here — or click to browse</div>
+                <div class="extract-drop-sub">.docx · .doc · .pdf — drop multiple templates at once<br>Main doc + security addendum — all substituted and zipped together</div>
+              </div>
+              <input type="file" accept=".docx,.doc,.pdf" multiple
+                     style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;"
+                     onchange="dpHandleTemplateInput(this)">
+            </label>
             <!-- Template file list -->
             <div class="extract-files-list" id="dp-tpl-list" style="margin-top:12px;"></div>
+            <!-- Add Template button -->
+            <div style="margin-top:8px;">
+              <label class="btn btn-ghost" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;position:relative;">
+                ➕ Add Template
+                <input type="file" id="dp-add-input"
+                       accept=".docx,.doc,.pdf" multiple
+                       style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;"
+                       onchange="dpHandleTemplateInput(this)">
+              </label>
+              <span style="font-size:10px;color:var(--muted);margin-left:10px;">Click to add templates — click again to add more</span>
+            </div>
             <div id="dp-tpl-info" style="display:none;margin-top:10px;">
               <div class="alert alert-ok" style="margin:0;"><span>✓</span><div id="dp-tpl-stats"></div></div>
             </div>
@@ -1855,31 +1867,66 @@ function dpReadOneTemplate(file, onDone) {
       if (onDone) onDone();
 
     } else if (ext === 'pdf') {
-      // PDF template — extract readable text for field scanning.
-      // PDF files cannot have their text substituted in-browser, so we store
-      // them as-is and flag them — user will see a warning in the generate log.
-      var pdfText = '';
-      try {
-        var pdfBytes = new Uint8Array(bytes);
-        // Extract ASCII text runs from PDF byte stream
-        for (var pi = 0; pi < pdfBytes.length; pi++) {
-          if (pdfBytes[pi] >= 32 && pdfBytes[pi] < 127) {
-            pdfText += String.fromCharCode(pdfBytes[pi]);
-          } else {
-            pdfText += ' ';
-          }
+      // PDF template — auto-convert to DOCX via Netlify function
+      dpLog('🔄 Converting ' + file.name + ' from PDF to Word (.docx)...', 'ok');
+      dpConvertPdfToDocx(bytes, file.name, function(docxBytes, docxName, err) {
+        if (err || !docxBytes) {
+          // Conversion failed — store PDF as-is with a warning
+          dpLog('⚠ PDF conversion failed: ' + (err||'unknown error') + '. The PDF will be included unchanged in the output.', 'warn');
+          dpTemplateFiles.push({ name: file.name, bytes: bytes, fields: {}, isPdf: true });
+          dpRenderTemplateList();
+        } else {
+          // Got a DOCX back — process it normally
+          dpLog('✓ Converted ' + file.name + ' → ' + docxName, 'ok');
+          JSZip.loadAsync(docxBytes).then(function(zip) {
+            return zip.file('word/document.xml').async('string');
+          }).then(function(xml) {
+            var fields = dpScanTemplate(xml);
+            Object.keys(fields).forEach(function(k){
+              if (!dpTemplateFields[k]) dpTemplateFields[k] = fields[k];
+            });
+            dpTemplateFiles.push({ name: docxName, bytes: docxBytes, fields: fields, isPdf: false });
+            dpRenderTemplateList();
+          }).catch(function(e) {
+            dpLog('⚠ Could not parse converted DOCX: ' + e.message, 'warn');
+            dpTemplateFiles.push({ name: docxName, bytes: docxBytes, fields: {} });
+            dpRenderTemplateList();
+          });
         }
-      } catch(e) { pdfText = ''; }
-      var pdfFields = pdfText.length > 50 ? dpScanTemplatePlain(pdfText) : {};
-      Object.keys(pdfFields).forEach(function(k){
-        if (!dpTemplateFields[k]) dpTemplateFields[k] = fields[k];
+        if (onDone) onDone();
       });
-      dpTemplateFiles.push({ name: file.name, bytes: bytes, fields: pdfFields, isPdf: true });
-      dpLog('ℹ ' + file.name + ' added as PDF. Values detected for reference — PDF text cannot be substituted in-browser. Download will include the original PDF unchanged alongside the generated .docx files.', 'warn');
-      if (onDone) onDone();
+      return; // onDone called inside callback above
     }
   };
   reader.readAsArrayBuffer(file);
+}
+
+// ── Convert PDF to DOCX via Netlify function ─────────────────────────────────
+function dpConvertPdfToDocx(pdfBytes, originalName, callback) {
+  // Convert ArrayBuffer to base64
+  var binary = '';
+  var bytes2 = new Uint8Array(pdfBytes);
+  for (var i = 0; i < bytes2.length; i++) {
+    binary += String.fromCharCode(bytes2[i]);
+  }
+  var base64 = btoa(binary);
+  var docxName = originalName.replace(/\.pdf$/i, '.docx');
+
+  fetch('/.netlify/functions/pdf-to-docx', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pdf: base64, filename: originalName })
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    return res.arrayBuffer();
+  })
+  .then(function(docxBuffer) {
+    callback(docxBuffer, docxName, null);
+  })
+  .catch(function(err) {
+    callback(null, docxName, err.message);
+  });
 }
 
 // ── Scan plain text (for .doc files where we extract text manually) ───────────
