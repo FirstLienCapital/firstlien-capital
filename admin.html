@@ -1263,7 +1263,30 @@ function exHandleFiles(files) {
   if (hint) hint.style.display = 'block';
 }
 
+  function exClearAllFiles() {
+    if (!confirm('Clear all uploaded documents?')) return;
+    exSourceFiles = [];
+    exExtracted = {};
+    exRenderFileList();
+    // Clear all auto-filled fields
+    document.querySelectorAll('.auto-filled').forEach(function(el) {
+      el.value = ''; el.classList.remove('auto-filled');
+    });
+    document.querySelectorAll('.conf-badge').forEach(function(el) { el.remove(); });
+    document.getElementById('ex-extract-btn').style.display = 'none';
+    document.getElementById('dp-btn1').disabled = true;
+    var logEl = document.getElementById('ex-log');
+    if (logEl) logEl.textContent = '';
+    var logCard = document.getElementById('ex-log-card');
+    if (logCard) logCard.style.display = 'none';
+  }
+
 function exRenderFileList() {
+  if (exSourceFiles.length === 0) {
+    document.getElementById('ex-files-list').innerHTML = 
+      '<div style="color:var(--muted);font-size:11px;padding:8px;">No documents uploaded yet.</div>';
+    return;
+  }
   var html = exSourceFiles.map(function(f, i) {
     var icon = f.type==='pdf' ? '📕' : f.type==='txt' ? '📝' : '📄';
     var statusCls = f.read ? 'efs-done' : 'efs-pending';
@@ -1276,7 +1299,12 @@ function exRenderFileList() {
       '<span style="cursor:pointer;color:var(--muted);font-size:11px;padding:2px 6px;" onclick="exRemoveFile('+i+')">✕</span>'+
     '</div>';
   }).join('');
-  document.getElementById('ex-files-list').innerHTML = html;
+  var clearBtn = exSourceFiles.length > 0
+    ? '<div style="text-align:right;margin-top:6px;">'
+      + '<button onclick="exClearAllFiles()" style="font-size:10px;padding:3px 10px;'
+      + 'color:var(--muted);border:1px solid var(--border);background:none;'
+      + 'border-radius:4px;cursor:pointer;">✕ Clear All Files</button></div>' : '';
+  document.getElementById('ex-files-list').innerHTML = html + clearBtn;
   // Drop zone always stays open for more files — no loaded state change
 }
 function exRemoveFile(i) {
@@ -1323,11 +1351,23 @@ function exReadAllFiles() {
             return docFile.async('string');
           }).then(function(xml) {
             if (!xml) return;
-            // Strip XML tags, decode entities
-            fobj.text = xml
-              .replace(/<[^>]+>/g, ' ')
-              .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'")
-              .replace(/\s+/g,' ').trim();
+            // Extract text properly: paragraph breaks between <w:p>, spaces between <w:t>
+            var docText = '';
+            // Split on paragraph boundaries first
+            var paras = xml.split('</w:p>');
+            for (var pi3 = 0; pi3 < paras.length; pi3++) {
+              // Extract all w:t content from this paragraph
+              var ptxt = '';
+              var wt_re = /<w:t[^>]*>([^<]*)<\/w:t>/g;
+              var wt_m;
+              while ((wt_m = wt_re.exec(paras[pi3])) !== null) {
+                ptxt += wt_m[1];
+              }
+              ptxt = ptxt.replace(/&amp;/g,'&').replace(/&lt;/g,'<')
+                         .replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").trim();
+              if (ptxt) docText += ptxt + '\n';
+            }
+            fobj.text = docText.replace(/[ \t]{2,}/g,' ').trim();
             fobj.read = true;
             exSetFileStatus(i, 'done', 'efs-done');
             resolve();
@@ -1417,7 +1457,7 @@ function exReadAllFiles() {
           })();
           fobj.read = true;
           exSetFileStatus(i, 'done', 'efs-done');
-          resolve();solve();solve();
+          resolve();
         } else {
           fobj.text = '';
           fobj.read = true; // mark as attempted even on err
@@ -1443,8 +1483,15 @@ function exExtractFields() {
   exSetProg(35, 'Extracting deal data...');
   exAddStep('Extracting fields with pattern matching', 'running', 'extract');
 
-  var allText = exSourceFiles.map(function(f){ return f.text; }).join('\n\n---DOC---\n\n');
+  // Label each doc with filename so extraction log shows what was read
+  var allText = exSourceFiles.map(function(f){
+    return '\n===FILE:' + f.name + '===\n' + (f.text||'');
+  }).join('\n\n---DOC---\n\n');
   var found = {};
+  exLog('Scanning ' + exSourceFiles.length + ' document(s):');
+  exSourceFiles.forEach(function(f){
+    exLog('  • ' + f.name + ' (' + Math.round((f.text||'').length/100)/10 + 'K chars)');
+  });
 
   // Helper: try list of patterns, store first match
   function tryPatterns(patterns, field) {
@@ -1460,12 +1507,14 @@ function exExtractFields() {
 
   // ── LOAN AMOUNT ───────────────────────────────────────────────────────────
   tryPatterns([
+    // Note header: "$99,000.00 Date:" — most reliable
+    /\$([1-9]\d{1,2},\d{3}(?:\.\d{2})?)\s+Date:/i,
+    // Principal sum in parentheses from note/LSA (must have comma formatting)
+    /principal\s+sum\s+of\s+[A-Z][^$\n]{0,60}?\(\$([1-9]\d{1,2},\d{3}(?:\.\d{2})?)\)/i,
+    /principal\s+amount\s+of\s+[A-Z][^$\n]{0,60}?\(\$([1-9]\d{1,2},\d{3}(?:\.\d{2})?)\)/i,
+    /loan\s+in\s+the\s+principal\s+amount\s+of[^$]{0,60}\(\$([1-9]\d{1,2},\d{3}(?:\.\d{2})?)\)/i,
+    // Loan quote format
     /(?:2-Year Term|Term)\s*&\s*Loan\s*Amount\s*\$([\d,]+)/i,
-    /Loan\s*Amount\s*\$([\d,]+(?:\.\d{2})?)/i,
-    /principal\s+amount\s+of\s+[A-Z][^$]*?\(\$([\d,]+\.\d{2})\)/i,
-    /loan\s+in\s+the\s+principal\s+amount\s+of[^$]*\(\$([\d,]+\.\d{2})\)/i,
-    /\$([1-9]\d{2},\d{3}\.\d{2})/,
-    /Amount\s*\$([\d,]+\.00)\s*Interest/i,
   ], 'loan');
 
   // ── INTEREST RATE ─────────────────────────────────────────────────────────
@@ -1526,12 +1575,17 @@ function exExtractFields() {
 
   // ── ENTITY NAME ──────────────────────────────────────────────────────────
   tryPatterns([
-    /([A-Z][a-zA-Z .]+\s+DBA\s+[A-Za-z ]+?)(?:\s*[,\n("])/,
+    // DBA forms (most reliable — from doc order form)
+    /([A-Z][a-zA-Z .]+\s+DBA\s+[A-Za-z ]+?)(?:\s*[,\n("'])/,
     /([A-Za-z]+\s*M\.\s*[A-Za-z]+\s+DBA\s+[A-Za-z ]+)/i,
     /DonnaM\.MooreDBA([A-Za-z ]+)/,
-    /Borrowers?:\s*([A-Za-z ]+(?:Solutions?|LLC|Corp|Inc|Trust|LP)[^,\n(]*)/i,
-    /([A-Za-z ]+(?:Solutions?|LLC|Corp|Inc))(?:\s*,\s*a\s+)/i,
-    /(?:Borrower[^:]*|entity)[:\s]+([A-Z][^,\n()]+(?:LLC|Corp|Inc|Solutions))/i,
+    // Named in note/escrow as Borrower with known suffix
+    /Borrower["):,\s]+"?([A-Z][a-zA-Z ]+(?:Solutions?|LLC|Corp|Inc|Trust|LP|LLP))[^a-z]/,
+    /([A-Z][a-zA-Z ]+(?:Solutions?|LLC|Corp|Inc))(?:\s*,\s*a\s+(?:Texas|Nevada|California|New Mexico|Arizona|Sole))/i,
+    // Specific known entity names
+    /(Business\s*Solutions)/i,
+    // Escrow/note Borrower line — short match only
+    /Borrower[:\s]+"?([A-Z][a-zA-Z ]{2,40}(?:Solutions?|LLC|Corp|Inc))"?/i,
   ], 'entity');
 
   // ── ENTITY TYPE ───────────────────────────────────────────────────────────
