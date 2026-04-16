@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deploy Capital | FirstLien.Capital — Private Lending Marketplace</title>
-<meta name="description" content="Access AI-matched private lending deals. First-lien secured. 1,000+ qualified borrowers. Set your criteria once — deals come to you.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+<title>Deploy Capital | FirstLien.ai — The AI-Native Private Lending Marketplace</title>
+<meta name="description" content="FirstLien.ai — the AI-native private lending marketplace. Gemini-matched deals, multi-source AVM intelligence, and AI-generated loan documents. First-lien secured. 1,000+ qualified borrowers competing for your capital.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -289,6 +291,119 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px
 .chat-send{background:var(--teal);color:var(--white);border:none;border-radius:8px;width:38px;height:38px;cursor:pointer;font-size:16px;transition:all .18s;}
 .chat-send:hover{background:var(--teal-l);}
 
+/* ── YIELD CALCULATOR ── */
+.calc-section{padding:130px 56px;background:var(--cream);border-top:1px solid var(--border);}
+.calc-inner{max-width:1200px;margin:0 auto;}
+.calc-head{text-align:center;margin-bottom:56px;max-width:700px;margin-left:auto;margin-right:auto;}
+.calc-head .section-tag{justify-content:center;display:inline-flex;}
+.calc-head .section-tag::before{display:none;}
+.calc-head .section-tag::after{content:"";width:20px;height:1px;background:var(--teal);}
+.calc-head .section-h{margin-bottom:14px;}
+.calc-head .section-lead{font-size:15px;color:var(--muted);}
+
+.calc-wrap{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:56px;box-shadow:0 4px 32px rgba(0,0,0,0.04);}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:start;}
+
+/* Left: controls */
+.calc-controls{}
+.calc-slider-block{margin-bottom:36px;}
+.calc-slider-block:last-child{margin-bottom:0;}
+.calc-slider-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+.calc-slider-lbl{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);}
+.calc-slider-val{font-family:"Cormorant Garamond",serif;font-size:32px;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1;}
+.calc-slider-val span{font-family:"DM Sans",sans-serif;font-size:13px;font-weight:400;color:var(--muted);letter-spacing:0;margin-left:4px;}
+.calc-slider{width:100%;height:4px;appearance:none;background:var(--border);border-radius:2px;outline:none;cursor:pointer;margin-bottom:8px;}
+.calc-slider::-webkit-slider-thumb{appearance:none;width:20px;height:20px;background:var(--teal-l);border-radius:50%;cursor:pointer;box-shadow:0 2px 8px rgba(13,152,130,.35);transition:all .15s;}
+.calc-slider::-webkit-slider-thumb:hover{transform:scale(1.15);}
+.calc-slider::-moz-range-thumb{width:20px;height:20px;background:var(--teal-l);border-radius:50%;cursor:pointer;border:none;box-shadow:0 2px 8px rgba(13,152,130,.35);}
+.calc-range-labels{display:flex;justify-content:space-between;font-family:"DM Mono",monospace;font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+
+.calc-toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--cream2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-top:8px;}
+.calc-toggle-lbl{font-size:13px;color:var(--ink);font-weight:500;}
+.calc-toggle-sub{font-size:11px;color:var(--muted);font-weight:300;margin-top:2px;}
+.calc-toggle-switch{position:relative;width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;transition:all .25s;flex-shrink:0;margin-left:16px;}
+.calc-toggle-switch.on{background:var(--teal-l);}
+.calc-toggle-switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;background:var(--white);border-radius:50%;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.calc-toggle-switch.on::after{transform:translateX(20px);}
+
+/* Right: result */
+.calc-result{background:var(--ink);border-radius:14px;padding:40px 36px;color:#f5f2eb;position:relative;overflow:hidden;}
+.calc-result::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(13,152,130,.18) 0%,transparent 60%);pointer-events:none;}
+.calc-result-inner{position:relative;z-index:1;}
+.calc-result-lbl{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:rgba(245,242,235,.45);margin-bottom:14px;}
+.calc-result-val{font-family:"Cormorant Garamond",serif;font-size:clamp(54px,6.5vw,84px);font-weight:700;color:var(--teal-l);line-height:1;letter-spacing:-.03em;margin-bottom:12px;font-style:italic;}
+.calc-result-sub{font-size:14px;color:rgba(245,242,235,.55);font-weight:300;line-height:1.5;margin-bottom:24px;}
+.calc-result-sub b{color:rgba(245,242,235,.85);font-weight:500;}
+.calc-double-badge{display:none;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid rgba(184,145,42,.3);border-radius:100px;padding:8px 16px;font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold-l);margin-bottom:24px;}
+.calc-double-badge.show{display:inline-flex;}
+
+/* Year-by-year bars */
+.calc-years{border-top:1px solid rgba(255,255,255,.08);padding-top:20px;}
+.calc-years-lbl{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(245,242,235,.35);margin-bottom:14px;}
+.calc-year-row{display:flex;align-items:center;gap:12px;margin-bottom:6px;}
+.calc-yr{font-family:"DM Mono",monospace;font-size:10px;color:rgba(245,242,235,.4);width:40px;flex-shrink:0;}
+.calc-yr-track{flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;}
+.calc-yr-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-l));border-radius:3px;transition:width .3s ease;}
+.calc-yr-fill.doubled{background:linear-gradient(90deg,var(--gold),var(--gold-l));}
+.calc-yr-amt{font-family:"DM Mono",monospace;font-size:11px;color:rgba(245,242,235,.75);width:80px;text-align:right;flex-shrink:0;}
+.calc-yr-amt.doubled{color:var(--gold-l);font-weight:500;}
+
+/* Comparison row */
+.calc-compare{margin-top:48px;padding-top:48px;border-top:1px solid var(--border);}
+.calc-compare-head{text-align:center;margin-bottom:28px;}
+.calc-compare-lbl{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--teal);margin-bottom:6px;}
+.calc-compare-sub{font-family:"Cormorant Garamond",serif;font-size:20px;font-style:italic;color:var(--muted);font-weight:400;}
+.calc-compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.calc-compare-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:26px 24px;transition:all .2s;}
+.calc-compare-card.winner{border-color:var(--teal);background:var(--teal-dim);box-shadow:0 4px 24px rgba(10,123,106,.12);}
+.calc-compare-name{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:6px;}
+.calc-compare-card.winner .calc-compare-name{color:var(--teal);}
+.calc-compare-val{font-family:"Cormorant Garamond",serif;font-size:30px;font-weight:700;color:var(--ink);line-height:1;letter-spacing:-.02em;margin-bottom:6px;}
+.calc-compare-card.winner .calc-compare-val{color:var(--teal);}
+.calc-compare-note{font-size:11px;color:var(--muted);font-weight:300;margin-bottom:10px;}
+.calc-compare-double{font-family:"DM Mono",monospace;font-size:9px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;}
+
+/* Disclaimer */
+.calc-disclaimer{margin-top:32px;padding:18px 22px;background:var(--cream2);border:1px solid var(--border);border-radius:10px;font-size:11px;color:var(--muted);line-height:1.7;font-weight:300;}
+.calc-disclaimer strong{color:var(--ink);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:10px;}
+
+
+/* ── PASSWORD GATE ── */
+#pwGate{position:fixed;inset:0;z-index:9999;background:var(--dark);display:flex;align-items:center;justify-content:center;padding:24px;}
+#pwGate.unlocked{display:none;}
+.pwGate-glow{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(10,123,106,0.22) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 80% 80%,rgba(184,145,42,0.12) 0%,transparent 50%);pointer-events:none;}
+.pwGate-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 70% at 50% 50%,black 0%,transparent 80%);pointer-events:none;}
+.pwGate-card{position:relative;z-index:2;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:56px 48px;max-width:440px;width:100%;backdrop-filter:blur(20px);text-align:center;}
+.pwGate-logo{font-family:"Cormorant Garamond",serif;font-size:36px;font-weight:700;color:#f5f2eb;letter-spacing:-0.02em;margin-bottom:8px;}
+.pwGate-logo .dot{color:var(--teal-l);}
+.pwGate-tag{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:var(--teal-l);margin-bottom:36px;display:inline-flex;align-items:center;gap:10px;}
+.pwGate-tag::before,.pwGate-tag::after{content:"";width:24px;height:1px;background:var(--teal-l);}
+.pwGate-title{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;color:#f5f2eb;letter-spacing:-0.02em;line-height:1.2;margin-bottom:10px;}
+.pwGate-title em{font-style:italic;color:var(--teal-l);}
+.pwGate-sub{font-size:14px;color:rgba(245,242,235,0.45);line-height:1.7;font-weight:300;margin-bottom:36px;}
+.pwGate-form{display:flex;flex-direction:column;gap:14px;}
+.pwGate-input{width:100%;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);border-radius:10px;padding:16px 20px;font-family:"DM Sans",sans-serif;font-size:15px;color:#f5f2eb;outline:none;transition:all 0.2s;text-align:center;letter-spacing:0.02em;}
+.pwGate-input:focus{border-color:var(--teal-l);background:rgba(255,255,255,0.06);box-shadow:0 0 0 3px rgba(13,152,130,0.15);}
+.pwGate-input::placeholder{color:rgba(245,242,235,0.25);}
+.pwGate-input.error{border-color:#e05555;animation:pwShake 0.4s ease;}
+@keyframes pwShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.pwGate-btn{background:var(--teal-l);color:var(--white);border:none;border-radius:10px;padding:16px;font-family:"DM Sans",sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.01em;}
+.pwGate-btn:hover{background:#11b89e;transform:translateY(-1px);box-shadow:0 12px 32px rgba(13,152,130,0.3);}
+.pwGate-btn:active{transform:translateY(0);}
+.pwGate-err{font-size:12px;color:#e05555;min-height:16px;margin-top:4px;font-weight:400;}
+.pwGate-footer{margin-top:40px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06);font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:rgba(245,242,235,0.25);line-height:1.6;}
+
+/* Hide body content until unlocked — belt + suspenders */
+body.locked > :not(#pwGate){visibility:hidden !important;}
+
+@media(max-width:900px){
+  .calc-section{padding:80px 24px;}
+  .calc-wrap{padding:32px 24px;}
+  .calc-grid{grid-template-columns:1fr;gap:40px;}
+  .calc-result{padding:32px 24px;}
+  .calc-compare-grid{grid-template-columns:1fr;}
+}
+
 @media(max-width:900px){
   nav{padding:0 24px;}.nav-links{display:none;}
   .hero-content{padding:80px 24px 60px;}.hero-inner{grid-template-columns:1fr;gap:48px;}.returns-panel{display:none;}
@@ -303,13 +418,45 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px
   .foot-bar{padding:20px 24px;flex-direction:column;gap:12px;text-align:center;}
 }
 </style>
+<script>
+(function() {
+  try {
+    if (localStorage.getItem("firstlien_unlock") === "yes") {
+      // Already unlocked — immediately mark body ready
+      document.addEventListener("DOMContentLoaded", function() {
+        document.body.classList.remove("locked");
+        var g = document.getElementById("pwGate");
+        if (g) g.classList.add("unlocked");
+      });
+    }
+  } catch (e) {}
+})();
+</script>
 </head>
-<body>
+<body class="locked">
+<!-- PASSWORD GATE (staging only — remove before public launch) -->
+<div id="pwGate">
+  <div class="pwGate-glow"></div>
+  <div class="pwGate-grid"></div>
+  <div class="pwGate-card">
+    <div class="pwGate-logo">FirstLien<span class="dot">.</span>ai</div>
+    <div class="pwGate-tag">Pre-Launch Preview</div>
+    <div class="pwGate-title">Private staging.<br><em>Access required.</em></div>
+    <p class="pwGate-sub">This page is a pre-launch preview of FirstLien.ai, currently restricted while we finalize DBA registration and compliance review. Enter the access password to continue.</p>
+    <form class="pwGate-form" onsubmit="return pwCheck(event)">
+      <input type="password" class="pwGate-input" id="pwInput" placeholder="Access password" autocomplete="off" autofocus>
+      <div class="pwGate-err" id="pwErr"></div>
+      <button type="submit" class="pwGate-btn">Unlock Preview →</button>
+    </form>
+    <div class="pwGate-footer">Unauthorized access is prohibited. This site contains confidential pre-launch information.</div>
+  </div>
+</div>
 
 <nav>
-  <a href="/" class="nav-logo">FirstLien<span class="dot">.</span>Capital</a>
+  <a href="/" class="nav-logo">FirstLien<span class="dot">.</span>ai</a>
   <ul class="nav-links">
     <li><a href="#deals">Live Deals</a></li>
+    <li><a href="#calculator">Calculator</a></li>
     <li><a href="#criteria">Set Criteria</a></li>
     <li><a href="/borrower.html">For Borrowers</a></li>
     <li><a href="#register" class="nav-cta">Apply for Access →</a></li>
@@ -323,24 +470,24 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px
   <div class="hero-content">
     <div class="hero-inner">
       <div class="hero-copy">
-        <div class="hero-overline"><span></span>Private Lending Marketplace</div>
+        <div class="hero-overline"><span></span>The AI-Native Private Lending Marketplace</div>
         <h1 class="hero-h1">
           Deploy capital.<br>
           <em>At your terms.</em>
-          <span class="sub-line">AI-matched deals. First-lien secured.<br>1,000+ qualified borrowers competing for your capital.</span>
+          <span class="sub-line">Gemini-matched. AVM-verified. AI-documented.<br>1,000+ qualified borrowers competing for your capital.</span>
         </h1>
         <p class="hero-desc">
-          Stop hunting for deals. Set your criteria once and let <strong>AI match you to borrowers who need exactly what you offer</strong> — by loan size, property type, geography, and LTV. Every position is first-lien only.
+          Stop hunting for deals. Set your criteria once and let our <strong>Gemini-powered matching engine</strong> score every new submission against your profile across 40+ dimensions. You see only deals that match your loan size, property type, geography, and LTV. Every position is first-lien only.
         </p>
         <div class="hero-btns">
           <a href="#register" class="btn-teal">Apply for Lender Access →</a>
           <a href="#deals" class="btn-ghost-l">Preview live deals ↓</a>
         </div>
         <div class="hero-stats">
-          <div class="hstat"><div class="hstat-n" id="h-deals">Active</div><div class="hstat-l">Deal Flow</div></div>
+          <div class="hstat"><div class="hstat-n" id="h-deals">40+</div><div class="hstat-l">AI Signals per Deal</div></div>
           <div class="hstat"><div class="hstat-n" id="h-yield">8–14%</div><div class="hstat-l">Yield Range</div></div>
           <div class="hstat"><div class="hstat-n" id="h-pos">1st Lien</div><div class="hstat-l">Position Only</div></div>
-          <div class="hstat"><div class="hstat-n" id="h-states">50</div><div class="hstat-l">States Active</div></div>
+          <div class="hstat"><div class="hstat-n" id="h-states">50</div><div class="hstat-l">States Covered</div></div>
         </div>
       </div>
       <div>
@@ -365,16 +512,16 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px
   <div class="why-inner">
     <div class="why-left">
       <div class="section-tag" style="color:var(--teal);">Platform Advantage</div>
-      <h2 class="section-h">Why sophisticated lenders choose FirstLien.Capital</h2>
-      <p class="section-lead" style="margin-bottom:32px;">We built the infrastructure private lenders always needed but never had — AI screening, automated valuation, deal filtering, and fractional co-lending all in one place.</p>
+      <h2 class="section-h">Why sophisticated lenders choose FirstLien.ai</h2>
+      <p class="section-lead" style="margin-bottom:32px;">We built the AI-native infrastructure private lenders always needed but never had — Gemini matching, multi-source AVM intelligence, Claude-powered document automation, and fractional co-lending all in one platform.</p>
       <a href="#register" class="btn-teal" style="display:inline-flex;">Apply for Access →</a>
     </div>
     <div class="why-right">
-      <div class="why-feat"><div class="why-feat-icon">🧠</div><div><div class="why-feat-title">AI Deal Matching — No Manual Filtering</div><div class="why-feat-desc">Set your criteria once. Our AI scores every new deal submission against your profile in real time. You only see deals that genuinely match your loan size, property type, geography, and LTV range. No browsing. No wasted time.</div></div></div>
-      <div class="why-feat"><div class="why-feat-icon">📡</div><div><div class="why-feat-title">AVM Intelligence on Every Deal</div><div class="why-feat-desc">Every deal comes with automated property valuations from multiple independent data sources. You see the borrower's stated value alongside market-derived estimates — instantly flagging cases where stated value diverges from reality, before you commit a dollar.</div></div></div>
+      <div class="why-feat"><div class="why-feat-icon">🧠</div><div><div class="why-feat-title">Gemini AI Deal Matching</div><div class="why-feat-desc">Set your criteria once. Google Gemini scores every new deal against your profile across 40+ dimensions in real time — LTV, geography, asset class, borrower experience, exit strategy, and more. You only see deals that genuinely match. No browsing. No wasted time.</div></div></div>
+      <div class="why-feat"><div class="why-feat-icon">📡</div><div><div class="why-feat-title">AVM Intelligence on Every Deal</div><div class="why-feat-desc">Every deal is auto-populated with AVM estimates from multiple independent data sources — Zillow, Redfin, and more — the moment a borrower enters their property address. You see the borrower's stated value alongside market-derived estimates. Our AI flags divergence and requires borrower explanation before the deal reaches you.</div></div></div>
       <div class="why-feat"><div class="why-feat-icon">🤝</div><div><div class="why-feat-title">Fractional Co-Lending</div><div class="why-feat-desc">Too large for your single-loan target? Invite another approved lender to co-fund. You set the split. Each party holds their own promissory note. Perfect for deals that exceed your concentration limits while maintaining full first-lien protection.</div></div></div>
-      <div class="why-feat"><div class="why-feat-icon">⚖️</div><div><div class="why-feat-title">Lender Conduct Standards</div><div class="why-feat-desc">Our platform enforces good-faith conduct. Systematic lowballing, bait-and-switch terms, and predatory behavior result in suspension. The result: a marketplace where borrowers trust the process — which means better deal flow for lenders who play fair.</div></div></div>
-      <div class="why-feat"><div class="why-feat-icon">🔒</div><div><div class="why-feat-title">First-Lien Only — No Junior Positions</div><div class="why-feat-desc">Every loan facilitated through FirstLien.Capital is secured by a first deed of trust or first mortgage on real property. No seconds. No mezzanine. No unsecured positions. If a deal doesn't support a clean first-lien, it doesn't come to market.</div></div></div>
+      <div class="why-feat"><div class="why-feat-icon">⚖️</div><div><div class="why-feat-title">Lender Conduct Standards</div><div class="why-feat-desc">Our platform uses AI pattern detection to enforce good-faith conduct. Systematic lowballing, bait-and-switch terms, and predatory behavior are automatically flagged and result in suspension. The result: a marketplace where borrowers trust the process — which means better deal flow for lenders who play fair.</div></div></div>
+      <div class="why-feat"><div class="why-feat-icon">🔒</div><div><div class="why-feat-title">First-Lien Only — No Junior Positions</div><div class="why-feat-desc">Every loan facilitated through FirstLien.ai is secured by a first deed of trust or first mortgage on real property. No seconds. No mezzanine. No unsecured positions. If a deal doesn't support a clean first-lien, it doesn't come to market.</div></div></div>
     </div>
   </div>
 </section>
@@ -385,15 +532,130 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px
     <div class="tech-head">
       <div class="section-tag">Platform Technology</div>
       <h2 class="section-h" style="color:#f5f2eb;">The technology<br><em>behind the deal flow</em></h2>
-      <p class="section-lead">Private lending has always run on spreadsheets and phone calls. We built the platform that replaces all of that — real-time matching, automated valuation, AI screening, and intelligent routing.</p>
+      <p class="section-lead">Private lending has always run on spreadsheets and phone calls. We built the AI-native platform that replaces all of that — Gemini scoring, multi-source AVM verification, Claude-powered document automation, and real-time intelligent routing.</p>
     </div>
     <div class="tech-grid">
       <div class="tech-card"><div class="tech-num">01 — Matching</div><div class="tech-icon">🧠</div><div class="tech-title">Gemini AI Scoring</div><p class="tech-desc">Every deal submission is scored against your criteria profile across 40+ dimensions — LTV, geography, asset class, loan term, borrower experience, exit strategy, and more. High-match deals surface first.</p></div>
-      <div class="tech-card"><div class="tech-num">02 — Valuation</div><div class="tech-icon">📡</div><div class="tech-title">Multi-Source AVM</div><p class="tech-desc">Automated valuations from multiple independent data sources are pulled the moment a borrower enters their property address. You see verified market data alongside stated values — enabling faster, more confident underwriting decisions.</p></div>
-      <div class="tech-card"><div class="tech-num">03 — Screening</div><div class="tech-icon">🛡️</div><div class="tech-title">Deal Quality Filter</div><p class="tech-desc">Deals where the borrower's stated value diverges significantly from AVM data are flagged and require borrower explanation before reaching lenders. You see clean data — not wishful thinking.</p></div>
-      <div class="tech-card"><div class="tech-num">04 — Closing</div><div class="tech-icon">📋</div><div class="tech-title">Automated Doc Engine</div><p class="tech-desc">State-specific loan document packages generated automatically for AZ, TX, NV, NY, MI, and CA. Attorney-reviewed templates. Faster closings. Less back-and-forth.</p></div>
+      <div class="tech-card"><div class="tech-num">02 — Valuation</div><div class="tech-icon">📡</div><div class="tech-title">Multi-Source AVM</div><p class="tech-desc">Automated valuations from Zillow, Redfin, and additional independent sources are pulled the moment a borrower enters their property address. You see every estimate alongside the stated value — enabling faster, more confident AI-assisted underwriting decisions.</p></div>
+      <div class="tech-card"><div class="tech-num">03 — Screening</div><div class="tech-icon">🛡️</div><div class="tech-title">AI Quality Screening</div><p class="tech-desc">AI compares borrower-stated values against live AVM data, flagging meaningful divergence and requiring written explanation before the deal reaches lenders. You see verified data — not wishful thinking.</p></div>
+      <div class="tech-card"><div class="tech-num">04 — Closing</div><div class="tech-icon">📋</div><div class="tech-title">Claude-Powered Doc Engine</div><p class="tech-desc">AI reads your loan docs, extracts 28 deal fields with context-aware accuracy, and generates complete state-specific packages for AZ, TX, NV, NY, MI, and CA. Attorney-reviewed templates. Closings in hours, not days.</p></div>
       <div class="tech-card"><div class="tech-num">05 — Co-Lending</div><div class="tech-icon">🤝</div><div class="tech-title">Fractional Invite System</div><p class="tech-desc">Built-in co-lending infrastructure. Express interest in a deal, flag it as co-fund candidate, and invite another approved lender to split the position. Each party gets their own note. Tracked within the platform.</p></div>
       <div class="tech-card"><div class="tech-num">06 — Monitoring</div><div class="tech-icon">📊</div><div class="tech-title">Live Deal Dashboard</div><p class="tech-desc">Track every deal you've expressed interest in. See competing offers, deal status, borrower responses, and closing progress — all from a single dashboard. Full transparency, no black boxes.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- YIELD CALCULATOR -->
+<section class="calc-section" id="calculator">
+  <div class="calc-inner">
+    <div class="calc-head">
+      <div class="section-tag">AI-Modeled Returns</div>
+      <h2 class="section-h">See what your capital<br><em>could earn</em></h2>
+      <p class="section-lead">Adjust the sliders to model hypothetical returns from private lending at FirstLien.ai. Compare against public market benchmarks.</p>
+    </div>
+
+    <div class="calc-wrap">
+      <div class="calc-grid">
+        <div class="calc-controls">
+          <!-- Capital -->
+          <div class="calc-slider-block">
+            <div class="calc-slider-head">
+              <div class="calc-slider-lbl">Starting Capital</div>
+              <div class="calc-slider-val" id="calc-capital-display">$100,000</div>
+            </div>
+            <input type="range" class="calc-slider" id="calc-capital" min="50000" max="50000000" step="50000" value="100000">
+            <div class="calc-range-labels">
+              <span>$50K</span><span>$50M</span>
+            </div>
+          </div>
+
+          <!-- Rate -->
+          <div class="calc-slider-block">
+            <div class="calc-slider-head">
+              <div class="calc-slider-lbl">Target Yield</div>
+              <div class="calc-slider-val" id="calc-rate-display">12.99<span>% per year</span></div>
+            </div>
+            <input type="range" class="calc-slider" id="calc-rate" min="800" max="1500" step="1" value="1299">
+            <div class="calc-range-labels">
+              <span>8%</span><span>15%</span>
+            </div>
+          </div>
+
+          <!-- Years -->
+          <div class="calc-slider-block">
+            <div class="calc-slider-head">
+              <div class="calc-slider-lbl">Time Horizon</div>
+              <div class="calc-slider-val" id="calc-years-display">10<span>years</span></div>
+            </div>
+            <input type="range" class="calc-slider" id="calc-years" min="2" max="20" step="1" value="10">
+            <div class="calc-range-labels">
+              <span>2 yrs</span><span>20 yrs</span>
+            </div>
+          </div>
+
+          <!-- Compound toggle -->
+          <div class="calc-slider-block" style="margin-bottom:0;">
+            <div class="calc-toggle-row" onclick="calcToggleCompound()">
+              <div>
+                <div class="calc-toggle-lbl">Compound returns</div>
+                <div class="calc-toggle-sub" id="calc-toggle-sub">Reinvest returns into new deals</div>
+              </div>
+              <div class="calc-toggle-switch on" id="calc-toggle-switch"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="calc-result">
+          <div class="calc-result-inner">
+            <div class="calc-result-lbl">Projected Value</div>
+            <div class="calc-result-val" id="calc-final">$339,074</div>
+            <div class="calc-result-sub">
+              Starting from <b id="calc-start-display">$100,000</b> over <b id="calc-years-ref">10</b> years
+              at <b id="calc-rate-ref">12.99%</b> compounded annually.
+            </div>
+            <div class="calc-double-badge" id="calc-double-badge">
+              ⚡ Capital doubles in ~<span id="calc-double-year">5.7</span> years
+            </div>
+
+            <div class="calc-years">
+              <div class="calc-years-lbl">Year-by-year growth</div>
+              <div id="calc-year-bars"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison -->
+      <div class="calc-compare">
+        <div class="calc-compare-head">
+          <div class="calc-compare-lbl">vs. Public Markets</div>
+          <div class="calc-compare-sub" id="calc-compare-sub">Hypothetical $100,000 over 10 years</div>
+        </div>
+        <div class="calc-compare-grid">
+          <div class="calc-compare-card winner" id="calc-card-fl">
+            <div class="calc-compare-name">FirstLien.ai</div>
+            <div class="calc-compare-val" id="calc-fl-val">$339,074</div>
+            <div class="calc-compare-note" id="calc-fl-sub">at 12.99% compounded</div>
+            <div class="calc-compare-double" id="calc-fl-double">Doubles in ~5.7 yrs</div>
+          </div>
+          <div class="calc-compare-card">
+            <div class="calc-compare-name">S&amp;P 500</div>
+            <div class="calc-compare-val" id="calc-sp-val">$271,408</div>
+            <div class="calc-compare-note" id="calc-sp-sub">historical ~10.5% avg over 10 yrs</div>
+            <div class="calc-compare-double" id="calc-sp-double">Doubles in ~6.9 yrs</div>
+          </div>
+          <div class="calc-compare-card">
+            <div class="calc-compare-name">High-Yield Savings</div>
+            <div class="calc-compare-val" id="calc-hy-val">$155,297</div>
+            <div class="calc-compare-note" id="calc-hy-sub">at 4.5% current rate over 10 yrs</div>
+            <div class="calc-compare-double" id="calc-hy-double">Doubles in ~15.7 yrs</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="calc-disclaimer">
+        <strong>Calculator Disclosure:</strong> This calculator is a hypothetical mathematical illustration only. It does not represent projected, guaranteed, or expected returns. Actual returns depend on deal performance, borrower payment behavior, default rates, foreclosure outcomes, and market conditions. Private lending involves substantial risk including possible loss of principal. Past performance does not guarantee future results. S&amp;P 500 and savings rates are historical averages shown for illustration. Not investment advice. Consult qualified financial, legal, and tax advisors before lending.
+      </div>
     </div>
   </div>
 </section>
@@ -544,7 +806,7 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px
         </div>
       </div>
       <div class="consent-box" style="margin-top:20px;">
-        By applying for lender access, I confirm that I am an accredited investor or institutional lender deploying capital for investment purposes. I agree to submit offers in good faith, disclose all material terms truthfully, and adhere to FirstLien.Capital's Lender Conduct Standards. I understand that predatory, discriminatory, or bad-faith conduct will result in immediate suspension.
+        By applying for lender access, I confirm that I am an accredited investor or institutional lender deploying capital for investment purposes. I agree to submit offers in good faith, disclose all material terms truthfully, and adhere to FirstLien.ai's Lender Conduct Standards. I understand that predatory, discriminatory, or bad-faith conduct will result in immediate suspension.
       </div>
       <button class="submit-btn" onclick="submitLender()">Apply for Lender Access →</button>
       <div id="reg-success">
@@ -561,29 +823,29 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px
   <div class="disc-inner">
     <div class="disc-title">Important Disclosures &amp; Legal Notices — Lenders</div>
     <div class="disc-grid">
-      <div><div class="disc-block-title">Broker Marketplace — Not a Lender or Investment Adviser</div><p class="disc-text">FIRSTLIEN.CAPITAL IS A LICENSED MORTGAGE BROKER MARKETPLACE, NOT A LENDER, INVESTMENT ADVISER, OR SECURITIES BROKER-DEALER. All loans are originated exclusively by participating third-party private lenders. We do not hold, service, guarantee, or make credit decisions on any loans facilitated through this platform.</p></div>
+      <div><div class="disc-block-title">Broker Marketplace — Not a Lender or Investment Adviser</div><p class="disc-text">FIRSTLIEN.AI IS A TECHNOLOGY PLATFORM OPERATED BY A CALIFORNIA-LICENSED MORTGAGE BROKER (NMLS #[NMLS ID] · CA BRE #02105201). We are not a lender, investment adviser, or securities broker-dealer. All loans are originated exclusively by participating third-party private lenders. FirstLien.ai does not hold, service, guarantee, or make credit decisions on any loans facilitated through this platform. Licensing details available upon request.</p></div>
       <div><div class="disc-block-title">Risk Disclosure — Private Mortgage Lending</div><p class="disc-text">PRIVATE MORTGAGE LENDING INVOLVES SIGNIFICANT RISK, INCLUDING THE POTENTIAL LOSS OF YOUR ENTIRE INVESTMENT. In the event of borrower default, recovery of principal depends on property value, foreclosure costs, and market conditions. Past performance does not guarantee future results. Consult your own legal, financial, and tax advisers before making any lending decision.</p></div>
       <div><div class="disc-block-title">Not a Securities Offering</div><p class="disc-text">The loan opportunities presented on this platform do not constitute an offer or sale of securities. Fractional participation is structured as a direct lending arrangement, not an investment contract. Participants should conduct independent due diligence and seek independent legal counsel.</p></div>
-      <div><div class="disc-block-title">Due Diligence Responsibility</div><p class="disc-text">FirstLien.Capital does not independently verify the accuracy of deal information including property valuations, borrower financials, property condition, or title status. Lenders are solely responsible for conducting their own independent due diligence prior to making any lending commitment.</p></div>
+      <div><div class="disc-block-title">Due Diligence Responsibility</div><p class="disc-text">FirstLien.ai does not independently verify the accuracy of deal information including property valuations, borrower financials, property condition, or title status. AI-generated scoring, location narratives, and document processing are provided for informational purposes only and do not constitute verification. Lenders are solely responsible for conducting their own independent due diligence prior to making any lending commitment.</p></div>
       <div><div class="disc-block-title">AVM Disclaimer</div><p class="disc-text">AVM estimates are provided by third-party data sources for informational purposes only. They do not constitute a formal appraisal. Actual property values may differ materially. Always obtain a licensed appraisal before committing to a loan.</p></div>
-      <div><div class="disc-block-title">Broker Compensation</div><p class="disc-text">FirstLien.Capital receives compensation from borrowers at closing. By participating, lenders acknowledge that FirstLien.Capital is a compensated intermediary and not acting as a fiduciary. For questions: <a href="mailto:info@firstlien.capital">info@firstlien.capital</a>.</p></div>
+      <div><div class="disc-block-title">Broker Compensation</div><p class="disc-text">FirstLien.ai receives compensation from borrowers at closing. By participating, lenders acknowledge that FirstLien.ai is a compensated intermediary and not acting as a fiduciary. For questions: <a href="mailto:hello@firstlien.ai">hello@firstlien.ai</a>.</p></div>
     </div>
     <div class="disc-copy">
-      <span>© 2026 FirstLien.Capital, Inc. · Licensed Mortgage Broker Marketplace · NMLS ID available upon request · Equal Housing Lender · <a href="mailto:info@firstlien.capital">info@firstlien.capital</a></span>
+      <span>© 2026 FirstLien.ai · California-Licensed Mortgage Broker · NMLS #[NMLS ID] · CA BRE #02105201 · Equal Housing Lender · <a href="mailto:hello@firstlien.ai">hello@firstlien.ai</a></span>
       <span>⚖️</span>
     </div>
   </div>
 </section>
 
 <div class="foot-bar">
-  <a href="/" class="foot-logo">FirstLien<span class="dot">.</span>Capital</a>
+  <a href="/" class="foot-logo">FirstLien<span class="dot">.</span>ai</a>
   <div class="foot-links">
     <a href="/borrower.html">For Borrowers</a>
     <a href="#deals">Live Deals</a>
     <a href="#register">Apply</a>
-    <a href="mailto:info@firstlien.capital">Contact</a>
+    <a href="mailto:hello@firstlien.ai">Contact</a>
   </div>
-  <div class="foot-copy">firstlien.capital</div>
+  <div class="foot-copy">firstlien.ai</div>
 </div>
 
 <div id="chat">
@@ -593,7 +855,7 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px
       <div><div class="chat-title">Scout AI</div><div class="chat-sub">Lender support</div></div>
     </div>
     <div class="chat-msgs" id="chat-msgs">
-      <div class="msg bot">Hi! I help lenders navigate the platform. Ask me about deal flow, access requirements, or how the AI matching works.</div>
+      <div class="msg bot">Hi! I'm Scout — the AI concierge for FirstLien.ai. Ask me about deal flow, our Gemini matching engine, AVM intelligence, or how to apply for lender access.</div>
     </div>
     <div class="chat-in-row">
       <input type="text" id="chat-in" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendChat()">
@@ -604,16 +866,41 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px
 </div>
 
 <script>
+// ── PASSWORD GATE ──────────────────────────────────────────────────────────
+function pwCheck(event) {
+  event.preventDefault();
+  var input = document.getElementById("pwInput");
+  var err = document.getElementById("pwErr");
+  var val = input.value.trim().toLowerCase();
+  var expected = "firstlien2026".toLowerCase();
+  if (val === expected) {
+    try { localStorage.setItem("firstlien_unlock", "yes"); } catch (e) {}
+    document.body.classList.remove("locked");
+    var gate = document.getElementById("pwGate");
+    gate.style.transition = "opacity 0.3s ease";
+    gate.style.opacity = "0";
+    setTimeout(function() { gate.classList.add("unlocked"); }, 300);
+    err.textContent = "";
+    return false;
+  }
+  input.classList.add("error");
+  err.textContent = "Incorrect password. Contact Christina for access.";
+  setTimeout(function() { input.classList.remove("error"); }, 500);
+  input.value = "";
+  input.focus();
+  return false;
+}
+
 var SITE_CONFIG = {
   stats: { deals:"Active", yield:"8–14%", position:"1st Lien", states:"50" },
   trustItems: [
     {icon:"🔒",title:"First-Lien Only",sub:"No junior positions"},
-    {icon:"🧠",title:"AI Matched",sub:"Gemini-powered"},
-    {icon:"📡",title:"AVM Verified",sub:"Multi-source data"},
+    {icon:"🧠",title:"Gemini Matching",sub:"40+ signals scored"},
+    {icon:"📡",title:"AVM Verified",sub:"Multi-source AI"},
+    {icon:"📄",title:"Claude Doc Engine",sub:"AI-drafted packages"},
     {icon:"🤝",title:"Co-Lending",sub:"Fractional available"},
-    {icon:"⚡",title:"24hr Review",sub:"Fast approval"},
-    {icon:"🛡️",title:"Conduct Standards",sub:"Lenders enforced"},
-    {icon:"📋",title:"Auto Doc Prep",sub:"6 states ready"},
+    {icon:"⚡",title:"Sub-24hr Review",sub:"AI-accelerated"},
+    {icon:"🛡️",title:"AI Conduct Detection",sub:"Pattern-enforced"},
     {icon:"🌍",title:"All 50 States",sub:"Full coverage"},
     {icon:"$0",title:"No Lender Fees",sub:"Borrower pays"},
     {icon:"⚖️",title:"Equal Housing",sub:"Fair lending"}
@@ -781,6 +1068,149 @@ function addMsg(text,type){
   var el=document.createElement("div");el.className="msg "+type;el.textContent=text;
   document.getElementById("chat-msgs").appendChild(el);
   document.getElementById("chat-msgs").scrollTop=9999;
+}
+// ── YIELD CALCULATOR ──────────────────────────────────────────────────────────
+var calcState = { capital: 100000, rate: 12.99, years: 10, compound: true };
+
+function calcFmt(n) {
+  if (n >= 1000000000) return '$' + (n/1000000000).toFixed(2) + 'B';
+  if (n >= 1000000)    return '$' + (n/1000000).toFixed(2) + 'M';
+  if (n >= 1000)       return '$' + Math.round(n).toLocaleString();
+  return '$' + Math.round(n);
+}
+function calcFmtFull(n) {
+  if (n >= 1000000000) return '$' + (n/1000000000).toFixed(3) + 'B';
+  if (n >= 1000000)    return '$' + (n/1000000).toFixed(2) + 'M';
+  return '$' + Math.round(n).toLocaleString();
+}
+function calcYearVal(yr) {
+  var s = calcState;
+  if (s.compound) return s.capital * Math.pow(1 + s.rate/100, yr);
+  return s.capital + (s.capital * (s.rate/100) * yr);
+}
+function calcDoubleYr() {
+  var s = calcState;
+  if (!s.compound) return (1 / (s.rate/100)).toFixed(1);
+  return (Math.log(2) / Math.log(1 + s.rate/100)).toFixed(1);
+}
+
+function calcRender() {
+  var s = calcState;
+
+  // Displays
+  document.getElementById('calc-capital-display').textContent = calcFmtFull(s.capital);
+  document.getElementById('calc-rate-display').innerHTML = s.rate.toFixed(2) + ' <span>% per year</span>';
+  document.getElementById('calc-years-display').innerHTML = s.years + ' <span>years</span>';
+  document.getElementById('calc-toggle-sub').textContent = s.compound ? 'Reinvest returns into new deals' : 'Withdraw returns — simple interest';
+
+  // Result card
+  var final = calcYearVal(s.years);
+  document.getElementById('calc-final').textContent = calcFmtFull(final);
+  document.getElementById('calc-start-display').textContent = calcFmtFull(s.capital);
+  document.getElementById('calc-years-ref').textContent = s.years;
+  document.getElementById('calc-rate-ref').textContent = s.rate.toFixed(2) + '%';
+
+  // Double badge
+  var dy = parseFloat(calcDoubleYr());
+  var badge = document.getElementById('calc-double-badge');
+  if (dy <= s.years) {
+    badge.classList.add('show');
+    document.getElementById('calc-double-year').textContent = dy;
+  } else {
+    badge.classList.remove('show');
+  }
+
+  // Year bars
+  var bars = document.getElementById('calc-year-bars');
+  bars.innerHTML = '';
+  var maxVal = calcYearVal(s.years);
+  // Show up to 10 year bars max to avoid crowding; aggregate if years > 10
+  var showYears = s.years;
+  if (showYears > 10) {
+    // Show every other year for years 11-20
+    var step = Math.ceil(showYears / 10);
+    for (var y = step; y <= showYears; y += step) {
+      bars.appendChild(calcMakeYearRow(y, maxVal));
+    }
+    if (parseInt(bars.lastChild.querySelector('.calc-yr').textContent.replace('Yr ','')) !== showYears) {
+      bars.appendChild(calcMakeYearRow(showYears, maxVal));
+    }
+  } else {
+    for (var y2 = 1; y2 <= showYears; y2++) {
+      bars.appendChild(calcMakeYearRow(y2, maxVal));
+    }
+  }
+
+  // Comparison row
+  var SP_RATE = 0.105;
+  var HY_RATE = 0.045;
+  var spVal = s.capital * Math.pow(1 + SP_RATE, s.years);
+  var hyVal = s.capital * Math.pow(1 + HY_RATE, s.years);
+  var spDouble = (Math.log(2) / Math.log(1 + SP_RATE)).toFixed(1);
+  var hyDouble = (Math.log(2) / Math.log(1 + HY_RATE)).toFixed(1);
+
+  document.getElementById('calc-compare-sub').textContent =
+    'Hypothetical ' + calcFmtFull(s.capital) + ' over ' + s.years + ' years';
+
+  document.getElementById('calc-fl-val').textContent = calcFmtFull(final);
+  document.getElementById('calc-fl-sub').textContent = 'at ' + s.rate.toFixed(2) + '% ' + (s.compound ? 'compounded' : 'simple');
+  document.getElementById('calc-fl-double').textContent = 'Doubles in ~' + calcDoubleYr() + ' yrs';
+
+  document.getElementById('calc-sp-val').textContent = calcFmtFull(spVal);
+  document.getElementById('calc-sp-sub').textContent = 'historical ~10.5% avg over ' + s.years + ' yrs';
+  document.getElementById('calc-sp-double').textContent = 'Doubles in ~' + spDouble + ' yrs';
+
+  document.getElementById('calc-hy-val').textContent = calcFmtFull(hyVal);
+  document.getElementById('calc-hy-sub').textContent = 'at 4.5% current rate over ' + s.years + ' yrs';
+  document.getElementById('calc-hy-double').textContent = 'Doubles in ~' + hyDouble + ' yrs';
+}
+
+function calcMakeYearRow(y, maxVal) {
+  var s = calcState;
+  var val = calcYearVal(y);
+  var pct = (val / maxVal) * 100;
+  var doubled = val >= s.capital * 2;
+  var prevDoubled = calcYearVal(y-1) >= s.capital * 2;
+  var justDoubled = doubled && !prevDoubled;
+  var row = document.createElement('div');
+  row.className = 'calc-year-row';
+  row.innerHTML =
+    '<span class="calc-yr">Yr ' + y + '</span>' +
+    '<div class="calc-yr-track"><div class="calc-yr-fill ' + (justDoubled ? 'doubled' : '') + '" style="width:' + pct + '%"></div></div>' +
+    '<span class="calc-yr-amt ' + (justDoubled ? 'doubled' : '') + '">' + calcFmt(val) + '</span>';
+  return row;
+}
+
+function calcToggleCompound() {
+  calcState.compound = !calcState.compound;
+  var sw = document.getElementById('calc-toggle-switch');
+  if (calcState.compound) sw.classList.add('on');
+  else sw.classList.remove('on');
+  calcRender();
+}
+
+function calcInit() {
+  if (!document.getElementById('calc-capital')) return;
+  document.getElementById('calc-capital').addEventListener('input', function() {
+    calcState.capital = parseInt(this.value);
+    calcRender();
+  });
+  document.getElementById('calc-rate').addEventListener('input', function() {
+    calcState.rate = parseInt(this.value) / 100;
+    calcRender();
+  });
+  document.getElementById('calc-years').addEventListener('input', function() {
+    calcState.years = parseInt(this.value);
+    calcRender();
+  });
+  calcRender();
+}
+
+// Hook into existing DOMContentLoaded — the page already has one but we call init on load safely
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', calcInit);
+} else {
+  calcInit();
 }
 </script>
 </body>
