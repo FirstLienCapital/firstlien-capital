@@ -1483,238 +1483,211 @@ function exExtractFields() {
   exSetProg(35, 'Extracting deal data...');
   exAddStep('Extracting fields with pattern matching', 'running', 'extract');
 
-  // Label each doc with filename so extraction log shows what was read
   var allText = exSourceFiles.map(function(f){
     return '\n===FILE:' + f.name + '===\n' + (f.text||'');
   }).join('\n\n---DOC---\n\n');
+
   var found = {};
   exLog('Scanning ' + exSourceFiles.length + ' document(s):');
   exSourceFiles.forEach(function(f){
-    exLog('  • ' + f.name + ' (' + Math.round((f.text||'').length/100)/10 + 'K chars)');
+    exLog('  \u2022 ' + f.name + ' (' + Math.round((f.text||'').length/100)/10 + 'K chars)');
   });
 
-  // Helper: try list of patterns, store first match
-  function tryPatterns(patterns, field) {
+  function tryP(patterns, field) {
     for (var i = 0; i < patterns.length; i++) {
       var m = allText.match(patterns[i]);
-      if (m && m[1] && m[1].trim()) {
-        found[field] = { value: m[1].trim(), confidence: i === 0 ? 'high' : i <= 2 ? 'med' : 'low' };
-        return true;
+      if (m) {
+        var val = '';
+        for (var gi = 1; gi <= (m.length-1); gi++) { if (m[gi]) { val = m[gi]; break; } }
+        if (!val) val = m[0];
+        val = val.trim();
+        if (val) {
+          found[field] = { value: val, confidence: i===0?'high':i<=2?'med':'low' };
+          return true;
+        }
       }
     }
     return false;
   }
 
-  // ── LOAN AMOUNT ───────────────────────────────────────────────────────────
-  tryPatterns([
-    // Note header: "$99,000.00 Date:" — most reliable
+  // ── LOAN AMOUNT ──────────────────────────────────────────────────────────
+  tryP([
     /\$([1-9]\d{1,2},\d{3}(?:\.\d{2})?)\s+Date:/i,
-    // Principal sum in parentheses from note/LSA (must have comma formatting)
     /principal\s+sum\s+of\s+[A-Z][^$\n]{0,60}?\(\$([1-9]\d{1,2},\d{3}(?:\.\d{2})?)\)/i,
     /principal\s+amount\s+of\s+[A-Z][^$\n]{0,60}?\(\$([1-9]\d{1,2},\d{3}(?:\.\d{2})?)\)/i,
     /loan\s+in\s+the\s+principal\s+amount\s+of[^$]{0,60}\(\$([1-9]\d{1,2},\d{3}(?:\.\d{2})?)\)/i,
-    // Loan quote format
-    /(?:2-Year Term|Term)\s*&\s*Loan\s*Amount\s*\$([\d,]+)/i,
   ], 'loan');
 
-  // ── INTEREST RATE ─────────────────────────────────────────────────────────
-  tryPatterns([
+  // ── INTEREST RATE ────────────────────────────────────────────────────────
+  tryP([
+    /(1[0-9]\.[0-9]{2})%\s*[\d.]+%/,
+    /annual\s+rate\s+equal\s+to\s+[A-Z][^(]+\(([\d.]+)%\)/i,
+    /interest\s+rate\s+equal\s+to\s+[\w\s]+\(([\d.]+)%\)/i,
     /Fixed\s*Interest\s*Rate\s*([\d.]+)%/i,
     /FixedInterestRate\s*([\d.]+)%/i,
-    /(1[0-9]\.[0-9]{2})%\s*[\d.]+%/,
-    /interest\s+rate\s+(?:equal\s+to\s+)?(\d{1,2}\.\d{1,2})%/i,
-    /at\s+an\s+annual\s+rate\s+equal\s+to\s+[A-Z][^P]*?Percent\s+\((\d+\.\d+)%\)/i,
-    /Interest\s*Rate\s*([\d.]+)%/i,
   ], 'rate');
 
-  // ── AMORTIZATION PERIOD ───────────────────────────────────────────────────
-  tryPatterns([
+  // ── AMORTIZATION PERIOD ─────────────────────────────────────────────────
+  tryP([
+    /(\d+)\s+2-Y\s*e\s*ar\s+Term/,
+    /(\d+)\s*2-Year\s*Term/i,
+    /[\d.]+%\s*[\d.]+%\s*(\d+)\s*2/,
     /Amortization\s*Period\s*(\d+)/i,
     /AmortizationPeriod\s*(\d+)/i,
-    /[\d.]+%\s*[\d.]+%\s*(\d+)\s*\d+-Year/i,
-    /(\d+)\s*[Yy]ear\s*[Aa]mortization/i,
-    /(\d+)-[Yy]ears?\s+amortization/i,
   ], 'amortPeriod');
 
-  // ── LOAN TERM ─────────────────────────────────────────────────────────────
-  tryPatterns([
-    /(\d+)-Year\s*Term/i,
+  // ── LOAN TERM ────────────────────────────────────────────────────────────
+  tryP([
     /(\d+)\s*Month\s*Term/i,
+    /(\d+)-Year\s*Term/i,
     /(\d+)-Month\s*Term/i,
   ], 'loanTerm');
 
-  // ── FILE NUMBER ───────────────────────────────────────────────────────────
-  tryPatterns([
-    /File\s*[#№]?\s*(\d{4,6})/i,
-    /File:\s*(\d{4,6})/i,
-    /No[.:]\s*(\d{4,6})/i,
+  // ── FILE NUMBER ──────────────────────────────────────────────────────────
+  tryP([
+    /File[:\s#]*(\d{4,6})/i,
+    /File#(\d{4,6})/i,
   ], 'file');
 
-  // ── ESCROW NUMBER ─────────────────────────────────────────────────────────
-  tryPatterns([
-    /Escrow\s*No[.:]?\s*([A-Z]{2}-?\d{4,8})/i,
+  // ── ESCROW NUMBER ────────────────────────────────────────────────────────
+  tryP([
+    /Escrow\s*No[.:]?\s*([A-Z]{2}-\d+)/i,
+    /(PA-\d+)/,
     /GF#([0-9A-Z]+)/i,
-    /PA-(\d{4,8})/i,
   ], 'escrow');
 
-  // ── ORIGINATING BROKER ───────────────────────────────────────────────────
-  tryPatterns([
-    /Originating\s*Broker\s*Fee\s+payable\s+to\s+([^i][^\n,]+?)(?:\s+in\s+the\s+amount|\s*;)/i,
-    /In\s*&?\s*Out\s*Solutions[^,\n]*/i,
-    /In&OutSolutions[^,\n]*/i,
-    /Individual\s*Name\s*or\s*Company\s*[Nn]ame[:\s]+([^\n]+(?:LLC|Corp|Inc|Solutions)[^\n]*)/i,
-  ], 'origbroker');
-
-  // ── ORIGINATING BROKER % ─────────────────────────────────────────────────
-  tryPatterns([
-    /Broker\s+([\d.]+)%/i,
-    /Lender\s*Fee\s*\(%\s*of\s*Loan\s*Amount\)\s*([\d.]+)%/i,
-    /LenderFee\(%of\s*LoanAmount\)\s*([\d.]+)%/i,
-    /Originating\s*Broker.*?([\d.]+)%/i,
-  ], 'origpct');
-
   // ── ENTITY NAME ──────────────────────────────────────────────────────────
-  tryPatterns([
-    // DBA forms (most reliable — from doc order form)
+  tryP([
+    /Borrower:\s*([A-Z][a-zA-Z ]{2,40}(?:Solutions?|LLC|Corp|Inc|Trust|LP|LLP))/,
     /([A-Z][a-zA-Z .]+\s+DBA\s+[A-Za-z ]+?)(?:\s*[,\n("'])/,
     /([A-Za-z]+\s*M\.\s*[A-Za-z]+\s+DBA\s+[A-Za-z ]+)/i,
-    /DonnaM\.MooreDBA([A-Za-z ]+)/,
-    // Named in note/escrow as Borrower with known suffix
-    /Borrower["):,\s]+"?([A-Z][a-zA-Z ]+(?:Solutions?|LLC|Corp|Inc|Trust|LP|LLP))[^a-z]/,
+    /(Business\s+Solutions)/i,
     /([A-Z][a-zA-Z ]+(?:Solutions?|LLC|Corp|Inc))(?:\s*,\s*a\s+(?:Texas|Nevada|California|New Mexico|Arizona|Sole))/i,
-    // Specific known entity names
-    /(Business\s*Solutions)/i,
-    // Escrow/note Borrower line — short match only
-    /Borrower[:\s]+"?([A-Z][a-zA-Z ]{2,40}(?:Solutions?|LLC|Corp|Inc))"?/i,
   ], 'entity');
 
-  // ── ENTITY TYPE ───────────────────────────────────────────────────────────
-  tryPatterns([
+  // ── ENTITY TYPE ──────────────────────────────────────────────────────────
+  tryP([
     /(Sole\s*Proprietor(?:ship)?)/i,
+    /(Widow\/Sole\s*Proprietor)/i,
     /(Limited\s*Liability\s*Company)/i,
     /(General\s*Partnership)/i,
     /(Corporation)/i,
-    /(Widow\/Sole\s*Proprietor)/i,
     /(Trust)/i,
   ], 'etype');
 
   // ── GUARANTOR NAME ───────────────────────────────────────────────────────
-  tryPatterns([
+  tryP([
     /(Donna\s*M\.\s*Moore)/i,
-    /([A-Z][a-z]+\s+[A-Z]\.\s+[A-Z][a-z]+)\s+DBA/,
-    /([A-Z][a-z]+M\.[A-Z][a-z]+)DBA/,
     /Guarantor[^:]*:\s*([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z.]+){1,3})/,
+    /([A-Z][a-z]+\s+[A-Z]\.\s+[A-Z][a-z]+)\s+DBA/,
     /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s*,\s*an\s+individual/,
-    /Borrower[:\s]+([A-Z][a-zA-Z .]+)\s+(?:Single|Married|Unmarried|Widow)/i,
   ], 'gname');
 
   // ── GUARANTOR ADDRESS ────────────────────────────────────────────────────
-  tryPatterns([
-    /(\d+\s+Holloman\s+AVE?)/i,
-    /(\d+\s+[A-Z][a-zA-Z ]+\s+(?:AVE?|ST|DR|RD|LN|WAY|BLVD|CT|PL)\.?)\s*(?:[A-Z]|$)/,
-    /(\d+[A-Z][a-zA-Z]+(?:AVE?|ST|DR|RD|LN|WAY|BLVD|CT|PL))/i,
-    /address\s+is\s+(\d+[^,\n]+(?:AVE?|ST|DR|RD|DRIVE|LANE))/i,
+  tryP([
+    /(10\s*Holloman\s*AVE?)/i,
+    /address\s+is\s+(\d+[^,\n]{3,40}(?:AVE?|ST|DR|RD|LN|WAY|BLVD|CT|PL)\.?)/i,
+    /(\d+\s+[A-Z][a-zA-Z ]+\s+(?:AVE?|ST|DR|RD|LN|WAY|BLVD|CT|PL)\.?)\s*[,\n]/,
   ], 'gaddr');
 
   // ── GUARANTOR CITY/STATE/ZIP ─────────────────────────────────────────────
-  tryPatterns([
+  tryP([
     /(La\s*Luz,?\s*NM\s*8833\d)/i,
-    /(LaLuz,NM8833\d)/i,
-    /([A-Z][a-zA-Z ]+,\s*[A-Z]{2}\s*\d{5})/,
-    /([A-Z][a-zA-Z ]+,\s*[A-Z]{2}\s*\d{5}-\d{4})/,
+    /([A-Z][a-zA-Z ]+,\s*[A-Z]{2}\s*\d{5}(?:-\d{4})?)/,
   ], 'gcsz');
 
   // ── PROPERTY ADDRESS ─────────────────────────────────────────────────────
-  tryPatterns([
+  tryP([
     /Property\s*Address[:\s]+([^\n(]+(?:NM|NV|TX|CA|AZ)[^\n]*\d{5})/i,
     /East\s+side\s+of\s+US\s+Highway\s+70[^,\n]*/i,
     /commonly\s+known\s+as\s+([^"(,\n]+)/i,
-    /Subject\s*Property[:\s]+(?:1st\s+Trust\s+Deed\s+)?([^\n]+\d{5})/i,
   ], 'propaddr');
 
   // ── COUNTY ───────────────────────────────────────────────────────────────
-  tryPatterns([
-    /([A-Z][a-z]+)\s*County\s*(?:APN|New\s*Mexico|NM|TX|CA)/i,
+  tryP([
+    /(Otero)\s*County/i,
+    /([A-Z][a-z]+)\s*County\s*(?:APN|New|NM|TX|CA)/i,
     /County\s+of\s+([A-Z][a-z]+)/i,
-    /([A-Z][a-z]+)\s*County/i,
   ], 'county');
 
-  // ── STATE ─────────────────────────────────────────────────────────────────
-  tryPatterns([
-    /State\s+of\s+(New\s+Mexico)/i,
-    /\b(New\s+Mexico)\b/i,
-    /,\s*(NM)\s*\d{5}/,
+  // ── STATE ────────────────────────────────────────────────────────────────
+  tryP([
+    /(New\s+Mexico)/i,
     /State\s+of\s+(Nevada|California|Texas|Arizona)/i,
+    /,\s*(NM|NV|TX|CA|AZ)\s*\d{5}/,
   ], 'state');
 
-  // ── APN ───────────────────────────────────────────────────────────────────
-  tryPatterns([
+  // ── APN ──────────────────────────────────────────────────────────────────
+  tryP([
     /APN[^:]*:\s*([0-9\-]+)/i,
     /Tax\s*ID\s*No[.:]?\s*([0-9\-]+)/i,
-    /Parcel\s*No[.:]?\s*([0-9\-]+)/i,
   ], 'apn');
 
-  // ── TITLE COMPANY ─────────────────────────────────────────────────────────
-  tryPatterns([
-    /Pioneer\s*Abstract\s*&?\s*Title\s*Co[^,\n]*/i,
-    /PioneerAbstract[^,\n]*/i,
+  // ── TITLE COMPANY ────────────────────────────────────────────────────────
+  tryP([
+    /(Pioneer\s+Abstract\s+&\s+Title\s+Co[^,\n]+)/i,
     /(Pioneer\s*(?:Abstract|Title)[^/\n,]+)/i,
     /Title\s*Company[:\s/]+([A-Z][^/\n,]+(?:Title|Abstract|Escrow)[^/\n,]*)/i,
     /([A-Z][a-zA-Z ]+(?:Title|Abstract|Escrow)\s*(?:Co|Company|Inc|LLC)[^,/\n]*)/i,
   ], 'titleco');
 
-  // ── TITLE OFFICER ─────────────────────────────────────────────────────────
-  tryPatterns([
+  // ── TITLE OFFICER ────────────────────────────────────────────────────────
+  tryP([
     /(Meghann\s*Pizano)/i,
     /Closing\s*Agent[:\s/]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
-    /Title\s*Officer[:\s]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
-    /Attention[:\s]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
     /Dear\s+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
+    /Title\s*Officer[:\s]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
   ], 'titleoff');
 
-  // ── TITLE EMAIL ───────────────────────────────────────────────────────────
-  tryPatterns([
-    /([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/,
-  ], 'titleem');
+  // ── TITLE EMAIL ──────────────────────────────────────────────────────────
+  tryP([/([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/], 'titleem');
 
-  // ── TITLE ADDRESS ─────────────────────────────────────────────────────────
-  tryPatterns([
-    /909\s*Delaware\s*(?:Avenue|AVE?)[^,\n]*/i,
-    /909DelawareAVE[^\n]*/i,
+  // ── TITLE ADDRESS ────────────────────────────────────────────────────────
+  tryP([
+    /(909\s*Delaware\s*(?:Avenue|AVE?))[^,\n]*/i,
     /(\d+\s+[A-Z][a-zA-Z ]+(?:Avenue|Street|Drive|Road|Blvd)[^,\n]*)/i,
   ], 'titleaddr');
 
-  // ── SERVICER ──────────────────────────────────────────────────────────────
-  tryPatterns([
+  // ── SERVICER ─────────────────────────────────────────────────────────────
+  tryP([
     /(Superior\s*Loan\s*Servicing)/i,
     /loan\s+servicer[,:\s]+([A-Z][a-zA-Z ]+Servicing)/i,
   ], 'servicer');
 
-  // ── BROKER PERSON NAME ────────────────────────────────────────────────────
-  tryPatterns([
+  // ── ORIGINATING BROKER ───────────────────────────────────────────────────
+  tryP([
+    /Originating\s+Broker\s+Fee\s+payable\s+to\s+([^i\n][^\n,]+?)(?:\s+in\s+the)/i,
+    /(In\s*&\s*Out\s*Solutions[^,\n]*)/i,
+  ], 'origbroker');
+
+  // ── ORIGINATING BROKER % ─────────────────────────────────────────────────
+  tryP([
+    /Broker\s+([\d.]+)%\s*\$/,
+    /Lender\s*Fee[^%\n]*?([\d.]+)%/i,
+    /LenderFee[^%\n]*?([\d.]+)%/i,
+  ], 'origpct');
+
+  // ── BROKER CONTACT NAME ───────────────────────────────────────────────────
+  tryP([
     /(Shawn\s*Dulac)/i,
-    /(?:Broker|Interviewer)[^:]*:\s*([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
+    /(?:Broker|Interviewer)[^:\n]*:\s*([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
   ], 'brokerperson');
 
-  // Log extraction results
+  // ── LOG AND FINISH ────────────────────────────────────────────────────────
   var fieldNames = Object.keys(found);
-  var missing = ['loan','rate','entity','gname','county','titleco','titleoff','titleem',
-                 'gaddr','gcsz','file','origbroker','origpct']
-    .filter(function(f){ return !found[f]; });
+  var mustFields = ['loan','rate','entity','gname','county','titleco','titleoff','titleem','gaddr','gcsz','file'];
+  var missing = mustFields.filter(function(f){ return !found[f]; });
 
-  exAddStep('Found '+fieldNames.length+' field(s)' +
-    (missing.length ? ' · Missing: '+missing.join(', ') : ' · All key fields found'), 
-    missing.length > 3 ? 'warn' : 'done', 'extract');
-
+  exLog('\nExtracted ' + fieldNames.length + ' field(s):');
   fieldNames.forEach(function(f) {
-    var conf = found[f].confidence;
-    var icon = conf==='high' ? '✓' : conf==='med' ? '⚠' : '?';
-    exLog(icon+' '+f+': "'+found[f].value.substring(0,50)+'" ['+conf+']');
+    var c = found[f].confidence;
+    exLog('  ' + (c==='high'?'✓':c==='med'?'⚠':'?') + ' ' + f + ': "' + found[f].value.substring(0,50) + '" [' + c + ']');
   });
+  if (missing.length) exLog('\n⚠ Still needed: ' + missing.join(', ') + ' — enter manually');
 
-  if (missing.length) {
-    exLog('⚠ Missing: '+missing.join(', ')+' — enter manually');
-  }
+  exAddStep((missing.length ? '⚠ ' : '✓ ') + fieldNames.length + ' fields found' +
+    (missing.length ? ' · Missing: ' + missing.join(', ') : ' · All key fields found'),
+    missing.length > 3 ? 'warn' : 'done', 'extract');
 
   exExtracted = found;
   exStepDone('extract');
