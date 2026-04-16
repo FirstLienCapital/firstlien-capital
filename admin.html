@@ -1320,89 +1320,91 @@ function exReadAllFiles() {
             resolve();
           }).catch(function(){ fobj.text=''; exSetFileStatus(i,'err','efs-err'); resolve(); });
         } else if (fobj.type === 'pdf') {
-          // PDF text extraction using pako FlateDecode decompression
-          // Decompresses compressed streams then extracts Tj text rendering commands
+          // PDF text extraction: pako FlateDecode + TJ array support
+          // Handles both ") Tj" (simple) and "] TJ" (kerned arrays) formats
           (function() {
             try {
               var pdfArr = new Uint8Array(bytes);
               var allText = '';
 
-              // Build latin-1 string from bytes for regex scanning
+              // Build latin-1 string for scanning
               var latin = '';
               for (var pi = 0; pi < pdfArr.length; pi++) {
                 latin += String.fromCharCode(pdfArr[pi]);
               }
 
-              // Find all PDF objects using string split approach
-              var parts = latin.split(/\d+ \d+ obj/);
-              for (var oi = 1; oi < parts.length; oi++) {
-                var obj = parts[oi];
-                var endIdx = obj.indexOf('endobj');
-                if (endIdx > 0) obj = obj.substring(0, endIdx);
+              // Split into PDF objects
+              var objParts = latin.split(/\d+ \d+ obj/);
+              for (var oi2 = 1; oi2 < objParts.length; oi2++) {
+                var obj2 = objParts[oi2];
+                var endIdx2 = obj2.indexOf('endobj');
+                if (endIdx2 > 0) obj2 = obj2.substring(0, endIdx2);
+                if (obj2.indexOf('stream') < 0) continue;
 
-                // Find stream content
-                var streamStart = obj.indexOf('stream');
-                if (streamStart < 0) continue;
-                streamStart = obj.indexOf('\n', streamStart) + 1;
-                var streamEnd = obj.lastIndexOf('\nendstream');
-                if (streamEnd < 0 || streamEnd <= streamStart) continue;
+                var snl = obj2.indexOf('\n', obj2.indexOf('stream'));
+                if (snl < 0) continue;
+                var se2 = obj2.lastIndexOf('\nendstream');
+                if (se2 < 0 || se2 <= snl) continue;
 
-                var streamStr = obj.substring(streamStart, streamEnd);
-                var streamBytes = new Uint8Array(streamStr.length);
-                for (var si = 0; si < streamStr.length; si++) {
-                  streamBytes[si] = streamStr.charCodeAt(si) & 0xff;
+                var streamStr2 = obj2.substring(snl + 1, se2);
+                var streamBytes2 = new Uint8Array(streamStr2.length);
+                for (var si2 = 0; si2 < streamStr2.length; si2++) {
+                  streamBytes2[si2] = streamStr2.charCodeAt(si2) & 0xff;
                 }
 
-                var streamText = streamStr;
-
-                // Try FlateDecode decompression
-                if (obj.indexOf('FlateDecode') >= 0 && typeof pako !== 'undefined') {
+                var streamText2 = streamStr2;
+                if (obj2.indexOf('FlateDecode') >= 0 && typeof pako !== 'undefined') {
                   try {
-                    var dec = pako.inflate(streamBytes);
-                    streamText = '';
-                    for (var di = 0; di < dec.length; di++) {
-                      streamText += String.fromCharCode(dec[di]);
+                    var dec2 = pako.inflate(streamBytes2);
+                    streamText2 = '';
+                    for (var di3 = 0; di3 < dec2.length; di3++) {
+                      streamText2 += String.fromCharCode(dec2[di3]);
                     }
-                  } catch(ez) { /* not compressed or wrong format — use raw */ }
+                  } catch(ez2) { /* use raw */ }
                 }
 
-                // Extract Tj text: scan for ) Tj pattern
-                var pos = 0;
-                while (pos < streamText.length) {
-                  // Find ) Tj
-                  var tjPos = streamText.indexOf(') Tj', pos);
-                  if (tjPos < 0) break;
-                  // Find matching opening (
-                  var depth = 0;
-                  var openPos = -1;
-                  for (var ci = tjPos; ci >= 0; ci--) {
-                    var ch = streamText[ci];
-                    if (ch === ')' && streamText[ci-1] !== '\\') depth++;
-                    else if (ch === '(' && streamText[ci-1] !== '\\') {
-                      depth--;
-                      if (depth <= 0) { openPos = ci; break; }
-                    }
+                // ── Strategy 1: Simple Tj — (text) Tj ──────────────────────
+                var re1 = /\(([^)\\]*)\)\s*Tj/g;
+                var m1;
+                while ((m1 = re1.exec(streamText2)) !== null) {
+                  var t1 = m1[1].split('\\n').join(' ').split('\\r').join(' ')
+                                .split('\\(').join('(').split('\\)').join(')');
+                  var c1 = '';
+                  for (var ci1 = 0; ci1 < t1.length; ci1++) {
+                    var code1 = t1.charCodeAt(ci1);
+                    if (code1 >= 32 && code1 < 127) c1 += t1[ci1];
                   }
-                  if (openPos >= 0) {
-                    var txt = streamText.substring(openPos + 1, tjPos);
-                    txt = txt.split('\\n').join(' ').split('\\r').join(' ').split('\\(').join('(').split('\\)').join(')');
-                    var clean = '';
-                    for (var ti = 0; ti < txt.length; ti++) {
-                      var code = txt.charCodeAt(ti);
-                      if (code >= 32 && code < 127) clean += txt[ti];
+                  if (c1.length >= 1) allText += c1;
+                }
+                allText += ' ';
+
+                // ── Strategy 2: TJ arrays — [(text)kern(text)...] TJ ───────
+                var re2 = /\[([^\]]*)\]\s*TJ/g;
+                var m2;
+                while ((m2 = re2.exec(streamText2)) !== null) {
+                  var arr2 = m2[1];
+                  var re3 = /\(([^)\\]*)\)/g;
+                  var m3;
+                  while ((m3 = re3.exec(arr2)) !== null) {
+                    var t3 = m3[1].split('\\n').join(' ').split('\\r').join(' ')
+                                  .split('\\(').join('(').split('\\)').join(')');
+                    var c3 = '';
+                    for (var ci3 = 0; ci3 < t3.length; ci3++) {
+                      var code3 = t3.charCodeAt(ci3);
+                      if (code3 >= 32 && code3 < 127) c3 += t3[ci3];
                     }
-                    if (clean.trim().length >= 2) allText += clean + ' ';
+                    if (c3.length >= 1) allText += c3;
                   }
-                  pos = tjPos + 4;
+                  allText += ' ';
                 }
               }
 
               fobj.text = allText.replace(/\s+/g, ' ').trim();
-            } catch(e) { fobj.text = ''; }
+            } catch(e2) { fobj.text = ''; }
           })();
           fobj.read = true;
           exSetFileStatus(i, 'done', 'efs-done');
-          resolve();solve();
+          resolve();solve();solve();
         } else {
           fobj.text = '';
           fobj.read = true; // mark as attempted even on err
