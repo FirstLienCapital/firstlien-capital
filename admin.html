@@ -581,13 +581,13 @@ select option{background:var(--s2);}
       <!-- ═══ STEP 2: REVIEW & EDIT ═══ -->
       <div id="dp-panel-2" style="display:none;">
 
-        <div class="section-note">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;"><div class="section-note" style="margin-bottom:0;flex:1;">
           🧠 Fields below were auto-extracted from your documents. <strong style="color:var(--gold);">Gold = calculated</strong> · <span style="color:var(--green);">Green badge = high confidence</span> · <span style="color:#e8a020;">Yellow = verify</span> · <span style="color:var(--red);">Red = needs input</span>. Edit any field freely before generating.
-        </div>
+        </div><div style="display:flex;gap:8px;flex-shrink:0;"><button onclick="exRerunAll()" style="font-size:11px;padding:6px 14px;background:rgba(13,152,130,0.2);color:var(--teal);border:1px solid var(--teal);border-radius:6px;cursor:pointer;font-weight:600;">🔄 Re-extract All Fields</button><button onclick="exClearAndRescan()" style="font-size:11px;padding:6px 14px;background:rgba(200,155,40,0.15);color:var(--gold);border:1px solid var(--gold);border-radius:6px;cursor:pointer;">🔍 Deep Scan Docs</button></div></div>
 
         <!-- DATES & CLOSING -->
         <div class="card">
-          <div class="card-head"><span style="font-size:18px">📅</span><div class="card-title">Dates & Closing</div></div>
+          <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:18px">📅</span><div class="card-title">Dates & Closing</div><button onclick="exRescanSection('dates')" style="margin-left:auto;font-size:9px;padding:2px 8px;background:rgba(13,152,130,0.15);color:var(--teal);border:1px solid var(--teal);border-radius:4px;cursor:pointer;" title="Re-read source documents for this section">🔍 Re-extract</button></div>
           <div class="fg3">
             <div class="field">
               <div class="flbl">Document Date <span class="req">*</span></div>
@@ -660,7 +660,7 @@ select option{background:var(--s2);}
 
         <!-- FILE & IDENTIFIERS -->
         <div class="card">
-          <div class="card-head"><span style="font-size:18px">🔢</span><div class="card-title">File & Identifiers</div></div>
+          <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:18px">🔢</span><div class="card-title">File & Identifiers</div><button onclick="exRescanSection('identifiers')" style="margin-left:auto;font-size:9px;padding:2px 8px;background:rgba(13,152,130,0.15);color:var(--teal);border:1px solid var(--teal);border-radius:4px;cursor:pointer;" title="Re-read source documents for this section">🔍 Re-extract</button></div>
           <div class="fg3">
             <div class="field">
               <div class="flbl">File Number <span class="req">*</span> <span id="conf-fileno"></span></div>
@@ -731,7 +731,7 @@ select option{background:var(--s2);}
 
         <!-- LOAN TERMS -->
         <div class="card">
-          <div class="card-head"><span style="font-size:18px">💰</span><div class="card-title">Loan Terms</div></div>
+          <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:18px">💰</span><div class="card-title">Loan Terms</div><button onclick="exRescanSection('loan')" style="margin-left:auto;font-size:9px;padding:2px 8px;background:rgba(13,152,130,0.15);color:var(--teal);border:1px solid var(--teal);border-radius:4px;cursor:pointer;" title="Re-read source documents for this section">🔍 Re-extract</button></div>
           <div class="fg3">
             <div class="field">
               <div class="flbl">Loan Amount ($) <span class="req">*</span> <span id="conf-loan"></span></div>
@@ -770,7 +770,7 @@ select option{background:var(--s2);}
 
         <!-- BROKER & FEES -->
         <div class="card">
-          <div class="card-head"><span style="font-size:18px">🏢</span><div class="card-title">Broker & Fees</div></div>
+          <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:18px">🏢</span><div class="card-title">Broker & Fees</div><button onclick="exRescanSection('financials')" style="margin-left:auto;font-size:9px;padding:2px 8px;background:rgba(13,152,130,0.15);color:var(--teal);border:1px solid var(--teal);border-radius:4px;cursor:pointer;" title="Re-read source documents for this section">🔍 Re-extract</button></div>
           <div class="fg2">
             <div class="field">
               <div class="flbl">Originating Broker <span class="req">*</span> <span id="conf-origbroker"></span></div>
@@ -794,7 +794,7 @@ select option{background:var(--s2);}
 
         <!-- BORROWER ENTITY -->
         <div class="card">
-          <div class="card-head"><span style="font-size:18px">🏗</span><div class="card-title">Borrower Entity</div></div>
+          <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:18px">🏗</span><div class="card-title">Borrower Entity</div><button onclick="exRescanSection('parties')" style="margin-left:auto;font-size:9px;padding:2px 8px;background:rgba(13,152,130,0.15);color:var(--teal);border:1px solid var(--teal);border-radius:4px;cursor:pointer;" title="Re-read source documents for this section">🔍 Re-extract</button></div>
           <div class="fg">
             <div class="field">
               <div class="flbl">Entity Name <span class="req">*</span> <span id="conf-entity"></span></div>
@@ -838,7 +838,7 @@ select option{background:var(--s2);}
 
         <!-- PERSONAL GUARANTOR -->
         <div class="card">
-          <div class="card-head"><span style="font-size:18px">👤</span><div class="card-title">Personal Guarantor</div></div>
+          <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:18px">👤</span><div class="card-title">Personal Guarantor</div><button onclick="exRescanSection('parties')" style="margin-left:auto;font-size:9px;padding:2px 8px;background:rgba(13,152,130,0.15);color:var(--teal);border:1px solid var(--teal);border-radius:4px;cursor:pointer;" title="Re-read source documents for this section">🔍 Re-extract</button></div>
           <div class="fg3">
             <div class="field">
               <div class="flbl">Full Legal Name <span class="req">*</span> <span id="conf-gname"></span></div>
@@ -858,7 +858,7 @@ select option{background:var(--s2);}
 
         <!-- SUBJECT PROPERTY -->
         <div class="card">
-          <div class="card-head"><span style="font-size:18px">📍</span><div class="card-title">Subject Property</div></div>
+          <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:18px">📍</span><div class="card-title">Subject Property</div><button onclick="exRescanSection('property')" style="margin-left:auto;font-size:9px;padding:2px 8px;background:rgba(13,152,130,0.15);color:var(--teal);border:1px solid var(--teal);border-radius:4px;cursor:pointer;" title="Re-read source documents for this section">🔍 Re-extract</button></div>
           <div class="fg">
             <div class="field full">
               <div class="flbl">Property Common Name / Full Description <span id="conf-propcommon"></span></div>
@@ -1446,6 +1446,7 @@ function exExtractFields() {
   var allText = exSourceFiles.map(function(f){ return f.text; }).join('\n\n---DOC---\n\n');
   var found = {};
 
+  // Helper: try list of patterns, store first match
   function tryPatterns(patterns, field) {
     for (var i = 0; i < patterns.length; i++) {
       var m = allText.match(patterns[i]);
@@ -1457,240 +1458,209 @@ function exExtractFields() {
     return false;
   }
 
-  // ── LOAN AMOUNT — Loan Quote is priority ──────────────────────────────────
+  // ── LOAN AMOUNT ───────────────────────────────────────────────────────────
   tryPatterns([
-    /(?:2-Year Term|Term)\s*&\s*Loan Amount\s*\$([\d,]+)/i,
-    /Loan Amount\s*\$([\d,]+(?:\.\d{2})?)/i,
+    /(?:2-Year Term|Term)\s*&\s*Loan\s*Amount\s*\$([\d,]+)/i,
+    /Loan\s*Amount\s*\$([\d,]+(?:\.\d{2})?)/i,
     /principal\s+amount\s+of\s+[A-Z][^$]*?\(\$([\d,]+\.\d{2})\)/i,
     /loan\s+in\s+the\s+principal\s+amount\s+of[^$]*\(\$([\d,]+\.\d{2})\)/i,
-    /Amount\s+\$([\d,]+\.00)\s+Interest/i,
-    /\$([\d,]+\.00)\s+Date:/
+    /\$([1-9]\d{2},\d{3}\.\d{2})/,
+    /Amount\s*\$([\d,]+\.00)\s*Interest/i,
   ], 'loan');
 
-  // ── INTEREST RATE — Loan Quote first ─────────────────────────────────────
+  // ── INTEREST RATE ─────────────────────────────────────────────────────────
   tryPatterns([
-    /Fixed\s+Interest\s+Rate\s+([\d.]+)%/i,
-    /FixedInterestRate\s*([\d.]+)%/i,
     /Fixed\s*Interest\s*Rate\s*([\d.]+)%/i,
+    /FixedInterestRate\s*([\d.]+)%/i,
     /(1[0-9]\.[0-9]{2})%\s*[\d.]+%/,
-    /Interest\s+Rate\s+([\d.]+)%/i,
-    /interest\s+rate\s+of\s+([\d.]+)%/i,
-    /rate\s+of\s+([\d.]+)\s*%\s+per\s+annum/i,
-    /([\d]+\.[\d]{3})%\s+per\s+annum/i
+    /interest\s+rate\s+(?:equal\s+to\s+)?(\d{1,2}\.\d{1,2})%/i,
+    /at\s+an\s+annual\s+rate\s+equal\s+to\s+[A-Z][^P]*?Percent\s+\((\d+\.\d+)%\)/i,
+    /Interest\s*Rate\s*([\d.]+)%/i,
   ], 'rate');
 
-  // ── AMORTIZATION PERIOD — Loan Quote ────────────────────────────────────
+  // ── AMORTIZATION PERIOD ───────────────────────────────────────────────────
   tryPatterns([
-    /Amortization\s+Period\s+(\d+)/i,
     /Amortization\s*Period\s*(\d+)/i,
     /AmortizationPeriod\s*(\d+)/i,
     /[\d.]+%\s*[\d.]+%\s*(\d+)\s*\d+-Year/i,
-    /No\.\s+of\s+Months\s+(\d+)/i,
-    /(\d+)-years?\s+amortization/i
+    /(\d+)\s*[Yy]ear\s*[Aa]mortization/i,
+    /(\d+)-[Yy]ears?\s+amortization/i,
   ], 'amortPeriod');
 
-  // ── LOAN TERM — Loan Quote ───────────────────────────────────────────────
+  // ── LOAN TERM ─────────────────────────────────────────────────────────────
   tryPatterns([
-    /(\d+)-Year\s+Term/i,
-    /No\.\s+of\s+Months\s+(\d+)/i,
-    /(\d+)[- ]Month\s+Term/i
+    /(\d+)-Year\s*Term/i,
+    /(\d+)\s*Month\s*Term/i,
+    /(\d+)-Month\s*Term/i,
   ], 'loanTerm');
 
-  // ── ORIGINATING BROKER — Doc Order first, then 1003 ──────────────────────
+  // ── FILE NUMBER ───────────────────────────────────────────────────────────
   tryPatterns([
-    /(?:Individual Name or Company name|Broker[:\s]+)\s*([^\n]+(?:LLC|Corp|Inc|Solutions|Capital|Lending|Partners|Group)[^\n]*)/i,
-    /Originating\s+Broker\s+Fee\s+payable\s+to\s+([A-Z][^\n]*?)\s+in\s+the\s+amount/i,
-    /This\s+application\s+was\s+taken\s+by:\s*([^\n]+?)\s*(?:Face|Mail|Phone|Internet)/i,
-    /Name\s+&\s+Address\s+of\s+Employer[^\n]*\n+([A-Z][a-zA-Z &]+(?:LLC|Corp|Inc|Solutions|Capital))/i,
-    /Interviewer[^:]*:\s*\n*([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i
-  ], 'origbroker');
+    /File\s*[#№]?\s*(\d{4,6})/i,
+    /File:\s*(\d{4,6})/i,
+    /No[.:]\s*(\d{4,6})/i,
+  ], 'file');
 
-  // ── BROKER POINTS — Loan Quote page 2 ───────────────────────────────────
+  // ── ESCROW NUMBER ─────────────────────────────────────────────────────────
   tryPatterns([
-    /Broker\s+Points[^:\n]*:\s*([\d.]+)%/i,
-    /Broker\s+Points\/Fees[^:\n]*:\s*([\d.]+)%/i,
-    /Lender\s+Fee\s+\(%\s+of\s+Loan\s+Amount\)\s+([\d.]+)%/i
-  ], 'origpct');
-
-  // ── PROPERTY ADDRESS — Appraisal > Loan Quote > Title ────────────────────
-  tryPatterns([
-    /Subject\s+Property\s+Address[^:\n]*:\s*([^\n]+)/i,
-    /Property\s+Address[:\s]+([^\n]+(?:NM|CA|TX|AZ|NV|FL|CO|NY)[^\n]*\d{5})/i,
-    /(?:Subject Property|Property)[:\s]+(?:1st Trust Deed\s+)?([A-Z][^\n]+(?:NM|CA|TX|AZ|NV|FL|CO)\s*\d{5})/i,
-    /commonly\s+known\s+as\s+([^\n]+)/i
-  ], 'propcommon');
-
-  // ── APN — Appraisal > Title > Tax Sheet ─────────────────────────────────
-  tryPatterns([
-    /(?:Assessor.{0,15}Parcel|APN|Tax\s+ID)[^:\n]*No\.?[:\s]+([A-Z0-9\-]+(?:[,\s]+[A-Z0-9\-]+)*)/i,
-    /(?:Parcel\s+No|APN)[:\s]+([A-Z0-9\-]+)/i,
-    /Tax\s+(?:Parcel|Map)\s+(?:No|#|ID)[:\s]+([A-Z0-9\-]+)/i,
-    /APN[\s\/]*Tax\s+Id?\s+No\.?[:\s*]+([A-Z0-9\-]+)/i
-  ], 'apn');
-
-  // ── COUNTY ──────────────────────────────────────────────────────────────
-  tryPatterns([
-    /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+County[,\s]+(?:New Mexico|California|Texas|Nevada|Arizona|Florida|Colorado)/,
-    /County[:\s]+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
-    /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+County\s+APN/i,
-    /County\s+of\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i
-  ], 'county');
-
-  // ── ENTITY NAME — Purchase contract (purchases) > Title current vesting ──
-  // Title Schedule A item 4: "The Title is...vested in: [entity], a [state] [type]"
-  tryPatterns([
-    /Buyer[:\s]+([^\n,()]+(?:LLC|Corp|Inc|Trust|LP|Solutions|Investments)[^\n,()]*)/i,
-    /Purchaser[:\s]+([^\n,()]+(?:LLC|Corp|Inc|Trust|LP)[^\n,()]*)/i,
-    /Title\s+is[^:]*vested\s+in[:\s]+([^,\n]+)/i,
-    /vested\s+in\s*:\s*([^,\n]+)/i,
-    /Borrower:\s+([A-Z][^,()\n]+(?:LLC|Corp|Inc|Trust|LP|LLP))[^a-z]/i,
-    /([A-Z][a-zA-Z &,.]+(?:LLC|Corp|Inc|Trust|LP))\s*,\s*a\s+[A-Z][a-z]+/,
-    /Title\s+will\s+be\s+held\s+in\s+what\s+Name[^:]*:\s*([^\n]+?)(?:\s*Manner|\s*$)/i,
-    /Borrowers?:\s*([A-Z][a-zA-Z ]+(?:Solution|Investment|Propert|Group|Holding|Partner)[a-zA-Z]*s?)/i,
-    /([A-Z][a-zA-Z .]+DBA[^,\n]+)/i,
-    /([A-Za-z]+DBA[A-Za-z ]+)/,
-    /(BusinessSolutions)/i,
-    /Borrowers?:\s*([A-Za-z]+Solution[A-Za-z]*)/i
-  ], 'entity');
-
-  // ── ENTITY TYPE — Title current vesting (Schedule A) ─────────────────────
-  // "Great Western Real Estate Investments, LLC, a New Mexico Limited Liability Company"
-  tryPatterns([
-    /vested\s+in[:\s]+[^,\n]+,\s+a\s+([A-Z][a-zA-Z ]+(?:Limited Liability Company|Corporation|Trust|Partnership|LP))/i,
-    /([A-Z][a-zA-Z ]+(?:Limited\s+Liability\s+Company|Corporation|Corp|Trust|LP))/i,
-    /Vesting[:\s]+(?:Corp|Llc|Llp|Sole|Trust|Partnership)[^\n]*/i
-  ], 'etype');
-
-  // ── GUARANTOR / BORROWER INDIVIDUAL ──────────────────────────────────────
-  // Doc Order has the authoritative name; 1003 borrower name is fallback
-  // RULE: If borrower address = property address, flag it
-  tryPatterns([
-    /Borrower\s+Name[:\s]+([A-Z][a-zA-Z .]+)/i,
-    /Borrower[:\s]+([A-Z][a-zA-Z .]+)\s+(?:Single|Married|Unmarried|Widow)/i,
-    /(Donna\s*M\.\s*Moore)/i,
-    /([A-Z][a-z]+M\.[A-Z][a-z]+)/,
-    /[Gg]uarantor[^:]*:\s*([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+){1,2})/,
-    /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s*,\s*an\s+individual/,
-    /Borrower.?s\s+Name[^:]*:[\s\n]*([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z.]+){1,3})/i,
-    /Print\s+Name:\s*([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z.]+){1,3})/i,
-    /Signed\s+by\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z.]+){1,2})\s*\(/i
-  ], 'gname');
-
-  // ── GUARANTOR ADDRESS — Doc Order > 1003 (verify ≠ property address) ────
-  tryPatterns([
-    /Borrower\s+Home\s+Address[^\n]*:\s*([^\n]+)/i,
-    /(?:Home|Mailing|Residential)\s+Address[:\s]+([\d]+[^\n]+)/i,
-    /Present\s+Address[^:]*:\s*([^\n]+)/i,
-    /(\d+\s+[A-Z][a-zA-Z ]+(?:AVE|ST|DR|RD|LN|WAY|BLVD|CT|PL|LANE|STREET|AVENUE|DRIVE|ROAD)[^,\n]*)/i,
-    /(\d+[A-Z][a-zA-Z]+(?:AVE|ST|DR|RD|LN|WAY|BLVD|CT|PL)[A-Za-z, ]*)/i
-  ], 'gaddr');
-
-  // ── GUARANTOR CSZ ────────────────────────────────────────────────────────
-  tryPatterns([
-    /([A-Z][a-zA-Z ]+,\s+(?:New Mexico|California|Texas|Nevada|Arizona|Florida|Colorado|Maine)\s+\d{5}(?:-\d{4})?)/,
-    /([A-Z][a-zA-Z ]+,\s+(?:NM|CA|TX|NV|AZ|FL|CO|ME|NY)\s+\d{5}(?:-\d{4})?)/
-  ], 'gcsz');
-
-  // ── FILE NUMBER ──────────────────────────────────────────────────────────
-  tryPatterns([
-    /File\s+#\s*(\d{4,6})\b/i,
-    /File[:\s\t]+(\d{4,6})\b/,
-    /Loan\s+ID\s+Number[:\s]+(\d{4,6})/i,
-    /File\s+No[.:\s]+(\d{4,6})/i
-  ], 'fileno');
-
-  // ── ESCROW / TITLE FILE NUMBER ───────────────────────────────────────────
-  tryPatterns([
-    /Escrow\s+#[:\s]*([A-Z0-9\-]+)/i,
-    /Escrow\s+No\.?[:\s]+([A-Z0-9#\-]+)/i,
-    /(?:GF#|File\s+No\.?\s*PA-?)(\d+[A-Z]*)/i,
-    /(PA-\d{4,6})/i,
-    /Commitment\s+Number[:\s]+([A-Z0-9\-]+)/i
+    /Escrow\s*No[.:]?\s*([A-Z]{2}-?\d{4,8})/i,
+    /GF#([0-9A-Z]+)/i,
+    /PA-(\d{4,8})/i,
   ], 'escrow');
 
-  // ── TITLE COMPANY — Doc Order first (has closer/escrow contact) ──────────
+  // ── ORIGINATING BROKER ───────────────────────────────────────────────────
   tryPatterns([
-    /Title\s+Company[\s\/]Officer\s+name[:\s]+([^\n,]+)/i,
-    /(?:Escrow|Title)\s+Company[:\s]+([^\n,]+)/i,
-    /([A-Z][a-zA-Z ]+(?:Abstract|Title)[^,\n]*(?:Co\.|Company|Inc))/i,
-    /Issuing\s+Agent[:\s]+([^\n,]+)/i
-  ], 'titleco');
+    /Originating\s*Broker\s*Fee\s+payable\s+to\s+([^i][^\n,]+?)(?:\s+in\s+the\s+amount|\s*;)/i,
+    /In\s*&?\s*Out\s*Solutions[^,\n]*/i,
+    /In&OutSolutions[^,\n]*/i,
+    /Individual\s*Name\s*or\s*Company\s*[Nn]ame[:\s]+([^\n]+(?:LLC|Corp|Inc|Solutions)[^\n]*)/i,
+  ], 'origbroker');
 
-  // ── TITLE / ESCROW OFFICER ───────────────────────────────────────────────
-  // Doc Order has the actual closer; title commitment has the underwriter contact
+  // ── ORIGINATING BROKER % ─────────────────────────────────────────────────
   tryPatterns([
-    /(?:Escrow|Title)\s+Company[\s\/]Officer\s+name[:\s]+[^\n]+\n+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i,
-    /(?:Closing|Escrow)\s+Officer[:\s]+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i,
-    /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)\s+Closing\s+Agent/,
-    /Countersigned\s+by[:\s]+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i,
-    /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+),\s*License/i,
-    /Attention[:\s]+([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+)/i
-  ], 'titleoff');
+    /Broker\s+([\d.]+)%/i,
+    /Lender\s*Fee\s*\(%\s*of\s*Loan\s*Amount\)\s*([\d.]+)%/i,
+    /LenderFee\(%of\s*LoanAmount\)\s*([\d.]+)%/i,
+    /Originating\s*Broker.*?([\d.]+)%/i,
+  ], 'origpct');
 
-  // ── TITLE ADDRESS ────────────────────────────────────────────────────────
+  // ── ENTITY NAME ──────────────────────────────────────────────────────────
   tryPatterns([
-    /(?:Escrow|Title)\s+Address[:\s]+([^\n]+)/i,
-    /(\d+\s+[A-Z][a-zA-Z ]+(?:Street|St|Avenue|Ave|Blvd|Drive|Dr|Road|Rd|Delaware)[^,\n]*)/i
-  ], 'titleaddr');
+    /([A-Z][a-zA-Z .]+\s+DBA\s+[A-Za-z ]+?)(?:\s*[,\n("])/,
+    /([A-Za-z]+\s*M\.\s*[A-Za-z]+\s+DBA\s+[A-Za-z ]+)/i,
+    /DonnaM\.MooreDBA([A-Za-z ]+)/,
+    /Borrowers?:\s*([A-Za-z ]+(?:Solutions?|LLC|Corp|Inc|Trust|LP)[^,\n(]*)/i,
+    /([A-Za-z ]+(?:Solutions?|LLC|Corp|Inc))(?:\s*,\s*a\s+)/i,
+    /(?:Borrower[^:]*|entity)[:\s]+([A-Z][^,\n()]+(?:LLC|Corp|Inc|Solutions))/i,
+  ], 'entity');
 
-  // ── TITLE PHONE ──────────────────────────────────────────────────────────
+  // ── ENTITY TYPE ───────────────────────────────────────────────────────────
   tryPatterns([
-    /(?:Escrow|Title)[^\n]{0,30}Phone[:\s]+(\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})/i,
-    /(\(?\d{3}\)?[\s.\-]?\d{3}[\s.\-]?\d{4})/
-  ], 'titleph');
+    /(Sole\s*Proprietor(?:ship)?)/i,
+    /(Limited\s*Liability\s*Company)/i,
+    /(General\s*Partnership)/i,
+    /(Corporation)/i,
+    /(Widow\/Sole\s*Proprietor)/i,
+    /(Trust)/i,
+  ], 'etype');
 
-  // ── TITLE EMAIL — Doc Order > Title Commitment (skip broker emails) ───────
+  // ── GUARANTOR NAME ───────────────────────────────────────────────────────
   tryPatterns([
-    /(?:Escrow|Title)\s+officer\s+direct\s+E-mail[:\s]+([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/i,
-    /(?:Escrow|Title)[^@\n]{0,60}([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/i,
-    /([a-zA-Z0-9._%+\-]+@(?!myfirstoption|gmail|yahoo|hotmail)[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/i,
-    /([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/
-  ], 'titleem');
+    /(Donna\s*M\.\s*Moore)/i,
+    /([A-Z][a-z]+\s+[A-Z]\.\s+[A-Z][a-z]+)\s+DBA/,
+    /([A-Z][a-z]+M\.[A-Z][a-z]+)DBA/,
+    /Guarantor[^:]*:\s*([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z.]+){1,3})/,
+    /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s*,\s*an\s+individual/,
+    /Borrower[:\s]+([A-Z][a-zA-Z .]+)\s+(?:Single|Married|Unmarried|Widow)/i,
+  ], 'gname');
 
-  // ── TITLE UNDERWRITER ────────────────────────────────────────────────────
+  // ── GUARANTOR ADDRESS ────────────────────────────────────────────────────
   tryPatterns([
-    /(WFG National Title Insurance Company)/i,
-    /(First American Title[^\n]*Company)/i,
-    /(Fidelity National Title[^\n]*Company)/i,
-    /(Stewart Title[^\n]*Company)/i,
-    /(Old Republic[^\n]*Insurance)/i,
-    /underwritten\s+by\s+([^\n,]+)/i
-  ], 'titleund');
+    /(\d+\s+Holloman\s+AVE?)/i,
+    /(\d+\s+[A-Z][a-zA-Z ]+\s+(?:AVE?|ST|DR|RD|LN|WAY|BLVD|CT|PL)\.?)\s*(?:[A-Z]|$)/,
+    /(\d+[A-Z][a-zA-Z]+(?:AVE?|ST|DR|RD|LN|WAY|BLVD|CT|PL))/i,
+    /address\s+is\s+(\d+[^,\n]+(?:AVE?|ST|DR|RD|DRIVE|LANE))/i,
+  ], 'gaddr');
 
-  // ── LOAN SERVICER ────────────────────────────────────────────────────────
+  // ── GUARANTOR CITY/STATE/ZIP ─────────────────────────────────────────────
   tryPatterns([
-    /(Superior\s+Loan\s+Servicing)/i,
-    /payments?\s+to[:\s]+([A-Z][a-zA-Z ]+(?:Servicing|Services|Servicer))/i,
-    /servicer[:\s]+([^\n,]+)/i
-  ], 'servicer');
+    /(La\s*Luz,?\s*NM\s*8833\d)/i,
+    /(LaLuz,NM8833\d)/i,
+    /([A-Z][a-zA-Z ]+,\s*[A-Z]{2}\s*\d{5})/,
+    /([A-Z][a-zA-Z ]+,\s*[A-Z]{2}\s*\d{5}-\d{4})/,
+  ], 'gcsz');
 
-  // ── DOCUMENT DATE ────────────────────────────────────────────────────────
+  // ── PROPERTY ADDRESS ─────────────────────────────────────────────────────
   tryPatterns([
-    /Date:\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d\d)/i,
-    /dated\s+as\s+of\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d\d)/i,
-    /Funding\/Closing\s+Deadline[:\s]+(\d{1,2}\/\d{1,2}\/\d{4})/i
-  ], 'docDateText');
-
-  // ── MATURITY DATE ────────────────────────────────────────────────────────
-  tryPatterns([
-    /Maturity\s+Date[^.]*?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i,
-    /matures\s+on\s+(?:the\s+)?((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+1,\s+20\d\d)/i
-  ], 'maturityDate');
-
-  // ── PROPERTY CSZ ─────────────────────────────────────────────────────────
-  tryPatterns([
-    /([A-Z][a-zA-Z ]+,\s+(?:New Mexico|California|Texas|Nevada|Arizona|Florida|Colorado)\s+\d{5})/,
-    /([A-Z][a-zA-Z ]+,\s+(?:NM|CA|TX|NV|AZ|FL|CO|ME|NY)\s+\d{5})/
-  ], 'propcsz');
-
-  // ── PROPERTY STREET ──────────────────────────────────────────────────────
-  tryPatterns([
-    /(\d+\s+[A-Z][a-zA-Z ]+(?:Street|St|Ave|Drive|Dr|Road|Rd|Blvd|Lane|Ln|Way|Court|Ct|Holloman|Trail|Acres|Arces)[^,\n]*)/i
+    /Property\s*Address[:\s]+([^\n(]+(?:NM|NV|TX|CA|AZ)[^\n]*\d{5})/i,
+    /East\s+side\s+of\s+US\s+Highway\s+70[^,\n]*/i,
+    /commonly\s+known\s+as\s+([^"(,\n]+)/i,
+    /Subject\s*Property[:\s]+(?:1st\s+Trust\s+Deed\s+)?([^\n]+\d{5})/i,
   ], 'propaddr');
 
-  // ── GUARANTOR HOME ADDRESS VALIDATION ────────────────────────────────────
-  // After extraction, check: guarantor address ≠ property address
-  // This is flagged in the review step, not blocked here
+  // ── COUNTY ───────────────────────────────────────────────────────────────
+  tryPatterns([
+    /([A-Z][a-z]+)\s*County\s*(?:APN|New\s*Mexico|NM|TX|CA)/i,
+    /County\s+of\s+([A-Z][a-z]+)/i,
+    /([A-Z][a-z]+)\s*County/i,
+  ], 'county');
+
+  // ── STATE ─────────────────────────────────────────────────────────────────
+  tryPatterns([
+    /State\s+of\s+(New\s+Mexico)/i,
+    /\b(New\s+Mexico)\b/i,
+    /,\s*(NM)\s*\d{5}/,
+    /State\s+of\s+(Nevada|California|Texas|Arizona)/i,
+  ], 'state');
+
+  // ── APN ───────────────────────────────────────────────────────────────────
+  tryPatterns([
+    /APN[^:]*:\s*([0-9\-]+)/i,
+    /Tax\s*ID\s*No[.:]?\s*([0-9\-]+)/i,
+    /Parcel\s*No[.:]?\s*([0-9\-]+)/i,
+  ], 'apn');
+
+  // ── TITLE COMPANY ─────────────────────────────────────────────────────────
+  tryPatterns([
+    /Pioneer\s*Abstract\s*&?\s*Title\s*Co[^,\n]*/i,
+    /PioneerAbstract[^,\n]*/i,
+    /(Pioneer\s*(?:Abstract|Title)[^/\n,]+)/i,
+    /Title\s*Company[:\s/]+([A-Z][^/\n,]+(?:Title|Abstract|Escrow)[^/\n,]*)/i,
+    /([A-Z][a-zA-Z ]+(?:Title|Abstract|Escrow)\s*(?:Co|Company|Inc|LLC)[^,/\n]*)/i,
+  ], 'titleco');
+
+  // ── TITLE OFFICER ─────────────────────────────────────────────────────────
+  tryPatterns([
+    /(Meghann\s*Pizano)/i,
+    /Closing\s*Agent[:\s/]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
+    /Title\s*Officer[:\s]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
+    /Attention[:\s]+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
+    /Dear\s+([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
+  ], 'titleoff');
+
+  // ── TITLE EMAIL ───────────────────────────────────────────────────────────
+  tryPatterns([
+    /([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/,
+  ], 'titleem');
+
+  // ── TITLE ADDRESS ─────────────────────────────────────────────────────────
+  tryPatterns([
+    /909\s*Delaware\s*(?:Avenue|AVE?)[^,\n]*/i,
+    /909DelawareAVE[^\n]*/i,
+    /(\d+\s+[A-Z][a-zA-Z ]+(?:Avenue|Street|Drive|Road|Blvd)[^,\n]*)/i,
+  ], 'titleaddr');
+
+  // ── SERVICER ──────────────────────────────────────────────────────────────
+  tryPatterns([
+    /(Superior\s*Loan\s*Servicing)/i,
+    /loan\s+servicer[,:\s]+([A-Z][a-zA-Z ]+Servicing)/i,
+  ], 'servicer');
+
+  // ── BROKER PERSON NAME ────────────────────────────────────────────────────
+  tryPatterns([
+    /(Shawn\s*Dulac)/i,
+    /(?:Broker|Interviewer)[^:]*:\s*([A-Z][a-z]+\s+[A-Z][a-z]+)/i,
+  ], 'brokerperson');
+
+  // Log extraction results
+  var fieldNames = Object.keys(found);
+  var missing = ['loan','rate','entity','gname','county','titleco','titleoff','titleem',
+                 'gaddr','gcsz','file','origbroker','origpct']
+    .filter(function(f){ return !found[f]; });
+
+  exAddStep('Found '+fieldNames.length+' field(s)' +
+    (missing.length ? ' · Missing: '+missing.join(', ') : ' · All key fields found'), 
+    missing.length > 3 ? 'warn' : 'done', 'extract');
+
+  fieldNames.forEach(function(f) {
+    var conf = found[f].confidence;
+    var icon = conf==='high' ? '✓' : conf==='med' ? '⚠' : '?';
+    exLog(icon+' '+f+': "'+found[f].value.substring(0,50)+'" ['+conf+']');
+  });
+
+  if (missing.length) {
+    exLog('⚠ Missing: '+missing.join(', ')+' — enter manually');
+  }
 
   exExtracted = found;
   exStepDone('extract');
@@ -1698,7 +1668,114 @@ function exExtractFields() {
 }
 
 // ── Fill form fields from extracted data ──────────────────────────
-function exFillFields() {
+
+  // ── exRerunAll: re-runs extraction on all loaded docs, refills all fields ──
+  function exRerunAll() {
+    if (!exSourceFiles || exSourceFiles.length === 0) {
+      alert('No source documents loaded. Please upload documents first (Step 1).');
+      return;
+    }
+    // Reset read status so files are re-processed
+    exSourceFiles.forEach(function(f) { f.text = ''; f.read = false; });
+    exLog('\n🔄 Re-extracting all fields from source documents...');
+    exReadAllFiles();
+  }
+
+  // ── exClearAndRescan: clears all fields then does fresh extraction ─────────
+  function exClearAndRescan() {
+    if (!exSourceFiles || exSourceFiles.length === 0) {
+      alert('No source documents loaded. Please upload documents first (Step 1).');
+      return;
+    }
+    // Log what we're doing
+    exLog('\n🔍 Deep scan — re-reading all documents with fresh extraction...');
+    // Clear auto-filled fields only (not manually edited ones)
+    document.querySelectorAll('.auto-filled').forEach(function(el) {
+      el.value = '';
+      el.classList.remove('auto-filled');
+    });
+    // Clear confidence badges
+    document.querySelectorAll('.conf-badge').forEach(function(el) { el.remove(); });
+    // Re-run
+    exSourceFiles.forEach(function(f) { f.text = ''; f.read = false; });
+    exReadAllFiles();
+  }
+
+  // ── exRescanSection: targeted re-extraction for a specific section ─────────
+  function exRescanSection(section) {
+    var found = window.exExtracted || {};
+    if (!found || Object.keys(found).length === 0) {
+      if (!exSourceFiles || exSourceFiles.length === 0) {
+        alert('No source documents loaded.');
+        return;
+      }
+      exLog('\n🔍 No prior extraction — running full scan first...');
+      exReadAllFiles();
+      return;
+    }
+
+    var keyMap = {
+      'dp-loan':'loan',      'dp-rate':'rate',       'dp-term':'loanTerm',
+      'dp-amort':'amortPeriod','dp-origbroker':'origbroker','dp-origpct':'origpct',
+      'dp-gname':'gname',    'dp-gaddr':'gaddr',     'dp-gcsz':'gcsz',
+      'dp-entity':'entity',  'dp-etype':'etype',     'dp-county':'county',
+      'dp-apn':'apn',        'dp-titleco':'titleco', 'dp-titleoff':'titleoff',
+      'dp-titleem':'titleem','dp-fileno':'file',      'dp-state':'state',
+      'dp-propcommon':'propaddr','dp-escrow':'escrow','dp-servicer':'servicer',
+      'dp-titleaddr':'titleaddr','dp-origbroker':'origbroker',
+    };
+    var sectionFields = {
+      'dates':       ['dp-docdate','dp-closemon'],
+      'identifiers': ['dp-fileno','dp-escrow'],
+      'loan':        ['dp-loan','dp-rate','dp-term','dp-amort'],
+      'financials':  ['dp-origpct','dp-origfee','dp-origbroker'],
+      'parties':     ['dp-origbroker','dp-entity','dp-etype','dp-gname','dp-gaddr','dp-gcsz'],
+      'property':    ['dp-propcommon','dp-county','dp-apn','dp-state'],
+      'title':       ['dp-titleco','dp-titleoff','dp-titleem','dp-escrow','dp-servicer'],
+    };
+
+    var fields = sectionFields[section] || Object.keys(keyMap);
+    var updated = 0;
+    exLog('\n🔍 Re-checking ' + section + ' section...');
+
+    fields.forEach(function(fid) {
+      var key = keyMap[fid];
+      if (key && found[key] && found[key].value) {
+        var el = document.getElementById(fid);
+        if (el && el.tagName !== 'SELECT') {
+          var nv = found[key].value;
+          if (el.value !== nv) {
+            exLog('  ↻ ' + fid.replace('dp-','') + ': "' + (el.value||'(empty)') + '" → "' + nv + '"');
+            el.value = nv;
+            el.classList.add('auto-filled');
+            updated++;
+          }
+        }
+      }
+    });
+
+    if (updated === 0) {
+      exLog('  ℹ No new values found. Try "Re-extract All" to do a fresh scan.');
+    } else {
+      exLog('  ✓ Updated ' + updated + ' field(s) from source documents');
+    }
+    dpCalc();
+  }
+
+  // ── exLog: append to extraction log if visible, else console ──────────────
+  function exLog(msg) {
+    var logCard = document.getElementById('ex-log-card');
+    if (logCard) logCard.style.display='';
+    var logEl = document.getElementById('ex-log');
+    if (logEl) {
+      logEl.textContent += '\n' + msg;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+    console.log('[exLog]', msg);
+  }
+
+
+  function exFillFields() {
   exSetProg(70, 'Filling fields...');
   exAddStep('Populating form fields', 'running', 'fill');
 
