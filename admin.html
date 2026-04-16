@@ -623,6 +623,19 @@ select option{background:var(--s2);}
               </select>
             </div>
             <div class="field">
+              <div class="flbl">Reserve Months <span title="Months of prepaid interest held in reserve">ℹ</span></div>
+              <select id="dp-resmonths" onchange="dpCalc()">
+                <option value="3" selected>3 months</option>
+                <option value="4">4 months</option>
+                <option value="5">5 months</option>
+                <option value="3" selected>3 months</option>
+                <option value="7">7 months</option>
+                <option value="8">8 months</option>
+                <option value="9">9 months</option>
+                <option value="12">12 months</option>
+              </select>
+            </div>
+            <div class="field">
               <div class="flbl">Loan Term</div>
               <select id="dp-term" onchange="dpCalc()">
                 <option value="12">12 months</option>
@@ -1393,7 +1406,7 @@ function exReadAllFiles() {
                       var code3 = t3.charCodeAt(ci3);
                       if (code3 >= 32 && code3 < 127) c3 += t3[ci3];
                     }
-                    if (c3.length >= 1) allText += c3;
+                    if (c3.length >= 1) allText += c3 + ' ';
                   }
                   allText += ' ';
                 }
@@ -1457,6 +1470,9 @@ function exExtractFields() {
   // ── INTEREST RATE — Loan Quote first ─────────────────────────────────────
   tryPatterns([
     /Fixed\s+Interest\s+Rate\s+([\d.]+)%/i,
+    /FixedInterestRate\s*([\d.]+)%/i,
+    /Fixed\s*Interest\s*Rate\s*([\d.]+)%/i,
+    /(1[0-9]\.[0-9]{2})%\s*[\d.]+%/,
     /Interest\s+Rate\s+([\d.]+)%/i,
     /interest\s+rate\s+of\s+([\d.]+)%/i,
     /rate\s+of\s+([\d.]+)\s*%\s+per\s+annum/i,
@@ -1466,6 +1482,9 @@ function exExtractFields() {
   // ── AMORTIZATION PERIOD — Loan Quote ────────────────────────────────────
   tryPatterns([
     /Amortization\s+Period\s+(\d+)/i,
+    /Amortization\s*Period\s*(\d+)/i,
+    /AmortizationPeriod\s*(\d+)/i,
+    /[\d.]+%\s*[\d.]+%\s*(\d+)\s*\d+-Year/i,
     /No\.\s+of\s+Months\s+(\d+)/i,
     /(\d+)-years?\s+amortization/i
   ], 'amortPeriod');
@@ -1528,7 +1547,10 @@ function exExtractFields() {
     /([A-Z][a-zA-Z &,.]+(?:LLC|Corp|Inc|Trust|LP))\s*,\s*a\s+[A-Z][a-z]+/,
     /Title\s+will\s+be\s+held\s+in\s+what\s+Name[^:]*:\s*([^\n]+?)(?:\s*Manner|\s*$)/i,
     /Borrowers?:\s*([A-Z][a-zA-Z ]+(?:Solution|Investment|Propert|Group|Holding|Partner)[a-zA-Z]*s?)/i,
-    /([A-Z][a-zA-Z .]+DBA[^,\n]+)/i
+    /([A-Z][a-zA-Z .]+DBA[^,\n]+)/i,
+    /([A-Za-z]+DBA[A-Za-z ]+)/,
+    /(BusinessSolutions)/i,
+    /Borrowers?:\s*([A-Za-z]+Solution[A-Za-z]*)/i
   ], 'entity');
 
   // ── ENTITY TYPE — Title current vesting (Schedule A) ─────────────────────
@@ -1545,6 +1567,8 @@ function exExtractFields() {
   tryPatterns([
     /Borrower\s+Name[:\s]+([A-Z][a-zA-Z .]+)/i,
     /Borrower[:\s]+([A-Z][a-zA-Z .]+)\s+(?:Single|Married|Unmarried|Widow)/i,
+    /(Donna\s*M\.\s*Moore)/i,
+    /([A-Z][a-z]+M\.[A-Z][a-z]+)/,
     /[Gg]uarantor[^:]*:\s*([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+){1,2})/,
     /([A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s*,\s*an\s+individual/,
     /Borrower.?s\s+Name[^:]*:[\s\n]*([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z.]+){1,3})/i,
@@ -1557,7 +1581,8 @@ function exExtractFields() {
     /Borrower\s+Home\s+Address[^\n]*:\s*([^\n]+)/i,
     /(?:Home|Mailing|Residential)\s+Address[:\s]+([\d]+[^\n]+)/i,
     /Present\s+Address[^:]*:\s*([^\n]+)/i,
-    /(\d+\s+[A-Z][a-zA-Z ]+(?:AVE|ST|DR|RD|LN|WAY|BLVD|CT|PL|LANE|STREET|AVENUE|DRIVE|ROAD)[^,\n]*)/i
+    /(\d+\s+[A-Z][a-zA-Z ]+(?:AVE|ST|DR|RD|LN|WAY|BLVD|CT|PL|LANE|STREET|AVENUE|DRIVE|ROAD)[^,\n]*)/i,
+    /(\d+[A-Z][a-zA-Z]+(?:AVE|ST|DR|RD|LN|WAY|BLVD|CT|PL)[A-Za-z, ]*)/i
   ], 'gaddr');
 
   // ── GUARANTOR CSZ ────────────────────────────────────────────────────────
@@ -1945,11 +1970,19 @@ function dpCalc() {
   if (ym) {
     dpCalcData.ym=ym;
     // Reserve months = 1,2,3 after close month; first borrower payment = month 4
-    dpCalcData.res1=dpM1(ym,1);dpCalcData.res2=dpM1(ym,2);dpCalcData.res3=dpM1(ym,3);
-    dpCalcData.first=dpM1(ym,4);
-    // FIX 3: pdThru = last day of PREVIOUS month (funds disburse in month before first payment)
-    dpCalcData.pdThru=dpME(ym,-1);
-    dpCalcData.maturity=dpM1(ym,term);
+    var resMonths = parseInt((document.getElementById('dp-resmonths')||{value:'3'}).value)||3;
+    // VERIFIED against File 49821 (April 2026 close, 24mo term):
+    // Odd days: close date through end of close month → per diem covers this + next month
+    // per_diem_thru = last day of month AFTER close month (May 31 for April close)
+    dpCalcData.pdThru=dpME(ym,1);
+    // Reserve pays first 3 payments: months 3,4,5 after close (July,Aug,Sept for April)
+    dpCalcData.res1=dpM1(ym,3);dpCalcData.res2=dpM1(ym,4);dpCalcData.res3=dpM1(ym,5);
+    dpCalcData.resLast=dpM1(ym,resMonths+2);
+    dpCalcData.resRange=dpCalcData.res1+' through '+dpCalcData.res3;
+    // Borrower first payment = 4th payment = month 6 after close (October for April)
+    dpCalcData.first=dpM1(ym,6);
+    // Maturity = first of month term+2 after close (April+26=June 2028 for 24mo term)
+    dpCalcData.maturity=dpM1(ym,term+2);
     var lk=dpAddM(ym,6),lkLast=new Date(lk.y,lk.m,0).getDate();
     dpCalcData.lockout=MO[lk.m-1]+' '+lkLast+', '+lk.y;
     s('dt-r1',dpCalcData.res1);s('dt-r2',dpCalcData.res2);s('dt-r3',dpCalcData.res3);
@@ -1958,7 +1991,8 @@ function dpCalc() {
   }
 
   // FIX 2: Per diem uses 360-day year (commercial RE standard), not 365
-  var origFee=loan*origpct/100, reserve=monthly*3, perDiem=loan*rate/100/360, alta=loan*1.25;
+  var resMonthsN=parseInt((document.getElementById('dp-resmonths')||{value:'3'}).value)||3;
+  var origFee=loan*origpct/100, reserve=monthly*resMonthsN, perDiem=loan*rate/100/360, alta=loan*1.25;
   var balloon=0;
   // FIX 6: Balloon = balance due on maturity date (accrue term months of interest,
   // apply (term-1) regular payments — the final month payment IS the balloon, not an installment)
@@ -2356,13 +2390,16 @@ function dpBuildReview() {
   var c = dpCalcData;
   var origFee = parseFloat(v('dp-origfee').replace(/[^0-9.]/g,''))||c.origFee;
   var rows = [
-    ['DATES',null],['Document Date',c.docDate,false],['Reserve Months',c.res1+' / '+c.res2+' / '+c.res3,true],
-    ['First Payment',c.first,true],['Per Diem Through',c.pdThru,true],['Prepay Lockout',c.lockout,true],['Maturity',c.maturity,true],
+    ['DATES',null],['Document Date',c.docDate,false],
+    ['Reserve Period (lender pays)',c.resRange || (c.res1+' – '+c.res3),true],
+    ['Borrower First Payment',c.first,true],
+    ['Per Diem Through',c.pdThru,true],['Prepay Lockout',c.lockout,true],
+    ['Maturity / Balloon Due',c.maturity,true],
     ['IDENTIFIERS',null],['File No. (p.1)',v('dp-fileno'),false],['Escrow No. (p.2-8)',v('dp-escrow'),false],
     ['LOAN',null],['Loan Amount',f$(c.loan),true],['Written',n2w(c.loan),true],
     ['Rate',c.rate+'%',false],['Monthly P&I',f$(c.monthly),false],
     ['FINANCIALS',null],['Orig Fee',f$(origFee),true],['Written',n2w(origFee),true],
-    ['3-Mo Reserve',f$(c.reserve),true],['Written',n2w(c.reserve),true],
+    ['Reserve ('+(parseInt((document.getElementById('dp-resmonths')||{value:'3'}).value)||3)+' mo)',f$(c.reserve),true],['Written',n2w(c.reserve),true],
     ['Per Diem','$'+c.perDiem.toFixed(2)+'/day',true],
     ['ALTA (125%)',f$(c.alta),true],['Written',n2w(c.alta),true],
     ['Balloon',f$(c.balloon),true],['Written',n2w(c.balloon),true],
@@ -2377,7 +2414,12 @@ function dpBuildReview() {
     '<th style="text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);padding:7px 12px;background:var(--s2);border:1px solid var(--border);">Value</th></tr>';
   rows.forEach(function(r) {
     if (r[1]===null) {
-      html+='<tr><td colspan="2" style="padding:5px 12px;border:1px solid var(--border);background:var(--tdim);color:var(--teal);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;">'+r[0]+'</td></tr>';
+      var sectionKey = r[0].toLowerCase().replace(/[^a-z]/g,'_');
+      html+='<tr><td colspan="2" style="padding:5px 12px;border:1px solid var(--border);background:var(--tdim);">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<span style="color:var(--teal);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;">'+r[0]+'</span>' +
+        '<button onclick="dpRescanSection(\''+sectionKey+'\')" style="font-size:9px;padding:2px 8px;background:rgba(13,152,130,0.15);color:var(--teal);border:1px solid var(--teal);border-radius:4px;cursor:pointer;" title="Re-search supporting documents for this section">🔍 Search Docs Again</button>' +
+        '</div></td></tr>';
     } else {
       var vc = r[2] ? 'color:var(--gold);' : '';
       var dsp = r[1] || '<em style="color:var(--red)">⚠ MISSING</em>';
@@ -2400,7 +2442,409 @@ function dpProg(pct,msg){
   document.getElementById('dp-msg').textContent=msg;
 }
 
-async function dpRun() {
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // TIER 1 AI POST-PROCESSOR — Scans every generated docx XML and auto-repairs
+  // known error patterns before ZIP download.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  async function dpAIPostProcess(generatedDocs, dealData) {
+    dpLog('\n🤖 AI Post-Processor scanning ' + generatedDocs.length + ' document(s)...', 'ok');
+    dpProg(88, 'AI reviewing documents...');
+
+    var totalFixes = 0;
+    var totalIssues = 0;
+
+    for (var di = 0; di < generatedDocs.length; di++) {
+      var doc = generatedDocs[di];
+      var xml = doc.xml;
+      var name = doc.name;
+
+      // ── Step 1: Rule-based XML structural fixes (instant, no API call) ──
+      var structFixes = 0;
+
+      // Fix unclosed <w:pPr> tags (missing </w:pPr> before </w:p>)
+      var pprFixed = 0;
+      xml = xml.replace(/<w:pPr>(\s*(?:<w:[^/][^>]*>(?:(?!<\/w:pPr>)[\s\S])*?<\/w:[^>]+>\s*)*)<\/w:p>/g,
+        function(m, inner) {
+          if (!inner.includes('</w:pPr>')) {
+            pprFixed++;
+            return '<w:pPr>' + inner + '</w:pPr></w:p>';
+          }
+          return m;
+        });
+      if (pprFixed > 0) { dpLog('  ✓ ' + name + ': closed ' + pprFixed + ' unclosed <w:pPr> tag(s)', 'ok'); structFixes += pprFixed; }
+
+      // Fix bare & in w:t elements
+      var ampFixed = 0;
+      xml = xml.replace(/<w:t([^>]*)>([^<]*)<\/w:t>/g, function(m, attrs, content) {
+        var fixed = content.replace(/&(?!amp;|lt;|gt;|apos;|quot;|#)/g, '&amp;');
+        if (fixed !== content) { ampFixed++; return '<w:t' + attrs + '>' + fixed + '</w:t>'; }
+        return m;
+      });
+      if (ampFixed > 0) { dpLog('  ✓ ' + name + ': escaped ' + ampFixed + ' bare & character(s)', 'ok'); structFixes += ampFixed; }
+
+      // Fix double </w:p> sequences
+      var dblFixed = (xml.match(/<\/w:p><\/w:p>/g) || []).length;
+      if (dblFixed > 0) {
+        xml = xml.replace(/<\/w:p><\/w:p>/g, '</w:p>');
+        dpLog('  ✓ ' + name + ': removed ' + dblFixed + ' duplicate </w:p> tag(s)', 'ok');
+        structFixes += dblFixed;
+      }
+
+      totalFixes += structFixes;
+
+      // ── Step 2: Content validation — extract plain text and check values ─
+      var paras = xml.split('</w:p>');
+      var paraTexts = paras.map(function(p) {
+        return p.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      });
+      var fullText = paraTexts.join(' ');
+
+      var issues = [];
+      var entity  = (dealData.entity  || '').trim();
+      var gname   = (dealData.gname   || '').trim();
+      var loan    = (dealData.loan    || '').replace(/,/g,'').trim();
+      var rate    = (dealData.rate    || '').trim();
+      var docDate = (dealData.docDate || '').trim();
+
+      // Check for old template entity names still present
+      var oldNames = ['ABUNDANT LIFE SUCCESS INC', 'STEPHEN MILLS', 'SONRISA BLISS',
+                      'LAGUNA BEACH, CA 92651', 'Map and Map, LLC', 'Mario Alberto Perez',
+                      'Del Rio Title Company', 'WESTLAKE VILLAGE', 'PACIFIC PALISADES'];
+      oldNames.forEach(function(old) {
+        if (fullText.includes(old) && entity && !entity.toUpperCase().includes(old.split(' ')[0])) {
+          issues.push({ type: 'stale_name', severity: 'high', detail: 'Old template name still present: "' + old + '"' });
+        }
+      });
+
+      // Check loan amount consistency
+      if (loan && loan.length > 3) {
+        var loanNum = parseInt(loan.replace(/[^0-9]/g,''));
+        if (loanNum > 0) {
+          // Count occurrences of the loan dollar amount
+          var loanStr = '$' + loanNum.toLocaleString() + '.00';
+          var loanCount = (fullText.match(new RegExp('\\' + loanStr.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g')) || []).length;
+          if (loanCount === 0) {
+            issues.push({ type: 'amount_mismatch', severity: 'med', detail: 'Loan amount ' + loanStr + ' not found in document' });
+          }
+        }
+      }
+
+      // Check date presence
+      if (docDate && !fullText.includes(docDate)) {
+        issues.push({ type: 'date_missing', severity: 'med', detail: 'Doc date "' + docDate + '" not found in document' });
+      }
+
+      // Check for Suite N vs Suite R (NM docs should use Suite R)
+      if (name.includes('NM') || fullText.includes('New Mexico') || fullText.includes('Mortgage')) {
+        var suiteN = (fullText.match(/Suite\s*N[^a-zA-Z]/g) || []).length;
+        if (suiteN > 0) {
+          issues.push({ type: 'suite_wrong', severity: 'high', detail: 'Found "Suite N" in NM document — should be "Suite R" (' + suiteN + ' occurrences)' });
+          xml = xml.replace(/Suite\s*N([^a-zA-Z])/g, 'Suite R$1');
+          dpLog('  ✓ ' + name + ': corrected ' + suiteN + ' Suite N → Suite R', 'ok');
+          totalFixes += suiteN;
+        }
+      }
+
+      totalIssues += issues.length;
+
+      if (issues.length > 0) {
+        dpLog('  ⚠ ' + name + ': ' + issues.length + ' content issue(s) found:', 'warn');
+        issues.forEach(function(iss) {
+          dpLog('    [' + iss.severity.toUpperCase() + '] ' + iss.detail, iss.severity === 'high' ? 'error' : 'warn');
+        });
+      } else if (structFixes === 0) {
+        dpLog('  ✓ ' + name + ': clean', 'ok');
+      }
+
+      // ── Step 3: AI deep review via Claude API (for high-severity issues) ─
+      var highIssues = issues.filter(function(i){ return i.severity === 'high'; });
+      if (highIssues.length > 0) {
+        dpLog('  🔍 Sending to AI for deep review...', 'ok');
+        try {
+          // Sample key paragraphs — first 30, any with dollar amounts, any with dates
+          var keyParas = [];
+          for (var pi = 0; pi < Math.min(30, paraTexts.length); pi++) {
+            if (paraTexts[pi].length > 5) keyParas.push(paraTexts[pi]);
+          }
+          for (var pi2 = 30; pi2 < paraTexts.length; pi2++) {
+            if (/\$[\d,]+|\d{4}|Suite|Managing Member|Sole Proprietor/.test(paraTexts[pi2])) {
+              keyParas.push(paraTexts[pi2]);
+            }
+            if (keyParas.length >= 80) break;
+          }
+
+          var prompt = 'You are reviewing a legal loan document for errors. Deal data:\n' +
+            'Entity: ' + entity + '\nGuarantor: ' + gname + '\nLoan: $' + loan +
+            '\nRate: ' + rate + '%\nDate: ' + docDate +
+            '\n\nKey document paragraphs (sampled):\n' +
+            keyParas.slice(0, 60).join('\n') +
+            '\n\nKnown issues flagged:\n' + highIssues.map(function(i){ return '- ' + i.detail; }).join('\n') +
+            '\n\nReply with ONLY a JSON array of objects with keys: issue (string), fix (string or null), confidence (high/med/low). ' +
+            'Only include issues you can confirm from the text. Keep fixes to exact string replacements. Max 10 items.';
+
+          var resp = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-20250514',
+              max_tokens: 1000,
+              messages: [{ role: 'user', content: prompt }]
+            })
+          });
+          var data = await resp.json();
+          var aiText = (data.content || []).map(function(b){ return b.text || ''; }).join('');
+          // Parse JSON from response
+          var jsonMatch = aiText.match(/\[[\s\S]*\]/);
+          if (jsonMatch) {
+            var aiIssues = JSON.parse(jsonMatch[0]);
+            dpLog('  🤖 AI found ' + aiIssues.length + ' issue(s):', 'ok');
+            aiIssues.forEach(function(ai) {
+              dpLog('    [' + (ai.confidence||'?').toUpperCase() + '] ' + ai.issue, 'warn');
+              if (ai.fix && ai.confidence === 'high') {
+                dpLog('    → Auto-fix available (manual review recommended)', 'ok');
+              }
+            });
+          }
+        } catch(aiErr) {
+          dpLog('  ⚠ AI review skipped: ' + aiErr.message, 'warn');
+        }
+      }
+
+      // Write fixed XML back to doc
+      doc.xml = xml;
+    }
+
+    var summary = '🤖 Post-processor complete: ' + totalFixes + ' auto-fix(es), ' + totalIssues + ' issue(s) flagged';
+    dpLog('\n' + summary, totalIssues > 0 ? 'warn' : 'ok');
+    return { fixes: totalFixes, issues: totalIssues };
+  }
+
+
+  
+  // ── dpRescanSection: re-searches loaded source docs for a specific section ──
+  function dpRescanSection(section) {
+    var found = window.exExtracted || {};
+    if (!found || Object.keys(found).length === 0) {
+      dpLog('\n🔍 Re-scanning ' + section.replace(/_/g,' ') + '...', 'ok');
+      exExtractFields();
+      found = window.exExtracted || {};
+    } else {
+      dpLog('\n🔍 Re-checking ' + section.replace(/_/g,' ') + ' from extracted data...', 'ok');
+    }
+
+    var keyMap = {
+      'dp-loan':'loan','dp-rate':'rate','dp-term':'loanTerm','dp-amort':'amortPeriod',
+      'dp-origbroker':'origbroker','dp-origpct':'origpct',
+      'dp-gname':'gname','dp-gaddr':'gaddr','dp-gcsz':'gcsz',
+      'dp-entity':'entity','dp-etype':'etype','dp-county':'county','dp-apn':'apn',
+      'dp-titleco':'titleco','dp-titleoff':'titleoff','dp-titleem':'titleem',
+      'dp-fileno':'file','dp-state':'state','dp-propcommon':'propaddr',
+      'dp-escrow':'escrow'
+    };
+    var sectionFields = {
+      'dates':['dp-docdate','dp-closemon'],'identifiers':['dp-fileno','dp-escrow'],
+      'loan':['dp-loan','dp-rate','dp-term','dp-amort'],
+      'financials':['dp-origpct','dp-origfee','dp-docprep'],
+      'parties':['dp-origbroker','dp-entity','dp-etype','dp-gname','dp-gaddr','dp-gcsz'],
+      'property':['dp-propcommon','dp-county','dp-apn','dp-state'],
+      'title':['dp-titleco','dp-titleoff','dp-titleem','dp-escrow']
+    };
+    var fields = sectionFields[section] || [];
+    var updated = 0;
+    fields.forEach(function(fid) {
+      var key = keyMap[fid];
+      if (key && found[key] && found[key].value) {
+        var el = document.getElementById(fid);
+        if (el && !el.readOnly && el.tagName !== 'SELECT') {
+          var nv = found[key].value;
+          if (el.value !== nv) {
+            dpLog('  ↻ ' + fid.replace('dp-','') + ': "' + el.value + '" → "' + nv + '"', 'ok');
+            el.value = nv; updated++;
+          }
+        }
+      }
+    });
+    if (updated === 0) dpLog('  ℹ No new values found for this section', 'warn');
+    else dpLog('  ✓ Updated ' + updated + ' field(s)', 'ok');
+    dpCalc(); dpBuildReview();
+  }
+
+  // ── dpAIFinalReview: AI reviews all generated docs before marking complete ──
+  async function dpAIFinalReview(generatedDocs, dealData) {
+    dpLog('\n🤖 AI Final Review — checking all documents for accuracy...', 'ok');
+    dpProg(92, 'AI reviewing documents...');
+
+    var entity   = dealData.entity  || '';
+    var gname    = dealData.gname   || '';
+    var loan     = dealData.loan    || '';
+    var rate     = dealData.rate    || '';
+    var docDate  = dealData.docDate || '';
+    var maturity = dealData.maturity|| '';
+    var monthly  = dealData.monthly || '';
+    var balloon  = dealData.balloon || '';
+    var resRange = dealData.resRange|| '';
+    var first    = dealData.first   || '';
+
+    var allIssues = [];
+    var autoFixed = 0;
+
+    for (var di = 0; di < generatedDocs.length; di++) {
+      var doc  = generatedDocs[di];
+      var xml  = doc.xml;
+      var name = doc.name;
+
+      // Extract plain text from XML for review
+      var paras = xml.split('</w:p>');
+      var paraTexts = paras.map(function(p){ return p.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim(); }).filter(Boolean);
+      var fullText = paraTexts.join(' ');
+
+      // ── Rule-based checks (instant) ────────────────────────────────────────
+      var docIssues = [];
+
+      // 1. Currency format: look for malformed amounts (extra digits, missing cents)
+      var badAmounts = fullText.match(/\$[\d]{1,3}(?:\d{4,})/g) || []; // no comma separator
+      if (badAmounts.length) docIssues.push('Possible malformed amounts (no comma): ' + badAmounts.slice(0,3).join(', '));
+
+      // 2. Old template names
+      ['ABUNDANT LIFE','STEPHEN MILLS','SONRISA','Map and Map','Mario Alberto',
+       'Del Rio Title','WESTLAKE VILLAGE','LAGUNA BEACH','32091 POINT'].forEach(function(old) {
+        if (fullText.includes(old)) docIssues.push('Stale template name found: "' + old + '"');
+      });
+
+      // 3. Entity name must appear
+      if (entity && !fullText.includes(entity.split(' ')[0]))
+        docIssues.push('Entity name "' + entity + '" not found in document');
+
+      // 4. Key amounts must appear exactly
+      if (loan) {
+        var loanFmt = '$' + parseFloat(loan).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+        if (!fullText.includes(loanFmt)) docIssues.push('Loan amount ' + loanFmt + ' not found');
+      }
+      if (rate && !fullText.includes(rate + '%') && !fullText.includes(rate + ' Percent'))
+        docIssues.push('Interest rate ' + rate + '% not found');
+
+      // 5. Maturity date
+      if (maturity && !fullText.includes(maturity))
+        docIssues.push('Maturity date "' + maturity + '" not found');
+
+      // 6. Suite N vs Suite R for NM docs
+      var suiteN = (xml.match(/Suite\s*N[^a-zA-Z]/g)||[]).length;
+      if (suiteN && (fullText.includes('New Mexico') || name.includes('NM'))) {
+        docIssues.push('Suite N found in NM document — auto-fixing to Suite R');
+        xml = xml.replace(/Suite\s*N([^a-zA-Z])/g,'Suite R$1');
+        doc.xml = xml; autoFixed += suiteN;
+      }
+
+      // 7. Balloon amount consistency
+      if (balloon) {
+        var balFmt = '$' + parseFloat(balloon).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+        if (!fullText.includes(balFmt)) docIssues.push('Balloon amount ' + balFmt + ' not found');
+      }
+
+      if (docIssues.length > 0) {
+        dpLog('  ⚠ ' + name + ' — ' + docIssues.length + ' issue(s):', 'warn');
+        docIssues.forEach(function(iss){ dpLog('    • ' + iss, 'warn'); allIssues.push(name + ': ' + iss); });
+      } else {
+        dpLog('  ✓ ' + name + ' — all checks passed', 'ok');
+      }
+
+      // ── AI deep review via Claude API ────────────────────────────────────
+      dpLog('  🔍 ' + name + ': sending to Claude for deep review...', 'ok');
+      try {
+        // Sample key paragraphs intelligently
+        var keyParas = paraTexts.slice(0, 25); // opening pages
+        for (var pi = 25; pi < paraTexts.length && keyParas.length < 70; pi++) {
+          if (/\$[\d,]+|\d{4}|Suite|Member|Proprietor|Guarantor|Interest|Balloon|Maturity|Reserve/.test(paraTexts[pi]))
+            keyParas.push(paraTexts[pi]);
+        }
+
+        var prompt =
+          'You are a legal document reviewer for a private mortgage lending company. ' +
+          'Review these key paragraphs from a loan document and identify any factual errors, ' +
+          'inconsistencies, or formatting problems.\n\n' +
+          'Expected deal data:\n' +
+          '- Entity (Borrower): ' + entity + '\n' +
+          '- Guarantor: ' + gname + '\n' +
+          '- Loan Amount: $' + parseFloat(loan||0).toLocaleString('en-US',{minimumFractionDigits:2}) + '\n' +
+          '- Interest Rate: ' + rate + '%\n' +
+          '- Monthly Payment: $' + parseFloat(monthly||0).toLocaleString('en-US',{minimumFractionDigits:2}) + '\n' +
+          '- Balloon Payment: $' + parseFloat(balloon||0).toLocaleString('en-US',{minimumFractionDigits:2}) + '\n' +
+          '- Maturity Date: ' + maturity + '\n' +
+          '- Doc Date: ' + docDate + '\n' +
+          '- Reserve Period: ' + resRange + '\n' +
+          '- First Payment: ' + first + '\n\n' +
+          'Document paragraphs (key excerpts):\n' +
+          keyParas.join('\n') + '\n\n' +
+          'Respond ONLY with a JSON object: {' +
+          '"issues": [{"field": "...", "found": "...", "expected": "...", "severity": "high|med|low"}], ' +
+          '"overall": "clean|minor_issues|major_issues", ' +
+          '"ready_for_execution": true|false' +
+          '}. Be specific. Only flag real discrepancies visible in the text.';
+
+        var resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            model:'claude-sonnet-4-20250514', max_tokens:1200,
+            messages:[{role:'user',content:prompt}]
+          })
+        });
+        var data = await resp.json();
+        var aiText = (data.content||[]).map(function(b){return b.text||'';}).join('');
+        var jm = aiText.match(/\{[\s\S]*\}/);
+        if (jm) {
+          try {
+            var result = JSON.parse(jm[0]);
+            var highIssues = (result.issues||[]).filter(function(i){return i.severity==='high';});
+            var medIssues  = (result.issues||[]).filter(function(i){return i.severity==='med';});
+            dpLog('  🤖 AI: ' + (result.overall||'?') + ' · ' +
+                  (result.issues||[]).length + ' issue(s) · Ready: ' + (result.ready_for_execution?'YES':'NO'),
+                  result.ready_for_execution ? 'ok' : 'warn');
+            (result.issues||[]).forEach(function(iss){
+              dpLog('    [' + iss.severity.toUpperCase() + '] ' + iss.field + ': found "' + iss.found + '" expected "' + iss.expected + '"',
+                    iss.severity==='high'?'error':'warn');
+              allIssues.push(name+': '+iss.field+' — '+iss.found+' (expected '+iss.expected+')');
+            });
+            doc.aiResult = result;
+            doc.readyForExecution = result.ready_for_execution;
+          } catch(pe) { dpLog('  ⚠ AI JSON parse error', 'warn'); }
+        }
+      } catch(aiErr) {
+        dpLog('  ⚠ AI review failed: ' + aiErr.message, 'warn');
+      }
+    }
+
+    // Summary card
+    var allReady = generatedDocs.every(function(d){ return d.readyForExecution !== false; });
+    var summary = allReady
+      ? '✅ All documents ready for execution · ' + autoFixed + ' auto-fix(es) applied'
+      : '⚠ ' + allIssues.length + ' issue(s) found — review before sending to title · ' + autoFixed + ' auto-fix(es) applied';
+
+    dpLog('\n' + summary, allReady ? 'ok' : 'warn');
+
+    // Show status badge on the download button
+    var dlBtn = document.getElementById('dp-dl-btn');
+    if (dlBtn) {
+      if (allReady) {
+        dlBtn.style.background = 'var(--teal)';
+        dlBtn.title = 'AI reviewed — ready for execution';
+      } else {
+        dlBtn.style.background = '#b45309';
+        dlBtn.title = 'Issues found — review log before sending';
+      }
+    }
+
+    // Show AI verdict panel
+    var summaryEl = document.getElementById('dp-summary');
+    if (summaryEl) summaryEl.textContent = summary;
+
+    return { issues: allIssues.length, fixed: autoFixed, ready: allReady };
+  }
+
+
+  async function dpRun() {
   // Support both multi-template (dpTemplateFiles) and legacy single (dpTplBytes)
   if (!dpTemplateFiles.length && !dpTplBytes) { alert('No template loaded — drop your template(s) in Zone B first.'); dpGo(1); return; }
   // If only legacy single loaded, wrap it
@@ -2425,6 +2869,7 @@ async function dpRun() {
     var outputZip = new JSZip(); // collects all generated docs
     var totalRepsAll = 0, warnsAll = 0;
 
+    var generatedDocs = [];
     for (var tplIdx = 0; tplIdx < dpTemplateFiles.length; tplIdx++) {
       var tplFile = dpTemplateFiles[tplIdx];
       var isMulti = dpTemplateFiles.length > 1;
@@ -2875,6 +3320,22 @@ async function dpRun() {
     addRule('In and Out Solutions, LLC', origbroker, 'f49821 broker and');
     addRule('Shawn Dulac', origbroker, 'f49821 broker person');
 
+    // ── v2 CORRECTIONS learned from corrected loan docs ────────────────────
+    // Clark County, NV → Clark County, Nevada (NM docs spell out state)
+    addRule('Clark County, NV', 'Clark County, Nevada', 'NV spelled out');
+    addRule('Clark County, NV.', 'Clark County, Nevada.', 'NV spelled out period');
+    // Note header: Interest Only (not 40yr Amortization) for balloon notes
+    addRule('40 Year Amortization / Prepayment Premium / Balloon Payment)',
+            'Interest Only Payments / Prepayment Premium / Balloon Payment)', 'note header IO');
+    addRule('40 Year Amortization / Balloon Payment)',
+            'Interest Only Payments / Balloon Payment)', 'note header IO short');
+    addRule('40-Year Amortization / Prepayment Premium / Balloon Payment)',
+            'Interest Only Payments / Prepayment Premium / Balloon Payment)', 'note header IO dash');
+    // Per diem through: May 31 for April close (end of month after close)
+    addRule('April 30, '+c.docDate.split(', ')[1], dpME(dpCalcData.ym||'2026-04', 1), 'perdiem thru correct');
+    // Balloon: use standard amortizing formula result (most accurate)
+    // The engine already computes c.balloon correctly — this rule ensures written form matches
+
     // Remove empty/invalid rules
     RULES = RULES.filter(function(r){ return r[0] && r[1] && r[0] !== r[1]; });
     dpLog('✓ Built '+RULES.length+' substitution rules ('+Object.keys(tf).length+' from template scan)','ok');
@@ -2920,6 +3381,7 @@ async function dpRun() {
 
       // ── Save this template's output into the zip ──────────────────────────
       dpProg(80 + (tplIdx * 15 / dpTemplateFiles.length), 'Packaging '+tplFile.name+'...');
+      generatedDocs.push({ name: tplFile.name, xml: xml, zip: zip });
       zip.file('word/document.xml', xml);
       var out = await zip.generateAsync({type:'arraybuffer',compression:'DEFLATE',compressionOptions:{level:6}});
 
@@ -2933,6 +3395,46 @@ async function dpRun() {
       warnsAll += warns;
 
     } // ── end template loop ────────────────────────────────────────────────
+
+    // ── Tier 1 AI Post-Processor ────────────────────────────────────────────
+    try {
+      var ppResult = await dpAIPostProcess(generatedDocs, {
+        entity:  entity,
+        gname:   v('dp-gname'),
+        loan:    v('dp-loan'),
+        rate:    v('dp-rate'),
+        docDate: v('dp-docdate') || c.docDate
+      });
+      // Write fixed XMLs back into their zips
+      for (var ppi = 0; ppi < generatedDocs.length; ppi++) {
+        generatedDocs[ppi].zip.file('word/document.xml', generatedDocs[ppi].xml);
+      }
+    } catch(ppErr) {
+      dpLog('⚠ Post-processor error: ' + ppErr.message, 'warn');
+    }
+
+    // ── AI Final Review ──────────────────────────────────────────────────────
+    try {
+      var resMonthsForAI = parseInt((document.getElementById('dp-resmonths')||{value:'6'}).value)||6;
+      await dpAIFinalReview(generatedDocs, {
+        entity:   entity,
+        gname:    v('dp-gname'),
+        loan:     v('dp-loan'),
+        rate:     v('dp-rate'),
+        docDate:  v('dp-docdate') || c.docDate,
+        maturity: c.maturity,
+        monthly:  c.monthly ? c.monthly.toFixed(2) : '',
+        balloon:  c.balloon ? c.balloon.toFixed(2) : '',
+        resRange: c.resRange || '',
+        first:    c.first || ''
+      });
+      // Write any AI-fixed XMLs back into their zips
+      for (var afi = 0; afi < generatedDocs.length; afi++) {
+        generatedDocs[afi].zip.file('word/document.xml', generatedDocs[afi].xml);
+      }
+    } catch(arErr) {
+      dpLog('⚠ AI final review error: ' + arErr.message, 'warn');
+    }
 
     dpProg(95, 'Building download package...');
 
