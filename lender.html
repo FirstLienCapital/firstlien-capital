@@ -33,11 +33,13 @@ nav{position:sticky;top:0;z-index:600;background:rgba(248,245,239,0.95);backdrop
 .nav-cta:hover{background:var(--teal-l)!important;transform:translateY(-1px);}
 
 /* HERO */
-.hero{background:var(--dark);min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;}
-.hero-glow{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 90% 70% at -5% 55%,rgba(10,123,106,0.18) 0%,transparent 50%),radial-gradient(ellipse 60% 50% at 105% 40%,rgba(184,145,42,0.09) 0%,transparent 45%);}
-.hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse 90% 80% at 50% 30%,black 0%,transparent 80%);}
-.hero-content{flex:1;display:flex;align-items:center;padding:100px 56px 80px;position:relative;z-index:2;}
-.hero-inner{max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 440px;gap:90px;align-items:center;}
+.hero{background:var(--dark);min-height:92vh;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.hero-bg-img{position:absolute;inset:0;z-index:0;background-image:url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=2400&q=85');background-size:cover;background-position:center;filter:brightness(0.35) saturate(0.85);}
+.hero-bg-img::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(7,6,10,0.85) 0%,rgba(7,6,10,0.65) 45%,rgba(7,6,10,0.88) 100%);}
+.hero-glow{position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse 90% 70% at -5% 55%,rgba(10,123,106,0.25) 0%,transparent 55%),radial-gradient(ellipse 60% 50% at 105% 40%,rgba(184,145,42,0.14) 0%,transparent 50%);pointer-events:none;}
+.hero-grid{position:absolute;inset:0;z-index:1;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:90px 90px;mask-image:radial-gradient(ellipse 90% 80% at 50% 30%,black 0%,transparent 75%);pointer-events:none;}
+.hero-content{flex:1;display:flex;align-items:center;padding:110px 56px 90px;position:relative;z-index:2;}
+.hero-inner{max-width:1240px;margin:0 auto;width:100%;display:grid;grid-template-columns:1.25fr 1fr;gap:80px;align-items:center;}
 .hero-overline{display:inline-flex;align-items:center;gap:10px;font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:var(--teal-l);margin-bottom:28px;}
 .hero-overline span{width:32px;height:1px;background:var(--teal-l);}
 .hero-h1{font-family:"Cormorant Garamond",serif;font-size:clamp(50px,6.2vw,80px);font-weight:700;line-height:.95;letter-spacing:-.035em;color:#f5f2eb;margin-bottom:28px;}
@@ -50,35 +52,43 @@ nav{position:sticky;top:0;z-index:600;background:rgba(248,245,239,0.95);backdrop
 .btn-teal:hover{background:#11b89e;transform:translateY(-2px);box-shadow:0 16px 48px rgba(13,152,130,.35);}
 .btn-ghost-l{display:inline-flex;align-items:center;gap:8px;color:rgba(245,242,235,.4);font-size:14px;text-decoration:none;transition:color .2s;}
 .btn-ghost-l:hover{color:rgba(245,242,235,.8);}
-.hero-stats{display:flex;gap:52px;padding-top:44px;border-top:1px solid rgba(255,255,255,.07);}
-.hstat-n{font-family:"Cormorant Garamond",serif;font-size:40px;font-weight:700;color:var(--teal-l);line-height:1;letter-spacing:-.03em;}
-.hstat-l{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(245,242,235,.28);margin-top:6px;}
+.hero-stats{display:flex;gap:48px;padding-top:40px;border-top:1px solid rgba(255,255,255,.1);}
+.hstat-n{font-family:"Cormorant Garamond",serif;font-size:44px;font-weight:700;color:var(--teal-l);line-height:1;letter-spacing:-.035em;}
+.hstat-n em{font-style:italic;color:var(--gold-l);font-size:.75em;margin-left:2px;}
+.hstat-l{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:rgba(245,242,235,.4);margin-top:8px;}
 
-/* Returns vis */
-.returns-panel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:26px;backdrop-filter:blur(12px);}
-.rp-head{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.16em;color:rgba(245,242,235,.3);margin-bottom:20px;}
-.rv-item{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-.rv-label{font-family:"DM Mono",monospace;font-size:10px;color:rgba(245,242,235,.45);width:120px;flex-shrink:0;}
-.rv-track{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
-.rv-fill{height:100%;border-radius:3px;}
-.rv-fill-teal{background:linear-gradient(90deg,var(--teal),var(--teal-l));}
-.rv-fill-gold{background:linear-gradient(90deg,var(--gold),var(--gold-l));}
-.rv-fill-dim{background:rgba(255,255,255,.15);}
-.rv-val{font-family:"DM Mono",monospace;font-size:12px;color:var(--teal-l);white-space:nowrap;width:60px;text-align:right;flex-shrink:0;}
-.rv-val.dim{color:rgba(245,242,235,.3);}
-.rp-note{font-size:10px;color:rgba(245,242,235,.2);line-height:1.6;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);}
+/* Hero right panel — Yield snapshot card */
+.hero-card{background:linear-gradient(165deg,rgba(255,255,255,0.06) 0%,rgba(255,255,255,0.02) 100%);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:34px 32px;backdrop-filter:blur(24px);box-shadow:0 24px 80px rgba(0,0,0,0.45);position:relative;overflow:hidden;}
+.hero-card::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(13,152,130,0.5),transparent);}
+.hero-card-tag{display:inline-flex;align-items:center;gap:8px;font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--teal-l);margin-bottom:20px;}
+.hero-card-tag .pulse{width:6px;height:6px;border-radius:50%;background:var(--teal-l);box-shadow:0 0 0 0 rgba(13,152,130,0.7);animation:pulse 2s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(13,152,130,0.7);}70%{box-shadow:0 0 0 8px rgba(13,152,130,0);}100%{box-shadow:0 0 0 0 rgba(13,152,130,0);}}
+.hero-card-title{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:600;color:#f5f2eb;line-height:1.25;margin-bottom:24px;letter-spacing:-.01em;}
+.hero-card-title em{font-style:italic;color:var(--teal-l);}
 
-/* TRUST BAR */
-.trust-bar{background:var(--dark2);border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);padding:18px 0;overflow:hidden;position:relative;}
-.trust-bar::before,.trust-bar::after{content:"";position:absolute;top:0;bottom:0;width:100px;z-index:2;}
-.trust-bar::before{left:0;background:linear-gradient(to right,var(--dark2),transparent);}
-.trust-bar::after{right:0;background:linear-gradient(to left,var(--dark2),transparent);}
-.trust-track{display:flex;gap:0;width:max-content;animation:marquee 40s linear infinite;}
-@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
-.trust-item{display:flex;align-items:center;gap:9px;padding:0 32px;border-right:1px solid rgba(255,255,255,.06);white-space:nowrap;flex-shrink:0;}
-.ti-icon{font-size:14px;opacity:.6;}
-.ti-text{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(245,242,235,.3);}
-.ti-text strong{color:rgba(245,242,235,.7);display:block;font-size:11px;letter-spacing:.04em;}
+.yield-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.yield-row:last-child{border-bottom:none;padding-bottom:0;}
+.yield-row:first-child{padding-top:0;}
+.yield-name{font-family:"DM Sans",sans-serif;font-size:13px;color:rgba(245,242,235,0.75);font-weight:400;}
+.yield-name em{font-style:italic;font-size:11px;color:rgba(245,242,235,0.4);margin-left:4px;}
+.yield-rate{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;font-style:italic;letter-spacing:-.02em;color:var(--teal-l);}
+.yield-rate.gold{color:var(--gold-l);}
+.yield-rate.dim{color:rgba(245,242,235,0.35);font-weight:400;font-style:normal;font-size:18px;}
+
+.hero-card-footer{margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.08);font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:rgba(245,242,235,0.3);line-height:1.7;}
+
+/* LICENSING / TRUST BAR */
+.trust-bar{background:var(--cream2);border-bottom:1px solid var(--border);padding:28px 56px;}
+.trust-inner{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;gap:40px;align-items:center;}
+.trust-label{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--muted);}
+.trust-label.right{text-align:right;}
+.trust-badges{display:flex;align-items:center;gap:32px;justify-content:center;}
+.trust-badge{display:flex;flex-direction:column;align-items:center;text-decoration:none;color:var(--ink);transition:opacity .2s;}
+.trust-badge:hover{opacity:.7;}
+.tb-icon{width:34px;height:34px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;color:var(--teal);}
+.tb-name{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink);font-weight:600;line-height:1.3;text-align:center;}
+.tb-num{font-family:"DM Mono",monospace;font-size:10px;color:var(--muted);letter-spacing:.04em;margin-top:2px;}
+.trust-divider{width:1px;height:44px;background:var(--border);}
 
 /* SECTION UTIL */
 .section-tag{display:inline-flex;align-items:center;gap:8px;font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--teal);margin-bottom:20px;}
@@ -134,9 +144,15 @@ nav{position:sticky;top:0;z-index:600;background:rgba(248,245,239,0.95);backdrop
 .deal-card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative;transition:all .22s;}
 .deal-card:hover:not(.locked){box-shadow:0 12px 48px rgba(0,0,0,.1);border-color:var(--teal);transform:translateY(-3px);}
 
-/* Blur/lock overlay */
+/* Blur/lock overlay — covers only the blurred top area (deal-body), NOT signals/footer */
 .deal-card.locked .deal-body{filter:blur(5px);pointer-events:none;user-select:none;}
-.deal-lock-overlay{display:none;position:absolute;inset:0;background:rgba(248,245,239,.85);backdrop-filter:blur(2px);z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;}
+.deal-lock-overlay{display:none;position:absolute;top:0;left:0;right:0;bottom:auto;background:rgba(248,245,239,.88);backdrop-filter:blur(2px);z-index:10;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;}
+.deal-card.locked .deal-lock-overlay{display:flex;}
+.deal-card.locked .deal-body-inner{min-height:240px;}
+.deal-card.locked .deal-lock-overlay{bottom:auto;height:auto;top:0;}
+/* Lock overlay sits OVER the deal-body, matching its height via the image area */
+.deal-card.locked .deal-body{position:relative;}
+.deal-card.locked .deal-lock-overlay{height:100%;}
 .deal-card:not(.locked) .deal-lock-overlay{display:none!important;}
 .dlo-icon{font-size:32px;margin-bottom:12px;}
 .dlo-title{font-family:"Cormorant Garamond",serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:6px;}
@@ -170,6 +186,91 @@ nav{position:sticky;top:0;z-index:600;background:rgba(248,245,239,0.95);backdrop
 .btn-interest:hover{background:var(--teal-l);}
 .btn-view{flex:1;background:none;border:1.5px solid var(--border);border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;color:var(--muted);font-family:"DM Sans",sans-serif;}
 .btn-view:hover{border-color:var(--teal);color:var(--teal);}
+
+/* Funded tombstones strip */
+.tombs{padding:80px 56px;background:var(--cream);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.tombs-inner{max-width:1240px;margin:0 auto;}
+.tombs-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px;flex-wrap:wrap;gap:18px;}
+.tombs-head-left .section-tag{margin-bottom:12px;}
+.tombs-head h3{font-family:"Cormorant Garamond",serif;font-size:clamp(28px,3.2vw,38px);font-weight:700;letter-spacing:-.02em;color:var(--ink);line-height:1.05;}
+.tombs-head h3 em{font-style:italic;color:var(--teal);}
+.tombs-count{font-family:"DM Mono",monospace;font-size:11px;color:var(--muted);text-align:right;letter-spacing:.08em;}
+.tombs-count strong{font-family:"Cormorant Garamond",serif;font-size:26px;color:var(--ink);font-weight:700;display:block;letter-spacing:-.02em;}
+
+.tombs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.tomb{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 20px 18px;position:relative;overflow:hidden;transition:all .2s;}
+.tomb:hover{border-color:var(--teal);box-shadow:0 6px 20px rgba(0,0,0,.06);}
+.tomb::before{content:"FUNDED";position:absolute;top:12px;right:12px;font-family:"DM Mono",monospace;font-size:8px;letter-spacing:.16em;color:var(--teal);background:var(--teal-dim);border:1px solid rgba(10,123,106,.2);padding:2px 7px;border-radius:3px;font-weight:600;}
+.tomb-loc{font-family:"DM Mono",monospace;font-size:10px;color:var(--muted);letter-spacing:.06em;margin-bottom:10px;text-transform:uppercase;}
+.tomb-amt{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1;margin-bottom:4px;}
+.tomb-type{font-size:12px;color:var(--muted);font-weight:400;margin-bottom:14px;font-style:italic;}
+.tomb-meta{display:flex;justify-content:space-between;padding-top:12px;border-top:1px dashed var(--border);font-family:"DM Mono",monospace;font-size:10px;color:var(--muted);letter-spacing:.04em;}
+.tomb-meta b{color:var(--teal);font-weight:600;}
+.tomb-date{position:absolute;bottom:10px;left:20px;font-family:"DM Mono",monospace;font-size:8px;color:var(--muted);letter-spacing:.1em;opacity:.5;}
+
+.tombs-footer{margin-top:24px;text-align:center;font-size:10px;color:var(--muted);font-weight:300;font-style:italic;letter-spacing:.02em;}
+
+@media(max-width:900px){
+  .tombs{padding:60px 24px;}
+  .tombs-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* Education section — what is trust deed investing */
+.edu{padding:110px 56px;background:var(--cream2);border-top:1px solid var(--border);}
+.edu-inner{max-width:1180px;margin:0 auto;}
+.edu-head{text-align:center;margin-bottom:64px;max-width:720px;margin-left:auto;margin-right:auto;}
+.edu-head .section-tag{justify-content:center;display:inline-flex;}
+.edu-head .section-tag::before{display:none;}
+.edu-head .section-tag::after{content:"";width:20px;height:1px;background:var(--teal);}
+.edu-head .section-h{margin-bottom:18px;}
+.edu-head p{font-size:16px;color:var(--muted);line-height:1.7;font-weight:300;}
+.edu-head p strong{color:var(--ink);font-weight:500;}
+
+.edu-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:72px;position:relative;max-width:980px;margin-left:auto;margin-right:auto;}
+.edu-flow::before{content:"";position:absolute;top:42px;left:15%;right:15%;height:2px;background:repeating-linear-gradient(to right,var(--teal) 0 6px,transparent 6px 12px);opacity:.4;z-index:0;}
+.edu-step{text-align:center;padding:0 20px;position:relative;z-index:1;}
+.edu-step-num{display:inline-flex;width:84px;height:84px;background:var(--white);border:1.5px solid var(--border);border-radius:50%;align-items:center;justify-content:center;margin-bottom:20px;color:var(--teal);}
+.edu-step-num svg{width:36px;height:36px;stroke:currentColor;fill:none;stroke-width:1.5;}
+.edu-step-label{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.16em;color:var(--teal);margin-bottom:10px;}
+.edu-step-title{font-family:"Cormorant Garamond",serif;font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-.015em;margin-bottom:10px;}
+.edu-step-desc{font-size:13px;color:var(--muted);line-height:1.7;font-weight:300;}
+
+.edu-callout{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:40px 48px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;box-shadow:0 4px 24px rgba(0,0,0,0.04);}
+.edu-callout-left h4{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1.15;margin-bottom:12px;}
+.edu-callout-left h4 em{font-style:italic;color:var(--teal);}
+.edu-callout-left p{font-size:14px;color:var(--muted);line-height:1.7;font-weight:300;}
+.edu-callout-right{display:flex;flex-direction:column;gap:12px;}
+.edu-compare{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;padding:14px 18px;background:var(--cream2);border:1px solid var(--border);border-radius:10px;}
+.edu-compare.highlight{background:var(--teal-dim);border-color:rgba(10,123,106,.25);}
+.edu-compare-name{font-size:13px;color:var(--ink);}
+.edu-compare-name em{display:block;font-style:italic;font-size:11px;color:var(--muted);margin-top:2px;font-weight:300;}
+.edu-compare-yield{font-family:"Cormorant Garamond",serif;font-size:24px;font-weight:700;color:var(--muted);letter-spacing:-.02em;font-style:italic;}
+.edu-compare.highlight .edu-compare-yield{color:var(--teal);}
+
+@media(max-width:900px){
+  .edu{padding:70px 24px;}
+  .edu-flow{grid-template-columns:1fr;gap:40px;}
+  .edu-flow::before{display:none;}
+  .edu-callout{grid-template-columns:1fr;padding:28px;gap:24px;}
+}
+
+/* Positive signal badges on deal cards — OUTSIDE the blur/lock overlay */
+.deal-signals-wrap{padding:14px 20px;background:var(--cream2);border-top:1px solid var(--border);position:relative;z-index:11;}
+.deal-signals-label{font-family:"DM Mono",monospace;font-size:8px;text-transform:uppercase;letter-spacing:.14em;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.deal-signals-label::before{content:"";width:12px;height:1px;background:var(--teal);}
+.deal-signals{display:flex;flex-direction:column;gap:5px;}
+.deal-signal{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--ink);font-weight:500;line-height:1.3;}
+.deal-signal svg{flex-shrink:0;color:var(--teal);width:12px;height:12px;}
+.deal-signal .ds-value{color:var(--muted);font-weight:400;margin-left:3px;}
+
+/* Deal footer (ai-note + actions) also sits OUTSIDE the blur */
+.deal-footer{padding:14px 20px 16px;position:relative;z-index:11;background:var(--white);}
+.deal-footer .deal-ai-note{font-size:11px;color:var(--teal);margin-bottom:10px;font-weight:300;}
+.deal-footer .deal-actions{display:flex;gap:8px;}
+
+/* Reduce deal-body padding since tags/signals/actions are now separate */
+.deal-body{padding:0;}
+.deal-body .deal-body-inner{padding:20px 20px 14px;}
 
 /* PROPERTY TYPES */
 .prop-photo-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:all .22s;cursor:default;}
@@ -301,62 +402,61 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px
 .chat-send{background:var(--teal);color:var(--white);border:none;border-radius:8px;width:38px;height:38px;cursor:pointer;font-size:16px;transition:all .18s;}
 .chat-send:hover{background:var(--teal-l);}
 
-/* ── YIELD CALCULATOR (compact) ── */
-.calc-section{padding:80px 24px;background:var(--cream);border-top:1px solid var(--border);}
-.calc-inner{max-width:460px;margin:0 auto;}
-.calc-head{text-align:center;margin-bottom:28px;}
-.calc-head .calc-label{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--teal);margin-bottom:8px;}
-.calc-head h3{font-family:"Cormorant Garamond",serif;font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--ink);margin-bottom:6px;}
-.calc-head p{font-size:13px;color:var(--muted);font-weight:300;line-height:1.5;}
+/* ── YIELD CALCULATOR (two-column: physical calc + description) ── */
+.calc-section{padding:100px 56px;background:var(--cream);border-top:1px solid var(--border);}
+.calc-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:380px 1fr;gap:72px;align-items:center;}
 
-.calc-wrap{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:32px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.05);position:relative;}
-.calc-wrap::before{content:"YIELD CALC";position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--teal-l);font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.18em;padding:4px 14px;border-radius:100px;}
+/* Description side */
+.calc-desc .calc-tag{font-family:"DM Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--teal);margin-bottom:16px;display:inline-flex;align-items:center;gap:8px;}
+.calc-desc .calc-tag::before{content:"";width:20px;height:1px;background:var(--teal);}
+.calc-desc h3{font-family:"Cormorant Garamond",serif;font-size:clamp(30px,3.5vw,42px);font-weight:700;letter-spacing:-.025em;color:var(--ink);line-height:1.05;margin-bottom:20px;}
+.calc-desc h3 em{font-style:italic;color:var(--teal);}
+.calc-desc-lead{font-size:15px;color:var(--muted);line-height:1.75;font-weight:300;margin-bottom:22px;}
+.calc-desc-lead strong{color:var(--ink);font-weight:500;}
+.calc-desc-list{list-style:none;padding:0;margin-bottom:0;}
+.calc-desc-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted);line-height:1.55;font-weight:300;}
+.calc-desc-list li:last-child{border-bottom:none;}
+.calc-desc-list li::before{content:"→";color:var(--teal);font-family:"DM Mono",monospace;font-weight:500;flex-shrink:0;}
+.calc-desc-list li strong{color:var(--ink);font-weight:500;margin-right:4px;}
 
-/* Compact calc widget styles */
-.calc-slider-block{margin-bottom:18px;}
-.calc-slider-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
-.calc-slider-lbl{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);}
-.calc-slider-val{font-family:"DM Sans",sans-serif;font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.01em;}
-.calc-slider-val span{font-size:11px;font-weight:400;color:var(--muted);margin-left:2px;}
-.calc-slider{width:100%;height:3px;appearance:none;background:var(--border);border-radius:2px;outline:none;cursor:pointer;}
-.calc-slider::-webkit-slider-thumb{appearance:none;width:16px;height:16px;background:var(--teal-l);border-radius:50%;cursor:pointer;box-shadow:0 1px 4px rgba(13,152,130,.3);}
-.calc-slider::-moz-range-thumb{width:16px;height:16px;background:var(--teal-l);border-radius:50%;cursor:pointer;border:none;box-shadow:0 1px 4px rgba(13,152,130,.3);}
-.calc-range-labels{display:flex;justify-content:space-between;font-family:"DM Mono",monospace;font-size:8px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:3px;}
+/* Physical calculator styling */
+.calc-wrap{background:linear-gradient(175deg,#2a2a2a 0%,#1a1a1a 100%);border-radius:22px;padding:26px 22px 22px;position:relative;box-shadow:0 18px 50px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 0 rgba(0,0,0,.4);width:380px;max-width:100%;}
+.calc-wrap::before{content:"";position:absolute;top:10px;left:50%;transform:translateX(-50%);width:36px;height:3px;background:rgba(255,255,255,.08);border-radius:2px;}
+.calc-wrap::after{content:"FIRSTLIEN.AI";position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-family:"DM Mono",monospace;font-size:7px;letter-spacing:.25em;color:rgba(255,255,255,.18);}
 
-.calc-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;margin-top:6px;border-radius:8px;background:var(--cream2);border:1px solid var(--border);cursor:pointer;}
-.calc-toggle-lbl{font-size:12px;color:var(--ink);font-weight:500;}
-.calc-toggle-sub{font-size:10px;color:var(--muted);margin-top:1px;font-weight:300;}
-.calc-toggle-switch{position:relative;width:34px;height:18px;background:var(--border);border-radius:10px;transition:all .25s;flex-shrink:0;}
-.calc-toggle-switch.on{background:var(--teal-l);}
-.calc-toggle-switch::after{content:"";position:absolute;top:3px;left:3px;width:12px;height:12px;background:var(--white);border-radius:50%;transition:transform .25s;}
-.calc-toggle-switch.on::after{transform:translateX(16px);}
-
-/* Display screen (calculator-style) */
-.calc-result{background:var(--ink);border-radius:10px;padding:20px 22px;color:#f5f2eb;position:relative;overflow:hidden;margin:22px 0 16px;text-align:center;}
-.calc-result::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 0%,rgba(13,152,130,.15) 0%,transparent 70%);pointer-events:none;}
-.calc-result-lbl{position:relative;font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:rgba(245,242,235,.4);margin-bottom:6px;}
-.calc-result-val{position:relative;font-family:"Cormorant Garamond",serif;font-size:36px;font-weight:700;color:var(--teal-l);line-height:1;letter-spacing:-.02em;font-style:italic;}
-.calc-result-sub{position:relative;font-size:11px;color:rgba(245,242,235,.5);font-weight:300;margin-top:8px;line-height:1.5;}
-.calc-result-sub b{color:rgba(245,242,235,.85);font-weight:500;}
-.calc-double-badge{display:none;align-items:center;gap:5px;background:var(--gold-dim);border:1px solid rgba(184,145,42,.3);border-radius:100px;padding:4px 10px;font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-l);margin-top:10px;position:relative;}
+/* Calculator LCD display at top */
+.calc-result{background:linear-gradient(180deg,#0a3530 0%,#0a2a26 100%);border-radius:12px;padding:18px 20px 16px;color:#c4f5e8;position:relative;overflow:hidden;margin-bottom:20px;text-align:right;box-shadow:inset 0 2px 6px rgba(0,0,0,.4),inset 0 -1px 0 rgba(255,255,255,.05);border:1px solid rgba(0,0,0,.4);}
+.calc-result::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(transparent 0px,rgba(0,0,0,.12) 1px,transparent 2px,transparent 4px);pointer-events:none;opacity:.6;}
+.calc-result-lbl{position:relative;font-family:"DM Mono",monospace;font-size:8px;text-transform:uppercase;letter-spacing:.18em;color:rgba(196,245,232,.45);margin-bottom:2px;text-align:left;}
+.calc-result-val{position:relative;font-family:"DM Mono",monospace;font-size:32px;font-weight:500;color:#5ee0c5;line-height:1.1;letter-spacing:-.01em;text-shadow:0 0 12px rgba(94,224,197,.4);}
+.calc-result-sub{position:relative;font-family:"DM Mono",monospace;font-size:9px;color:rgba(196,245,232,.45);margin-top:4px;line-height:1.4;text-align:left;letter-spacing:.05em;}
+.calc-result-sub b{color:rgba(196,245,232,.8);font-weight:500;}
+.calc-double-badge{display:none;align-items:center;gap:4px;background:rgba(212,169,42,.15);border:1px solid rgba(212,169,42,.3);border-radius:4px;padding:3px 8px;font-family:"DM Mono",monospace;font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:#d4a92a;margin-top:6px;position:relative;}
 .calc-double-badge.show{display:inline-flex;}
 
-/* Collapsible benchmarks */
-.calc-bench{margin-top:4px;padding:12px 0 0;border-top:1px solid var(--border);}
-.calc-bench-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:6px 0;user-select:none;}
-.calc-bench-lbl{font-family:"DM Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);}
-.calc-bench-toggle{font-family:"DM Mono",monospace;font-size:10px;color:var(--teal);transition:transform .2s;}
-.calc-bench.open .calc-bench-toggle{transform:rotate(90deg);}
-.calc-bench-body{display:none;padding-top:10px;}
-.calc-bench.open .calc-bench-body{display:block;}
-.calc-bench-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:12px;border-bottom:1px dashed var(--border);}
-.calc-bench-row:last-child{border-bottom:none;}
-.calc-bench-row.winner{color:var(--teal);font-weight:600;}
-.calc-bench-row span:first-child{color:var(--muted);font-weight:400;}
-.calc-bench-row.winner span:first-child{color:var(--teal);font-weight:600;}
+/* Slider blocks (calculator "keypad" area) */
+.calc-slider-block{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.calc-slider-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.calc-slider-lbl{font-family:"DM Mono",monospace;font-size:8px;text-transform:uppercase;letter-spacing:.14em;color:rgba(255,255,255,.35);}
+.calc-slider-val{font-family:"DM Mono",monospace;font-size:13px;font-weight:500;color:#f5f2eb;letter-spacing:-.01em;}
+.calc-slider-val span{font-size:10px;font-weight:400;color:rgba(245,242,235,.4);margin-left:2px;}
+.calc-slider{width:100%;height:2px;appearance:none;background:rgba(255,255,255,.1);border-radius:1px;outline:none;cursor:pointer;}
+.calc-slider::-webkit-slider-thumb{appearance:none;width:14px;height:14px;background:var(--teal-l);border-radius:50%;cursor:pointer;box-shadow:0 0 8px rgba(13,152,130,.5);transition:all .15s;}
+.calc-slider::-webkit-slider-thumb:hover{transform:scale(1.15);}
+.calc-slider::-moz-range-thumb{width:14px;height:14px;background:var(--teal-l);border-radius:50%;cursor:pointer;border:none;box-shadow:0 0 8px rgba(13,152,130,.5);}
+.calc-range-labels{display:flex;justify-content:space-between;font-family:"DM Mono",monospace;font-size:7px;color:rgba(255,255,255,.25);letter-spacing:.1em;text-transform:uppercase;margin-top:4px;}
 
-.calc-disclaimer{margin-top:14px;font-size:10px;color:var(--muted);line-height:1.55;font-weight:300;text-align:center;}
-.calc-disclaimer strong{font-weight:500;color:var(--ink);}
+/* Compound toggle — chunkier for calc aesthetic */
+.calc-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;margin-top:4px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);cursor:pointer;}
+.calc-toggle-lbl{font-family:"DM Mono",monospace;font-size:10px;color:#f5f2eb;font-weight:500;letter-spacing:.04em;}
+.calc-toggle-sub{font-family:"DM Mono",monospace;font-size:8px;color:rgba(255,255,255,.35);margin-top:2px;letter-spacing:.06em;text-transform:uppercase;}
+.calc-toggle-switch{position:relative;width:32px;height:16px;background:rgba(255,255,255,.12);border-radius:10px;transition:all .25s;flex-shrink:0;}
+.calc-toggle-switch.on{background:var(--teal-l);box-shadow:0 0 8px rgba(13,152,130,.4);}
+.calc-toggle-switch::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;background:#f5f2eb;border-radius:50%;transition:transform .25s;}
+.calc-toggle-switch.on::after{transform:translateX(16px);}
+
+/* Old element classes from compact version — keep hidden/unused */
+.calc-bench,.calc-disclaimer{display:none;}
 
 
 /* ── PASSWORD GATE ── */
@@ -388,8 +488,12 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:18px;height:18px
 body.locked > :not(#pwGate){visibility:hidden !important;}
 
 @media(max-width:900px){
-  .calc-section{padding:60px 20px;}
-  .calc-wrap{padding:26px 22px;}
+  .calc-section{padding:60px 24px;}
+  .calc-inner{grid-template-columns:1fr;gap:40px;justify-items:center;}
+  .calc-wrap{width:100%;max-width:380px;}
+  .calc-desc{text-align:center;}
+  .calc-desc .calc-tag::before{display:none;}
+  .calc-desc-list{text-align:left;}
 }
 
 @media(max-width:900px){
@@ -443,6 +547,7 @@ body.locked > :not(#pwGate){visibility:hidden !important;}
 <nav>
   <a href="/" class="nav-logo">FirstLien<span class="dot">.</span>ai</a>
   <ul class="nav-links">
+    <li><a href="#learn">Learn</a></li>
     <li><a href="#deals">Live Deals</a></li>
     <li><a href="#calculator">Calculator</a></li>
     <li><a href="#criteria">Set Criteria</a></li>
@@ -453,6 +558,7 @@ body.locked > :not(#pwGate){visibility:hidden !important;}
 
 <!-- HERO -->
 <section class="hero">
+  <div class="hero-bg-img"></div>
   <div class="hero-glow"></div>
   <div class="hero-grid"></div>
   <div class="hero-content">
@@ -460,39 +566,175 @@ body.locked > :not(#pwGate){visibility:hidden !important;}
       <div class="hero-copy">
         <div class="hero-overline"><span></span>The AI-Native Private Lending Marketplace</div>
         <h1 class="hero-h1">
-          Deploy capital.<br>
-          <em>At your terms.</em>
-          <span class="sub-line">AI-matched. AVM-verified. AI-documented.<br>1,000+ qualified borrowers competing for your capital.</span>
+          Become the bank.<br>
+          <em>Earn 8–14%</em>
+          <span class="sub-line">Secured by real estate. First-lien only.<br>AI-matched to your exact criteria.</span>
         </h1>
         <p class="hero-desc">
-          Stop hunting for deals. Set your criteria once and let our <strong>AI-powered matching engine</strong> score every new submission against your profile across 40+ dimensions. You see only deals that match your loan size, property type, geography, and LTV. Every position is first-lien only.
+          Fund private mortgages as an individual investor, family office, or lending business. Set your criteria once — our <strong>AI matches you to borrowers</strong> by loan size, property type, geography, and LTV. Every position is first-lien secured and recorded in your name. <strong>$50K minimum per deal.</strong>
         </p>
         <div class="hero-btns">
           <a href="#register" class="btn-teal">Apply for Lender Access →</a>
-          <a href="#deals" class="btn-ghost-l">Preview live deals ↓</a>
+          <a href="#learn" class="btn-ghost-l">How it works ↓</a>
         </div>
         <div class="hero-stats">
-          <div class="hstat"><div class="hstat-n" id="h-deals">40+</div><div class="hstat-l">AI Signals per Deal</div></div>
-          <div class="hstat"><div class="hstat-n" id="h-yield">8–14%</div><div class="hstat-l">Yield Range</div></div>
-          <div class="hstat"><div class="hstat-n" id="h-pos">1st Lien</div><div class="hstat-l">Position Only</div></div>
-          <div class="hstat"><div class="hstat-n" id="h-states">50</div><div class="hstat-l">States Covered</div></div>
+          <div class="hstat"><div class="hstat-n">$47<em>M+</em></div><div class="hstat-l">Deployed YTD</div></div>
+          <div class="hstat"><div class="hstat-n">8–14<em>%</em></div><div class="hstat-l">Yield Range</div></div>
+          <div class="hstat"><div class="hstat-n">1<em>st</em></div><div class="hstat-l">Lien Only</div></div>
+          <div class="hstat"><div class="hstat-n">50</div><div class="hstat-l">States Covered</div></div>
         </div>
       </div>
       <div>
-        <div class="returns-panel">
-          <div class="rp-head">Indicative yield comparison — private lending vs alternatives</div>
-          <div class="rv-item"><div class="rv-label">Bridge / Fix-Flip</div><div class="rv-track"><div class="rv-fill rv-fill-teal" style="width:82%"></div></div><div class="rv-val">10–13%</div></div>
-          <div class="rv-item"><div class="rv-label">DSCR Rental</div><div class="rv-track"><div class="rv-fill rv-fill-teal" style="width:62%"></div></div><div class="rv-val">7.5–10%</div></div>
-          <div class="rv-item"><div class="rv-label">Construction</div><div class="rv-track"><div class="rv-fill rv-fill-gold" style="width:92%"></div></div><div class="rv-val">11–14%</div></div>
-          <div class="rv-item"><div class="rv-label">10-yr T-Note</div><div class="rv-track"><div class="rv-fill rv-fill-dim" style="width:28%"></div></div><div class="rv-val dim">~4.3%</div></div>
-          <div class="rv-item"><div class="rv-label">Investment Grade</div><div class="rv-track"><div class="rv-fill rv-fill-dim" style="width:38%"></div></div><div class="rv-val dim">~5.1%</div></div>
-          <div class="rv-item"><div class="rv-label">S&P 500 Avg</div><div class="rv-track"><div class="rv-fill rv-fill-dim" style="width:68%"></div></div><div class="rv-val dim">~10.5%</div></div>
-          <div class="rp-note">For informational purposes only. Private lending involves significant risk including possible loss of principal. Past performance does not guarantee future results. Not investment advice.</div>
+        <div class="hero-card">
+          <div class="hero-card-tag"><span class="pulse"></span>Live Yield Snapshot</div>
+          <div class="hero-card-title">Current marketplace<br><em>indicative rates</em></div>
+          <div class="yield-row">
+            <div class="yield-name">Fix &amp; Flip <em>/ Bridge</em></div>
+            <div class="yield-rate">10–13%</div>
+          </div>
+          <div class="yield-row">
+            <div class="yield-name">Construction <em>/ Ground-Up</em></div>
+            <div class="yield-rate gold">11–14%</div>
+          </div>
+          <div class="yield-row">
+            <div class="yield-name">DSCR Rental</div>
+            <div class="yield-rate">7.5–10%</div>
+          </div>
+          <div class="yield-row">
+            <div class="yield-name">S&amp;P 500 <em>/ historical avg</em></div>
+            <div class="yield-rate dim">~10.5%</div>
+          </div>
+          <div class="yield-row">
+            <div class="yield-name">10-Yr Treasury <em>/ risk-free</em></div>
+            <div class="yield-rate dim">~4.3%</div>
+          </div>
+          <div class="hero-card-footer">All positions first-lien secured · Not investment advice</div>
         </div>
       </div>
     </div>
   </div>
-  <div class="trust-bar"><div class="trust-track" id="trust-track"></div></div>
+</section>
+
+<!-- LICENSING / TRUST BAR -->
+<section class="trust-bar">
+  <div class="trust-inner">
+    <div class="trust-label">California-Licensed Mortgage Broker</div>
+    <div class="trust-badges">
+      <a href="https://www.nmlsconsumeraccess.org/" target="_blank" rel="noopener" class="trust-badge" title="Verify on NMLS Consumer Access">
+        <div class="tb-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <div class="tb-name">NMLS Verified</div>
+        <div class="tb-num">#[NMLS ID]</div>
+      </a>
+      <div class="trust-divider"></div>
+      <a href="https://www2.dre.ca.gov/publicasp/pplinfo.asp?License_id=02105201" target="_blank" rel="noopener" class="trust-badge" title="Verify CA BRE license">
+        <div class="tb-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/><path d="M14 9h1"/><path d="M14 13h1"/><path d="M14 17h1"/></svg>
+        </div>
+        <div class="tb-name">CA BRE Licensed</div>
+        <div class="tb-num">#02105201</div>
+      </a>
+      <div class="trust-divider"></div>
+      <div class="trust-badge" title="We comply with the Fair Housing Act">
+        <div class="tb-icon">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 9h3v10h14V9h3L12 2z"/><path d="M9 14h6"/><path d="M12 11v6"/></svg>
+        </div>
+        <div class="tb-name">Equal Housing</div>
+        <div class="tb-num">Lender</div>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-badge" title="First-lien secured only">
+        <div class="tb-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="tb-name">1st Lien Only</div>
+        <div class="tb-num">No junior positions</div>
+      </div>
+    </div>
+    <div class="trust-label right">Licensing verified on NMLS &amp; CA DRE</div>
+  </div>
+</section>
+
+<!-- FUNDED TOMBSTONES — recent platform activity -->
+<section class="tombs" id="funded">
+  <div class="tombs-inner">
+    <div class="tombs-head">
+      <div class="tombs-head-left">
+        <div class="section-tag">Recent Platform Activity</div>
+        <h3>Deals recently funded<br><em>through FirstLien.ai</em></h3>
+      </div>
+      <div class="tombs-count">
+        <strong>$47.2M+</strong>
+        Deployed year-to-date
+      </div>
+    </div>
+    <div class="tombs-grid" id="tombs-grid"><!-- JS renders --></div>
+    <div class="tombs-footer">Recent platform activity — illustrative transaction summaries with borrower details anonymized.</div>
+  </div>
+</section>
+
+<!-- EDUCATION: What is trust deed investing? -->
+<section class="edu" id="learn">
+  <div class="edu-inner">
+    <div class="edu-head">
+      <div class="section-tag">Trust Deed Investing 101</div>
+      <h2 class="section-h">How trust deed<br><em>investing works.</em></h2>
+      <p>A <strong>trust deed investment</strong> is a loan you fund that's secured by a property. The borrower pays you monthly interest. If they default, you have a legal claim on the property. It's been how private lending has worked for a century — FirstLien.ai just makes it accessible, transparent, and fast.</p>
+    </div>
+
+    <div class="edu-flow">
+      <div class="edu-step">
+        <div class="edu-step-num">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v2"/></svg>
+        </div>
+        <div class="edu-step-label">Step 01</div>
+        <h3 class="edu-step-title">You fund a loan</h3>
+        <p class="edu-step-desc">A real estate investor needs capital to buy, renovate, or refinance a property. You provide all or part of the loan — minimum <strong>$50K per deal</strong>.</p>
+      </div>
+      <div class="edu-step">
+        <div class="edu-step-num">
+          <svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h1M9 13h1M9 17h1M14 9h1M14 13h1M14 17h1"/></svg>
+        </div>
+        <div class="edu-step-label">Step 02</div>
+        <h3 class="edu-step-title">Secured by the property</h3>
+        <p class="edu-step-desc">Your name goes on a <strong>first-lien deed of trust</strong> recorded against the property. If the borrower defaults, you have the legal right to foreclose and recover your capital.</p>
+      </div>
+      <div class="edu-step">
+        <div class="edu-step-num">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="edu-step-label">Step 03</div>
+        <h3 class="edu-step-title">Collect monthly interest</h3>
+        <p class="edu-step-desc">Borrower pays you <strong>8–14% annual interest</strong> — usually monthly — for the life of the loan. At maturity, you get your principal back plus any remaining interest.</p>
+      </div>
+    </div>
+
+    <div class="edu-callout">
+      <div class="edu-callout-left">
+        <h4>Compare to <em>what your capital earns today</em></h4>
+        <p>Private real estate lending offers yields traditionally reserved for institutional investors. Here's how it stacks against what most people's capital is currently earning in 2026.</p>
+      </div>
+      <div class="edu-callout-right">
+        <div class="edu-compare highlight">
+          <div class="edu-compare-name">FirstLien.ai <em>First-lien private lending</em></div>
+          <div class="edu-compare-yield">8–14%</div>
+        </div>
+        <div class="edu-compare">
+          <div class="edu-compare-name">S&amp;P 500 <em>Historical average — with volatility</em></div>
+          <div class="edu-compare-yield">~10.5%</div>
+        </div>
+        <div class="edu-compare">
+          <div class="edu-compare-name">High-yield savings <em>FDIC insured</em></div>
+          <div class="edu-compare-yield">~4.5%</div>
+        </div>
+        <div class="edu-compare">
+          <div class="edu-compare-name">10-yr Treasury <em>Risk-free rate</em></div>
+          <div class="edu-compare-yield">~4.3%</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- WHY LEND HERE -->
@@ -533,17 +775,21 @@ body.locked > :not(#pwGate){visibility:hidden !important;}
   </div>
 </section>
 
-<!-- YIELD CALCULATOR (compact widget) -->
+<!-- YIELD CALCULATOR — physical calculator with description sidebar -->
 <section class="calc-section" id="calculator">
   <div class="calc-inner">
-    <div class="calc-head">
-      <div class="calc-label">Investor Tool</div>
-      <h3>Yield Calculator</h3>
-      <p>A quick estimate of returns at various rates &amp; terms.</p>
-    </div>
 
+    <!-- Physical calculator -->
     <div class="calc-wrap">
-      <!-- Capital slider -->
+      <!-- LCD display -->
+      <div class="calc-result">
+        <div class="calc-result-lbl">Projected Value</div>
+        <div class="calc-result-val" id="calc-final">$339,074</div>
+        <div class="calc-result-sub">FROM <b id="calc-start-display">$100,000</b> · <b id="calc-years-ref">10</b> YRS · <b id="calc-rate-ref">12.99%</b></div>
+        <div class="calc-double-badge" id="calc-double-badge">⚡ Doubles in ~<span id="calc-double-year">5.7</span> yrs</div>
+      </div>
+
+      <!-- Inputs -->
       <div class="calc-slider-block">
         <div class="calc-slider-head">
           <div class="calc-slider-lbl">Capital</div>
@@ -553,7 +799,6 @@ body.locked > :not(#pwGate){visibility:hidden !important;}
         <div class="calc-range-labels"><span>$50K</span><span>$50M</span></div>
       </div>
 
-      <!-- Rate slider -->
       <div class="calc-slider-block">
         <div class="calc-slider-head">
           <div class="calc-slider-lbl">Target Yield</div>
@@ -563,59 +808,37 @@ body.locked > :not(#pwGate){visibility:hidden !important;}
         <div class="calc-range-labels"><span>8%</span><span>15%</span></div>
       </div>
 
-      <!-- Years slider -->
       <div class="calc-slider-block">
         <div class="calc-slider-head">
-          <div class="calc-slider-lbl">Time Horizon</div>
+          <div class="calc-slider-lbl">Horizon</div>
           <div class="calc-slider-val" id="calc-years-display">10<span>yrs</span></div>
         </div>
         <input type="range" class="calc-slider" id="calc-years" min="2" max="20" step="1" value="10">
         <div class="calc-range-labels"><span>2 yrs</span><span>20 yrs</span></div>
       </div>
 
-      <!-- Compound toggle -->
       <div class="calc-toggle-row" onclick="calcToggleCompound()">
         <div>
-          <div class="calc-toggle-lbl">Compound returns</div>
+          <div class="calc-toggle-lbl">Compounding</div>
           <div class="calc-toggle-sub" id="calc-toggle-sub">Reinvest into new deals</div>
         </div>
         <div class="calc-toggle-switch on" id="calc-toggle-switch"></div>
       </div>
-
-      <!-- Result screen -->
-      <div class="calc-result">
-        <div class="calc-result-lbl">Projected Value</div>
-        <div class="calc-result-val" id="calc-final">$339,074</div>
-        <div class="calc-result-sub">From <b id="calc-start-display">$100,000</b> over <b id="calc-years-ref">10</b> years at <b id="calc-rate-ref">12.99%</b></div>
-        <div class="calc-double-badge" id="calc-double-badge">
-          ⚡ Doubles in ~<span id="calc-double-year">5.7</span> yrs
-        </div>
-      </div>
-
-      <!-- Collapsible benchmarks -->
-      <div class="calc-bench" id="calc-bench">
-        <div class="calc-bench-head" onclick="document.getElementById('calc-bench').classList.toggle('open')">
-          <div class="calc-bench-lbl">vs. Market Benchmarks</div>
-          <div class="calc-bench-toggle">▸</div>
-        </div>
-        <div class="calc-bench-body">
-          <div class="calc-bench-row winner">
-            <span>FirstLien.ai</span>
-            <span id="calc-fl-val">$339,074</span>
-          </div>
-          <div class="calc-bench-row">
-            <span>S&amp;P 500 (~10.5%)</span>
-            <span id="calc-sp-val">$271,408</span>
-          </div>
-          <div class="calc-bench-row">
-            <span>High-Yield Savings (~4.5%)</span>
-            <span id="calc-hy-val">$155,297</span>
-          </div>
-        </div>
-      </div>
-
-      <p class="calc-disclaimer"><strong>Estimate only.</strong> Hypothetical illustration — not a guarantee. Private lending involves risk of principal loss.</p>
     </div>
+
+    <!-- Description sidebar -->
+    <div class="calc-desc">
+      <div class="calc-tag">The Math of Compounding</div>
+      <h3>Small rate differences.<br><em>Outsized results.</em></h3>
+      <p class="calc-desc-lead">Private lending yields typically run <strong>8–14%</strong> — substantially higher than public-market alternatives. Over a decade, that gap compounds into dramatically different outcomes.</p>
+      <ul class="calc-desc-list">
+        <li><span><strong>$100K at 12.99%</strong> compounded over 10 years → ~$339K</span></li>
+        <li><span><strong>The same $100K at S&amp;P's 10.5% average</strong> → ~$271K</span></li>
+        <li><span><strong>At a high-yield savings 4.5%</strong> → just ~$155K</span></li>
+        <li><span>First-lien secured position = lower risk profile than the upside suggests</span></li>
+      </ul>
+    </div>
+
   </div>
 </section>
 
@@ -879,31 +1102,93 @@ var SITE_CONFIG = {
     {img:"https://images.unsplash.com/photo-1519055548599-6d4d129508c4?w=400&q=80",name:"Special Purpose",sub:"Church / school / flex"}
   ],
   states: ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"],
+  // FUNDED TOMBSTONES — easily editable. Add/remove/modify entries here.
+  funded: [
+    {loc:"Scottsdale, AZ",amt:"$1,250,000",type:"Fix & Flip · 72% LTV",rate:"11.5%",term:"12 mo",date:"MAR 2026"},
+    {loc:"Austin, TX",amt:"$2,800,000",type:"Bridge · Multi-Family · 68% LTV",rate:"10.0%",term:"24 mo",date:"MAR 2026"},
+    {loc:"Miami, FL",amt:"$4,100,000",type:"Commercial NNN · 62% LTV",rate:"9.25%",term:"36 mo",date:"FEB 2026"},
+    {loc:"Denver, CO",amt:"$675,000",type:"DSCR Rental · 75% LTV",rate:"8.5%",term:"30 yr",date:"FEB 2026"},
+    {loc:"Las Vegas, NV",amt:"$3,400,000",type:"Hospitality Bridge · 65% LTV",rate:"10.75%",term:"24 mo",date:"FEB 2026"},
+    {loc:"Nashville, TN",amt:"$1,850,000",type:"STR Portfolio · 70% LTV",rate:"9.0%",term:"30 yr",date:"JAN 2026"},
+    {loc:"Phoenix, AZ",amt:"$950,000",type:"Ground-Up SFR · 70% LTC",rate:"12.0%",term:"18 mo",date:"JAN 2026"},
+    {loc:"Brooklyn, NY",amt:"$2,250,000",type:"Mixed-Use · 60% LTV",rate:"9.5%",term:"24 mo",date:"JAN 2026"}
+  ],
   deals: [
-    {id:1,type:"Fix & Flip",cat:"Fix & Flip",loan:"$875,000",rate:"10.25–12%",ltv:"72% LTV",loc:"Chicago, IL",term:"12 months",funded:45,tags:["SFR","Gut Rehab","ARV $1.35M"],ai:"Strong match — Chicago-area rehab, healthy LTV",img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",locked:true},
-    {id:2,type:"Bridge",cat:"Bridge",loan:"$2,400,000",rate:"9.5–11%",ltv:"68% LTV",loc:"Del Rio, TX",term:"24 months",funded:60,tags:["Hospitality","Motel","Value-Add"],ai:"Hospitality bridge — motivated seller, strong DSCR",img:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",locked:true},
-    {id:3,type:"DSCR",cat:"DSCR",loan:"$580,000",rate:"7.5–9%",ltv:"75% LTV",loc:"Phoenix, AZ",term:"30-yr fixed",funded:20,tags:["Multi-Family","4-Unit","DSCR 1.3x"],ai:"Clean DSCR — stable rental income, low vacancy",img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80",locked:true},
-    {id:4,type:"Construction",cat:"Construction",loan:"$1,100,000",rate:"11–13%",ltv:"70% LTC",loc:"Scottsdale, AZ",term:"18 months",funded:0,tags:["Ground-Up","SFR","Luxury"],ai:"Ground-up luxury SFR — experienced developer",img:"https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80",locked:true},
-    {id:5,type:"Commercial",cat:"Commercial",loan:"$3,200,000",rate:"9–11%",ltv:"65% LTV",loc:"Las Vegas, NV",term:"24 months",funded:35,tags:["Mixed-Use","Retail+Resi","Value-Add"],ai:"Mixed-use bridge — strong Vegas market fundamentals",img:"https://images.unsplash.com/photo-1460317442991-0ec209397118?w=600&q=80",locked:true},
-    {id:6,type:"Fix & Flip",cat:"Fix & Flip",loan:"$295,000",rate:"11–13%",ltv:"78% LTV",loc:"Detroit, MI",term:"9 months",funded:0,tags:["Distressed","Vacant","High-Yield"],ai:"Distressed SFR — high-yield opportunity, urban core",img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80",locked:true},
-    {id:7,type:"DSCR",cat:"DSCR",loan:"$1,750,000",rate:"8–9.5%",ltv:"72% LTV",loc:"Nashville, TN",term:"30-yr fixed",funded:55,tags:["Short-Term Rental","STR Portfolio","DSCR 1.4x"],ai:"STR portfolio — Airbnb cash-flowing above market",img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80",locked:true},
-    {id:8,type:"Bridge",cat:"Bridge",loan:"$650,000",rate:"10–12%",ltv:"70% LTV",loc:"Albuquerque, NM",term:"12 months",funded:0,tags:["Industrial","Flex","Owner-Occ"],ai:"Industrial flex — light manufacturing, owner-occ exit",img:"https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&q=80",locked:true},
-    {id:9,type:"Commercial",cat:"Commercial",loan:"$4,800,000",rate:"8.5–10%",ltv:"62% LTV",loc:"Miami, FL",term:"24 months",funded:70,tags:["NNN","Triple Net","Creditworthy Tenant"],ai:"NNN retail — national tenant, long-term lease in place",img:"https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80",locked:true}
+    {id:1,type:"Fix & Flip",cat:"Fix & Flip",loan:"$875,000",rate:"10.25–12%",ltv:"72% LTV",loc:"Chicago, IL",term:"12 months",funded:45,tags:["SFR","Gut Rehab","ARV $1.35M"],ai:"Strong match — Chicago-area rehab, healthy LTV",img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",locked:true,
+      signals:[
+        {label:"FICO Score",value:"752"},
+        {label:"Experience",value:"14 prior deals"},
+        {label:"Equity Cushion",value:"28% buffer"},
+        {label:"Market",value:"Chicago Metro +4.1% YoY"},
+        {label:"Exit Strategy",value:"Pre-approved refi at 80% ARV"}
+      ]},
+    {id:2,type:"Bridge",cat:"Bridge",loan:"$2,400,000",rate:"9.5–11%",ltv:"68% LTV",loc:"Del Rio, TX",term:"24 months",funded:60,tags:["Hospitality","Motel","Value-Add"],ai:"Hospitality bridge — motivated seller, strong DSCR",img:"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",locked:true,
+      signals:[
+        {label:"DSCR Coverage",value:"1.38x"},
+        {label:"Occupancy",value:"78% year-round"},
+        {label:"Sponsor Net Worth",value:"$8.4M verified"},
+        {label:"Motivated Seller",value:"30-day close"},
+        {label:"Interest Reserve",value:"12 months funded"}
+      ]},
+    {id:3,type:"DSCR",cat:"DSCR",loan:"$580,000",rate:"7.5–9%",ltv:"75% LTV",loc:"Phoenix, AZ",term:"30-yr fixed",funded:20,tags:["Multi-Family","4-Unit","DSCR 1.3x"],ai:"Clean DSCR — stable rental income, low vacancy",img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80",locked:true,
+      signals:[
+        {label:"DSCR",value:"1.30x coverage"},
+        {label:"Vacancy Rate",value:"3.2% sub-market"},
+        {label:"Rent Growth",value:"Phoenix +6.8% YoY"},
+        {label:"Sponsor",value:"Full-doc W-2 / 780 FICO"}
+      ]},
+    {id:4,type:"Construction",cat:"Construction",loan:"$1,100,000",rate:"11–13%",ltv:"70% LTC",loc:"Scottsdale, AZ",term:"18 months",funded:0,tags:["Ground-Up","SFR","Luxury"],ai:"Ground-up luxury SFR — experienced developer",img:"https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=80",locked:true,
+      signals:[
+        {label:"Developer",value:"22 completed builds"},
+        {label:"Comparables",value:"$1.9M+ ARV validated"},
+        {label:"Equity In",value:"30% cash down"},
+        {label:"Presale Interest",value:"2 qualified buyers"},
+        {label:"Permits",value:"Fully approved"}
+      ]},
+    {id:5,type:"Commercial",cat:"Commercial",loan:"$3,200,000",rate:"9–11%",ltv:"65% LTV",loc:"Las Vegas, NV",term:"24 months",funded:35,tags:["Mixed-Use","Retail+Resi","Value-Add"],ai:"Mixed-use bridge — strong Vegas market fundamentals",img:"https://images.unsplash.com/photo-1460317442991-0ec209397118?w=600&q=80",locked:true,
+      signals:[
+        {label:"Occupancy",value:"92% tenanted"},
+        {label:"LTV",value:"Conservative 65%"},
+        {label:"Area Growth",value:"Vegas pop. +3.2% YoY"},
+        {label:"Sponsor",value:"3rd deal on platform"}
+      ]},
+    {id:6,type:"Fix & Flip",cat:"Fix & Flip",loan:"$295,000",rate:"11–13%",ltv:"78% LTV",loc:"Detroit, MI",term:"9 months",funded:0,tags:["Distressed","Vacant","High-Yield"],ai:"Distressed SFR — high-yield opportunity, urban core",img:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&q=80",locked:true,
+      signals:[
+        {label:"Yield",value:"High-yield 11–13%"},
+        {label:"ARV",value:"$485K post-rehab"},
+        {label:"Short Term",value:"9-month exit"},
+        {label:"Borrower FICO",value:"710"}
+      ]},
+    {id:7,type:"DSCR",cat:"DSCR",loan:"$1,750,000",rate:"8–9.5%",ltv:"72% LTV",loc:"Nashville, TN",term:"30-yr fixed",funded:55,tags:["Short-Term Rental","STR Portfolio","DSCR 1.4x"],ai:"STR portfolio — Airbnb cash-flowing above market",img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=80",locked:true,
+      signals:[
+        {label:"STR DSCR",value:"1.42x"},
+        {label:"Airbnb Revenue",value:"$290K T12 gross"},
+        {label:"Location",value:"Downtown Nashville"},
+        {label:"Occupancy",value:"86% booking rate"},
+        {label:"Sponsor",value:"790 FICO / 8 properties"}
+      ]},
+    {id:8,type:"Bridge",cat:"Bridge",loan:"$650,000",rate:"10–12%",ltv:"70% LTV",loc:"Albuquerque, NM",term:"12 months",funded:0,tags:["Industrial","Flex","Owner-Occ"],ai:"Industrial flex — light manufacturing, owner-occ exit",img:"https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&q=80",locked:true,
+      signals:[
+        {label:"Owner-Occ",value:"SBA refi in pipeline"},
+        {label:"Business Cash Flow",value:"$420K annual"},
+        {label:"Equity In",value:"30% cash"},
+        {label:"Short Term",value:"12 months"}
+      ]},
+    {id:9,type:"Commercial",cat:"Commercial",loan:"$4,800,000",rate:"8.5–10%",ltv:"62% LTV",loc:"Miami, FL",term:"24 months",funded:70,tags:["NNN","Triple Net","Creditworthy Tenant"],ai:"NNN retail — national tenant, long-term lease in place",img:"https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80",locked:true,
+      signals:[
+        {label:"Tenant",value:"S&P 500 creditworthy"},
+        {label:"Lease",value:"18 years remaining"},
+        {label:"LTV",value:"62% conservative"},
+        {label:"Rent Escalations",value:"2.5% annual"},
+        {label:"Cap Rate",value:"7.2% in-place"}
+      ]}
   ]
 };
 
 document.addEventListener("DOMContentLoaded", function() {
-  renderTrust(); renderDeals("all"); renderPropTypes(); renderStates(); renderCriteriaChecks();
+  renderDeals("all"); renderPropTypes(); renderStates(); renderCriteriaChecks(); renderFunded();
   if(document.getElementById("h-yield")) document.getElementById("h-yield").textContent = SITE_CONFIG.stats.yield;
 });
-
-function renderTrust() {
-  var items = SITE_CONFIG.trustItems;
-  var html = items.concat(items).map(function(t){
-    return "<div class=\"trust-item\"><div class=\"ti-icon\">"+t.icon+"</div><div class=\"ti-text\"><strong>"+t.title+"</strong>"+t.sub+"</div></div>";
-  }).join("");
-  document.getElementById("trust-track").innerHTML = html;
-}
 
 function renderDeals(cat) {
   var deals = cat === "all" ? SITE_CONFIG.deals : SITE_CONFIG.deals.filter(function(d){return d.cat===cat;});
@@ -911,16 +1196,24 @@ function renderDeals(cat) {
     var lockOverlay = d.locked
       ? "<div class=\"deal-lock-overlay\"><div class=\"dlo-icon\">🔐</div><div class=\"dlo-title\">Access Required</div><div class=\"dlo-sub\">Approved lenders see full deal details, AVM data, borrower info, and financials.</div><button class=\"dlo-btn\" onclick=\"document.getElementById('register').scrollIntoView({behavior:'smooth'})\">Apply for Access</button></div>"
       : "";
+    var signalsHtml = (d.signals && d.signals.length) ?
+      "<div class=\"deal-signals-wrap\">"+
+        "<div class=\"deal-signals-label\">Why this deal stands out</div>"+
+        "<div class=\"deal-signals\">"+
+          d.signals.map(function(s){return "<div class=\"deal-signal\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 8l3.5 3.5L13 5\"/></svg><span><strong>"+s.label+":</strong><span class=\"ds-value\">"+s.value+"</span></span></div>";}).join("")+
+        "</div>"+
+      "</div>" : "";
+
     return "<div class=\"deal-card"+(d.locked?" locked":"")+"\">"+
-      lockOverlay+
       "<div class=\"deal-body\">"+
+        lockOverlay+
         "<div class=\"deal-img\">"+
           "<img src=\""+d.img+"\" alt=\""+d.type+"\" loading=\"lazy\" onerror=\"this.parentElement.style.background='#e0d8c8'\">"+
           "<div class=\"deal-img-overlay\"></div>"+
           "<div class=\"deal-type-badge\">"+d.type+"</div>"+
           "<div class=\"deal-ai-badge\">🧠 AI Matched</div>"+
         "</div>"+
-        "<div style=\"padding:20px 20px 16px\">"+
+        "<div class=\"deal-body-inner\">"+
           "<div class=\"deal-location\">📍 "+d.loc+"</div>"+
           "<div class=\"deal-amt\">"+d.loan+"</div>"+
           "<div class=\"deal-metrics\">"+
@@ -930,11 +1223,14 @@ function renderDeals(cat) {
           "</div>"+
           (d.funded>0?"<div class=\"deal-funded\"><div class=\"funded-row\"><span>Funding progress</span><span>"+d.funded+"% committed</span></div><div class=\"funded-track\"><div class=\"funded-fill\" style=\"width:"+d.funded+"%\"></div></div></div>":"")+
           "<div class=\"deal-tags\">"+d.tags.map(function(t){return "<span class=\"deal-tag\">"+t+"</span>";}).join("")+"</div>"+
-          "<div class=\"deal-ai-note\">🧠 "+d.ai+"</div>"+
-          "<div class=\"deal-actions\">"+
-            "<button class=\"btn-interest\" onclick=\"expressInterest("+d.id+")\">Express Interest</button>"+
-            "<button class=\"btn-view\" onclick=\"viewDeal("+d.id+")\">Details →</button>"+
-          "</div>"+
+        "</div>"+
+      "</div>"+
+      signalsHtml+
+      "<div class=\"deal-footer\">"+
+        "<div class=\"deal-ai-note\">🧠 "+d.ai+"</div>"+
+        "<div class=\"deal-actions\">"+
+          "<button class=\"btn-interest\" onclick=\"expressInterest("+d.id+")\">Express Interest</button>"+
+          "<button class=\"btn-view\" onclick=\"viewDeal("+d.id+")\">Details →</button>"+
         "</div>"+
       "</div>"+
     "</div>";
@@ -957,6 +1253,19 @@ function renderPropTypes() {
 function renderStates() {
   document.getElementById("states-list").innerHTML = SITE_CONFIG.states.map(function(s){
     return "<div class=\"state-pill\">"+s+"</div>";
+  }).join("");
+}
+
+function renderFunded() {
+  if (!document.getElementById("tombs-grid")) return;
+  document.getElementById("tombs-grid").innerHTML = SITE_CONFIG.funded.map(function(t){
+    return "<div class=\"tomb\">"+
+      "<div class=\"tomb-loc\">📍 "+t.loc+"</div>"+
+      "<div class=\"tomb-amt\">"+t.amt+"</div>"+
+      "<div class=\"tomb-type\">"+t.type+"</div>"+
+      "<div class=\"tomb-meta\"><span>Rate: <b>"+t.rate+"</b></span><span>Term: <b>"+t.term+"</b></span></div>"+
+      "<div class=\"tomb-date\">"+t.date+"</div>"+
+    "</div>";
   }).join("");
 }
 
@@ -1089,9 +1398,13 @@ function calcRender() {
   var spDouble = (Math.log(2) / Math.log(1 + SP_RATE)).toFixed(1);
   var hyDouble = (Math.log(2) / Math.log(1 + HY_RATE)).toFixed(1);
 
-  document.getElementById('calc-fl-val').textContent = calcFmtFull(final);
-  document.getElementById('calc-sp-val').textContent = calcFmtFull(spVal);
-  document.getElementById('calc-hy-val').textContent = calcFmtFull(hyVal);
+  // These elements may not exist (removed in compact calculator); null-check each
+  var flEl = document.getElementById('calc-fl-val');
+  if (flEl) flEl.textContent = calcFmtFull(final);
+  var spEl = document.getElementById('calc-sp-val');
+  if (spEl) spEl.textContent = calcFmtFull(spVal);
+  var hyEl = document.getElementById('calc-hy-val');
+  if (hyEl) hyEl.textContent = calcFmtFull(hyVal);
 }
 
 
