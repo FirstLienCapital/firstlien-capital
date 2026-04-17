@@ -133,9 +133,9 @@
 
   <div class="banner info">
     <strong>How it works.</strong>
-    (1) Upload your state loan template (.docx with <code>{{placeholders}}</code>).
+    (1) Upload your state loan template(s) — main doc, security addendum, guaranty, whatever you need (<code>.docx</code> with <code>{{placeholders}}</code>).
     (2) Click <em>Copy extraction prompt</em>, paste it into a new <a href="https://claude.ai" target="_blank" style="color:#fff; text-decoration:underline;">claude.ai</a> chat with your deal PDFs attached.
-    (3) Paste the JSON Claude returns → review → generate. No API key, no cost — uses your existing Claude subscription.
+    (3) Paste the JSON Claude returns → review → generate. Each template downloads as a separate filled <code>.docx</code>. No API key, no cost — uses your existing Claude subscription.
   </div>
 
   <!-- ========================= SECTION 01: TEMPLATE UPLOAD ========================= -->
@@ -147,9 +147,9 @@
     </div>
     <div class="section-body">
       <div class="field col-8">
-        <label>Loan document template (.docx) <span class="tag">state + individual/corporate</span></label>
-        <input type="file" id="templateFile" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
-        <div class="helper">Must contain <code>{{placeholder}}</code> tokens. Upload NC_Individual_TEMPLATE, AZ_Corporate, etc.</div>
+        <label>Loan document template(s) (.docx) <span class="tag">main doc + addendum, etc.</span></label>
+        <input type="file" id="templateFile" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple />
+        <div class="helper">Must contain <code>{{placeholder}}</code> tokens. Drag one template OR multiple (main doc + security addendum + guaranty). Old <code>.doc</code> files aren't supported — open in Word and <em>Save As → Word Document (.docx)</em> first.</div>
       </div>
       <div class="field col-4">
         <label>State <span class="tag">for date / legal logic</span></label>
@@ -341,9 +341,8 @@ function balloonAmount(loan, pct, years, termMonths) {
 // STATE
 // =============================================================================
 const state = {
-  templateBuf: null,        // ArrayBuffer of uploaded .docx
-  templateName: '',         // filename
-  placeholders: [],         // array of unique placeholder names discovered in template
+  templates: [],            // array of { name, buf, placeholders } — one per uploaded template
+  placeholders: [],         // union of placeholders across all templates
   templateState: '',        // 'NC', 'AZ', etc.
   extractedData: {},        // universal deal data from Claude extraction
   extractionWarnings: [],
@@ -463,67 +462,105 @@ const FIELD_ALIASES = {
 };
 
 // =============================================================================
-// TEMPLATE PARSING — scan uploaded .docx for {{placeholders}}
+// TEMPLATE PARSING — scan uploaded .docx files for {{placeholders}}
+// Supports multiple templates (e.g., main loan doc + security addendum + guaranty)
 // =============================================================================
-async function handleTemplateUpload(file) {
+async function handleTemplatesUpload(fileList) {
   const status = document.getElementById('templateStatus');
   status.className = 'template-status';
-  status.textContent = 'Loading template…';
 
-  try {
-    const ab = await file.arrayBuffer();
-    const zip = new PizZip(ab);
+  const files = Array.from(fileList || []);
+  if (files.length === 0) return;
 
-    // Pull document.xml and footer XMLs, concat text, find placeholders
-    const files = zip.files;
-    let combinedXml = '';
-    Object.keys(files).forEach(name => {
-      if (name.startsWith('word/') && name.endsWith('.xml')) {
-        try { combinedXml += zip.file(name).asText() + '\n'; } catch {}
-      }
-    });
-
-    // Strip XML tags and find {{...}} tokens
-    // Since we already pre-processed the NC template to merge split placeholders,
-    // placeholders in our templates should be intact within single text runs.
-    // But in case they're split across tags, we strip all XML first.
-    const plainish = combinedXml.replace(/<[^>]+>/g, '');
-    const matches = [...plainish.matchAll(/\{\{([^}]+?)\}\}/g)];
-    const names = [...new Set(matches.map(m => m[1].trim()))];
-
-    if (names.length === 0) {
-      status.className = 'template-status';
-      status.innerHTML = '<strong style="color:var(--danger);">No {{placeholders}} found.</strong> The template must contain tokens like <code>{{borrower_name}}</code>. Upload the placeholder-converted .docx, not a raw template.';
-      state.templateBuf = null;
-      return;
-    }
-
-    // Detect state from filename if not set
-    if (!state.templateState) {
-      const nameLower = file.name.toLowerCase();
-      const stateMatch = nameLower.match(/\b(nc|az|tx|nv|ny|mi|ca)\b/i);
-      if (stateMatch) {
-        state.templateState = stateMatch[1].toUpperCase();
-        document.getElementById('templateState').value = state.templateState;
-      }
-    }
-
-    state.templateBuf = ab;
-    state.templateName = file.name;
-    state.placeholders = names;
-
-    status.className = 'template-status loaded';
-    status.innerHTML = `<strong>✓ Loaded: ${escapeHtml(file.name)}</strong><span class="placeholder-count">${names.length} placeholders</span>`;
-
-    // Show section 02 and render the dynamic form
-    document.getElementById('importPanel').style.display = '';
-    document.getElementById('dynamicForm').style.display = '';
-    document.getElementById('actionsBar').style.display = '';
-    renderDynamicForm();
-  } catch (err) {
-    status.className = 'template-status';
-    status.innerHTML = '<strong style="color:var(--danger);">Failed to read template:</strong> ' + escapeHtml(err.message);
+  // Check for legacy .doc files
+  const docFiles = files.filter(f => /\.doc$/i.test(f.name) && !/\.docx$/i.test(f.name));
+  if (docFiles.length > 0) {
+    status.innerHTML = '<strong style="color:var(--danger);">Legacy <code>.doc</code> files aren\'t supported:</strong> ' +
+      docFiles.map(f => escapeHtml(f.name)).join(', ') +
+      '. Open the file in Word and choose <em>File → Save As → Word Document (.docx)</em>, then re-upload.';
+    return;
   }
+
+  // Filter to .docx only (defense in depth — accept attribute should handle this)
+  const docxFiles = files.filter(f => /\.docx$/i.test(f.name));
+  if (docxFiles.length === 0) {
+    status.innerHTML = '<strong style="color:var(--danger);">No .docx files selected.</strong> Please choose one or more <code>.docx</code> template files.';
+    return;
+  }
+
+  status.textContent = 'Loading ' + docxFiles.length + ' template' + (docxFiles.length === 1 ? '' : 's') + '…';
+
+  const loaded = [];
+  const unionSet = new Set();
+  const errors = [];
+
+  for (const file of docxFiles) {
+    try {
+      const ab = await file.arrayBuffer();
+      const zip = new PizZip(ab);
+
+      let combinedXml = '';
+      Object.keys(zip.files).forEach(name => {
+        if (name.startsWith('word/') && name.endsWith('.xml')) {
+          try { combinedXml += zip.file(name).asText() + '\n'; } catch {}
+        }
+      });
+
+      const plainish = combinedXml.replace(/<[^>]+>/g, '');
+      const matches = [...plainish.matchAll(/\{\{([^}]+?)\}\}/g)];
+      const names = [...new Set(matches.map(m => m[1].trim()))];
+
+      if (names.length === 0) {
+        errors.push(escapeHtml(file.name) + ': no {{placeholders}} found — needs to be placeholder-converted');
+        continue;
+      }
+
+      loaded.push({ name: file.name, buf: ab, placeholders: names });
+      names.forEach(n => unionSet.add(n));
+
+      // Detect state from filename (first template wins)
+      if (!state.templateState) {
+        const nameLower = file.name.toLowerCase();
+        const stateMatch = nameLower.match(/\b(nc|az|tx|nv|ny|mi|ca)\b/i);
+        if (stateMatch) {
+          state.templateState = stateMatch[1].toUpperCase();
+          document.getElementById('templateState').value = state.templateState;
+        }
+      }
+    } catch (err) {
+      errors.push(escapeHtml(file.name) + ': ' + escapeHtml(err.message));
+    }
+  }
+
+  if (loaded.length === 0) {
+    status.innerHTML = '<strong style="color:var(--danger);">No valid templates loaded.</strong>' +
+      (errors.length ? '<br/>' + errors.join('<br/>') : '');
+    state.templates = [];
+    state.placeholders = [];
+    return;
+  }
+
+  state.templates = loaded;
+  state.placeholders = [...unionSet];
+
+  // Build success status
+  const totalPlaceholders = state.placeholders.length;
+  let html = '<strong>✓ Loaded ' + loaded.length + ' template' + (loaded.length === 1 ? '' : 's') + '</strong>';
+  html += '<span class="placeholder-count">' + totalPlaceholders + ' unique placeholders</span>';
+  html += '<div style="margin-top:8px; font-size:11.5px; color:var(--ink-dim);">';
+  html += loaded.map(t => '• <code>' + escapeHtml(t.name) + '</code> — ' + t.placeholders.length + ' placeholders').join('<br/>');
+  html += '</div>';
+  if (errors.length) {
+    html += '<div style="margin-top:8px; font-size:11.5px; color:#d9b96a;">⚠ Skipped: ' + errors.join('; ') + '</div>';
+  }
+  status.className = 'template-status loaded';
+  status.innerHTML = html;
+
+  // Show section 02 and render the dynamic form
+  document.getElementById('importPanel').style.display = '';
+  document.getElementById('dynamicForm').style.display = '';
+  document.getElementById('actionsBar').style.display = '';
+  renderDynamicForm();
 }
 
 // =============================================================================
@@ -983,25 +1020,56 @@ async function generateDoc() {
     status.classList.remove('err', 'ok');
     status.innerHTML = '<span class="count">Generating…</span>';
 
-    const zip = new PizZip(state.templateBuf);
-    const doc = new window.docxtemplater(zip, {
-      paragraphLoop: true, linebreaks: true,
-      delimiters: { start: '{{', end: '}}' },
-    });
-    doc.render(collectData());
-    const blob = doc.getZip().generate({
-      type: 'blob',
-      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    });
-
+    const data = collectData();
     const bname = (valP('borrower_name') || 'Borrower').split(/\s+/).pop().replace(/[^a-zA-Z0-9]/g,'');
     const cityPart = (valP('property_city') || state.templateState || 'Deal').replace(/[^a-zA-Z0-9]/g,'');
     const iso = valP('closing_date_iso') || new Date().toISOString().slice(0,10);
-    const fname = `LoanDocs_${bname}_${cityPart}_${iso}.docx`;
 
-    saveAs(blob, fname);
+    const results = [];
+    const renderErrors = [];
+
+    for (const tpl of state.templates) {
+      try {
+        const zip = new PizZip(tpl.buf);
+        const doc = new window.docxtemplater(zip, {
+          paragraphLoop: true, linebreaks: true,
+          delimiters: { start: '{{', end: '}}' },
+        });
+        doc.render(data);
+        const blob = doc.getZip().generate({
+          type: 'blob',
+          mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        });
+        // Name the output based on the template filename + borrower
+        const baseName = tpl.name.replace(/\.docx$/i, '');
+        const outName = `${baseName}_${bname}_${cityPart}_${iso}.docx`;
+        results.push({ name: outName, blob });
+      } catch (err) {
+        renderErrors.push(tpl.name + ': ' + (err.message || 'render failed'));
+        if (err.properties && err.properties.errors) {
+          renderErrors.push('  ' + err.properties.errors.map(e => e.message).join('; '));
+        }
+      }
+    }
+
+    if (results.length === 0) {
+      throw new Error('No documents rendered. ' + renderErrors.join(' | '));
+    }
+
+    // Download each file (browsers handle multiple saveAs fine with a small stagger)
+    for (let i = 0; i < results.length; i++) {
+      saveAs(results[i].blob, results[i].name);
+      // Small delay between downloads so the browser doesn't suppress them
+      if (i < results.length - 1) await new Promise(r => setTimeout(r, 300));
+    }
+
     status.classList.add('ok');
-    status.innerHTML = `<span class="count">✓</span> Downloaded <em>${escapeHtml(fname)}</em>`;
+    let msg = '<span class="count">✓</span> Downloaded ' + results.length + ' document' + (results.length === 1 ? '' : 's') + ': ';
+    msg += results.map(r => '<em>' + escapeHtml(r.name) + '</em>').join(', ');
+    if (renderErrors.length) {
+      msg += '<br/><span style="color:#d9b96a;">⚠ Some templates failed: ' + escapeHtml(renderErrors.join('; ')) + '</span>';
+    }
+    status.innerHTML = msg;
   } catch (err) {
     console.error(err);
     status.classList.add('err');
@@ -1032,7 +1100,7 @@ function escapeHtml(s) {
 // =============================================================================
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('templateFile').addEventListener('change', (e) => {
-    if (e.target.files[0]) handleTemplateUpload(e.target.files[0]);
+    if (e.target.files && e.target.files.length > 0) handleTemplatesUpload(e.target.files);
   });
   document.getElementById('templateState').addEventListener('change', (e) => {
     state.templateState = e.target.value;
