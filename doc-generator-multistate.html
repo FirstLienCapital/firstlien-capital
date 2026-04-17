@@ -1,0 +1,1049 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Loan Doc Generator — FirstLien.Capital</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/pizzip@3.1.6/dist/pizzip.js"></script>
+<script src="https://unpkg.com/[email protected]/build/docxtemplater.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<style>
+  :root {
+    --bg: #02040a; --bg-2: #06080f; --bg-3: #0b0f1a;
+    --panel: #0d1220; --panel-edge: #1a2138;
+    --ink: #e8eaf0; --ink-dim: #9099b0; --ink-faint: #5c6580;
+    --gold: rgba(200,155,40,.95); --gold-soft: rgba(200,155,40,.75);
+    --gold-hint: rgba(200,155,40,.14); --gold-edge: rgba(200,155,40,.35);
+    --teal: #0d9882; --teal-soft: rgba(13,152,130,.22);
+    --danger: #e26a6a; --ok: #4ca87d;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(200,155,40,.05), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(13,152,130,.06), transparent 60%),
+      var(--bg);
+  }
+  .shell { max-width: 1240px; margin: 0 auto; padding: 48px 40px 120px; }
+
+  .masthead { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 28px; border-bottom: 1px solid var(--panel-edge); margin-bottom: 40px; }
+  .masthead h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 38px; letter-spacing: -0.01em; margin: 0; }
+  .masthead h1 em { font-style: italic; color: var(--gold-soft); font-weight: 400; }
+  .masthead .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-soft); margin-bottom: 10px; }
+  .masthead .meta { text-align: right; font-size: 12px; color: var(--ink-faint); font-family: 'JetBrains Mono', monospace; }
+  .masthead .meta strong { display: block; color: var(--ink-dim); letter-spacing: 0.04em; text-transform: uppercase; font-size: 10.5px; margin-bottom: 4px; font-weight: 500; }
+
+  .section { background: linear-gradient(180deg, var(--panel) 0%, var(--bg-2) 100%); border: 1px solid var(--panel-edge); border-radius: 4px; margin-bottom: 24px; overflow: hidden; }
+  .section-head { display: flex; align-items: baseline; gap: 14px; padding: 20px 28px; border-bottom: 1px solid var(--panel-edge); background: linear-gradient(90deg, rgba(200,155,40,.04), transparent 60%); }
+  .section-head .num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold-soft); letter-spacing: 0.1em; }
+  .section-head h2 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 22px; margin: 0; letter-spacing: -0.005em; }
+  .section-head .hint { margin-left: auto; font-size: 11.5px; color: var(--ink-faint); font-style: italic; }
+  .section-body { padding: 24px 28px 28px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px 20px; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.col-12 { grid-column: span 12; } .field.col-8  { grid-column: span 8; }
+  .field.col-6  { grid-column: span 6; } .field.col-5  { grid-column: span 5; }
+  .field.col-4  { grid-column: span 4; } .field.col-3  { grid-column: span 3; }
+  .field.col-2  { grid-column: span 2; }
+
+  .field label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); font-weight: 500; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .field label .tag { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.05em; color: var(--ink-faint); text-transform: lowercase; background: rgba(255,255,255,.03); padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(255,255,255,.05); }
+  .field label .tag.auto { color: var(--teal); background: var(--teal-soft); border-color: rgba(13,152,130,.4); }
+  .field label .tag.extracted { color: var(--gold-soft); background: var(--gold-hint); border-color: var(--gold-edge); }
+
+  .field input[type=text], .field input[type=date], .field input[type=number],
+  .field input[type=email], .field input[type=file], .field select, .field textarea {
+    background: var(--bg-3); border: 1px solid var(--panel-edge); color: var(--ink);
+    font: inherit; font-size: 13.5px; padding: 10px 12px; border-radius: 3px;
+    transition: border-color .12s, background .12s; width: 100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: var(--gold-edge); background: #0a0f1c;
+  }
+  .field input[readonly], .field .auto-value {
+    background: rgba(13,152,130,.04); border-color: rgba(13,152,130,.2);
+    color: var(--ink-dim); font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  }
+  .field .helper { font-size: 11px; color: var(--ink-faint); margin-top: 2px; font-style: italic; }
+  .field .words-preview { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; color: var(--gold-soft); padding: 6px 10px 2px; min-height: 18px; }
+
+  .actions { position: sticky; bottom: 20px; margin-top: 32px; padding: 18px 24px; background: rgba(6,8,15,.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--gold-edge); border-radius: 4px; display: flex; align-items: center; gap: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(200,155,40,.1) inset; }
+  .actions .status { flex: 1; font-size: 12.5px; color: var(--ink-dim); }
+  .actions .status .count { color: var(--ink); font-weight: 600; }
+  .actions .status.err { color: var(--danger); }
+  .actions .status.ok  { color: var(--ok); }
+
+  .btn { font: inherit; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; padding: 12px 22px; border-radius: 3px; cursor: pointer; border: 1px solid transparent; transition: all .15s; }
+  .btn.primary { background: var(--gold); color: #0a0a0a; border-color: var(--gold); }
+  .btn.primary:hover { background: #d4a52e; box-shadow: 0 8px 24px rgba(200,155,40,.25); }
+  .btn.ghost { background: transparent; color: var(--ink-dim); border-color: var(--panel-edge); }
+  .btn.ghost:hover { color: var(--ink); border-color: var(--ink-faint); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .banner { margin: 0 0 24px; padding: 14px 20px; border-radius: 3px; font-size: 12.5px; border: 1px solid; }
+  .banner.info { background: rgba(13,152,130,.08); border-color: rgba(13,152,130,.3); color: #88d4c2; }
+  .banner.warn { background: rgba(200,155,40,.08); border-color: var(--gold-edge); color: #d9b96a; }
+  .banner.err  { background: rgba(226,106,106,.08); border-color: rgba(226,106,106,.35); color: #f0a5a5; }
+  .banner strong { color: #fff; }
+
+  .template-status { padding: 14px 18px; border-radius: 3px; background: rgba(13,152,130,.06); border: 1px solid rgba(13,152,130,.25); font-size: 12.5px; color: var(--ink-dim); }
+  .template-status.loaded { color: var(--ok); }
+  .template-status strong { color: var(--ink); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .placeholder-count { display: inline-block; padding: 2px 8px; background: var(--gold-hint); border: 1px solid var(--gold-edge); border-radius: 10px; color: var(--gold-soft); font-family: 'JetBrains Mono', monospace; font-size: 11px; margin-left: 8px; }
+
+  .field-group-title { grid-column: span 12; font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 500; color: var(--gold-soft); border-bottom: 1px solid var(--panel-edge); padding-bottom: 6px; margin-top: 8px; }
+  .field-group-title:first-child { margin-top: 0; }
+
+  @media (max-width: 880px) {
+    .shell { padding: 28px 20px 120px; }
+    .section-body { grid-template-columns: repeat(6, 1fr); }
+    .field.col-6, .field.col-8, .field.col-12 { grid-column: span 6; }
+    .field.col-3, .field.col-4, .field.col-5 { grid-column: span 6; }
+    .masthead { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .masthead .meta { text-align: left; }
+  }
+
+  .footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--panel-edge); color: var(--ink-faint); font-size: 11px; font-family: 'JetBrains Mono', monospace; text-align: center; letter-spacing: 0.05em; }
+  .footer em { color: var(--gold-soft); font-style: normal; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">FirstLien.Capital — Loan Document Engine</div>
+      <h1>Multi-State <em>Doc Generator</em></h1>
+    </div>
+    <div class="meta">
+      <strong>Template-driven</strong>
+      Upload state template · Engine adapts<br/>
+      Business-purpose, non-owner-occupied only
+    </div>
+  </header>
+
+  <div class="banner info">
+    <strong>How it works.</strong>
+    (1) Upload your state loan template (.docx with <code>{{placeholders}}</code>).
+    (2) Click <em>Copy extraction prompt</em>, paste it into a new <a href="https://claude.ai" target="_blank" style="color:#fff; text-decoration:underline;">claude.ai</a> chat with your deal PDFs attached.
+    (3) Paste the JSON Claude returns → review → generate. No API key, no cost — uses your existing Claude subscription.
+  </div>
+
+  <!-- ========================= SECTION 01: TEMPLATE UPLOAD ========================= -->
+  <section class="section">
+    <div class="section-head">
+      <span class="num">01</span>
+      <h2>Upload Template</h2>
+      <span class="hint">Any state, any borrower type</span>
+    </div>
+    <div class="section-body">
+      <div class="field col-8">
+        <label>Loan document template (.docx) <span class="tag">state + individual/corporate</span></label>
+        <input type="file" id="templateFile" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+        <div class="helper">Must contain <code>{{placeholder}}</code> tokens. Upload NC_Individual_TEMPLATE, AZ_Corporate, etc.</div>
+      </div>
+      <div class="field col-4">
+        <label>State <span class="tag">for date / legal logic</span></label>
+        <select id="templateState">
+          <option value="">— detect from filename —</option>
+          <option value="NC">North Carolina</option>
+          <option value="AZ">Arizona</option>
+          <option value="TX">Texas</option>
+          <option value="NV">Nevada</option>
+          <option value="NY">New York</option>
+          <option value="MI">Michigan</option>
+          <option value="CA">California</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
+      <div class="field col-12">
+        <div class="template-status" id="templateStatus">No template loaded yet.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= SECTION 02: CLAUDE.AI EXTRACT ========================= -->
+  <section class="section" id="importPanel" style="display:none;">
+    <div class="section-head">
+      <span class="num">02</span>
+      <h2>Import Deal via Claude.ai</h2>
+      <span class="hint">Free — uses your Claude subscription, not API</span>
+    </div>
+    <div class="section-body">
+
+      <div class="field col-12">
+        <div style="background:var(--bg-3); border:1px solid var(--panel-edge); border-radius:3px; padding:18px 20px; font-size:13px; line-height:1.7; color:var(--ink-dim);">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold-soft); margin-bottom:10px;">Three steps · 90 seconds</div>
+
+          <div style="display:flex; gap:14px; margin-bottom:10px;">
+            <span style="flex-shrink:0; width:22px; height:22px; border-radius:50%; background:var(--gold-hint); border:1px solid var(--gold-edge); color:var(--gold-soft); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center;">1</span>
+            <div>Click <strong style="color:var(--ink);">Copy extraction prompt</strong> below, then open a new chat at <a href="https://claude.ai" target="_blank" style="color:var(--gold-soft); text-decoration:underline;">claude.ai</a>.</div>
+          </div>
+
+          <div style="display:flex; gap:14px; margin-bottom:10px;">
+            <span style="flex-shrink:0; width:22px; height:22px; border-radius:50%; background:var(--gold-hint); border:1px solid var(--gold-edge); color:var(--gold-soft); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center;">2</span>
+            <div>Drag in the deal PDFs (title report, 1003, doc order, appraisal, ID — any or all), paste the prompt, send.</div>
+          </div>
+
+          <div style="display:flex; gap:14px;">
+            <span style="flex-shrink:0; width:22px; height:22px; border-radius:50%; background:var(--gold-hint); border:1px solid var(--gold-edge); color:var(--gold-soft); font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center;">3</span>
+            <div>Copy the JSON Claude returns → click <strong style="color:var(--ink);">Paste Claude JSON</strong> here → the form auto-fills.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field col-12" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; border-top:1px solid var(--panel-edge); padding-top:16px; margin-top:4px;">
+        <button type="button" class="btn primary" id="copyPromptBtn">Copy extraction prompt</button>
+        <button type="button" class="btn primary" id="pasteJsonBtn" style="background:var(--teal); border-color:var(--teal); color:#fff;">Paste Claude JSON</button>
+        <button type="button" class="btn ghost" id="clearAll">Clear all</button>
+        <span id="extractStatus" style="flex:1; min-width:200px; font-size:12px; color:var(--ink-faint);"></span>
+      </div>
+
+      <div class="field col-12" id="extractWarnings" style="display:none;">
+        <div class="banner warn" style="margin:0;">
+          <strong>Review these:</strong>
+          <ul id="warningsList" style="margin:6px 0 0 0; padding-left: 18px;"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= SECTION 03: DYNAMIC FORM ========================= -->
+  <section class="section" id="dynamicForm" style="display:none;">
+    <div class="section-head">
+      <span class="num">03</span>
+      <h2>Review &amp; Fill Remaining Fields</h2>
+      <span class="hint">Auto-computed fields in teal · extracted fields in gold</span>
+    </div>
+    <div class="section-body" id="formFields"></div>
+  </section>
+
+  <div class="actions" id="actionsBar" style="display:none;">
+    <div class="status" id="status">
+      <span class="count" id="fieldCount">0</span> / 0 fields ready
+    </div>
+    <button type="button" class="btn ghost" id="previewBtn">Preview</button>
+    <button type="button" class="btn primary" id="generateBtn" disabled>Generate Loan Docs</button>
+  </div>
+
+  <div class="footer">
+    FirstLien.Capital · <em>Business-purpose, non-owner-occupied loans only</em> · 47-state marketplace · Template-driven · Attorney review required
+  </div>
+
+</div>
+
+<script>
+// =============================================================================
+// CONFIG — this generator uses the Claude.ai paste workflow (no API, no cost)
+// =============================================================================
+
+// =============================================================================
+// UTILITIES — number to words, dates, money
+// =============================================================================
+function numToWords(n) {
+  if (n === 0) return 'Zero';
+  const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function under1000(num) {
+    if (num === 0) return '';
+    let out = ''; const h = Math.floor(num/100); const r = num % 100;
+    if (h) out += ones[h] + ' Hundred';
+    if (r) { if (out) out += ' '; if (r < 20) out += ones[r]; else { const t = Math.floor(r/10); const o = r%10; out += tens[t] + (o ? '-'+ones[o] : ''); } }
+    return out;
+  }
+  const units = ['','Thousand','Million','Billion'];
+  let out = ''; let i = 0; let rem = Math.floor(n);
+  while (rem > 0) {
+    const c = rem % 1000;
+    if (c) out = under1000(c) + (units[i] ? ' '+units[i] : '') + (out ? ' '+out : '');
+    rem = Math.floor(rem/1000); i++;
+  }
+  return out;
+}
+function dollarsToWords(n) {
+  if (!isFinite(n) || n < 0) return '';
+  const d = Math.floor(n); const c = Math.round((n - d) * 100);
+  return `${numToWords(d)} and ${String(c).padStart(2,'0')}/100 Dollars`;
+}
+function percentToWords(p) {
+  if (!isFinite(p) || p < 0) return '';
+  const w = Math.floor(p); const f = Math.round((p - w) * 100);
+  return `${numToWords(w)} and ${String(f).padStart(2,'0')}/100 Percent`;
+}
+function formatMoney(n) {
+  if (!isFinite(n)) return '';
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function parseMoney(s) {
+  if (typeof s === 'number') return s;
+  if (!s) return NaN;
+  return parseFloat(String(s).replace(/[$,\s]/g, ''));
+}
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function isoToLong(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return '';
+  return `${MONTH_NAMES[m-1]} ${d}, ${y}`;
+}
+function longDateToIso(s) {
+  if (!s) return '';
+  const m = String(s).match(/^(\w+)\s+(\d{1,2}),?\s+(\d{4})$/);
+  if (!m) return '';
+  const months = {January:1,February:2,March:3,April:4,May:5,June:6,July:7,August:8,September:9,October:10,November:11,December:12};
+  const mo = months[m[1]];
+  if (!mo) return '';
+  return `${m[3]}-${String(mo).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}`;
+}
+function isoAddMonths(iso, months) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-').map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  date.setUTCMonth(date.getUTCMonth() + months);
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`;
+}
+function firstOfNextMonth(iso) {
+  if (!iso) return '';
+  const [y, m] = iso.split('-').map(Number);
+  let newM = m + 1, newY = y;
+  if (newM > 12) { newM = 1; newY++; }
+  return `${newY}-${String(newM).padStart(2,'0')}-01`;
+}
+function lastDayOfMonth(iso) {
+  if (!iso) return '';
+  const [y, m] = iso.split('-').map(Number);
+  const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return `${y}-${String(m).padStart(2,'0')}-${String(last).padStart(2,'0')}`;
+}
+function monthlyPI(loan, pct, years) {
+  const c = pct/100/12; const n = years * 12;
+  if (!isFinite(c) || !isFinite(n) || loan <= 0 || c <= 0 || n <= 0) return NaN;
+  return loan * (c * Math.pow(1+c, n)) / (Math.pow(1+c, n) - 1);
+}
+function balloonAmount(loan, pct, years, termMonths) {
+  const c = pct/100/12;
+  const pmt = monthlyPI(loan, pct, years);
+  if (!isFinite(pmt)) return NaN;
+  const f = Math.pow(1+c, termMonths);
+  return loan * f - pmt * (f - 1) / c;
+}
+
+// =============================================================================
+// STATE
+// =============================================================================
+const state = {
+  templateBuf: null,        // ArrayBuffer of uploaded .docx
+  templateName: '',         // filename
+  placeholders: [],         // array of unique placeholder names discovered in template
+  templateState: '',        // 'NC', 'AZ', etc.
+  extractedData: {},        // universal deal data from Claude extraction
+  extractionWarnings: [],
+};
+
+// =============================================================================
+// UNIVERSAL DEAL SCHEMA — superset of fields Claude can extract.
+// The generator only renders inputs for placeholders actually in the template.
+// =============================================================================
+const FIELD_DEFS = {
+  // ---- Borrower (individual) ----
+  borrower_name:               { group: 'Borrower', label: 'Full legal name', type: 'text', placeholder: 'Jesonya D. Hargrove' },
+  borrower_name_upper:         { group: 'Borrower', label: 'Name (UPPERCASE)', type: 'text', computed: 'upper:borrower_name', tag: 'auto' },
+  borrower_descriptor:         { group: 'Borrower', label: 'Vesting descriptor', type: 'select',
+    options: ['a Single Man','a Single Woman','a Married Man','a Married Woman',
+              'a Married Man, as his sole and separate property',
+              'a Married Woman, as her sole and separate property',
+              'an Unmarried Man','an Unmarried Woman',
+              'a North Carolina limited liability company',
+              'an Arizona limited liability company',
+              'a Texas limited liability company',
+              'a Nevada limited liability company',
+              'a New York limited liability company',
+              'a Michigan limited liability company',
+              'a California limited liability company'] },
+  borrower_street:             { group: 'Borrower', label: 'Borrower home street (NOT subject property)', type: 'text' },
+  borrower_city:               { group: 'Borrower', label: 'Borrower home city', type: 'text' },
+  borrower_state:              { group: 'Borrower', label: 'State', type: 'text', maxlen: 2 },
+  borrower_zip:                { group: 'Borrower', label: 'Zip', type: 'text' },
+  borrower_mailing_address:    { group: 'Borrower', label: 'Full mailing address', type: 'text', computed: 'address:borrower', tag: 'auto' },
+  borrower_city_state_zip:     { group: 'Borrower', label: 'City, State Zip', type: 'text', computed: 'csz:borrower', tag: 'auto' },
+
+  // ---- Guarantor (for corporate templates) ----
+  guarantor_name:              { group: 'Guarantor', label: 'Guarantor full legal name', type: 'text' },
+  guarantor_name_upper:        { group: 'Guarantor', label: 'Guarantor name (UPPERCASE)', type: 'text', computed: 'upper:guarantor_name', tag: 'auto' },
+  guarantor_street:            { group: 'Guarantor', label: 'Guarantor street', type: 'text' },
+  guarantor_city:              { group: 'Guarantor', label: 'Guarantor city', type: 'text' },
+  guarantor_state:             { group: 'Guarantor', label: 'Guarantor state', type: 'text', maxlen: 2 },
+  guarantor_zip:               { group: 'Guarantor', label: 'Guarantor zip', type: 'text' },
+  guarantor_mailing_address:   { group: 'Guarantor', label: 'Guarantor full address', type: 'text', computed: 'address:guarantor', tag: 'auto' },
+
+  // ---- Property ----
+  property_street:             { group: 'Property', label: 'Property street', type: 'text' },
+  property_city:               { group: 'Property', label: 'Property city', type: 'text' },
+  property_state:              { group: 'Property', label: 'Property state', type: 'text', maxlen: 2 },
+  property_zip:                { group: 'Property', label: 'Property zip', type: 'text' },
+  property_address:            { group: 'Property', label: 'Full property address', type: 'text', computed: 'address:property', tag: 'auto' },
+  property_county:             { group: 'Property', label: 'County (no "County" suffix)', type: 'text' },
+  property_apn:                { group: 'Property', label: 'APN / Tax ID', type: 'text' },
+
+  // ---- Loan terms ----
+  loan_amount_num:             { group: 'Loan Terms', label: 'Loan amount (number)', type: 'number', placeholder: '299000' },
+  loan_amount:                 { group: 'Loan Terms', label: 'Loan amount (formatted)', type: 'text', computed: 'money:loan_amount_num', tag: 'auto' },
+  loan_amount_words:           { group: 'Loan Terms', label: 'Loan amount (words)', type: 'text', computed: 'dollarsWords:loan_amount_num', tag: 'auto' },
+  interest_rate_num:           { group: 'Loan Terms', label: 'Interest rate % (annual)', type: 'number', step: '0.01' },
+  interest_rate:               { group: 'Loan Terms', label: 'Interest rate (formatted)', type: 'text', computed: 'pct:interest_rate_num', tag: 'auto' },
+  interest_rate_words:         { group: 'Loan Terms', label: 'Interest rate (words)', type: 'text', computed: 'pctWords:interest_rate_num', tag: 'auto' },
+  default_rate_num:            { group: 'Loan Terms', label: 'Default rate % (annual)', type: 'number', step: '0.01' },
+  default_rate:                { group: 'Loan Terms', label: 'Default rate (formatted)', type: 'text', computed: 'pct:default_rate_num', tag: 'auto' },
+  default_rate_words:          { group: 'Loan Terms', label: 'Default rate (words)', type: 'text', computed: 'pctWords:default_rate_num', tag: 'auto' },
+  term_months:                 { group: 'Loan Terms', label: 'Term (months)', type: 'number' },
+  amort_years:                 { group: 'Loan Terms', label: 'Amortization (years)', type: 'number' },
+  per_diem:                    { group: 'Loan Terms', label: 'Per diem interest', type: 'text', computed: 'perDiem', tag: 'auto' },
+  monthly_payment:             { group: 'Loan Terms', label: 'Monthly P&I', type: 'text', computed: 'monthlyPayment', tag: 'auto' },
+  monthly_payment_words:       { group: 'Loan Terms', label: 'Monthly P&I (words)', type: 'text', computed: 'dollarsWords:monthly_payment', tag: 'auto' },
+  balloon_amount:              { group: 'Loan Terms', label: 'Balloon payment', type: 'text', computed: 'balloon', tag: 'auto' },
+  balloon_amount_words:        { group: 'Loan Terms', label: 'Balloon (words)', type: 'text', computed: 'dollarsWords:balloon_amount', tag: 'auto' },
+  interest_reserve:            { group: 'Loan Terms', label: 'Interest reserve (3 months)', type: 'text', computed: 'reserve', tag: 'auto' },
+  interest_reserve_words:      { group: 'Loan Terms', label: 'Interest reserve (words)', type: 'text', computed: 'dollarsWords:interest_reserve', tag: 'auto' },
+  title_policy_amount:         { group: 'Loan Terms', label: 'Title policy (125% loan)', type: 'text', computed: 'titlePolicy', tag: 'auto' },
+  title_policy_amount_words:   { group: 'Loan Terms', label: 'Title policy (words)', type: 'text', computed: 'dollarsWords:title_policy_amount', tag: 'auto' },
+
+  // ---- Dates ----
+  closing_date_iso:            { group: 'Dates', label: 'Closing date', type: 'date' },
+  closing_date:                { group: 'Dates', label: 'Closing date (long form)', type: 'text', computed: 'longDate:closing_date_iso', tag: 'auto' },
+  maturity_iso:                { group: 'Dates', label: 'Maturity date', type: 'date' },
+  maturity_date:               { group: 'Dates', label: 'Maturity (long form)', type: 'text', computed: 'longDate:maturity_iso', tag: 'auto' },
+  first_payment_iso:           { group: 'Dates', label: 'First payment date', type: 'date' },
+  first_payment_date:          { group: 'Dates', label: 'First payment (long)', type: 'text', computed: 'longDate:first_payment_iso', tag: 'auto' },
+  reserve_period_end_iso:      { group: 'Dates', label: 'Reserve period end', type: 'date' },
+  reserve_period_end:          { group: 'Dates', label: 'Reserve period end (long)', type: 'text', computed: 'longDate:reserve_period_end_iso', tag: 'auto' },
+  fourth_payment_iso:          { group: 'Dates', label: 'Fourth payment date', type: 'date' },
+  fourth_payment_date:         { group: 'Dates', label: 'Fourth payment (long)', type: 'text', computed: 'longDate:fourth_payment_iso', tag: 'auto' },
+  prepayment_cutoff_iso:       { group: 'Dates', label: 'Prepayment cutoff', type: 'date' },
+  prepayment_cutoff_date:      { group: 'Dates', label: 'Prepayment cutoff (long)', type: 'text', computed: 'longDate:prepayment_cutoff_iso', tag: 'auto' },
+  per_diem_end_iso:            { group: 'Dates', label: 'Per diem end date', type: 'date' },
+  per_diem_end_date:           { group: 'Dates', label: 'Per diem end (long)', type: 'text', computed: 'longDate:per_diem_end_iso', tag: 'auto' },
+  title_effective_iso:         { group: 'Dates', label: 'Title report effective date', type: 'date' },
+  title_effective_date:        { group: 'Dates', label: 'Title effective (long)', type: 'text', computed: 'longDate:title_effective_iso', tag: 'auto' },
+
+  // ---- Title / Closing ----
+  title_company:               { group: 'Title & Closing', label: 'Title company', type: 'text' },
+  title_file_number:           { group: 'Title & Closing', label: 'Title file number', type: 'text' },
+  closing_agent_company:       { group: 'Title & Closing', label: 'Closing agent company', type: 'text' },
+  closing_agent_name:          { group: 'Title & Closing', label: 'Closing agent name', type: 'text' },
+  closing_agent_address:       { group: 'Title & Closing', label: 'Closing agent address', type: 'text' },
+  closing_agent_email:         { group: 'Title & Closing', label: 'Closing agent email', type: 'email' },
+  trustee_name:                { group: 'Title & Closing', label: 'Trustee (deed of trust states)', type: 'text' },
+
+  // ---- Lender / Broker / Fees ----
+  originating_broker:          { group: 'Lender & Fees', label: 'Originating broker', type: 'text' },
+  broker_license:              { group: 'Lender & Fees', label: 'Broker license', type: 'text', placeholder: '02098388' },
+  broker_fee:                  { group: 'Lender & Fees', label: 'Originating broker fee', type: 'text' },
+  underwriting_fee:            { group: 'Lender & Fees', label: 'Underwriting fee', type: 'text' },
+  processing_fee:              { group: 'Lender & Fees', label: 'Processing fee', type: 'text' },
+  wire_fee:                    { group: 'Lender & Fees', label: 'Wire fee', type: 'text' },
+  legal_fee:                   { group: 'Lender & Fees', label: 'Legal / doc prep fee', type: 'text' },
+};
+
+// Aliases — placeholder names in template that map to the same underlying value
+// (helps when templates use variant naming)
+const FIELD_ALIASES = {
+  'borrower_home_address': 'borrower_mailing_address',
+  'subject_property_address': 'property_address',
+  'loan_amount_numeric': 'loan_amount_num',
+  'rate': 'interest_rate',
+};
+
+// =============================================================================
+// TEMPLATE PARSING — scan uploaded .docx for {{placeholders}}
+// =============================================================================
+async function handleTemplateUpload(file) {
+  const status = document.getElementById('templateStatus');
+  status.className = 'template-status';
+  status.textContent = 'Loading template…';
+
+  try {
+    const ab = await file.arrayBuffer();
+    const zip = new PizZip(ab);
+
+    // Pull document.xml and footer XMLs, concat text, find placeholders
+    const files = zip.files;
+    let combinedXml = '';
+    Object.keys(files).forEach(name => {
+      if (name.startsWith('word/') && name.endsWith('.xml')) {
+        try { combinedXml += zip.file(name).asText() + '\n'; } catch {}
+      }
+    });
+
+    // Strip XML tags and find {{...}} tokens
+    // Since we already pre-processed the NC template to merge split placeholders,
+    // placeholders in our templates should be intact within single text runs.
+    // But in case they're split across tags, we strip all XML first.
+    const plainish = combinedXml.replace(/<[^>]+>/g, '');
+    const matches = [...plainish.matchAll(/\{\{([^}]+?)\}\}/g)];
+    const names = [...new Set(matches.map(m => m[1].trim()))];
+
+    if (names.length === 0) {
+      status.className = 'template-status';
+      status.innerHTML = '<strong style="color:var(--danger);">No {{placeholders}} found.</strong> The template must contain tokens like <code>{{borrower_name}}</code>. Upload the placeholder-converted .docx, not a raw template.';
+      state.templateBuf = null;
+      return;
+    }
+
+    // Detect state from filename if not set
+    if (!state.templateState) {
+      const nameLower = file.name.toLowerCase();
+      const stateMatch = nameLower.match(/\b(nc|az|tx|nv|ny|mi|ca)\b/i);
+      if (stateMatch) {
+        state.templateState = stateMatch[1].toUpperCase();
+        document.getElementById('templateState').value = state.templateState;
+      }
+    }
+
+    state.templateBuf = ab;
+    state.templateName = file.name;
+    state.placeholders = names;
+
+    status.className = 'template-status loaded';
+    status.innerHTML = `<strong>✓ Loaded: ${escapeHtml(file.name)}</strong><span class="placeholder-count">${names.length} placeholders</span>`;
+
+    // Show section 02 and render the dynamic form
+    document.getElementById('importPanel').style.display = '';
+    document.getElementById('dynamicForm').style.display = '';
+    document.getElementById('actionsBar').style.display = '';
+    renderDynamicForm();
+  } catch (err) {
+    status.className = 'template-status';
+    status.innerHTML = '<strong style="color:var(--danger);">Failed to read template:</strong> ' + escapeHtml(err.message);
+  }
+}
+
+// =============================================================================
+// DYNAMIC FORM RENDERING
+// =============================================================================
+function getEffectiveFieldDef(placeholder) {
+  // Try direct lookup
+  if (FIELD_DEFS[placeholder]) return { key: placeholder, def: FIELD_DEFS[placeholder] };
+  // Try alias
+  if (FIELD_ALIASES[placeholder] && FIELD_DEFS[FIELD_ALIASES[placeholder]]) {
+    return { key: placeholder, def: FIELD_DEFS[FIELD_ALIASES[placeholder]], aliasOf: FIELD_ALIASES[placeholder] };
+  }
+  // Fallback: render as generic text input
+  return {
+    key: placeholder,
+    def: {
+      group: 'Other',
+      label: placeholder.replace(/_/g, ' '),
+      type: 'text',
+    },
+  };
+}
+
+function renderDynamicForm() {
+  const container = document.getElementById('formFields');
+  container.innerHTML = '';
+
+  // Group placeholders by group
+  const grouped = {};
+  state.placeholders.forEach(p => {
+    const { def } = getEffectiveFieldDef(p);
+    const g = def.group || 'Other';
+    if (!grouped[g]) grouped[g] = [];
+    grouped[g].push(p);
+  });
+
+  // Render in a consistent group order
+  const groupOrder = ['Borrower', 'Guarantor', 'Property', 'Loan Terms', 'Dates', 'Title & Closing', 'Lender & Fees', 'Other'];
+  const sortedGroups = groupOrder.filter(g => grouped[g]).concat(Object.keys(grouped).filter(g => !groupOrder.includes(g)));
+
+  sortedGroups.forEach(group => {
+    const title = document.createElement('div');
+    title.className = 'field-group-title';
+    title.textContent = group;
+    container.appendChild(title);
+
+    grouped[group].forEach(placeholder => {
+      const { def } = getEffectiveFieldDef(placeholder);
+      const fieldEl = buildFieldElement(placeholder, def);
+      container.appendChild(fieldEl);
+    });
+  });
+
+  // Attach listeners for recalc
+  container.querySelectorAll('input, select').forEach(el => {
+    el.addEventListener('input', recalc);
+    el.addEventListener('change', recalc);
+  });
+  recalc();
+}
+
+function buildFieldElement(placeholder, def) {
+  const wrap = document.createElement('div');
+  // pick column span by type
+  let span = 6;
+  if (def.type === 'number' || def.type === 'date') span = 4;
+  if (placeholder.endsWith('_address') || placeholder.endsWith('_words') || placeholder === 'borrower_mailing_address') span = 12;
+  wrap.className = 'field col-' + span;
+
+  const label = document.createElement('label');
+  label.innerHTML = escapeHtml(def.label || placeholder) +
+    ' <span class="tag' + (def.tag ? ' '+def.tag : '') + '">' + escapeHtml(placeholder) + '</span>';
+  wrap.appendChild(label);
+
+  let input;
+  if (def.type === 'select') {
+    input = document.createElement('select');
+    (def.options || []).forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt; o.textContent = opt;
+      input.appendChild(o);
+    });
+  } else {
+    input = document.createElement('input');
+    input.type = def.type || 'text';
+    if (def.step) input.step = def.step;
+    if (def.maxlen) input.maxLength = def.maxlen;
+    if (def.placeholder) input.placeholder = def.placeholder;
+    if (def.computed) { input.readOnly = true; input.classList.add('auto-value'); }
+  }
+  input.id = 'f_' + placeholder;
+  input.dataset.placeholder = placeholder;
+  wrap.appendChild(input);
+
+  // Add word preview for amount/rate fields
+  if (['loan_amount_num','interest_rate_num','default_rate_num'].includes(placeholder)) {
+    const preview = document.createElement('div');
+    preview.className = 'words-preview';
+    preview.id = 'wp_' + placeholder;
+    wrap.appendChild(preview);
+  }
+
+  return wrap;
+}
+
+// =============================================================================
+// RECALC — computed fields
+// =============================================================================
+function $f(placeholder) { return document.getElementById('f_' + placeholder); }
+function valP(placeholder) { const el = $f(placeholder); return el ? el.value.trim() : ''; }
+function setValP(placeholder, v) { const el = $f(placeholder); if (el) el.value = v; }
+function hasP(placeholder) { return state.placeholders.includes(placeholder); }
+
+function recalc() {
+  // Address auto-build
+  if (hasP('borrower_mailing_address')) {
+    const parts = [valP('borrower_street'), valP('borrower_city') + (valP('borrower_state') ? ', ' + valP('borrower_state') : '') + (valP('borrower_zip') ? ' ' + valP('borrower_zip') : '')].filter(Boolean);
+    setValP('borrower_mailing_address', parts.join(', '));
+  }
+  if (hasP('borrower_city_state_zip')) {
+    setValP('borrower_city_state_zip', `${valP('borrower_city')}, ${valP('borrower_state')} ${valP('borrower_zip')}`.trim());
+  }
+  if (hasP('guarantor_mailing_address')) {
+    const parts = [valP('guarantor_street'), valP('guarantor_city') + (valP('guarantor_state') ? ', ' + valP('guarantor_state') : '') + (valP('guarantor_zip') ? ' ' + valP('guarantor_zip') : '')].filter(Boolean);
+    setValP('guarantor_mailing_address', parts.join(', '));
+  }
+  if (hasP('property_address')) {
+    const parts = [valP('property_street'), valP('property_city') + (valP('property_state') ? ', ' + valP('property_state') : '') + (valP('property_zip') ? ' ' + valP('property_zip') : '')].filter(Boolean);
+    setValP('property_address', parts.join(', '));
+  }
+
+  // Upper name variants
+  if (hasP('borrower_name_upper')) setValP('borrower_name_upper', valP('borrower_name').toUpperCase());
+  if (hasP('guarantor_name_upper')) setValP('guarantor_name_upper', valP('guarantor_name').toUpperCase());
+
+  // Money / rate
+  const loan = parseMoney(valP('loan_amount_num'));
+  const rate = parseFloat(valP('interest_rate_num'));
+  const defRate = parseFloat(valP('default_rate_num'));
+  const termM = parseInt(valP('term_months'), 10);
+  const amortY = parseInt(valP('amort_years'), 10);
+
+  if (isFinite(loan)) {
+    if (hasP('loan_amount')) setValP('loan_amount', formatMoney(loan));
+    if (hasP('loan_amount_words')) setValP('loan_amount_words', dollarsToWords(loan));
+    const wp = document.getElementById('wp_loan_amount_num');
+    if (wp) wp.textContent = dollarsToWords(loan);
+    if (hasP('title_policy_amount')) {
+      const tp = loan * 1.25;
+      setValP('title_policy_amount', formatMoney(tp));
+      if (hasP('title_policy_amount_words')) setValP('title_policy_amount_words', dollarsToWords(tp));
+    }
+    if (isFinite(rate)) {
+      if (hasP('interest_reserve')) {
+        const reserve = loan * (rate/100) * 3 / 12;
+        setValP('interest_reserve', formatMoney(reserve));
+        if (hasP('interest_reserve_words')) setValP('interest_reserve_words', dollarsToWords(reserve));
+      }
+      if (hasP('per_diem')) {
+        setValP('per_diem', formatMoney(loan * (rate/100) / 360));
+      }
+      if (isFinite(amortY) && amortY > 0) {
+        const pmt = monthlyPI(loan, rate, amortY);
+        if (isFinite(pmt)) {
+          if (hasP('monthly_payment')) setValP('monthly_payment', formatMoney(pmt));
+          if (hasP('monthly_payment_words')) setValP('monthly_payment_words', dollarsToWords(pmt));
+          if (isFinite(termM) && termM > 0) {
+            const bal = balloonAmount(loan, rate, amortY, termM);
+            if (isFinite(bal)) {
+              if (hasP('balloon_amount')) setValP('balloon_amount', formatMoney(bal));
+              if (hasP('balloon_amount_words')) setValP('balloon_amount_words', dollarsToWords(bal));
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (isFinite(rate)) {
+    if (hasP('interest_rate')) setValP('interest_rate', rate.toFixed(2) + '%');
+    if (hasP('interest_rate_words')) setValP('interest_rate_words', percentToWords(rate));
+    const wp = document.getElementById('wp_interest_rate_num');
+    if (wp) wp.textContent = percentToWords(rate);
+  }
+  if (isFinite(defRate)) {
+    if (hasP('default_rate')) setValP('default_rate', defRate.toFixed(2) + '%');
+    if (hasP('default_rate_words')) setValP('default_rate_words', percentToWords(defRate));
+    const wp = document.getElementById('wp_default_rate_num');
+    if (wp) wp.textContent = percentToWords(defRate);
+  }
+
+  // Dates — derive from closing + term
+  const closingIso = valP('closing_date_iso');
+  if (closingIso) {
+    if (hasP('closing_date')) setValP('closing_date', isoToLong(closingIso));
+    if (hasP('first_payment_iso') && !valP('first_payment_iso')) {
+      let fp = firstOfNextMonth(closingIso);
+      fp = firstOfNextMonth(fp.slice(0,7) + '-15');
+      setValP('first_payment_iso', fp);
+    }
+    if (hasP('per_diem_end_iso') && !valP('per_diem_end_iso')) {
+      setValP('per_diem_end_iso', lastDayOfMonth(closingIso));
+    }
+    if (hasP('prepayment_cutoff_iso') && !valP('prepayment_cutoff_iso') && valP('first_payment_iso')) {
+      setValP('prepayment_cutoff_iso', isoAddMonths(valP('first_payment_iso'), 6));
+    }
+  }
+  const fpIso = valP('first_payment_iso');
+  if (fpIso) {
+    if (hasP('first_payment_date')) setValP('first_payment_date', isoToLong(fpIso));
+    if (hasP('maturity_iso') && !valP('maturity_iso') && isFinite(termM) && termM > 0) {
+      setValP('maturity_iso', isoAddMonths(fpIso, termM - 1));
+    }
+    if (hasP('reserve_period_end_iso') && !valP('reserve_period_end_iso')) {
+      setValP('reserve_period_end_iso', isoAddMonths(fpIso, 2));
+    }
+    if (hasP('fourth_payment_iso') && !valP('fourth_payment_iso')) {
+      setValP('fourth_payment_iso', isoAddMonths(fpIso, 3));
+    }
+  }
+  // Long-form conversions for all date fields
+  ['maturity','reserve_period_end','fourth_payment','prepayment_cutoff','per_diem_end','title_effective'].forEach(base => {
+    const iso = valP(base + '_iso');
+    const long = base + (base === 'maturity' ? '_date' : base === 'title_effective' ? '_date' : '_date');
+    // mapping: maturity_iso -> maturity_date, title_effective_iso -> title_effective_date, etc.
+    const longKey = base + '_date';
+    if (iso && hasP(longKey)) setValP(longKey, isoToLong(iso));
+  });
+
+  updateFieldCount();
+}
+
+function updateFieldCount() {
+  const data = collectData();
+  const filled = state.placeholders.filter(k => data[k] && String(data[k]).trim().length > 0).length;
+  const total = state.placeholders.length;
+  document.getElementById('fieldCount').textContent = filled;
+  document.querySelector('#status').innerHTML = total === 0
+    ? '<span class="count">0</span> / 0 fields ready'
+    : (filled === total
+       ? `<span class="count" style="color:var(--ok);">✓ All ${filled}</span> / ${total} fields ready`
+       : `<span class="count">${filled}</span> / ${total} fields ready`);
+  document.getElementById('generateBtn').disabled = (total === 0 || filled < total);
+}
+
+// =============================================================================
+// COLLECT DATA for docxtemplater
+// =============================================================================
+function collectData() {
+  const out = {};
+  state.placeholders.forEach(p => {
+    const v = valP(p);
+    out[p] = v;
+  });
+  return out;
+}
+
+// =============================================================================
+// CLAUDE.AI WORKFLOW — generate a tailored extraction prompt, then accept pasted JSON
+// =============================================================================
+
+function buildExtractionPrompt() {
+  const placeholders = state.placeholders;
+  const stateLabel = state.templateState || '[STATE]';
+
+  // Only include fields where we have a known definition, grouped for readability
+  const universalFields = [
+    { key: 'borrower_name', note: 'Full legal name from title vesting (preferred) → 1003 → ID' },
+    { key: 'borrower_descriptor', note: 'Vesting descriptor, e.g., "a Single Woman", "a Married Man, as his sole and separate property", "a ' + (state.templateState || 'STATE') + ' limited liability company"' },
+    { key: 'borrower_street', note: 'Borrower HOME street — must NOT equal property street' },
+    { key: 'borrower_city', note: 'Borrower home city' },
+    { key: 'borrower_state', note: 'Borrower home state (2-letter)' },
+    { key: 'borrower_zip', note: 'Borrower home zip' },
+    { key: 'guarantor_name', note: 'If template has this — individual guarantor on LLC deals' },
+    { key: 'guarantor_street', note: 'Guarantor home street' },
+    { key: 'guarantor_city', note: 'Guarantor home city' },
+    { key: 'guarantor_state', note: 'Guarantor home state' },
+    { key: 'guarantor_zip', note: 'Guarantor home zip' },
+    { key: 'property_street', note: 'Subject property street — from title Schedule A (title wins over appraisal)' },
+    { key: 'property_city', note: 'Subject property city' },
+    { key: 'property_state', note: 'Subject property state (2-letter)' },
+    { key: 'property_zip', note: 'Subject property zip — if title and appraisal disagree, USE TITLE and add warning' },
+    { key: 'property_county', note: 'County name only, no "County" suffix' },
+    { key: 'property_apn', note: 'APN / Tax Parcel ID exactly as shown' },
+    { key: 'title_company', note: 'Underwriter on ALTA Schedule A (e.g., "WFG National Title Insurance Company")' },
+    { key: 'title_file_number', note: 'ALTA Commitment Number or Issuing Office File Number' },
+    { key: 'title_effective_date', note: 'Commitment Date in "Month D, YYYY" format' },
+    { key: 'closing_agent_company', note: 'Issuing Agent / Settlement Agent' },
+    { key: 'closing_agent_name', note: 'Settlement Officer / Closer' },
+    { key: 'closing_agent_address', note: 'Settlement location address' },
+    { key: 'closing_agent_email', note: 'From Doc Order Form' },
+    { key: 'originating_broker', note: 'From Doc Order "BROKER INFORMATION" — the loan originator, NOT Lender Funds itself' },
+    { key: 'loan_amount_num', note: 'Plain number, no $ or commas (e.g. "145000") — from settlement statement or loan quote if present' },
+    { key: 'closing_date', note: 'From settlement statement Settlement Date, format "Month D, YYYY"' },
+  ];
+
+  // Filter to only fields the template actually uses (or their aliases / ISO variants)
+  const templateHasField = (fieldKey) => {
+    if (placeholders.includes(fieldKey)) return true;
+    if (placeholders.includes(fieldKey + '_upper')) return true;
+    if (fieldKey.endsWith('_date') && placeholders.includes(fieldKey.replace('_date','_iso'))) return true;
+    // Borrower address components — if any borrower_*_address or _mailing placeholder exists, we need street/city/state/zip
+    if ((fieldKey === 'borrower_street' || fieldKey === 'borrower_city' || fieldKey === 'borrower_state' || fieldKey === 'borrower_zip')
+        && placeholders.some(p => p.startsWith('borrower_') && (p.includes('address') || p.includes('mailing') || p.includes('city_state_zip') || p === 'borrower_zip'))) return true;
+    // Guarantor address components
+    if ((fieldKey === 'guarantor_street' || fieldKey === 'guarantor_city' || fieldKey === 'guarantor_state' || fieldKey === 'guarantor_zip')
+        && placeholders.some(p => p.startsWith('guarantor_') && (p.includes('address') || p.includes('mailing')))) return true;
+    // Property address components
+    if ((fieldKey === 'property_street' || fieldKey === 'property_city' || fieldKey === 'property_state' || fieldKey === 'property_zip')
+        && placeholders.some(p => p.startsWith('property_'))) return true;
+    return false;
+  };
+
+  const relevant = universalFields.filter(f => templateHasField(f.key));
+
+  const fieldLines = relevant.map(f => `  "${f.key}": string | null,  // ${f.note}`).join('\n');
+
+  return `You're extracting deal data from private-lending closing documents for FirstLien.Capital / Lender Funds. This is a ${stateLabel} business-purpose / non-owner-occupied investment loan.
+
+I've attached some combination of: ALTA title commitment, commercial appraisal, 1003 loan application, broker doc order form, borrower ID, and/or loan quote.
+
+Return ONLY a JSON object (no prose, no markdown fences) with this shape:
+
+{
+  "fields": {
+${fieldLines}
+  },
+  "warnings": [
+    // Any issues I should review — zip mismatches between docs, borrower home = property (red flag), missing critical fields, etc.
+  ]
+}
+
+Rules:
+- If a field can't be found with confidence, use null (not empty string) and add a warning.
+- Borrower HOME address MUST differ from property address. If they match, flag it prominently in warnings.
+- When title commitment and appraisal disagree on property details, TITLE WINS (it controls legal docs). Add a warning noting the mismatch.
+- Do NOT invent rates, fees, or dates not clearly shown in the documents. The admin enters those separately from the loan quote.
+- Default broker_license to "02098388" (Lender Funds BRE) unless the doc order shows a different NMLS/BRE for the originator.
+- Return ONLY the JSON object. No preamble, no markdown code fences, no explanation.`;
+}
+
+async function copyExtractionPrompt() {
+  const status = document.getElementById('extractStatus');
+  const prompt = buildExtractionPrompt();
+
+  try {
+    await navigator.clipboard.writeText(prompt);
+    status.innerHTML = '<span style="color:var(--ok);">✓</span> Prompt copied. Open <a href="https://claude.ai" target="_blank" style="color:var(--gold-soft);">claude.ai</a>, attach your deal PDFs, paste, and send. Then come back and click <strong>Paste Claude JSON</strong>.';
+    status.style.color = '';
+  } catch (err) {
+    // Fallback: show in a textarea for manual copy
+    const ta = document.createElement('textarea');
+    ta.value = prompt;
+    ta.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:80%; max-width:700px; height:300px; z-index:10000; background:#0a0f1c; color:#e8eaf0; border:1px solid rgba(200,155,40,.5); padding:16px; font-family:monospace; font-size:12px; border-radius:4px;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    status.innerHTML = 'Clipboard blocked — textarea shown, press Cmd/Ctrl+C to copy, then click to dismiss.';
+    ta.addEventListener('blur', () => ta.remove());
+  }
+}
+
+function pasteDealJSON() {
+  const raw = prompt('Paste the JSON Claude returned (paste the whole response, code fences are OK):');
+  if (!raw) return;
+
+  const status = document.getElementById('extractStatus');
+  const warnBox = document.getElementById('extractWarnings');
+  const warnList = document.getElementById('warningsList');
+  warnBox.style.display = 'none';
+  warnList.innerHTML = '';
+
+  // Strip common wrapping: markdown fences, leading prose, etc.
+  let cleaned = raw.trim();
+  // Remove leading ```json or ```
+  cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+  // If Claude added prose before the JSON, try to find the first { and last }
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace > 0 && lastBrace > firstBrace) {
+    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  }
+
+  let parsed;
+  try { parsed = JSON.parse(cleaned); }
+  catch (e) {
+    status.textContent = 'Invalid JSON: ' + e.message + '. Make sure you copied Claude\'s full response.';
+    status.style.color = 'var(--danger)';
+    return;
+  }
+
+  // Accept both { fields: {}, warnings: [] } and flat { key: val }
+  const fields = parsed.fields && typeof parsed.fields === 'object' ? parsed.fields : parsed;
+  const warnings = Array.isArray(parsed.warnings) ? parsed.warnings : [];
+
+  state.extractedData = fields;
+  state.extractionWarnings = warnings;
+
+  // Apply to template placeholders via direct + alias match
+  let applied = 0;
+  state.placeholders.forEach(p => {
+    if (fields[p] != null && fields[p] !== '') {
+      setValP(p, String(fields[p]));
+      applied++; return;
+    }
+    const aliasTarget = FIELD_ALIASES[p];
+    if (aliasTarget && fields[aliasTarget] != null && fields[aliasTarget] !== '') {
+      setValP(p, String(fields[aliasTarget]));
+      applied++; return;
+    }
+  });
+
+  // Handle ISO date fields — Claude returns "Month D, YYYY"; convert for <input type=date>
+  ['closing_date','title_effective_date','maturity_date','first_payment_date','reserve_period_end','fourth_payment_date','prepayment_cutoff_date','per_diem_end_date'].forEach(longKey => {
+    const val = fields[longKey];
+    if (!val) return;
+    const isoKey = longKey.endsWith('_date') ? longKey.replace('_date','_iso') : longKey + '_iso';
+    if (hasP(isoKey)) {
+      const iso = longDateToIso(val);
+      if (iso) { setValP(isoKey, iso); applied++; }
+    }
+  });
+
+  // Clear derived dates not in fields so recalc re-fills them
+  ['first_payment_iso','maturity_iso','reserve_period_end_iso','fourth_payment_iso','prepayment_cutoff_iso','per_diem_end_iso'].forEach(k => {
+    const longKey = k.replace('_iso','_date');
+    if (hasP(k) && !fields[longKey]) setValP(k, '');
+  });
+
+  recalc();
+
+  if (warnings.length > 0) {
+    warnBox.style.display = 'block';
+    warnList.innerHTML = warnings.map(w => '<li>' + escapeHtml(w) + '</li>').join('');
+  }
+
+  status.innerHTML = '<span style="color:var(--ok);">✓</span> Applied ' + applied + ' fields from Claude JSON. Review Section 03, fill the remaining loan terms, and generate.';
+  status.style.color = '';
+}
+
+function clearAll() {
+  state.placeholders.forEach(p => {
+    const el = $f(p);
+    if (!el) return;
+    if (el.type === 'date') el.value = '';
+    else if ((p === 'borrower_state' || p === 'property_state' || p === 'guarantor_state') && state.templateState) el.value = state.templateState;
+    else el.value = '';
+  });
+  recalc();
+}
+
+// =============================================================================
+// GENERATE DOCX
+// =============================================================================
+async function generateDoc() {
+  const status = document.querySelector('#status');
+  try {
+    status.classList.remove('err', 'ok');
+    status.innerHTML = '<span class="count">Generating…</span>';
+
+    const zip = new PizZip(state.templateBuf);
+    const doc = new window.docxtemplater(zip, {
+      paragraphLoop: true, linebreaks: true,
+      delimiters: { start: '{{', end: '}}' },
+    });
+    doc.render(collectData());
+    const blob = doc.getZip().generate({
+      type: 'blob',
+      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    });
+
+    const bname = (valP('borrower_name') || 'Borrower').split(/\s+/).pop().replace(/[^a-zA-Z0-9]/g,'');
+    const cityPart = (valP('property_city') || state.templateState || 'Deal').replace(/[^a-zA-Z0-9]/g,'');
+    const iso = valP('closing_date_iso') || new Date().toISOString().slice(0,10);
+    const fname = `LoanDocs_${bname}_${cityPart}_${iso}.docx`;
+
+    saveAs(blob, fname);
+    status.classList.add('ok');
+    status.innerHTML = `<span class="count">✓</span> Downloaded <em>${escapeHtml(fname)}</em>`;
+  } catch (err) {
+    console.error(err);
+    status.classList.add('err');
+    let msg = err.message || String(err);
+    if (err.properties && err.properties.errors) msg += ' — ' + err.properties.errors.map(e => e.message).join('; ');
+    status.innerHTML = `<span class="count">Error:</span> ${escapeHtml(msg)}`;
+  }
+}
+
+function previewData() {
+  const data = collectData();
+  const missing = state.placeholders.filter(k => !data[k] || !String(data[k]).trim());
+  console.log('==== DEAL DATA ====', data);
+  alert(
+    (missing.length ? `⚠ ${missing.length} placeholders empty:\n  ` + missing.join(', ') + '\n\n' : '✓ All fields filled\n\n') +
+    'Full data logged to browser console.'
+  );
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+// =============================================================================
+// WIRE UP
+// =============================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('templateFile').addEventListener('change', (e) => {
+    if (e.target.files[0]) handleTemplateUpload(e.target.files[0]);
+  });
+  document.getElementById('templateState').addEventListener('change', (e) => {
+    state.templateState = e.target.value;
+  });
+  document.getElementById('copyPromptBtn').addEventListener('click', copyExtractionPrompt);
+  document.getElementById('pasteJsonBtn').addEventListener('click', pasteDealJSON);
+  document.getElementById('clearAll').addEventListener('click', clearAll);
+  document.getElementById('previewBtn').addEventListener('click', previewData);
+  document.getElementById('generateBtn').addEventListener('click', generateDoc);
+});
+</script>
+
+</body>
+</html>
