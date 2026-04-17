@@ -531,7 +531,7 @@ select option{background:var(--s2);}
           <!-- ── ZONE B: Templates ───────────────────────────────────────── -->
           <div>
             <div class="flbl" style="margin-bottom:8px;">Step B — Add your template(s)
-              <span style="color:var(--muted)">(main doc + security addendum — drop both, generate together)</span>
+              <span style="color:var(--muted)">(drop main template alone if security language is built in, or main + security addendum if separate — the engine detects which)</span>
             </div>
 
             <!-- Drag target only -->
@@ -2438,115 +2438,282 @@ function dpRemoveTemplate(i) {
 }
 
 // ── Scan template XML and extract all deal-specific text values ──────────────
+// This is the auto-learn engine: it reads the template's XML and identifies
+// every value that was specific to the original deal (borrower name, property
+// address, loan amount, dates, etc.) — so the generate step can pair each old
+// value with the user's new form value.
 function dpScanTemplate(xml) {
   // Strip XML tags to get plain text, preserving spaces between runs
-  var plain = xml.replace(/<\/w:t>/g,' ').replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/\s+/g,' ').trim();
-  var found = {};
+  var plain = xml.replace(/<\/w:t>/g,' ').replace(/<[^>]+>/g,' ')
+                 .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+                 .replace(/&quot;/g,'"').replace(/&#39;/g,"'")
+                 .replace(/\s+/g,' ').trim();
+  var found = { _plain: plain };
 
-  // Dollar amounts — written out (e.g. "Four Hundred Thousand and 00/100 Dollars ($400,000.00)")
-  var amtPairs = plain.match(/([A-Z][a-zA-Z -]+(?:Hundred|Thousand|Million)[^$]{0,80}?and \d\d\/100 Dollars)\s*\(\$([0-9,]+\.\d{2})\)/g) || [];
+  // ── DOLLAR AMOUNTS: written + numeric pairs ──────────────────────────────
+  // Catches "Two Hundred Ninety-Nine Thousand and 00/100 Dollars ($299,000.00)"
+  var amtPairs = plain.match(/([A-Z][a-zA-Z -]+(?:Hundred|Thousand|Million)[^$]{0,120}?and \d\d\/100 Dollars)\s*\(\$([0-9,]+\.\d{2})\)/g) || [];
+  var amtList = [];
   amtPairs.forEach(function(m) {
     var parts = m.match(/^(.+?)\s*\(\$([0-9,]+\.\d{2})\)$/);
-    if (parts) {
-      var written = parts[1].trim();
-      var numeric = '$' + parts[2];
-      var numOnly = parseFloat(parts[2].replace(/,/g,''));
-      // Categorise by approximate size
-      if (numOnly > 100000) {
-        if (!found.loan_written) { found.loan_written = written; found.loan_numeric = numeric; found.loan_value = numOnly; }
-        else if (!found.balloon_written && numOnly !== found.loan_value) {
-          // Balloon is usually slightly more than loan
-          if (numOnly > found.loan_value * 0.95) { found.balloon_written = written; found.balloon_numeric = numeric; }
-        }
-      } else if (numOnly > 5000 && numOnly < 100000) {
-        // Reserve or monthly x6
-        if (!found.reserve_written) { found.reserve_written = written; found.reserve_numeric = numeric; }
-      } else if (numOnly > 500 && numOnly < 30000) {
-        // Monthly payment
-        if (!found.monthly_written) { found.monthly_written = written; found.monthly_numeric = numeric; }
+    if (!parts) return;
+    amtList.push({
+      written: parts[1].trim(),
+      numeric: '$' + parts[2],
+      value: parseFloat(parts[2].replace(/,/g,''))
+    });
+  });
+  // Dedupe by numeric
+  var seen = {};
+  amtList = amtList.filter(function(a){ if(seen[a.numeric])return false; seen[a.numeric]=true; return true; });
+  // Sort by value descending — biggest amount is usually loan or balloon
+  amtList.sort(function(a,b){ return b.value - a.value; });
+
+  // Classify by magnitude and position:
+  // - Loan: first big amount (>50k typically)
+  // - ALTA: exactly 1.25x loan (125% title policy) OR contains "125% of the principal"
+  // - Balloon: roughly equal to loan or slightly different
+  // - Monthly: small amount, typically $500-$20k range
+  // - Reserve: 3× monthly, so larger than monthly but smaller than loan
+  // - Per diem: very small, <$1000
+  if (amtList.length > 0) {
+    // Find ALTA first: near "125% of the principal" text
+    var altaIdx = -1;
+    for (var ai = 0; ai < amtList.length; ai++) {
+      var aNum = amtList[ai].numeric.replace('$','');
+      var aRegex = new RegExp(aNum.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '[^$]{0,80}?125% of the principal');
+      if (aRegex.test(plain)) { altaIdx = ai; break; }
+    }
+    if (altaIdx >= 0) {
+      found.alta_numeric = amtList[altaIdx].numeric;
+      found.alta_written = amtList[altaIdx].written;
+      amtList.splice(altaIdx, 1);
+    }
+
+    // Loan = first remaining "big" amount. "Big" = top value if no ALTA, or
+    // the value that ALTA is 125% of (ALTA / 1.25 = loan).
+    var loanTarget = found.alta_numeric ?
+      parseFloat(found.alta_numeric.replace(/[$,]/g,'')) / 1.25 : null;
+    var loanIdx = -1;
+    if (loanTarget !== null) {
+      for (var li = 0; li < amtList.length; li++) {
+        if (Math.abs(amtList[li].value - loanTarget) < 1) { loanIdx = li; break; }
       }
     }
-  });
+    if (loanIdx < 0 && amtList.length > 0) loanIdx = 0; // fallback: biggest
+    if (loanIdx >= 0) {
+      found.loan_numeric = amtList[loanIdx].numeric;
+      found.loan_written = amtList[loanIdx].written;
+      found.loan_value = amtList[loanIdx].value;
+      amtList.splice(loanIdx, 1);
+    }
 
-  // Dollar amounts — numeric only
-  var numericAmts = plain.match(/\$[0-9,]+\.\d{2}/g) || [];
-  var seenAmts = {};
-  numericAmts.forEach(function(amt) {
-    var val = parseFloat(amt.replace(/[$,]/g,''));
-    if (seenAmts[amt]) return; seenAmts[amt] = true;
-    if (val > 500000 && !found.loan_numeric)  { found.loan_numeric = amt; found.loan_value = val; }
-  });
+    // Balloon: amount near "on the Maturity Date" or similar
+    var balIdx = -1;
+    for (var bi = 0; bi < amtList.length; bi++) {
+      var bNum = amtList[bi].numeric.replace('$','').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      var bRe = new RegExp(bNum + '\\)[^(]{0,60}(?:Maturity|balloon|Balloon)', 'i');
+      if (bRe.test(plain)) { balIdx = bi; break; }
+    }
+    if (balIdx < 0 && amtList.length > 0 && found.loan_value) {
+      // Heuristic: balloon is usually within ±20% of loan value
+      for (var bh = 0; bh < amtList.length; bh++) {
+        if (Math.abs(amtList[bh].value - found.loan_value) / found.loan_value < 0.2
+            && amtList[bh].value > 10000) {
+          balIdx = bh; break;
+        }
+      }
+    }
+    if (balIdx >= 0) {
+      found.balloon_numeric = amtList[balIdx].numeric;
+      found.balloon_written = amtList[balIdx].written;
+      amtList.splice(balIdx, 1);
+    }
 
-  // Dates — "Month D, YYYY" and "Month 1, YYYY" (maturity always 1st)
-  var dates = plain.match(/(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+20\d{2}/g) || [];
-  var dateSeen = {};
-  dates.forEach(function(d) {
-    if (dateSeen[d]) return; dateSeen[d] = true;
-    var yr = parseInt(d.match(/20\d{2}/)[0]);
-    var day = parseInt(d.match(/\d+,/)[0]);
-    if (day === 1 && !found.maturity_date) { found.maturity_date = d; }
-    else if (!found.doc_date) { found.doc_date = d; }
-  });
+    // Reserve: look for "interest reserve" near an amount
+    var resIdx = -1;
+    for (var ri = 0; ri < amtList.length; ri++) {
+      var rNum = amtList[ri].numeric.replace('$','').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      if (new RegExp('(?:interest\\s+reserve|reserve\\s+payment)[^$]{0,120}' + rNum, 'i').test(plain)) {
+        resIdx = ri; break;
+      }
+    }
+    if (resIdx >= 0) {
+      found.reserve_numeric = amtList[resIdx].numeric;
+      found.reserve_written = amtList[resIdx].written;
+      amtList.splice(resIdx, 1);
+    }
 
-  // Interest rate — "X and XX/100 Percent (XX.XX%)"
+    // Monthly: "on the 1st day" nearby, or smallest remaining amount
+    var mIdx = -1;
+    for (var mi = 0; mi < amtList.length; mi++) {
+      var mNum = amtList[mi].numeric.replace('$','').replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      if (new RegExp(mNum + '\\)[^(]{0,40}(?:on\\s+the\\s+1st|monthly)', 'i').test(plain)) {
+        mIdx = mi; break;
+      }
+    }
+    if (mIdx < 0 && amtList.length > 0) {
+      // Fall back to smallest
+      var smallest = amtList.length - 1;
+      if (amtList[smallest].value < 30000) mIdx = smallest;
+    }
+    if (mIdx >= 0) {
+      found.monthly_numeric = amtList[mIdx].numeric;
+      found.monthly_written = amtList[mIdx].written;
+    }
+  }
+
+  // ── PER DIEM ──────────────────────────────────────────────────────────────
+  var pdM = plain.match(/\$(\d+\.\d{2})\s+per\s+day/i);
+  if (pdM) found.per_diem = '$' + pdM[1];
+
+  // ── INTEREST RATE ─────────────────────────────────────────────────────────
   var rateM = plain.match(/([A-Z][a-zA-Z -]+and\s+\d+\/100\s+Percent)\s*\(([\d.]+%)\)/);
   if (rateM) { found.rate_written = rateM[1]; found.rate_pct = rateM[2]; }
+  if (!found.rate_pct) {
+    var rb = plain.match(/(\d{1,2}\.\d{2,3})%/);
+    if (rb) found.rate_pct = rb[0];
+  }
 
-  // Percent bare — e.g. 13.99% or 12.990%
-  var pctBare = plain.match(/(\d{1,2}\.\d{2,3})%/g) || [];
-  if (pctBare.length && !found.rate_pct) { found.rate_pct = pctBare[0]; }
+  // ── DATES ────────────────────────────────────────────────────────────────
+  var dates = plain.match(/(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+(?:19|20)\d{2}/g) || [];
+  var dateSeen = {};
+  dates = dates.filter(function(d){ if(dateSeen[d])return false; dateSeen[d]=true; return true; });
 
-  // Entity name — ALLCAPS words before "(" or comma
-  // Look for patterns like "ENTITY NAME, a [State] [type]"
-  var entityM = plain.match(/([A-Z][A-Z &.,]+(?:INC|LLC|LP|CORP|TRUST|CO)\.?)\s*[,("]/);
-  if (entityM) found.entity = entityM[1].trim();
+  // Classify dates by position in document and content cues
+  for (var di = 0; di < dates.length; di++) {
+    var d = dates[di];
+    var idx = plain.indexOf(d);
+    var ctxBefore = plain.substring(Math.max(0,idx-80), idx);
+    var ctxAfter = plain.substring(idx+d.length, idx+d.length+80);
 
-  // Guarantor — "[First Last], an individual"
-  var guarM = plain.match(/([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+){1,3}),\s+an individual/);
-  if (guarM) found.guarantor = guarM[1].trim();
+    if (!found.doc_date && /dated\s+as\s+of\s*$|dated\s*$/i.test(ctxBefore)) {
+      found.doc_date = d;
+    }
+    if (!found.maturity_date && (/Maturity/i.test(ctxAfter) || /which\s+matures\s+on\s*$/i.test(ctxBefore) || /due\s+and\s+payable\s+on\s*$/i.test(ctxBefore))) {
+      found.maturity_date = d;
+    }
+    if (!found.first_pmt_date && /fourth\s+payment\s+due\s+on\s*$/i.test(ctxBefore)) {
+      found.first_pmt_date = d;
+    }
+    if (!found.per_diem_thru_date && /disbursed[^$]*through\s*$/i.test(ctxBefore)) {
+      found.per_diem_thru_date = d;
+    }
+  }
+  // Fallback: if no doc_date matched a pattern, take the first one that appears
+  // before the phrase "Lender" (opening header date is usually the doc date)
+  if (!found.doc_date && dates.length > 0) found.doc_date = dates[0];
+  // Maturity fallback: latest date in document (usually maturity)
+  if (!found.maturity_date && dates.length > 1) {
+    var latestIdx = 0, latestTs = 0;
+    for (var li = 0; li < dates.length; li++) {
+      var ts = Date.parse(dates[li]);
+      if (!isNaN(ts) && ts > latestTs) { latestTs = ts; latestIdx = li; }
+    }
+    if (dates[latestIdx] !== found.doc_date) found.maturity_date = dates[latestIdx];
+  }
 
-  // Property address — number + street pattern
-  var propM = plain.match(/(\d+ [A-Z][A-Z a-z]+(?:TRAIL|STREET|AVENUE|BOULEVARD|ROAD|HIGHWAY|DRIVE|LANE|WAY|COURT|PLACE)[^,]{0,30})/i);
-  if (propM) found.prop_addr = propM[1].trim();
-
-  // City/State/Zip
-  var cszM = plain.match(/([A-Z][a-zA-Z ]+),\s+([A-Z]{2})\s+(\d{5}(?:-\d{4})?)/);
-  if (cszM) found.prop_csz = cszM[1]+', '+cszM[2]+' '+cszM[3];
-
-  // County
-  var countyM = plain.match(/County of ([A-Z][a-zA-Z ]+?),/);
-  if (countyM) found.county = countyM[1].trim();
-
-  // APN
-  var apnM = plain.match(/APN[/\s]*Tax\s+Id?\s+No\.?\s*[:\s]+([A-Z0-9\-]+)/i);
-  if (apnM) found.apn = apnM[1].trim();
-
-  // Per diem — "$X.XX per day"
-  var pdM = plain.match(/\$(\d+\.\d{2})\s+per day/i);
-  if (pdM) found.per_diem = '$'+pdM[1];
-
-  // Reserve date range
-  var resRangeM = plain.match(/((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d{2})\s+through\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+20\d{2})/);
+  // Reserve range: "Month D, YYYY through Month D, YYYY"
+  var resRangeM = plain.match(/((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+(?:19|20)\d{2})\s+through\s+((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d+,\s+(?:19|20)\d{2})/);
   if (resRangeM) { found.res_start = resRangeM[1]; found.res_end = resRangeM[2]; }
 
-  // File/Escrow number
-  var fileM = plain.match(/File[:	\s]+(\d{4,6})/i);
-  if (fileM) found.file_no = fileM[1];
-  var escM = plain.match(/(?:GF#|Escrow No\.?)\s*([A-Z0-9#\-]+)/i);
-  if (escM) found.escrow_no = escM[1];
+  // ── BORROWER NAME ────────────────────────────────────────────────────────
+  // Strategy: look for ALLCAPS name patterns near "Borrower" or before ", an individual" / ", a [StateType]"
+  var nameM = plain.match(/executed\s+by\s+([A-Z][A-Z]+(?:\s+[A-Z]\.)?(?:\s+[A-Z][A-Z]+){1,3}),?\s+(?:a\s+Single|a\s+Married|an?\s+individual)/);
+  if (nameM) found.borrower_name = nameM[1].trim();
+  if (!found.borrower_name) {
+    var nameM2 = plain.match(/Borrower(?:\(s\))?:\s*\*?\*?\*?\s*([A-Z][A-Z]+(?:\s+[A-Z]\.)?(?:\s+[A-Z][A-Z]+){1,3})/);
+    if (nameM2) found.borrower_name = nameM2[1].trim();
+  }
+  if (!found.borrower_name) {
+    // Try mixed case: "John D. Smith, an individual"
+    var nameM3 = plain.match(/([A-Z][a-zA-Z]+(?:\s+[A-Z]\.)?(?:\s+[A-Z][a-zA-Z]+){1,3}),\s+an?\s+individual/);
+    if (nameM3) found.borrower_name = nameM3[1].trim();
+  }
+  // Also try entity form: "ENTITY NAME LLC, a [State] [type]"
+  if (!found.borrower_name) {
+    var entM = plain.match(/([A-Z][A-Z &.,'-]+(?:INC|LLC|L\.L\.C\.|LP|L\.P\.|CORP|CORPORATION|COMPANY|TRUST|CO)\.?),?\s+(?:a|an)\s+(?:Texas|California|Nevada|Arizona|New\s+Mexico|Florida|Colorado|North\s+Carolina|Oregon|Washington|Utah|Michigan|New\s+York|Illinois|Georgia|Ohio|Pennsylvania|Virginia|Tennessee)/i);
+    if (entM) found.borrower_name = entM[1].trim();
+  }
 
-  // Servicer
-  var svcM = plain.match(/(Superior Loan Servicing|[A-Z][a-zA-Z ]+ Loan Servicing)/i);
-  if (svcM) found.servicer = svcM[1];
+  // ── PROPERTY ADDRESS ─────────────────────────────────────────────────────
+  // Look for "Property Address:" cue
+  var pAddrM = plain.match(/Property\s+Address:\s*([0-9][^,]+(?:ROAD|RD|STREET|ST|AVENUE|AVE|BOULEVARD|BLVD|DRIVE|DR|LANE|LN|WAY|COURT|CT|PLACE|PL|TRAIL|TR|HIGHWAY|HWY|PARKWAY|PKWY)[^,]*)/i);
+  if (pAddrM) found.prop_addr = pAddrM[1].replace(/\s+/g,' ').trim();
+  if (!found.prop_addr) {
+    // Generic: a number followed by a street name and a street type
+    var pAddrM2 = plain.match(/(\d{1,6}\s+(?:[NSEW]\.?\s+)?[A-Z][a-zA-Z .'-]{2,40}\s+(?:Road|Rd|Street|St|Avenue|Ave|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct|Place|Pl|Trail|Highway|Hwy|Parkway|Pkwy)\.?)/);
+    if (pAddrM2) found.prop_addr = pAddrM2[1].trim();
+  }
 
-  // Lender Funds address variant (Suite letter)
-  var suiteM = plain.match(/380 Beach Road,?\s+Suite\s+([A-Z])/i);
-  if (suiteM) found.suite = suiteM[1];
+  // Property City/State/Zip following the street
+  if (found.prop_addr) {
+    var afterAddr = plain.substring(plain.indexOf(found.prop_addr) + found.prop_addr.length, plain.indexOf(found.prop_addr) + found.prop_addr.length + 150);
+    var cszM = afterAddr.match(/,?\s*([A-Z][a-zA-Z .-]+),\s+([A-Z]{2})\s+(\d{5}(?:-\d{4})?)/);
+    if (cszM) found.prop_csz = cszM[1].trim() + ', ' + cszM[2] + ' ' + cszM[3];
+  }
 
-  console.log('Template scan found:', JSON.stringify(found, null, 2));
+  // ── COUNTY ───────────────────────────────────────────────────────────────
+  var countyM = plain.match(/(?:including|in|of)\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s+County/);
+  if (countyM) found.county = countyM[1].trim();
+  if (!found.county) {
+    var countyM2 = plain.match(/([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s+County,/);
+    if (countyM2) found.county = countyM2[1].trim();
+  }
+
+  // ── APN ──────────────────────────────────────────────────────────────────
+  var apnM = plain.match(/APN[/\s]*(?:Tax\s+)?I[Dd]?\.?\s*No\.?:?\s*([A-Z0-9-]+)/i);
+  if (apnM) found.apn = apnM[1].trim();
+  if (!found.apn) {
+    // APN pattern like 3861-85-2765-00 or 9498-69-8917
+    var apnM2 = plain.match(/\b(\d{4}-\d{2}-\d{4}(?:-\d{2})?|\d{3}-\d{3}-\d{3}(?:-\d{3})?|\d{2,3}-\d{2,3}-\d{2,3}|\d{5,})\b/);
+    if (apnM2 && (plain.indexOf('APN') >= 0 || plain.indexOf('Tax ID') >= 0 || plain.indexOf('Tax Id') >= 0)) {
+      found.apn = apnM2[1];
+    }
+  }
+
+  // ── FILE / ESCROW NUMBERS ────────────────────────────────────────────────
+  var fileM = plain.match(/File\s*(?:No\.?|#|:)\s*([A-Z0-9-]{4,})/i);
+  if (fileM) found.file_no = fileM[1].trim();
+  var escM = plain.match(/(?:Escrow|Title\s+Order)\s*(?:No\.?|#|:)\s*([A-Z0-9-]{3,})/i);
+  if (escM) found.escrow_no = escM[1].trim();
+  if (!found.escrow_no) {
+    var gfM = plain.match(/GF\s*#\s*([A-Z0-9-]+)/i);
+    if (gfM) found.escrow_no = 'GF#' + gfM[1];
+  }
+
+  // ── TITLE COMPANY ────────────────────────────────────────────────────────
+  var tcoM = plain.match(/([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){1,4},?\s+(?:LLC|Inc\.?|Corp\.?|Company))\s+[0-9]/);
+  if (tcoM) {
+    var candidate = tcoM[1].replace(/,\s*$/,'').trim();
+    // Filter out broker/lender entity names
+    if (!/LENDER FUNDS|RUSHMYFILE|Superior Loan|Doc Service/i.test(candidate)) {
+      found.title_co = candidate;
+    }
+  }
+  // Title address: look for multi-word company followed by a numeric address
+  var tAddrM = plain.match(/(?:Title|Settlement|Escrow|Abstract)[^.]{0,60}?\s+(\d+\s+[A-Z][a-zA-Z .']+,\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/);
+  if (tAddrM) found.title_addr = tAddrM[1].trim();
+
+  // Title officer: "Attention: [Name]" or "Dear [Name]" near top
+  var tOffM = plain.match(/(?:Attention|Attn\.?|Dear)[:\s]+([A-Z][a-zA-Z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-zA-Z]+)/);
+  if (tOffM) found.title_officer = tOffM[1].trim();
+  if (!found.title_officer) {
+    var tOffM2 = plain.match(/([A-Z][a-zA-Z]+\s+[A-Z][a-zA-Z]+)\s+Closing\s+Agent/i);
+    if (tOffM2) found.title_officer = tOffM2[1].trim();
+  }
+
+  // Email (first one in document — usually title officer)
+  var emM = plain.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+  if (emM) found.title_email = emM[1];
+
+  // Title underwriter
+  var tUndM = plain.match(/((?:Stewart|Fidelity|First\s+American|Old\s+Republic|Chicago|WFG|Westcor|Commonwealth)\s+(?:National\s+)?Title(?:\s+(?:Guaranty|Insurance))?\s+Company)/i);
+  if (tUndM) found.title_underwriter = tUndM[1].trim();
+
+  console.log('Template scan found:', JSON.stringify(found, function(k,v){return k==='_plain'?undefined:v;}, 2));
   return found;
 }
-
 // ── Show template scan results in tpl-info area ──────────────────────────────
 function dpPreviewTemplateMatches() {
   var tf = dpTemplateFields;
@@ -3037,581 +3204,374 @@ function dpProg(pct,msg){
   }
 
 
-  async function dpRun() {
-  // Support both multi-template (dpTemplateFiles) and legacy single (dpTplBytes)
-  if (!dpTemplateFiles.length && !dpTplBytes) { alert('No template loaded — drop your template(s) in Zone B first.'); dpGo(1); return; }
-  // If only legacy single loaded, wrap it
-  if (!dpTemplateFiles.length && dpTplBytes) {
-    dpTemplateFiles = [{ name: 'template.docx', bytes: dpTplBytes, fields: dpTemplateFields }];
+// ============================================================================
+// DOC PREP ENGINE v2 — GENERIC AUTO-LEARNED SUBSTITUTION
+// ============================================================================
+// This replaces the old dpRun which had ~600 lines of hardcoded per-deal rules.
+//
+// How it works:
+//   1. Template scanner already ran when the template was uploaded and filled
+//      dpTemplateFields[] with every deal-specific value it found in the OLD
+//      template (borrower name, property address, amounts, dates, etc.).
+//   2. User's form has the NEW deal values.
+//   3. Substitution is just: for each field in dpTemplateFields, replace the
+//      OLD value in the template XML with the corresponding NEW form value.
+//   4. Global brand fixes (RUSHMYFILE → Lender Funds, BRE license, etc.) are
+//      applied to EVERY template regardless of what the scanner found.
+//   5. Placeholder support: if template has {{fieldName}} tokens, those get
+//      replaced from a placeholder dictionary keyed to form fields.
+//
+// No hardcoded "LAND TO SKY" or "JESONYA HARGROVE" per-deal strings anywhere.
+// Works with AZ, TX, NC, NM, CA, any state, any borrower, any template.
+//
+// ============================================================================
+
+async function dpRun() {
+  // Guard: must have at least one template loaded
+  if (!dpTemplateFiles.length && !dpTplBytes) {
+    alert('No template loaded — drop your template(s) in Zone B first.');
+    dpGo(1);
+    return;
   }
-  document.getElementById('dp-log').innerHTML='';
-  document.getElementById('dp-done').style.display='none';
+  // Wrap legacy single-template reference
+  if (!dpTemplateFiles.length && dpTplBytes) {
+    dpTemplateFiles = [{ name:'template.docx', bytes:dpTplBytes, fields:dpTemplateFields }];
+  }
+
+  document.getElementById('dp-log').innerHTML = '';
+  document.getElementById('dp-done').style.display = 'none';
 
   var c = dpCalcData;
-  var origFee = parseFloat(v('dp-origfee').replace(/[^0-9.]/g,''))||c.origFee;
-  var docPrep = parseFloat(v('dp-docprep'))||1595;
-  var procFee = parseFloat(v('dp-procfee'))||995;
-  var defRate = v('dp-defrate')||'24.99';
-  var entity  = v('dp-entity'), etype=v('dp-etype'), gname=v('dp-gname'), county=v('dp-county'), state=v('dp-state');
+  var origFee = parseFloat(v('dp-origfee').replace(/[^0-9.]/g,'')) || c.origFee;
+  var docPrep = parseFloat(v('dp-docprep')) || 1595;
+  var procFee = parseFloat(v('dp-procfee')) || 995;
+  var defRate = v('dp-defrate') || '24.99';
+
+  // Pull all form values into one object for cleanliness
+  var form = {
+    entity:     v('dp-entity'),
+    etype:      v('dp-etype'),
+    eaddr:      v('dp-eaddr'),
+    ecsz:       v('dp-ecsz'),
+    signor:     v('dp-signor'),
+    gname:      v('dp-gname'),
+    gaddr:      v('dp-gaddr'),
+    gcsz:       v('dp-gcsz'),
+    propcommon: v('dp-propcommon'),
+    propaddr:   v('dp-propaddr'),
+    propcsz:    v('dp-propcsz'),
+    county:     v('dp-county'),
+    state:      v('dp-state'),
+    apn:        v('dp-apn'),
+    fileno:     v('dp-fileno'),
+    escrow:     v('dp-escrow'),
+    titleco:    v('dp-titleco'),
+    titleoff:   v('dp-titleoff'),
+    titleaddr:  v('dp-titleaddr'),
+    titlecsz:   v('dp-titlecsz'),
+    titleph:    v('dp-titleph'),
+    titleem:    v('dp-titleem'),
+    titleund:   v('dp-titleund'),
+    servicer:   v('dp-servicer') || 'Superior Loan Servicing',
+    origbroker: v('dp-origbroker')
+  };
+
   var $f = function(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
 
-  dpLog('▶ Generating documents...','ok');
-  dpProg(5,'Loading template...');
+  // Pre-compute formatted values used in substitutions
+  var newVals = {
+    loan_numeric:    '$'+$f(c.loan),
+    loan_written:    n2w(c.loan),
+    monthly_numeric: '$'+$f(c.monthly),
+    monthly_written: n2w(c.monthly),
+    reserve_numeric: '$'+$f(c.reserve),
+    reserve_written: n2w(c.reserve),
+    balloon_numeric: '$'+$f(c.balloon),
+    balloon_written: n2w(c.balloon),
+    alta_numeric:    '$'+$f(c.alta),
+    alta_written:    n2w(c.alta),
+    per_diem:        '$'+c.perDiem.toFixed(2),
+    rate_pct:        c.rate + '%',
+    rate_written:    '', // filled below from c.rate
+    doc_date:        c.docDate,
+    maturity_date:   c.maturity,
+    first_pmt_date:  c.first,
+    res_start:       c.res1,
+    res_end:         c.res3,
+    per_diem_thru:   c.pdThru
+  };
+  // Interest rate written form
+  if (c.rate) {
+    var ratePart = String(c.rate).split('.');
+    var whole = parseInt(ratePart[0])||0;
+    var decimalPart = ratePart[1] || '00';
+    decimalPart = (decimalPart + '00').substring(0,2); // pad to 2 digits
+    // Simple form: "Twelve and 99/100 Percent"
+    var wholeWord = (function(n){
+      var ones=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+      var tens=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+      if (n<20) return ones[n];
+      if (n<100) return tens[Math.floor(n/10)] + (n%10 ? '-'+ones[n%10] : '');
+      return '';
+    })(whole);
+    newVals.rate_written = wholeWord + ' and ' + decimalPart + '/100 Percent';
+  }
+
+  dpLog('▶ Generating documents...', 'ok');
+  dpProg(5, 'Loading templates...');
 
   try {
-    var outputZip = new JSZip(); // collects all generated docs
+    var outputZip = new JSZip();
     var totalRepsAll = 0, warnsAll = 0;
-
     var generatedDocs = [];
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Process each template one at a time
+    // ─────────────────────────────────────────────────────────────────────
     for (var tplIdx = 0; tplIdx < dpTemplateFiles.length; tplIdx++) {
       var tplFile = dpTemplateFiles[tplIdx];
       var isMulti = dpTemplateFiles.length > 1;
       var tplLabel = isMulti ? ' ['+tplFile.name+']' : '';
 
       dpLog((isMulti ? '\n── Template '+(tplIdx+1)+'/'+dpTemplateFiles.length+': '+tplFile.name+' ──' : '▶ Processing template...'), 'ok');
-      dpProg(5 + (tplIdx * 85 / dpTemplateFiles.length), 'Loading'+tplLabel+'...');
+      dpProg(5 + (tplIdx * 75 / dpTemplateFiles.length), 'Loading'+tplLabel+'...');
 
-      // Re-scan this specific template so its fields take priority in rules
-      dpTemplateFields = tplFile.fields || {};
+      // tf = fields the scanner found in THIS template
+      // (each template may have different values because it's from a different prior deal)
+      var tf = tplFile.fields || {};
 
       var zip, xml;
       try {
         zip = await JSZip.loadAsync(tplFile.bytes);
         xml = await zip.file('word/document.xml').async('string');
-        dpLog('✓ Loaded · '+(xml.match(/<w:t/g)||[]).length.toLocaleString()+' text runs'+tplLabel,'ok');
+        dpLog('✓ Loaded · '+(xml.match(/<w:t/g)||[]).length.toLocaleString()+' text runs'+tplLabel, 'ok');
       } catch(zipErr) {
-        // Legacy .doc — extract text, apply substitutions, output as plain .docx
-        dpLog('📄 ' + tplFile.name + ' is legacy .doc — extracting text and applying substitutions...', 'ok');
+        // ── Legacy .doc — try Netlify conversion first, fall back to text-only ──
+        dpLog('📄 ' + tplFile.name + ' is legacy .doc format. Attempting LibreOffice conversion...', 'ok');
+        var convertedOk = false;
         try {
+          var b64 = (function(buf){
+            var bin = '';
+            var a = new Uint8Array(buf);
+            for (var bi = 0; bi < a.length; bi++) bin += String.fromCharCode(a[bi]);
+            return btoa(bin);
+          })(tplFile.bytes);
+
+          var convResp = await fetch('/.netlify/functions/doc-to-docx', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json' },
+            body: JSON.stringify({ doc: b64, filename: tplFile.name })
+          });
+          if (convResp.ok) {
+            var convBuf = await convResp.arrayBuffer();
+            zip = await JSZip.loadAsync(convBuf);
+            xml = await zip.file('word/document.xml').async('string');
+            dpLog('✓ LibreOffice converted .doc → .docx ('+(xml.match(/<w:t/g)||[]).length+' text runs)', 'ok');
+            convertedOk = true;
+            // Re-scan the converted docx so substitutions work properly
+            tf = dpScanTemplate(xml);
+          } else if (convResp.status === 503) {
+            dpLog('  ⚠ LibreOffice not available on server. Using client-side text fallback.', 'warn');
+          } else {
+            dpLog('  ⚠ Server conversion failed: HTTP '+convResp.status+'. Using text fallback.', 'warn');
+          }
+        } catch(convErr) {
+          dpLog('  ⚠ Conversion error: '+convErr.message+'. Using text fallback.', 'warn');
+        }
+
+        if (!convertedOk) {
+          // Client-side text extraction + minimal docx rebuild
           var docArr = new Uint8Array(tplFile.bytes);
           var docTxt = '';
-          for (var di2 = 0; di2 < docArr.length; di2++) {
-            var b2 = docArr[di2];
+          for (var di = 0; di < docArr.length; di++) {
+            var b2 = docArr[di];
             if (b2 >= 32 && b2 < 127) docTxt += String.fromCharCode(b2);
             else if (b2 === 10 || b2 === 13) docTxt += ' ';
           }
           docTxt = docTxt.replace(/[ ]{2,}/g, ' ').trim();
 
-          // Apply RULES as plain text substitutions
-          dpRenderTemplateList(); // ensure RULES are built below
-          // Build rules inline (same logic as XML path)
-          var tf2 = tplFile.fields || {};
+          // Build RULES for plain text version too
+          var txtRules = dpBuildRules(tf, newVals, form, origFee, docPrep, procFee, defRate, c);
           var rulesApplied2 = 0;
-          // Apply key substitutions to plain text
-          var txtSubs = [
-            ['ABUNDANT LIFE SUCCESS INC.', entity],
-            ['STEPHEN MILLSS', gname], ['STEPHEN MILLS', gname],
-            ['$999,000.00', '$'+$f(c.loan)],
-            ['February 1, 2027', c.maturity],
-            ['December 19, 2024', c.docDate],
-            ['March 1, 2025 through August 1, 2025', c.res1+' through '+c.res3],
-            ['March 1, 2025, through August 1, 2025', c.res1+' through '+c.res3],
-            ['September 1, 2025', c.first],
-            ['32091 POINT Pl', v('dp-gaddr')], ['32091 POINT PL', v('dp-gaddr')],
-            ['LAGUNA BEACH, CA 92651', v('dp-gcsz')],
-          ];
-          txtSubs.forEach(function(r){
-            if (r[0] && r[1] && r[0] !== r[1] && docTxt.includes(r[0])) {
+          txtRules.forEach(function(r){
+            if (r[0] && r[1] !== null && r[0] !== r[1] && docTxt.indexOf(r[0]) >= 0) {
               var cnt = docTxt.split(r[0]).length - 1;
               docTxt = docTxt.split(r[0]).join(r[1]);
               rulesApplied2 += cnt;
             }
           });
-          dpLog('✓ ' + rulesApplied2 + ' substitutions applied to ' + tplFile.name, 'ok');
+          dpLog('✓ ' + rulesApplied2 + ' substitutions applied (text-only mode)', 'ok');
 
-          // Package as a simple .docx (plain paragraph, no formatting)
-          var escapedTxt = docTxt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-          // Split into paragraphs on double spaces (crude but readable)
-          var paras = docTxt.split(/\s{3,}/).filter(function(p){ return p.trim().length > 0; });
+          // Package as minimal .docx
+          var paras = docTxt.split(/\s{3,}/).filter(function(p){return p.trim().length>0;});
           var parasXml = paras.map(function(p){
             return '<w:p><w:r><w:t xml:space="preserve">'+p.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</w:t></w:r></w:p>';
           }).join('');
 
-          var minZip2 = new JSZip();
-          minZip2.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
-          minZip2.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
-          minZip2.file('word/document.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+parasXml+'</w:body></w:document>');
-          var dotDocOut = await minZip2.generateAsync({type:'arraybuffer', compression:'DEFLATE'});
-          var outName2 = (entity||'Doc').replace(/[^a-zA-Z0-9]/g,'_')+'_'+tplFile.name.replace(/\.doc$/i,'')+'.docx';
+          var minZip = new JSZip();
+          minZip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+          minZip.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+          minZip.file('word/document.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+parasXml+'</w:body></w:document>');
+          var dotDocOut = await minZip.generateAsync({type:'arraybuffer', compression:'DEFLATE'});
+          var outName2 = (form.entity||'Doc').replace(/[^a-zA-Z0-9]/g,'_')+'_'+tplFile.name.replace(/\.doc$/i,'')+'.docx';
           outputZip.file(outName2, dotDocOut);
-          totalRepsAll += rulesApplied2; warnsAll += 1;
-          dpLog('✓ Packaged as ' + outName2 + ' (plain text — open in Word to restore formatting)', 'ok');
-        } catch(docErr) {
-          dpLog('⚠ Could not process ' + tplFile.name + ': ' + docErr.message, 'warn');
+          totalRepsAll += rulesApplied2;
           warnsAll += 1;
+          dpLog('✓ Packaged: ' + outName2 + ' (text-only — formatting simplified)', 'warn');
+          continue; // move to next template
         }
-        continue; // move to next template
       }
 
-      var merged=0;
-      xml=xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t>/g,function(){merged++;return '';});
-      xml=xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t xml:space="preserve">/g,function(){merged++;return '';});
-      dpLog('✓ Merged '+merged+' run boundaries'+tplLabel,'ok');
-      dpProg(20 + (tplIdx * 60 / dpTemplateFiles.length), 'Substituting'+tplLabel+'...');
+      // Merge run boundaries so multi-run text gets caught by substitution
+      var merged = 0;
+      xml = xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t>/g, function(){merged++; return '';});
+      xml = xml.replace(/<\/w:t><\/w:r>\s*<w:r>\s*<w:t xml:space="preserve">/g, function(){merged++; return '';});
+      dpLog('✓ Merged '+merged+' run boundaries'+tplLabel, 'ok');
 
-    // ── DYNAMIC RULE BUILDER ─────────────────────────────────────────────────────
-    // Builds substitution rules from:
-    // 1. What the template scanner found IN the template (old values)
-    // 2. What the user filled in the form fields (new values)
-    // This means ANY deal with ANY template works — no hardcoding needed.
+      dpProg(15 + (tplIdx * 70 / dpTemplateFiles.length), 'Building substitution rules'+tplLabel+'...');
 
-    var tf = dpTemplateFields; // what was IN the old template
-    var RULES = [];
+      // ──────────────────────────────────────────────────────────────────
+      // TIER 1: Placeholder mode ({{fieldName}} tokens)
+      // ──────────────────────────────────────────────────────────────────
+      var placeholderCount = (xml.match(/\{\{[a-zA-Z_][a-zA-Z0-9_]*\}\}/g) || []).length;
+      if (placeholderCount > 0) {
+        dpLog('  📋 Template has '+placeholderCount+' {{placeholder}} tokens — using placeholder mode', 'ok');
+        var phMap = dpBuildPlaceholderMap(newVals, form, origFee, docPrep, procFee, defRate, c);
+        var phReps = 0;
+        Object.keys(phMap).forEach(function(ph) {
+          var needle = '{{' + ph + '}}';
+          if (xml.indexOf(needle) >= 0) {
+            var cnt = xml.split(needle).length - 1;
+            xml = xml.split(needle).join(phMap[ph] || '');
+            phReps += cnt;
+          }
+        });
+        dpLog('  ✓ Replaced '+phReps+' placeholder tokens', 'ok');
 
-    // ── Helper: add rule only if old value exists in xml ──────────────────────
-    function addRule(oldVal, newVal, label) {
-      if (!oldVal || !newVal || oldVal === newVal) return;
-      RULES.push([oldVal, newVal, label]);
-    }
-
-    var $f2 = function(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
-    var loan$   = '$'+$f2(c.loan);
-    var monthly$= '$'+$f2(c.monthly);
-    var res$    = '$'+$f2(c.reserve);
-    var bal$    = '$'+$f2(c.balloon);
-    var alta$   = '$'+$f2(c.alta);
-    var loanW   = n2w(c.loan);
-    var monthlyW= n2w(c.monthly);
-    var resW    = n2w(c.reserve);
-    var balW    = n2w(c.balloon);
-    var altaW   = n2w(c.alta);
-
-    // ── ENTITY — replace whatever was in template with new entity ─────────────
-    if (tf.entity) {
-      // Replace "OLD ENTITY, a [old type]" → "new entity, a new type"
-      addRule(tf.entity+', a '+tf.entity_type_lower, entity+', a '+etype, 'tpl entity+type lower');
-      addRule(tf.entity+', a '+tf.entity_type_caps,  entity+', a '+etype, 'tpl entity+type caps');
-      addRule(tf.entity, entity, 'tpl entity bare');
-    }
-    // Fallback hardcoded patterns (catch template boilerplate regardless of scan)
-    addRule('LAND TO SKY REALTY LLC, a Texas limited liability company', entity+', a '+etype, 'old entity lower');
-    addRule('LAND TO SKY REALTY LLC, a Texas Limited Liability Company', entity+', a '+etype, 'old entity caps');
-    addRule('LAND TO SKY REALTY LLC', entity, 'old entity name');
-    addRule('Map and Map, LLC, a Texas limited liability company', entity+', a '+etype, 'prev TX entity lower');
-    addRule('Map and Map, LLC, a Texas Limited Liability Company', entity+', a '+etype, 'prev TX entity caps');
-    addRule('Map and Map, LLC, a New Mexico limited liability company', entity+', a '+etype, 'prev NM entity lower');
-    addRule('Map and Map, LLC', entity, 'prev entity name');
-    addRule('ABUNDANT LIFE SUCCESS INC., a New Mexico corporation', entity+', a '+etype, 'NM entity corp lower');
-    addRule('ABUNDANT LIFE SUCCESS INC., a New Mexico Corporation', entity+', a '+etype, 'NM entity corp caps');
-    addRule('ABUNDANT LIFE SUCCESS INC.', entity, 'NM entity name');
-    addRule('ABUNDANT LIFE SUCCESS INC', entity, 'NM entity name bare');
-    // Entity type casing fix
-    addRule('a Texas Limited Liability Company', 'a '+etype, 'caps LLC fix');
-    addRule(entity+', a Texas Limited Liability Company', entity+', a '+etype, 'entity caps fix');
-
-    // ── GUARANTOR — replace template guarantor with new guarantor ─────────────
-    var gaddr = v('dp-gaddr'), gcsz = v('dp-gcsz');
-    if (tf.guarantor) {
-      addRule(tf.guarantor+', an individual', gname+', an individual', 'tpl guar+individual');
-      addRule(tf.guarantor, gname, 'tpl guar bare');
-    }
-    // Hardcoded fallbacks
-    addRule('STEPHEN MILLSS, an individual', gname+', an individual', 'NM guar full typo');
-    addRule('STEPHEN MILLS, an individual',  gname+', an individual', 'NM guar full');
-    addRule('STEPHEN MILLSS', gname, 'NM guar typo');
-    addRule('STEPHEN MILLS',  gname, 'NM guar');
-    addRule('DERIC OUTLEY, an individual', gname+', an individual', 'old guar full');
-    addRule('DERIC OUTLEY', gname, 'old guar');
-    addRule('Mario Alberto Perez, an individual', gname+', an individual', 'prev guar full');
-    addRule('Mario Alberto Perez', gname, 'prev guar');
-    // Guarantor address
-    var guarFull = gaddr+', '+gcsz;
-    addRule('32091 POINT Pl, LAGUNA BEACH, CA 92651', guarFull, 'NM guar addr');
-    addRule('32091 POINT PL, LAGUNA BEACH, CA 92651', guarFull, 'NM guar addr caps');
-    addRule('32091 POINT Pl', gaddr, 'NM guar street');
-    addRule('LAGUNA BEACH, CA 92651', gcsz, 'NM guar csz');
-    addRule('108 Covey Ridge Drive, Del Rio, Texas 78840-0000', guarFull, 'prev guar addr -0000');
-    addRule('108 Covey Ridge Drive, Del Rio, Texas 78840', guarFull, 'prev guar addr');
-    addRule('108 Covey Ridge Drive', gaddr, 'prev guar street');
-    addRule('Del Rio, Texas 78840-0000', gcsz, 'zip -0000 fix');
-    addRule('3138 Oakdale, Houston, TX 77004-0000', guarFull, 'old guar addr');
-    addRule('3138 Oakdale', gaddr, 'old guar street');
-    addRule('Houston, TX 77004', gcsz, 'old guar csz');
-
-    // ── PROPERTY ──────────────────────────────────────────────────────────────
-    var propCommon = v('dp-propcommon'), propAddr = v('dp-propaddr'), propCsz = v('dp-propcsz');
-    if (tf.prop_addr) {
-      addRule(tf.prop_addr+', '+tf.prop_csz, propCommon, 'tpl prop full');
-      addRule(tf.prop_addr, propAddr, 'tpl prop street');
-    }
-    if (tf.prop_csz) addRule(tf.prop_csz, propCsz, 'tpl prop csz');
-    // Hardcoded fallbacks
-    addRule('41 SONRISA TRAIL, SANTA FE, NM 87506', propCommon, 'NM prop full');
-    addRule('41 SONRISA TRAIL SANTA FE, NM 87506', propCommon, 'NM prop no comma');
-    addRule('41 SONRISA TRAIL', propAddr||'41 SONRISA TRAIL', 'NM prop street');
-    addRule('SANTA FE, NM 87506', propCsz, 'NM prop csz');
-    addRule('Champions Inn &amp; Cafe at Lake Amistad, 11704 West U.S. Highway 90, Del Rio, Texas 78840', (propCommon||'').replace(/&/g,'&amp;'), 'prev prop common');
-    addRule('Del Rio, Texas 78840', propCsz, 'prev prop csz');
-    addRule('Port Arthur, Texas 77642', propCsz, 'old prop csz');
-
-    // ── COUNTY ────────────────────────────────────────────────────────────────
-    if (tf.county) {
-      addRule('County of '+tf.county, county+' County', 'tpl county of');
-      addRule(tf.county+' County', county+' County', 'tpl county');
-      addRule(tf.county, county, 'tpl county bare');
-    }
-    addRule('City of Albuquerque, County of Bernalillo, State of New Mexico',
-            'City of '+(propCsz.split(',')[0]||'')+', County of '+county+', State of '+state, 'NM city/county/state');
-    addRule('County of Bernalillo', county+' County', 'NM county of');
-    addRule('Bernalillo County', county+' County', 'NM county');
-    addRule('Bernalillo', county, 'NM county bare');
-    addRule('Jefferson County', county+' County', 'old county full');
-    addRule('Val Verde County', county+' County', 'prev county');
-    addRule('Val Verde', county, 'prev county bare');
-
-    // ── APN ───────────────────────────────────────────────────────────────────
-    var apn = v('dp-apn');
-    if (tf.apn) addRule(tf.apn, apn, 'tpl apn');
-    addRule('1-051-102-213-046', apn, 'NM apn');
-    addRule('>13631<', '>'+apn+'<', 'prev apn bold');
-    addRule('13631', apn, 'prev apn');
-    addRule('>72810<', '>'+apn+'<', 'old apn bold');
-    addRule('72810', apn, 'old apn');
-
-    // ── LOAN AMOUNT ───────────────────────────────────────────────────────────
-    if (tf.loan_written && tf.loan_numeric) {
-      addRule(tf.loan_written+' ('+tf.loan_numeric+')', loanW+' ('+loan$+')', 'tpl loan written+$');
-      addRule(tf.loan_written, loanW, 'tpl loan written');
-      addRule(tf.loan_numeric, loan$, 'tpl loan $');
-    }
-    // Hardcoded fallbacks for known templates
-    addRule('Nine Hundred Ninety-Nine Thousand and 00/100 Dollars ($999,000.00)', loanW+' ('+loan$+')', 'NM loan');
-    addRule('Nine Hundred Ninety-Nine Thousand and 00/100 Dollars', loanW, 'NM loan written');
-    addRule('$999,000.00', loan$, 'NM loan $');
-    addRule('Three Hundred Ninety-Nine Thousand and 00/100 Dollars ($399,000.00)', loanW+' ('+loan$+')', 'prev TX loan');
-    addRule('Three Hundred Ninety-Nine Thousand and 00/100 Dollars', loanW, 'prev TX loan written');
-    addRule('$399,000.00', loan$, 'prev TX loan $');
-    addRule('Four Hundred Ninety-Nine Thousand and 00/100 Dollars ($499,000.00)', loanW+' ('+loan$+')', 'old loan');
-    addRule('$499,000.00', loan$, 'old loan $');
-
-    // ── MONTHLY PAYMENT ───────────────────────────────────────────────────────
-    if (tf.monthly_written && tf.monthly_numeric) {
-      addRule(tf.monthly_written+' ('+tf.monthly_numeric+')', monthlyW+' ('+monthly$+')', 'tpl monthly written+$');
-      addRule(tf.monthly_written, monthlyW, 'tpl monthly written');
-      addRule(tf.monthly_numeric, monthly$, 'tpl monthly $');
-    }
-    addRule('Eleven Thousand Six Hundred Ninety-One and 51/100 Dollars ($11,691.51)', monthlyW+' ('+monthly$+')', 'NM monthly');
-    addRule('Eleven Thousand Six Hundred Ninety-One and 51/100 Dollars', monthlyW, 'NM monthly written');
-    addRule('$11,691.51', monthly$, 'NM monthly $');
-    addRule('Four Thousand Three Hundred Forty-Three and 92/100 Dollars ($4,343.92)', monthlyW+' ('+monthly$+')', 'prev TX monthly');
-    addRule('Four Thousand Three Hundred Fifty-Four and 80/100 Dollars ($4,354.80)', monthlyW+' ('+monthly$+')', 'prev TX monthly wrong');
-    addRule('$4,343.92', monthly$, 'prev TX monthly $');
-    addRule('$4,354.80', monthly$, 'prev TX monthly $ wrong');
-    addRule('Five Thousand Four Hundred Thirty-Two and 62/100 Dollars ($5,432.62)', monthlyW+' ('+monthly$+')', 'old monthly');
-    addRule('$5,432.62', monthly$, 'old monthly $');
-
-    // ── INTEREST RESERVE ──────────────────────────────────────────────────────
-    if (tf.reserve_written && tf.reserve_numeric) {
-      addRule(tf.reserve_written+' ('+tf.reserve_numeric+')', resW+' ('+res$+')', 'tpl reserve written+$');
-      addRule(tf.reserve_written, resW, 'tpl reserve written');
-      addRule(tf.reserve_numeric, res$, 'tpl reserve $');
-    }
-    addRule('Seventy Thousand One Hundred Forty-Nine and 06/100 Dollars ($70,149.06)', resW+' ('+res$+')', 'NM reserve');
-    addRule('Seventy Thousand One Hundred Forty-Nine and 06/100 Dollars', resW, 'NM reserve written');
-    addRule('$70,149.06', res$, 'NM reserve $');
-    addRule('Thirteen Thousand Thirty-One and 76/100 Dollars ($13,031.76)', resW+' ('+res$+')', 'prev TX reserve');
-    addRule('Thirteen Thousand Sixty-Four and 40/100 Dollars ($13,064.40)', resW+' ('+res$+')', 'prev TX reserve wrong');
-    addRule('$13,031.76', res$, 'prev TX reserve $');
-    addRule('$13,064.40', res$, 'prev TX reserve $ wrong');
-    addRule('Sixteen Thousand Two Hundred Ninety-Seven and 86/100 Dollars ($16,297.86)', resW+' ('+res$+')', 'old reserve');
-    addRule('$16,297.86', res$, 'old reserve $');
-
-    // ── BALLOON ───────────────────────────────────────────────────────────────
-    if (tf.balloon_written && tf.balloon_numeric) {
-      addRule(tf.balloon_written+' ('+tf.balloon_numeric+')', balW+' ('+bal$+')', 'tpl balloon written+$');
-      addRule(tf.balloon_written, balW, 'tpl balloon written');
-      addRule(tf.balloon_numeric, bal$, 'tpl balloon $');
-    }
-    addRule('One Million Nine Thousand Four Hundred Fifty-Eight and 10/100 Dollars ($1,009,458.10)', balW+' ('+bal$+')', 'NM balloon');
-    addRule('One Million Nine Thousand Four Hundred Fifty-Eight and 10/100 Dollars', balW, 'NM balloon written');
-    addRule('$1,009,458.10', bal$, 'NM balloon $');
-    addRule('Four Hundred Two Thousand Six Hundred Sixty-Nine and 90/100 Dollars ($402,669.90)', balW+' ('+bal$+')', 'prev TX balloon');
-    addRule('Three Hundred Ninety-Eight Thousand Three Hundred Twenty-Six and 09/100 Dollars ($398,326.09)', balW+' ('+bal$+')', 'prev TX balloon wrong');
-    addRule('$402,669.90', bal$, 'prev TX balloon $');
-    addRule('$398,326.09', bal$, 'prev TX balloon $ wrong');
-    addRule('Five Hundred Three Thousand Five Hundred Eighty-Nine and 71/100 Dollars ($503,589.71)', balW+' ('+bal$+')', 'old balloon');
-    addRule('$503,589.71', bal$, 'old balloon $');
-
-    // ── ALTA ──────────────────────────────────────────────────────────────────
-    if (tf.alta_written && tf.alta_numeric) {
-      addRule(tf.alta_written+' ('+tf.alta_numeric+')', altaW+' ('+alta$+')', 'tpl ALTA written+$');
-      addRule(tf.alta_written, altaW, 'tpl ALTA written');
-      addRule(tf.alta_numeric, alta$, 'tpl ALTA $');
-    }
-    addRule('One Million Two Hundred Forty-Eight Thousand Seven Hundred Fifty and 00/100 Dollars ($1,248,750.00)', altaW+' ('+alta$+')', 'NM ALTA');
-    addRule('($1,248,750.00) (125% of the principal balance)', '('+alta$+') (125% of the principal balance)', 'NM ALTA num');
-    addRule('$1,248,750.00', alta$, 'NM ALTA $');
-    addRule('Four Hundred Ninety-Eight Thousand Seven Hundred Fifty and 00/100 Dollars ($498,750.00)', altaW+' ('+alta$+')', 'prev TX ALTA');
-    addRule('($498,750.00) (125% of the principal balance)', '('+alta$+') (125% of the principal balance)', 'prev TX ALTA num');
-    addRule('$498,750.00', alta$, 'prev TX ALTA $');
-    addRule('Six Hundred Twenty-Three Thousand Seven Hundred Fifty and 00/100 Dollars ($623,750.00)', altaW+' ('+alta$+')', 'old ALTA');
-    addRule('$623,750.00', alta$, 'old ALTA $');
-
-    // ── PER DIEM ──────────────────────────────────────────────────────────────
-    var pd = '$'+c.perDiem.toFixed(2);
-    if (tf.per_diem) addRule(tf.per_diem+' per day', pd+' per day', 'tpl per diem');
-    addRule('$388.22 per day', pd+' per day', 'NM per diem');
-    addRule('$143.97.00 per day', pd+' per day', 'prev TX per diem typo');
-    addRule('$143.97 per day', pd+' per day', 'prev TX per diem');
-    addRule('$142.00 per day', pd+' per day', 'prev TX per diem 365');
-    addRule('$180.06 per day', pd+' per day', 'old per diem');
-    addRule('$388.22', pd, 'NM per diem bare');
-    addRule('$143.97', pd, 'prev TX per diem bare');
-    addRule('$142.00', pd, 'prev TX per diem bare 365');
-    addRule('$180.06', pd, 'old per diem bare');
-    // Per diem + through date
-    addRule('$388.22 per day from date funds disbursed by escrow through '+c.pdThru, pd+' per day from date funds disbursed by escrow through '+c.pdThru, 'NM per diem line');
-    addRule('$143.97 per day from date funds disbursed by escrow through May 31, 2026', pd+' per day from date funds disbursed by escrow through '+c.pdThru, 'prev TX per diem line');
-    addRule('$142.00 per day from date funds disbursed by escrow through May 31, 2026', pd+' per day from date funds disbursed by escrow through '+c.pdThru, 'prev TX per diem line 365');
-
-    // ── RATE ──────────────────────────────────────────────────────────────────
-    if (tf.rate_written) addRule(tf.rate_written+' ('+tf.rate_pct+')', c.rate+'%', 'tpl rate written');
-    if (tf.rate_pct)     addRule(tf.rate_pct, c.rate+'%', 'tpl rate %');
-    addRule('Thirteen and 99/100 Percent (13.99%)', c.rate+'%', 'NM rate written');
-    addRule('13.99%', c.rate+'%', 'NM rate %');
-
-    // ── DATES ─────────────────────────────────────────────────────────────────
-    if (tf.doc_date)      addRule(tf.doc_date, c.docDate, 'tpl doc date');
-    if (tf.maturity_date) addRule(tf.maturity_date, c.maturity, 'tpl maturity');
-    if (tf.res_start)     addRule(tf.res_start, c.res1, 'tpl res start');
-    if (tf.res_end)       addRule(tf.res_end,   c.res3, 'tpl res end');
-    if (tf.res_start && tf.res_end) addRule(tf.res_start+' through '+tf.res_end, c.res1+' through '+c.res3, 'tpl reserve range');
-
-    // Hardcoded date fallbacks (all known templates)
-    addRule('December 19, 2024', c.docDate, 'NM doc date');
-    addRule('February 1, 2027',  c.maturity, 'NM maturity');
-    addRule('March 1, 2025, through August 1, 2025', c.res1+' through '+c.res3, 'NM reserve range comma');
-    addRule('March 1, 2025 through August 1, 2025', c.res1+' through '+c.res3, 'NM reserve range');
-    addRule('March 1, 2025',    c.res1, 'NM res start');
-    addRule('August 1, 2025',   c.res3, 'NM res end');
-    addRule('September 1, 2025',c.first, 'NM first bwr pmt');
-    addRule('October 27, 2025', c.docDate, 'old doc date');
-    addRule('April 15, 2026',   c.docDate, 'prev TX doc date');
-    addRule('April __, 2026',   c.docDate, 'prev TX blank date');
-    addRule('June 1, 2028',     c.maturity, 'prev TX maturity');
-    addRule('April 1, 2028',    c.maturity, 'prev TX maturity Apr');
-    addRule('July 1, 2026 through September 1, 2026', c.res1+' through '+c.res3, 'prev TX reserve range');
-    addRule('May 1, 2026 through July 1, 2026', c.res1+' through '+c.res3, 'prev TX reserve range 2');
-    addRule('June 1, 2026 through August 1, 2026', c.res1+' through '+c.res3, 'prev TX reserve range 3');
-    addRule('July 1, 2026', c.res1, 'prev TX res1');
-    addRule('June 1, 2026', c.res1, 'prev TX res1b');
-    addRule('May 1, 2026',  c.res1, 'prev TX res1c');
-    addRule('September 1, 2026', c.res3, 'prev TX res3');
-    addRule('August 1, 2026',    c.res3, 'prev TX res3b');
-    addRule('October 1, 2026',   c.first, 'prev TX first bwr');
-    addRule('August 1, 2026',    c.first, 'prev TX first bwr aug');
-    addRule('November 30, 2025', c.pdThru, 'old pdThru');
-    addRule('May 31, 2026',      c.pdThru, 'prev TX pdThru');
-    addRule('June 30, 2026',     c.lockout||c.pdThru, 'prev TX lockout');
-    addRule('October 31, 2026',  c.lockout||c.maturity, 'prev TX lockout Oct');
-    addRule('November 30, 2026', c.lockout||c.maturity, 'prev TX lockout Nov');
-    addRule('December 1, 2027',  c.maturity, 'old maturity');
-    addRule('January 1, 2026',   c.res1, 'old res1');
-    addRule('March 1, 2026',     c.res3, 'old res3');
-
-    // ── TITLE / ESCROW / FILE / SERVICER ──────────────────────────────────────
-    var titleco = v('dp-titleco'), titleoff = v('dp-titleoff'), titleem = v('dp-titleem');
-    var titleaddr = v('dp-titleaddr'), titleund = v('dp-titleund'), servicer = v('dp-servicer');
-    var fileno = v('dp-fileno'), escrow = v('dp-escrow');
-
-    addRule('Maryann Nguyen', titleoff, 'old title off');
-    addRule('Aracely Martinez', titleoff, 'prev title off');
-    addRule('Patten Title', titleco, 'old title co');
-    addRule('PATTEN TITLE', titleco.toUpperCase(), 'old title upper');
-    addRule('DEL RIO TITLE COMPANY', titleco.toUpperCase(), 'prev title upper');
-    addRule('Del Rio Title Company', titleco, 'prev title co');
-    addRule('4265 San Felipe St Suite 400', titleaddr, 'old title addr');
-    addRule('300 East Losoya Street', titleaddr, 'prev title addr');
-    addRule('maryann.nguyen@pattentitle.com', titleem, 'old title email');
-    addRule('aracely@delriotitle.com', titleem, 'prev title email');
-    addRule('Westcor Land Title Insurance Company', titleund, 'old underwriter');
-    addRule('First American Title Guaranty Company', titleund, 'prev underwriter');
-    addRule('Fidelity National Title Insurance Company', titleund, 'Fidelity underwriter');
-    addRule('FIdelity National Title Insurance Company', titleund, 'FIdelity underwriter');
-    addRule('FIDELITY NATIONAL TITLE INSURANCE COMPANY', titleund.toUpperCase(), 'Fidelity upper');
-    addRule('7996-25-63029', escrow, 'old escrow');
-    addRule('GF#260125A', escrow, 'prev escrow');
-    addRule('File:	48607', 'File:	'+fileno, 'old file no');
-    addRule('File:	49559', 'File:	'+fileno, 'prev file no');
-    addRule('48607', fileno, 'old file bare');
-    addRule('49559', fileno, 'prev file bare');
-    addRule('Superior Loan Servicing', servicer||'Superior Loan Servicing', 'servicer');
-    // Suite R → Suite N (NM template uses R, standard is N)
-    addRule('380 Beach Road, Suite R, Burlingame', '380 Beach Road, Suite N, Burlingame', 'suite R→N');
-    addRule('380 Beach Road, Suite R Burlingame',  '380 Beach Road, Suite N, Burlingame', 'suite R→N no comma');
-
-    // ── FEES ──────────────────────────────────────────────────────────────────
-    addRule('amount of $13,965.00; (Delivery instructions to be provided);', 'amount of $'+$f2(origFee)+'; (Delivery instructions to be provided);', 'prev orig fee');
-    addRule('amount of $13,965; (Delivery instructions to be provided);',    'amount of $'+$f2(origFee)+'; (Delivery instructions to be provided);', 'prev orig fee2');
-    addRule('amount of $17,465; (Delivery instructions to be provided);',    'amount of $'+$f2(origFee)+'; (Delivery instructions to be provided);', 'old orig fee');
-    addRule('Underwriting Fee payable to LENDER FUNDS, Inc. in the amount of $2,520.00;', 'Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f2(docPrep)+';', 'old UW→docprep');
-    addRule('Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,499.00;', 'Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f2(docPrep)+';', 'prev docprep');
-    addRule('Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,595.00;', 'Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f2(docPrep)+';', 'prev docprep2');
-    addRule('Processing Fee payable to LENDER FUNDS, Inc. in the amount of $995.00;',  'Processing Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f2(procFee)+';', 'prev proc fee');
-    addRule('Processing Fee payable to LENDER FUNDS, Inc. in the amount of $1,060.00;','Processing Fee payable to LENDER FUNDS, Inc. in the amount of $'+$f2(procFee)+';', 'old proc fee');
-    addRule('Wire Fee payable to LENDER FUNDS, Inc. in the amount of $45.00;', '', 'wire fee remove');
-    addRule('Legal Fee payable to LENDER FUNDS, Inc.', '', 'legal fee remove');
-    addRule('Doc Service Pro CORPORATION', 'LENDER FUNDS, Inc.', 'template artifact');
-
-    // ── DEFAULT RATE ──────────────────────────────────────────────────────────
-    addRule('Twenty and 99/100 Percent (20.99%)',   'Twenty-Four and 99/100 Percent ('+defRate+'%)', 'old default rate');
-    addRule('Twenty-Four and 99/100 Percent (24.99%)','Twenty-Four and 99/100 Percent ('+defRate+'%)', 'prev default rate');
-    addRule('(20.99%)', '('+defRate+'%)', 'old default paren');
-    addRule('(24.99%)', '('+defRate+'%)', 'prev default paren');
-
-    // ── ARBITRATION COUNTY ────────────────────────────────────────────────────
-    addRule('***Arbitration County TE***', county+' County, '+state, 'arb county TE');
-    addRule('***Arbitration County NM***', county+' County, '+state, 'arb county NM');
-    addRule('Val Verde County, Texas', county+' County, '+state, 'prev arb county');
-    addRule('City of Albuquerque, County of Bernalillo', county+' County, '+state, 'NM arb city/county');
-    addRule('Bernalillo County, New Mexico', county+' County, '+state, 'NM arb Bernalillo');
-
-    // ── FILE 49821 — Business Solutions / Donna M. Moore (La Luz, NM) ──────
-    addRule('Business Solution, a', entity+', a', 'f49821 entity+a');
-    addRule('Business Solutions, a', entity+', a', 'f49821 entity+a alt');
-    addRule('Business Solution', entity, 'f49821 entity bare');
-    addRule('Business Solutions', entity, 'f49821 entity bare alt');
-    addRule('Donna M. Moore DBA Business Solutions', entity, 'f49821 entity DBA');
-    addRule('Donna M. Moore, an individual', gname+', an individual', 'f49821 guarantor ind');
-    addRule('Donna M. Moore', gname, 'f49821 guarantor');
-    addRule('Donna Moore', gname, 'f49821 guarantor short');
-    // Property
-    addRule('Eileen Arces, Unit 2, La Luz, NM 88337', propcommon, 'f49821 prop full');
-    addRule('Eileen Acres, Unit 2, La Luz, NM 88337', propcommon, 'f49821 prop acres');
-    addRule('Eileen Arces, Unit 2', propaddr, 'f49821 prop unit');
-    addRule('Eileen Acres, Unit 2', propaddr, 'f49821 prop acres unit');
-    addRule('La Luz, NM 88337', propcsz, 'f49821 prop csz');
-    addRule('La Luz, New Mexico 88337', propcsz, 'f49821 prop csz long');
-    addRule('Otero County', county+' County', 'f49821 county');
-    // Guarantor address
-    addRule('10 Holloman AVE, La Luz, NM 88337', gaddr+', '+gcsz, 'f49821 gaddr full');
-    addRule('10 Holloman AVE', gaddr, 'f49821 gaddr street');
-    addRule('10 Holloman Ave', gaddr, 'f49821 gaddr mixed');
-    // Loan amounts
-    addRule('Ninety-Nine Thousand and 00/100 Dollars ($99,000.00)', n2w(c.loan)+'($'+$f(c.loan)+')', 'f49821 loan words');
-    addRule('($99,000.00)', '($'+$f(c.loan)+')', 'f49821 loan paren');
-    addRule('$99,000.00', '$'+$f(c.loan), 'f49821 loan dollar');
-    addRule('$99,000', '$'+$f(c.loan), 'f49821 loan short');
-    // Monthly payment
-    addRule('One Thousand Seventy-Seven and 81/100 Dollars ($1,077.81)', n2w(c.monthly)+'($'+$f(c.monthly)+')', 'f49821 monthly words');
-    addRule('($1,077.81)', '($'+$f(c.monthly)+')', 'f49821 monthly paren');
-    addRule('$1,077.81', '$'+$f(c.monthly), 'f49821 monthly dollar');
-    // ALTA
-    addRule('One Hundred Twenty-Three Thousand Seven Hundred Fifty and 00/100 Dollars ($123,750.00)', n2w(c.alta)+'($'+$f(c.alta)+')', 'f49821 alta words');
-    addRule('($123,750.00)', '($'+$f(c.alta)+')', 'f49821 alta paren');
-    addRule('$123,750.00', '$'+$f(c.alta), 'f49821 alta dollar');
-    // Balloon
-    addRule('$99,000.00', '$'+$f(c.balloon), 'f49821 balloon');
-    // Title
-    addRule('Pioneer Abstract and Title Co. of Alamogordo, Inc.', titleco, 'f49821 title co full');
-    addRule('Pioneer Abstract & Title CO. of Alamogordo, INC', titleco, 'f49821 title co amp');
-    addRule('Pioneer Title Company', titleco, 'f49821 title co short');
-    addRule('PA-79427', escrow, 'f49821 escrow no');
-    addRule('WFG National Title Insurance Company', titleund, 'f49821 underwriter');
-    // Broker
-    addRule('In & Out Solutions, LLC', origbroker, 'f49821 broker');
-    addRule('In and Out Solutions, LLC', origbroker, 'f49821 broker and');
-    addRule('Shawn Dulac', origbroker, 'f49821 broker person');
-
-    // ── v2 CORRECTIONS learned from corrected loan docs ────────────────────
-    // Clark County, NV → Clark County, Nevada (NM docs spell out state)
-    addRule('Clark County, NV', 'Clark County, Nevada', 'NV spelled out');
-    addRule('Clark County, NV.', 'Clark County, Nevada.', 'NV spelled out period');
-    // Note header: Interest Only (not 40yr Amortization) for balloon notes
-    addRule('40 Year Amortization / Prepayment Premium / Balloon Payment)',
-            'Interest Only Payments / Prepayment Premium / Balloon Payment)', 'note header IO');
-    addRule('40 Year Amortization / Balloon Payment)',
-            'Interest Only Payments / Balloon Payment)', 'note header IO short');
-    addRule('40-Year Amortization / Prepayment Premium / Balloon Payment)',
-            'Interest Only Payments / Prepayment Premium / Balloon Payment)', 'note header IO dash');
-    // Per diem through: May 31 for April close (end of month after close)
-    addRule('April 30, '+c.docDate.split(', ')[1], dpME(dpCalcData.ym||'2026-04', 1), 'perdiem thru correct');
-    // Balloon: use standard amortizing formula result (most accurate)
-    // The engine already computes c.balloon correctly — this rule ensures written form matches
-
-    // Remove empty/invalid rules
-    RULES = RULES.filter(function(r){ return r[0] && r[1] && r[0] !== r[1]; });
-    dpLog('✓ Built '+RULES.length+' substitution rules ('+Object.keys(tf).length+' from template scan)','ok');
-
-
-
-    dpProg(50,'Applying '+RULES.length+' substitution rules...');
-    var totalReps=0;
-    RULES.forEach(function(r){
-      if(!r[0]||!xml.includes(r[0]))return;
-      var cnt=xml.split(r[0]).length-1;
-      xml=xml.split(r[0]).join(r[1]);
-      totalReps+=cnt;
-      dpLog('  ✓ ['+cnt+'×] '+r[2],'ok');
-    });
-
-    dpProg(70,'Targeted XML fixes...');
-    // Originating broker bold run
-    var oi=xml.indexOf('Originating');
-    if(oi>=0){
-      var seg=xml.slice(oi,oi+1800);
-      if(seg.includes('LENDER FUNDS, Inc.')){
-        var ob=v('dp-origbroker')||'[Originating Broker]';
-        var ns=seg.replace('<w:t>LENDER FUNDS, Inc.</w:t>','<w:t>'+ob+'</w:t>');
-        if(ns!==seg){xml=xml.slice(0,oi)+ns+xml.slice(oi+1800);totalReps++;dpLog('  ✓ [1×] originating broker bold run','ok');}
+        // Flag any remaining unreplaced placeholders
+        var remaining = (xml.match(/\{\{[a-zA-Z_][a-zA-Z0-9_]*\}\}/g) || []);
+        if (remaining.length > 0) {
+          dpLog('  ⚠ '+remaining.length+' placeholder(s) unmapped: '+[...new Set(remaining)].slice(0,10).join(', '), 'warn');
+          warnsAll += remaining.length;
+        }
       }
-    }
-    // ALTA written amount regex
-    xml=xml.replace(/(<w:t xml:space="preserve">)[^<]*(Thousand[^<]*and 00\/100 Dollars\s*<\/w:t>)([\s\S]{0,600}?)(\(\$[0-9,]+\.00\) \(125% of the principal balance\))/,
-      function(m,pre,end,mid,num){
-        totalReps++;
-        dpLog('  ✓ [1×] ALTA written+numeric regex','ok');
-        return pre+n2w(c.alta)+' '+end.split('</w:t>')[0]+'</w:t>'+mid+'($'+$f(c.alta)+') (125% of the principal balance)';
+
+      // ──────────────────────────────────────────────────────────────────
+      // TIER 2: Auto-learned substitutions (OLD deal values → NEW form values)
+      // ──────────────────────────────────────────────────────────────────
+      var RULES = dpBuildRules(tf, newVals, form, origFee, docPrep, procFee, defRate, c);
+      dpLog('  ✓ Built '+RULES.length+' substitution rules ('+Object.keys(tf).filter(function(k){return k!=='_plain';}).length+' auto-learned from template scan)', 'ok');
+
+      dpProg(30 + (tplIdx * 55 / dpTemplateFiles.length), 'Applying substitutions'+tplLabel+'...');
+      var totalReps = 0;
+      RULES.forEach(function(r) {
+        if (!r[0] || r[1] === null || r[1] === undefined) return;
+        if (r[0] === r[1]) return;
+        if (xml.indexOf(r[0]) < 0) return;
+        var cnt = xml.split(r[0]).length - 1;
+        xml = xml.split(r[0]).join(r[1]);
+        totalReps += cnt;
+        dpLog('    ✓ ['+cnt+'×] '+r[2], 'ok');
       });
 
-    dpProg(85,'Verifying...');
-    // FIX 8: Add borrower city check — warn if any known wrong city appears
-    var mustZero=['LAND TO SKY','DERIC OUTLEY','Port Arthur','October 27, 2025','78840-0000','Burbank, TX','Burbank, Texas','Val Verde County, Texas','Del Rio, Texas'];
-    var warns=0;
-    mustZero.forEach(function(t){if(xml.includes(t)){dpLog('  ⚠ Still found: "'+t+'"','warn');warns++;}});
-    dpLog(warns===0?'✓ All verifications passed':'⚠ '+warns+' warnings — review output carefully',warns?'warn':'ok');
-    dpLog('✓ Total substitutions: '+totalReps,'ok');
+      // ──────────────────────────────────────────────────────────────────
+      // TIER 3: Global brand fixes (applied to every template)
+      // ──────────────────────────────────────────────────────────────────
+      dpProg(60 + (tplIdx * 25 / dpTemplateFiles.length), 'Applying brand fixes'+tplLabel+'...');
+      var brandRules = dpBuildBrandRules(defRate, docPrep, procFee, origFee, form);
+      var brandReps = 0;
+      brandRules.forEach(function(r) {
+        if (!r[0] || r[1] === null) return;
+        if (r[0] === r[1]) return;
+        if (xml.indexOf(r[0]) < 0) return;
+        var cnt = xml.split(r[0]).length - 1;
+        xml = xml.split(r[0]).join(r[1]);
+        brandReps += cnt;
+        dpLog('    ✓ ['+cnt+'×] (brand) '+r[2], 'ok');
+      });
+      dpLog('  ✓ '+brandReps+' brand fixes applied', 'ok');
 
-      // ── Save this template's output into the zip ──────────────────────────
-      dpProg(80 + (tplIdx * 15 / dpTemplateFiles.length), 'Packaging '+tplFile.name+'...');
+      // ──────────────────────────────────────────────────────────────────
+      // Verification pass
+      // ──────────────────────────────────────────────────────────────────
+      dpProg(80 + (tplIdx * 15 / dpTemplateFiles.length), 'Verifying'+tplLabel+'...');
+
+      // Check for stale OLD values still present
+      var stale = [];
+      Object.keys(tf).forEach(function(k) {
+        if (k.startsWith('_')) return;
+        var v = tf[k];
+        if (typeof v === 'string' && v.length > 3) {
+          // Only warn for names, addresses, amounts — NOT for values we intentionally kept
+          // (e.g. 'Superior Loan Servicing' stays the same)
+          if (['servicer','title_underwriter','file_no'].indexOf(k) < 0 &&
+              xml.indexOf(v) >= 0 && k !== 'rate_pct') {
+            stale.push(k+'="'+v.substring(0,40)+'"');
+          }
+        }
+      });
+      if (stale.length) {
+        dpLog('  ⚠ Stale values still present: '+stale.slice(0,5).join(', ')+(stale.length>5?' +'+(stale.length-5)+' more':''), 'warn');
+        warnsAll += stale.length;
+      }
+
+      // Sanity checks on new values
+      var mustContain = [
+        { label:'borrower entity',   val:form.entity },
+        { label:'loan amount',        val:newVals.loan_numeric },
+      ];
+      mustContain.forEach(function(mc) {
+        if (mc.val && mc.val.length > 2 && xml.indexOf(mc.val) < 0) {
+          dpLog('  ⚠ Expected "'+mc.label+'" ('+mc.val+') not found in output', 'warn');
+          warnsAll++;
+        }
+      });
+
+      dpLog('  ✓ Total substitutions this template: '+(totalReps+brandReps), 'ok');
+      totalRepsAll += totalReps + brandReps;
+
+      // ──────────────────────────────────────────────────────────────────
+      // Package this template's output
+      // ──────────────────────────────────────────────────────────────────
       generatedDocs.push({ name: tplFile.name, xml: xml, zip: zip });
       zip.file('word/document.xml', xml);
-      var out = await zip.generateAsync({type:'arraybuffer',compression:'DEFLATE',compressionOptions:{level:6}});
+      var outBuf = await zip.generateAsync({type:'arraybuffer', compression:'DEFLATE', compressionOptions:{level:6}});
 
-      // Use clean output filename: original name with entity prefix
-      var safe = (entity||'LoanDoc').replace(/[^a-zA-Z0-9]/g,'_');
-      var baseName = tplFile.name.replace(/\.docx$/i,'');
-      var outName = safe+'_'+baseName+'.docx';
-      outputZip.file(outName, out);
+      var safeEntity = (form.entity || 'LoanDoc').replace(/[^a-zA-Z0-9]/g,'_');
+      var baseName = tplFile.name.replace(/\.docx?$/i,'');
+      var outName = safeEntity + '_' + baseName + '.docx';
+      outputZip.file(outName, outBuf);
       dpLog('✓ Packaged: '+outName, 'ok');
-      totalRepsAll += totalReps;
-      warnsAll += warns;
+    }
+    // ─────────────────────────────────────────────────────────────────────
+    // End of per-template loop
+    // ─────────────────────────────────────────────────────────────────────
 
-    } // ── end template loop ────────────────────────────────────────────────
-
-    // ── Tier 1 AI Post-Processor ────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────────
+    // AI Post-Processor (structural XML fixes)
+    // ──────────────────────────────────────────────────────────────────
     try {
-      var ppResult = await dpAIPostProcess(generatedDocs, {
-        entity:  entity,
-        gname:   v('dp-gname'),
+      await dpAIPostProcess(generatedDocs, {
+        entity:  form.entity,
+        gname:   form.gname,
         loan:    v('dp-loan'),
         rate:    v('dp-rate'),
         docDate: v('dp-docdate') || c.docDate
       });
-      // Write fixed XMLs back into their zips
       for (var ppi = 0; ppi < generatedDocs.length; ppi++) {
         generatedDocs[ppi].zip.file('word/document.xml', generatedDocs[ppi].xml);
       }
     } catch(ppErr) {
-      dpLog('⚠ Post-processor error: ' + ppErr.message, 'warn');
+      dpLog('⚠ Post-processor error: '+ppErr.message, 'warn');
     }
 
-    // ── AI Final Review ──────────────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────────
+    // AI Final Review
+    // ──────────────────────────────────────────────────────────────────
     try {
-      var resMonthsForAI = parseInt((document.getElementById('dp-resmonths')||{value:'6'}).value)||6;
       await dpAIFinalReview(generatedDocs, {
-        entity:   entity,
-        gname:    v('dp-gname'),
+        entity:   form.entity,
+        gname:    form.gname,
         loan:     v('dp-loan'),
         rate:     v('dp-rate'),
         docDate:  v('dp-docdate') || c.docDate,
@@ -3621,51 +3581,410 @@ function dpProg(pct,msg){
         resRange: c.resRange || '',
         first:    c.first || ''
       });
-      // Write any AI-fixed XMLs back into their zips
       for (var afi = 0; afi < generatedDocs.length; afi++) {
         generatedDocs[afi].zip.file('word/document.xml', generatedDocs[afi].xml);
       }
     } catch(arErr) {
-      dpLog('⚠ AI final review error: ' + arErr.message, 'warn');
+      dpLog('⚠ AI final review error: '+arErr.message, 'warn');
+    }
+
+    // Rebuild output zip with AI-fixed content
+    var finalZip = new JSZip();
+    for (var gdi = 0; gdi < generatedDocs.length; gdi++) {
+      var d = generatedDocs[gdi];
+      var fb = await d.zip.generateAsync({type:'arraybuffer',compression:'DEFLATE',compressionOptions:{level:6}});
+      var se = (form.entity||'LoanDoc').replace(/[^a-zA-Z0-9]/g,'_');
+      var bn = d.name.replace(/\.docx?$/i,'');
+      finalZip.file(se+'_'+bn+'.docx', fb);
     }
 
     dpProg(95, 'Building download package...');
+    var safeEntity = (form.entity||'LoanDoc').replace(/[^a-zA-Z0-9]/g,'_');
+    var fileId = form.fileno || 'XXXX';
 
-    var safe = (entity||'LoanDoc').replace(/[^a-zA-Z0-9]/g,'_');
-    var fileId = v('dp-fileno')||'XXXX';
-
-    if (dpTemplateFiles.length === 1) {
-      // Single template — offer direct .docx download (no zip needed)
-      var singleOut = await outputZip.file(Object.keys(outputZip.files)[0]).async('arraybuffer');
-      var blob = new Blob([singleOut], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-      var url  = URL.createObjectURL(blob);
-      var fn   = safe+'_File'+fileId+'_'+(c.docDate||'').replace(/[^a-zA-Z0-9]/g,'_');
+    if (dpTemplateFiles.length === 1 && generatedDocs.length === 1) {
+      // Single file — direct download
+      var singleBuf = await generatedDocs[0].zip.generateAsync({type:'arraybuffer',compression:'DEFLATE',compressionOptions:{level:6}});
+      var blob = new Blob([singleBuf], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+      var url = URL.createObjectURL(blob);
+      var fn = safeEntity+'_File'+fileId+'_'+(c.docDate||'').replace(/[^a-zA-Z0-9]/g,'_');
       document.getElementById('dp-dl-btn').textContent = '⬇ Download Word (.docx)';
-      document.getElementById('dp-dl-btn').onclick = function(){ var a=document.createElement('a');a.href=url;a.download=fn+'.docx';a.click(); };
+      document.getElementById('dp-dl-btn').onclick = function(){ var a=document.createElement('a'); a.href=url; a.download=fn+'.docx'; a.click(); };
       document.getElementById('dp-dl-pdf').style.display = 'inline-flex';
       document.getElementById('dp-dl-pdf').onclick = function(){ dpDownloadAsPdf(blob, fn+'.pdf'); };
     } else {
-      // Multiple templates — zip all outputs together
-      var zipBlob = await outputZip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
-      var zipUrl  = URL.createObjectURL(zipBlob);
-      var zipName = safe+'_File'+fileId+'_LoanPackage.zip';
+      // Multiple — zip
+      var zipBlob = await finalZip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+      var zipUrl = URL.createObjectURL(zipBlob);
+      var zipName = safeEntity+'_File'+fileId+'_LoanPackage.zip';
       document.getElementById('dp-dl-btn').textContent = '⬇ Download All Docs (.zip)';
-      document.getElementById('dp-dl-btn').onclick = function(){ var a=document.createElement('a');a.href=zipUrl;a.download=zipName;a.click(); };
-      document.getElementById('dp-dl-pdf').style.display = 'none'; // PDF not applicable for multi-doc
+      document.getElementById('dp-dl-btn').onclick = function(){ var a=document.createElement('a'); a.href=zipUrl; a.download=zipName; a.click(); };
+      document.getElementById('dp-dl-pdf').style.display = 'none';
     }
 
     dpProg(100, 'Done ✓');
     document.getElementById('dp-summary').textContent =
-      dpTemplateFiles.length+' document'+(dpTemplateFiles.length>1?'s':'')+' generated · '+
-      totalRepsAll+' substitutions · '+warnsAll+' warnings';
+      generatedDocs.length+' document'+(generatedDocs.length>1?'s':'')+' generated · '+
+      totalRepsAll+' substitutions · '+warnsAll+' warning'+(warnsAll!==1?'s':'');
     document.getElementById('dp-done').style.display = 'block';
 
   } catch(err) {
-    dpLog('❌ ERROR: '+err.message,'err');
-    dpProg(0,'Error — see log');
+    dpLog('❌ ERROR: '+err.message, 'err');
+    console.error(err);
+    dpProg(0, 'Error — see log');
   }
 }
 
+// ============================================================================
+// dpBuildPlaceholderMap — for templates with {{fieldName}} tokens
+// ============================================================================
+// Maps every placeholder name to the current value from form fields or
+// calculated values. Covers ~50 common placeholder names across states.
+function dpBuildPlaceholderMap(newVals, form, origFee, docPrep, procFee, defRate, c) {
+  var $f = function(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  var termMonths = c.term || 24;
+  return {
+    // Borrower / Guarantor
+    borrowerName:       form.entity || form.gname,
+    entityName:         form.entity,
+    entityType:         form.etype,
+    entityAddress:      form.eaddr,
+    entityCSZ:          form.ecsz,
+    signorTitle:        form.signor,
+    guarantorName:      form.gname,
+    guarantorAddress:   form.gaddr,
+    guarantorCSZ:       form.gcsz,
+    // Property
+    propertyAddress:    form.propaddr,
+    propertyCSZ:        form.propcsz,
+    propertyCommon:     form.propcommon,
+    propertyDescription:form.propcommon,
+    county:             form.county,
+    state:              form.state,
+    apn:                form.apn,
+    taxId:              form.apn,
+    // Loan terms
+    loanAmount:         newVals.loan_numeric,
+    loanAmountWords:    newVals.loan_written,
+    loanAmountWritten:  newVals.loan_written,
+    principalAmount:    newVals.loan_numeric,
+    principalWritten:   newVals.loan_written,
+    interestRate:       newVals.rate_pct,
+    interestRatePct:    newVals.rate_pct,
+    interestRateWords:  newVals.rate_written,
+    interestRateWritten:newVals.rate_written,
+    defaultRate:        defRate + '%',
+    monthlyPayment:     newVals.monthly_numeric,
+    monthlyPaymentWords:newVals.monthly_written,
+    monthlyPI:          newVals.monthly_numeric,
+    monthlyAmount:      newVals.monthly_numeric,
+    balloonAmount:      newVals.balloon_numeric,
+    balloonPayment:     newVals.balloon_numeric,
+    balloonWords:       newVals.balloon_written,
+    reserveAmount:      newVals.reserve_numeric,
+    reserveWords:       newVals.reserve_written,
+    interestReserve:    newVals.reserve_numeric,
+    altaAmount:         newVals.alta_numeric,
+    altaWords:          newVals.alta_written,
+    titlePolicyAmount:  newVals.alta_numeric,
+    perDiem:            newVals.per_diem,
+    perDiemRate:        newVals.per_diem,
+    perDiemThru:        c.pdThru,
+    perDiemThruDate:    c.pdThru,
+    termMonths:         String(termMonths),
+    amortMonths:        String(c.amort || 480),
+    // Dates
+    docDate:            c.docDate,
+    documentDate:       c.docDate,
+    closingDate:        c.docDate,
+    maturityDate:       c.maturity,
+    firstPayment:       c.first,
+    firstPaymentDate:   c.first,
+    firstBorrowerPayment:c.first,
+    reserveStart:       c.res1,
+    reserveStartDate:   c.res1,
+    reserveEnd:         c.res3,
+    reserveEndDate:     c.res3,
+    reserveRange:       c.res1+' through '+c.res3,
+    lockoutDate:        c.lockout,
+    prepayLockout:      c.lockout,
+    // Identifiers
+    fileNo:             form.fileno,
+    fileNumber:         form.fileno,
+    escrowNo:           form.escrow,
+    escrowNumber:       form.escrow,
+    titleOrderNumber:   form.escrow,
+    // Title & escrow
+    titleCompany:       form.titleco,
+    titleCo:            form.titleco,
+    titleOfficer:       form.titleoff,
+    closingOfficer:     form.titleoff,
+    closingAgent:       form.titleoff,
+    titleAddress:       form.titleaddr,
+    titleCSZ:           form.titlecsz,
+    titlePhone:         form.titleph,
+    titleEmail:         form.titleem,
+    titleUnderwriter:   form.titleund,
+    servicer:           form.servicer,
+    loanServicer:       form.servicer,
+    // Broker
+    originatingBroker:  form.origbroker,
+    origBroker:         form.origbroker,
+    origBrokerFee:      '$'+$f(origFee),
+    originatingBrokerFee:'$'+$f(origFee),
+    // Fees
+    docPrepFee:         '$'+$f(docPrep),
+    processingFee:      '$'+$f(procFee),
+    // FirstLien/Lender Funds brand
+    brokerEntity:       'Lender Funds',
+    brokerLicense:      'BRE License No. 02098388',
+    brokerBRE:          '02098388',
+    brokerNMLS:         '', // future
+    brokerOfficer:      'Andrew A. Dioli',
+    brokerAddress:      '380 Beach Road, Suite B',
+    brokerCSZ:          'Burlingame, CA 94010'
+  };
+}
+
+// ============================================================================
+// dpBuildRules — TIER 2 auto-learned substitutions
+// ============================================================================
+// Pairs every scanned OLD-template value with the matching NEW form value.
+// No hardcoded per-deal entity names or addresses.
+function dpBuildRules(tf, newVals, form, origFee, docPrep, procFee, defRate, c) {
+  var $f = function(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  var RULES = [];
+  function add(oldV, newV, label) {
+    if (!oldV || newV === null || newV === undefined) return;
+    if (oldV === newV) return;
+    if (typeof oldV !== 'string' || oldV.length < 2) return;
+    RULES.push([oldV, newV, label]);
+  }
+
+  // ─── BORROWER NAME (most frequent in template) ─────────────────────────
+  var useName = form.entity || form.gname;
+  if (tf.borrower_name && useName) {
+    // Full context variants
+    add(tf.borrower_name+', a Single', useName+', a Single', 'borrower+single');
+    add(tf.borrower_name+', a Married', useName+', a Married', 'borrower+married');
+    add(tf.borrower_name+', an individual', useName+', an individual', 'borrower+indiv');
+    add(tf.borrower_name+' (Borrower)', useName+' (Borrower)', 'borrower+parens');
+    // Then the bare name last so context-specific replacements happen first
+    add(tf.borrower_name, useName, 'borrower bare');
+    // Mixed case variant
+    var nameWords = tf.borrower_name.split(' ');
+    var titleCased = nameWords.map(function(w){
+      if (w.length <= 1) return w;
+      // Keep initials (X.) as-is
+      if (/^[A-Z]\.$/.test(w)) return w;
+      return w.charAt(0).toUpperCase() + w.substring(1).toLowerCase();
+    }).join(' ');
+    if (titleCased !== tf.borrower_name) {
+      add(titleCased, useName.split(' ').map(function(w){
+        if (w.length <= 1) return w;
+        if (/^[A-Z]\.$/.test(w)) return w;
+        return w.charAt(0).toUpperCase()+w.substring(1).toLowerCase();
+      }).join(' '), 'borrower titlecase');
+    }
+  }
+  // Guarantor distinct from borrower (corporate deals)
+  if (form.gname && tf.borrower_name !== form.gname) {
+    // When borrower is an entity, guarantor is often in indemnitor/guaranty sections
+    // We can't auto-detect this from scan — rely on user filling dp-gname
+  }
+
+  // ─── PROPERTY ──────────────────────────────────────────────────────────
+  if (tf.prop_addr && form.propaddr) {
+    // Full: street + csz
+    if (tf.prop_csz && form.propcsz) {
+      add(tf.prop_addr+', '+tf.prop_csz, form.propcommon || (form.propaddr+', '+form.propcsz), 'prop full');
+      add(tf.prop_addr+' '+tf.prop_csz, form.propaddr+' '+form.propcsz, 'prop full nocomma');
+    }
+    add(tf.prop_addr, form.propaddr, 'prop street');
+  }
+  if (tf.prop_csz && form.propcsz) add(tf.prop_csz, form.propcsz, 'prop csz');
+
+  // ─── COUNTY ────────────────────────────────────────────────────────────
+  if (tf.county && form.county) {
+    add('County of '+tf.county+', State of', 'County of '+form.county+', State of', 'county of state');
+    add(tf.county+' County', form.county+' County', 'county+County');
+    add('County of '+tf.county, 'County of '+form.county, 'county of');
+    add(tf.county, form.county, 'county bare');
+  }
+
+  // ─── STATE ─────────────────────────────────────────────────────────────
+  // Scanner may have stored state in prop_csz — form.state has canonical name
+  // Hardcoded abbreviation → full name fixes are in dpBuildBrandRules
+
+  // ─── APN ───────────────────────────────────────────────────────────────
+  if (tf.apn && form.apn) {
+    add('APN/Tax ID No.: '+tf.apn, 'APN/Tax ID No.: '+form.apn, 'apn label');
+    add('APN: '+tf.apn, 'APN: '+form.apn, 'apn simple');
+    add(tf.apn, form.apn, 'apn bare');
+  }
+
+  // ─── FILE / ESCROW ─────────────────────────────────────────────────────
+  if (tf.file_no && form.fileno) add(tf.file_no, form.fileno, 'file no');
+  if (tf.escrow_no && form.escrow) add(tf.escrow_no, form.escrow, 'escrow no');
+
+  // ─── LOAN AMOUNT ───────────────────────────────────────────────────────
+  if (tf.loan_written && tf.loan_numeric) {
+    // Combined "Written (Numeric)" form — most specific, replace first
+    add(tf.loan_written+' ('+tf.loan_numeric+')',
+        newVals.loan_written+' ('+newVals.loan_numeric+')', 'loan written+num');
+    add(tf.loan_written, newVals.loan_written, 'loan written');
+    add(tf.loan_numeric, newVals.loan_numeric, 'loan numeric');
+  } else if (tf.loan_numeric) {
+    add(tf.loan_numeric, newVals.loan_numeric, 'loan numeric only');
+  }
+
+  // ─── MONTHLY PAYMENT ──────────────────────────────────────────────────
+  if (tf.monthly_written && tf.monthly_numeric) {
+    add(tf.monthly_written+' ('+tf.monthly_numeric+')',
+        newVals.monthly_written+' ('+newVals.monthly_numeric+')', 'monthly written+num');
+    add(tf.monthly_written, newVals.monthly_written, 'monthly written');
+    add(tf.monthly_numeric, newVals.monthly_numeric, 'monthly numeric');
+  } else if (tf.monthly_numeric) {
+    add(tf.monthly_numeric, newVals.monthly_numeric, 'monthly numeric only');
+  }
+
+  // ─── RESERVE ──────────────────────────────────────────────────────────
+  if (tf.reserve_written && tf.reserve_numeric) {
+    add(tf.reserve_written+' ('+tf.reserve_numeric+')',
+        newVals.reserve_written+' ('+newVals.reserve_numeric+')', 'reserve written+num');
+    add(tf.reserve_written, newVals.reserve_written, 'reserve written');
+    add(tf.reserve_numeric, newVals.reserve_numeric, 'reserve numeric');
+  } else if (tf.reserve_numeric) {
+    add(tf.reserve_numeric, newVals.reserve_numeric, 'reserve numeric only');
+  }
+
+  // ─── BALLOON ──────────────────────────────────────────────────────────
+  if (tf.balloon_written && tf.balloon_numeric) {
+    add(tf.balloon_written+' ('+tf.balloon_numeric+')',
+        newVals.balloon_written+' ('+newVals.balloon_numeric+')', 'balloon written+num');
+    add(tf.balloon_written, newVals.balloon_written, 'balloon written');
+    add(tf.balloon_numeric, newVals.balloon_numeric, 'balloon numeric');
+  } else if (tf.balloon_numeric) {
+    add(tf.balloon_numeric, newVals.balloon_numeric, 'balloon numeric only');
+  }
+
+  // ─── ALTA ──────────────────────────────────────────────────────────────
+  if (tf.alta_written && tf.alta_numeric) {
+    add(tf.alta_written+' ('+tf.alta_numeric+') (125% of the principal balance)',
+        newVals.alta_written+' ('+newVals.alta_numeric+') (125% of the principal balance)', 'ALTA full');
+    add(tf.alta_written+' ('+tf.alta_numeric+')',
+        newVals.alta_written+' ('+newVals.alta_numeric+')', 'ALTA written+num');
+    add(tf.alta_written, newVals.alta_written, 'ALTA written');
+    add(tf.alta_numeric, newVals.alta_numeric, 'ALTA numeric');
+  } else if (tf.alta_numeric) {
+    add(tf.alta_numeric, newVals.alta_numeric, 'ALTA numeric only');
+  }
+
+  // ─── PER DIEM ─────────────────────────────────────────────────────────
+  if (tf.per_diem) {
+    add(tf.per_diem+' per day', newVals.per_diem+' per day', 'per diem');
+    add(tf.per_diem, newVals.per_diem, 'per diem bare');
+  }
+
+  // ─── INTEREST RATE ────────────────────────────────────────────────────
+  if (tf.rate_written && tf.rate_pct) {
+    add(tf.rate_written+' ('+tf.rate_pct+')', newVals.rate_written+' ('+newVals.rate_pct+')', 'rate written+%');
+    add(tf.rate_written, newVals.rate_written, 'rate written');
+  }
+  if (tf.rate_pct && tf.rate_pct !== newVals.rate_pct) {
+    add(tf.rate_pct, newVals.rate_pct, 'rate %');
+  }
+
+  // ─── DATES ────────────────────────────────────────────────────────────
+  if (tf.doc_date && c.docDate) add(tf.doc_date, c.docDate, 'doc date');
+  if (tf.maturity_date && c.maturity) add(tf.maturity_date, c.maturity, 'maturity');
+  if (tf.first_pmt_date && c.first) add(tf.first_pmt_date, c.first, 'first pmt');
+  if (tf.per_diem_thru_date && c.pdThru) add(tf.per_diem_thru_date, c.pdThru, 'per diem thru');
+  if (tf.res_start && tf.res_end && c.res1 && c.res3) {
+    add(tf.res_start+' through '+tf.res_end, c.res1+' through '+c.res3, 'reserve range');
+    add(tf.res_start+', through '+tf.res_end, c.res1+' through '+c.res3, 'reserve range comma');
+    add(tf.res_start, c.res1, 'reserve start');
+    add(tf.res_end, c.res3, 'reserve end');
+  }
+
+  // ─── TITLE CO / OFFICER / EMAIL ───────────────────────────────────────
+  if (tf.title_co && form.titleco) add(tf.title_co, form.titleco, 'title co');
+  if (tf.title_officer && form.titleoff) add(tf.title_officer, form.titleoff, 'title officer');
+  if (tf.title_email && form.titleem) add(tf.title_email, form.titleem, 'title email');
+  if (tf.title_addr && form.titleaddr) add(tf.title_addr, form.titleaddr, 'title addr');
+  if (tf.title_underwriter && form.titleund) add(tf.title_underwriter, form.titleund, 'title underwriter');
+
+  return RULES;
+}
+
+// ============================================================================
+// dpBuildBrandRules — TIER 3 global brand/legal fixes
+// ============================================================================
+// These apply to EVERY template regardless of scan results. Standard
+// FirstLien / Lender Funds brand updates that should propagate to all docs.
+function dpBuildBrandRules(defRate, docPrep, procFee, origFee, form) {
+  var $f = function(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  var R = [];
+
+  // RUSHMYFILE → Lender Funds (multiple variants)
+  R.push(['RUSHMYFILE, Inc. (BRE License No. 01893519)', 'Lender Funds (BRE License No. 02098388)', 'RUSHMYFILE→Lender Funds w/license']);
+  R.push(['RUSHMYFILE, Inc.', 'Lender Funds, Inc.', 'RUSHMYFILE→Lender Funds Inc']);
+  R.push(['RUSHMYFILE, INC.', 'LENDER FUNDS, INC.', 'RUSHMYFILE→Lender Funds caps']);
+  R.push(['RUSHMYFILE INC.', 'LENDER FUNDS, INC.', 'RUSHMYFILE→LF nocomma']);
+  R.push(['RUSHMYFILE, Inc', 'Lender Funds, Inc', 'RUSHMYFILE→LF no period']);
+  R.push(['RUSHMYFILE', 'LENDER FUNDS', 'RUSHMYFILE→LENDER FUNDS bare']);
+  R.push(['Rushmyfile', 'Lender Funds', 'Rushmyfile mixed case']);
+  R.push(['RushMyFile', 'Lender Funds', 'RushMyFile camel']);
+
+  // Old BRE license → new
+  R.push(['BRE License No. 01893519', 'BRE License No. 02098388', 'BRE license update']);
+  R.push(['BRE License 01893519', 'BRE License 02098388', 'BRE license update alt']);
+  R.push(['01893519', '02098388', 'BRE license bare']);
+  R.push(['BRE License No 01893519', 'BRE License No 02098388', 'BRE no period']);
+
+  // Standard default rate normalization
+  R.push(['Twenty and 99/100 Percent (20.99%)', 'Twenty-Four and 99/100 Percent ('+defRate+'%)', 'default 20.99→24.99']);
+  R.push(['(20.99%)', '('+defRate+'%)', 'default paren 20.99→24.99']);
+
+  // Fee amount updates
+  R.push(['Doc Prep Fee payable to RUSHMYFILE, Inc. in the amount of $1,060.00',
+          'Doc Prep Fee payable to Lender Funds, Inc. in the amount of $'+$f(docPrep), 'doc prep fee update']);
+  R.push(['Underwriting Fee payable to RUSHMYFILE, Inc. in the amount of $2,520.00',
+          'Doc Prep Fee payable to Lender Funds, Inc. in the amount of $'+$f(docPrep), 'UW fee → doc prep']);
+  R.push(['Processing Fee payable to RUSHMYFILE, Inc. in the amount of $995.00',
+          'Processing Fee payable to Lender Funds, Inc. in the amount of $'+$f(procFee), 'proc fee update']);
+  R.push(['Processing Fee payable to RUSHMYFILE, Inc. in the amount of $1,060.00',
+          'Processing Fee payable to Lender Funds, Inc. in the amount of $'+$f(procFee), 'proc fee update 2']);
+  R.push(['Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,499.00',
+          'Doc Prep Fee payable to Lender Funds, Inc. in the amount of $'+$f(docPrep), 'old doc prep $1499→$1595']);
+  R.push(['Doc Prep Fee payable to LENDER FUNDS, Inc. in the amount of $1,595.00',
+          'Doc Prep Fee payable to Lender Funds, Inc. in the amount of $'+$f(docPrep), 'doc prep no change']);
+
+  // Lender Funds contact info — per Christina, keep as previously deployed
+  // (no overwrite — previous admin.html already handled Suite B/R/N variants)
+
+  // Legal Fee line — typically removed
+  R.push(['Legal Fee payable to RUSHMYFILE, Inc. in the amount of $1,600.00 (Delivery instructions to be provided)', '', 'Legal Fee remove']);
+  R.push(['Legal Fee payable to LENDER FUNDS, Inc. in the amount of $1,600.00 (Delivery instructions to be provided)', '', 'Legal Fee LF remove']);
+
+  // Wire Fee line — typically removed
+  R.push(['Wire Fee payable to RUSHMYFILE, Inc. in the amount of $45.00;', '', 'Wire fee remove']);
+  R.push(['Wire Fee payable to LENDER FUNDS, Inc. in the amount of $45.00;', '', 'Wire fee LF remove']);
+
+  // State abbreviation spell-outs in DOT/deed language
+  R.push(['State of NC', 'State of North Carolina', 'NC spell out']);
+  R.push(['State of NV', 'State of Nevada', 'NV spell out']);
+  R.push(['State of CA', 'State of California', 'CA spell out']);
+  R.push(['State of TX', 'State of Texas', 'TX spell out']);
+  R.push(['State of AZ', 'State of Arizona', 'AZ spell out']);
+  R.push(['State of NM', 'State of New Mexico', 'NM spell out']);
+
+  // Template artifact cleanup
+  R.push(['***Arbitration County TE***', (form.county||'')+' County, '+(form.state||''), 'arb county TE']);
+  R.push(['***Arbitration County NM***', (form.county||'')+' County, '+(form.state||''), 'arb county NM']);
+
+  return R.filter(function(r){ return r[0] && r[0] !== r[1]; });
+}
 // ── PDF generation via print iframe ──────────────────────────────
 // Converts the docx blob to PDF by opening it in a hidden iframe styled for print.
 // For true PDF fidelity, uses the browser's built-in print-to-PDF.
