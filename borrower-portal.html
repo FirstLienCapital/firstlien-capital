@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Deal Portal | FirstLien.Capital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f0e0c;--ink2:#2a2620;--cream:#faf8f4;--cream2:#f2ede3;--white:#ffffff;
+  --border:#e0d8cc;--border2:#cdc3b4;--muted:#7a7060;
+  --gold:#b08830;--gold-l:#d4a92a;--gold-bg:rgba(176,136,48,0.07);
+  --teal:#0a7b6a;--teal-l:#0d9882;--teal-bg:rgba(10,123,106,0.07);
+  --dark:#080705;--green:#1a6a3a;--red:#8b2020;--amber:#c97f1d;
+  --r:3px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--cream);color:var(--ink);font-family:'Outfit',sans-serif;font-size:14.5px;line-height:1.65;}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:500;
+  background:rgba(250,248,244,0.96);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:62px;
+}
+.nav-logo{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--ink);text-decoration:none;}
+.nav-logo .dot{color:var(--gold);}
+.nav-deal-ref{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:var(--cream2);padding:5px 12px;border-radius:100px;border:1px solid var(--border);}
+
+/* ── PORTAL LAYOUT ── */
+.portal{max-width:1280px;margin:0 auto;padding:32px;display:grid;grid-template-columns:280px 1fr;gap:32px;}
+.sidebar{position:sticky;top:90px;align-self:start;}
+.side-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:22px;margin-bottom:16px;}
+.side-card-h{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:14px;}
+
+.deal-summary{}
+.ds-addr{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;line-height:1.2;margin-bottom:6px;letter-spacing:-0.01em;}
+.ds-meta{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+.ds-meta-row{display:flex;justify-content:space-between;font-size:12px;}
+.ds-meta-row .l{color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.06em;}
+.ds-meta-row .v{color:var(--ink);font-weight:600;}
+
+.tabs{display:flex;flex-direction:column;gap:2px;}
+.tab{
+  background:none;border:none;text-align:left;padding:10px 12px;border-radius:5px;
+  font-family:'Outfit',sans-serif;font-size:13px;color:var(--muted);
+  cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:10px;
+  position:relative;
+}
+.tab:hover{background:var(--cream2);color:var(--ink);}
+.tab.active{background:var(--ink);color:var(--cream);font-weight:600;}
+.tab .badge{margin-left:auto;background:var(--gold);color:var(--ink);font-size:10px;padding:2px 7px;border-radius:100px;font-weight:700;}
+.tab.active .badge{background:var(--gold-l);}
+
+/* ── MAIN CONTENT ── */
+.main{}
+.tab-pane{display:none;animation:fadeIn 0.25s ease;}
+.tab-pane.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.pane-h{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;letter-spacing:-0.02em;margin-bottom:6px;}
+.pane-sub{font-size:13px;color:var(--muted);margin-bottom:28px;font-weight:300;}
+
+/* ── STATUS TIMELINE ── */
+.timeline{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:32px;}
+.tl-list{display:flex;flex-direction:column;gap:0;position:relative;}
+.tl-step{display:flex;gap:18px;padding:14px 0;position:relative;}
+.tl-step::before{content:'';position:absolute;left:13px;top:42px;bottom:-14px;width:2px;background:var(--border);}
+.tl-step:last-child::before{display:none;}
+.tl-dot{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  background:var(--white);border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:var(--border2);
+  z-index:1;
+}
+.tl-step.done .tl-dot{background:var(--green);border-color:var(--green);color:#fff;}
+.tl-step.done::before{background:var(--green);}
+.tl-step.current .tl-dot{background:var(--gold);border-color:var(--gold);color:var(--ink);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(212,169,42,0.5);}50%{box-shadow:0 0 0 8px rgba(212,169,42,0);}}
+.tl-body{flex:1;padding-top:3px;}
+.tl-title{font-size:14.5px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.tl-step:not(.done):not(.current) .tl-title{color:var(--muted);}
+.tl-desc{font-size:12.5px;color:var(--muted);line-height:1.6;}
+.tl-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);margin-top:5px;text-transform:uppercase;letter-spacing:0.08em;}
+
+/* ── ACTIVITY FEED ── */
+.activity{background:var(--cream2);border:1px solid var(--border);border-radius:8px;padding:24px;margin-top:20px;}
+.act-h{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:14px;}
+.act-list{display:flex;flex-direction:column;gap:10px;}
+.act-item{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--white);border-radius:6px;border:1px solid var(--border);}
+.act-icon{width:32px;height:32px;border-radius:50%;background:var(--gold-bg);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.act-text{flex:1;font-size:13px;}
+.act-text strong{color:var(--ink);}
+.act-time{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+
+/* ── OFFERS GRID ── */
+.offers-grid{display:flex;flex-direction:column;gap:14px;}
+.offer-row{
+  background:var(--white);border:1px solid var(--border);border-radius:8px;
+  padding:22px;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;
+  transition:all 0.18s;
+}
+.offer-row:hover{border-color:var(--gold);box-shadow:0 4px 16px rgba(0,0,0,0.05);}
+.offer-row.best{border-color:var(--green);background:linear-gradient(135deg,rgba(26,106,58,0.04),var(--white));}
+.or-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.or-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;}
+.or-tag{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;padding:2px 8px;border-radius:3px;}
+.or-tag.best{background:var(--green);color:#fff;}
+.or-tag.fast{background:var(--teal);color:#fff;}
+.or-tag.flex{background:var(--gold);color:var(--ink);}
+.or-tag.anon{background:var(--cream2);color:var(--muted);border:1px solid var(--border);}
+.or-terms{display:flex;gap:24px;flex-wrap:wrap;}
+.or-term{display:flex;flex-direction:column;}
+.or-term .l{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
+.or-term .v{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--ink);}
+.or-actions{display:flex;flex-direction:column;gap:8px;}
+.btn{padding:10px 18px;border-radius:100px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;transition:all 0.15s;text-align:center;text-decoration:none;display:inline-block;}
+.btn-ink{background:var(--ink);color:var(--cream);}
+.btn-ink:hover{background:var(--ink2);}
+.btn-gold{background:var(--gold);color:var(--ink);}
+.btn-gold:hover{background:var(--gold-l);}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--muted);}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+
+.empty{
+  background:var(--white);border:1px dashed var(--border);border-radius:8px;
+  padding:60px 24px;text-align:center;
+}
+.empty-icon{font-size:42px;margin-bottom:14px;opacity:0.4;}
+.empty-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:6px;}
+.empty-sub{font-size:13px;color:var(--muted);max-width:380px;margin:0 auto;}
+
+/* ── DOCS ── */
+.doc-list{display:flex;flex-direction:column;gap:10px;}
+.doc-row{
+  background:var(--white);border:1px solid var(--border);border-radius:6px;
+  padding:14px 18px;display:flex;align-items:center;gap:14px;
+}
+.doc-icon{width:36px;height:36px;border-radius:6px;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.doc-name{flex:1;font-size:14px;font-weight:500;}
+.doc-name .ds{display:block;font-size:11px;color:var(--muted);margin-top:2px;font-weight:400;}
+.doc-status{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;padding:4px 10px;border-radius:4px;}
+.doc-status.pending{background:var(--cream2);color:var(--muted);border:1px solid var(--border);}
+.doc-status.uploaded{background:rgba(26,106,58,0.1);color:var(--green);border:1px solid rgba(26,106,58,0.3);}
+.doc-status.review{background:rgba(201,127,29,0.1);color:var(--amber);border:1px solid rgba(201,127,29,0.3);}
+.doc-upload-btn{background:var(--ink);color:var(--cream);border:none;padding:8px 14px;border-radius:4px;font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif;}
+
+/* ── MESSAGES ── */
+.msg-thread{background:var(--white);border:1px solid var(--border);border-radius:8px;height:520px;display:flex;flex-direction:column;}
+.msg-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.msg-header-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;}
+.msg-header-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+.msg-list{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;}
+.msg-bubble{padding:11px 15px;border-radius:14px;font-size:13.5px;max-width:75%;line-height:1.55;}
+.msg-bubble.them{background:var(--cream2);color:var(--ink);align-self:flex-start;border-bottom-left-radius:4px;}
+.msg-bubble.you{background:var(--ink);color:var(--cream);align-self:flex-end;border-bottom-right-radius:4px;}
+.msg-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px;}
+.msg-input-row{display:flex;gap:8px;padding:14px;border-top:1px solid var(--border);}
+.msg-input{flex:1;border:1px solid var(--border);border-radius:100px;padding:10px 16px;font-size:13px;font-family:'Outfit',sans-serif;background:var(--cream);outline:none;}
+.msg-input:focus{border-color:var(--gold);}
+
+/* ── AVM moment banner ── */
+.avm-banner{
+  background:linear-gradient(135deg,rgba(201,127,29,0.06),rgba(201,127,29,0.12));
+  border:1px solid rgba(201,127,29,0.3);
+  border-radius:8px;padding:20px 24px;margin-bottom:20px;
+  display:flex;align-items:center;gap:16px;
+}
+.avm-icon{font-size:24px;}
+.avm-text{flex:1;}
+.avm-title{font-weight:700;color:var(--amber);font-size:14px;margin-bottom:3px;}
+.avm-desc{font-size:12.5px;color:var(--ink2);}
+.avm-action{background:var(--amber);color:#fff;border:none;padding:9px 16px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;}
+
+/* ════════════════════════════════════════════════════════════════════
+   JOEY — BOTTOM-LEFT (same as borrower.html)
+   ════════════════════════════════════════════════════════════════════ */
+.joey-wrap{position:fixed;bottom:0;left:24px;z-index:450;pointer-events:none;}
+.joey-figure{position:relative;width:120px;height:240px;cursor:pointer;pointer-events:auto;transition:transform 0.25s;filter:drop-shadow(0 8px 20px rgba(0,0,0,0.15));}
+.joey-figure:hover{transform:translateY(-6px);}
+.joey-figure img{width:100%;height:100%;object-fit:contain;object-position:bottom;display:block;}
+.joey-bubble{position:absolute;bottom:200px;left:100px;background:var(--ink);color:var(--cream);padding:9px 14px;border-radius:18px;font-size:12.5px;white-space:nowrap;pointer-events:auto;cursor:pointer;font-weight:500;box-shadow:0 6px 20px rgba(0,0,0,0.2);border:1px solid var(--gold);animation:joeyBubbleIn 0.5s ease 0.8s both;transition:all 0.2s;}
+.joey-bubble:hover{background:var(--ink2);transform:scale(1.04);}
+.joey-bubble::before{content:'';position:absolute;left:-7px;bottom:13px;width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-right:7px solid var(--gold);}
+.joey-bubble::after{content:'';position:absolute;left:-6px;bottom:14px;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:6px solid var(--ink);}
+@keyframes joeyBubbleIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.joey-panel{position:fixed;bottom:24px;left:160px;z-index:455;width:360px;max-height:540px;background:var(--white);border:1px solid var(--border);border-radius:14px;box-shadow:0 12px 50px rgba(0,0,0,0.18);display:none;flex-direction:column;overflow:hidden;pointer-events:auto;animation:joeyPanelIn 0.25s ease;}
+.joey-panel.open{display:flex;}
+@keyframes joeyPanelIn{from{opacity:0;transform:translateY(12px) scale(0.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+.joey-head{background:linear-gradient(135deg,var(--ink) 0%,var(--ink2) 100%);color:var(--cream);padding:16px 18px;display:flex;align-items:center;gap:12px;border-bottom:2px solid var(--gold);}
+.joey-avatar{width:42px;height:42px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid var(--gold-l);flex-shrink:0;}
+.joey-avatar img{width:100%;height:100%;object-fit:cover;object-position:top;}
+.joey-head-text{flex:1;}
+.joey-head-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;line-height:1.1;}
+.joey-head-role{font-family:'DM Mono',monospace;font-size:10px;color:rgba(250,248,244,0.55);letter-spacing:0.05em;margin-top:3px;display:flex;align-items:center;gap:6px;}
+.joey-head-role::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--teal-l);animation:pulse 2s infinite;}
+.joey-close{background:none;border:none;color:rgba(250,248,244,0.5);cursor:pointer;font-size:22px;line-height:1;padding:0 4px;}
+.joey-close:hover{color:var(--cream);}
+.joey-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--cream);min-height:200px;max-height:340px;}
+.joey-msg{padding:11px 14px;border-radius:12px;font-size:13.5px;max-width:85%;line-height:1.55;}
+.joey-msg.bot{background:var(--white);color:var(--ink);align-self:flex-start;border:1px solid var(--border);border-bottom-left-radius:4px;}
+.joey-msg.user{background:var(--ink);color:var(--cream);align-self:flex-end;border-bottom-right-radius:4px;}
+.joey-msg.typing{font-style:italic;color:var(--muted);background:transparent;border:none;padding:6px 14px;}
+.joey-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:var(--white);}
+.joey-input{flex:1;border:1px solid var(--border);border-radius:100px;padding:10px 16px;font-size:13px;background:var(--cream);outline:none;font-family:'Outfit',sans-serif;}
+.joey-input:focus{border-color:var(--gold);}
+.joey-send{background:var(--ink);color:var(--cream);border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.joey-send:hover{background:var(--gold);color:var(--ink);}
+
+@media(max-width:900px){
+  .portal{grid-template-columns:1fr;padding:20px;}
+  .sidebar{position:static;}
+  .joey-figure{width:80px;height:160px;}
+  .joey-wrap{left:12px;}
+  .joey-bubble{display:none;}
+  .joey-panel{left:12px;right:12px;width:auto;max-height:70vh;bottom:12px;}
+  .or-row{grid-template-columns:1fr;}
+  .or-terms{gap:14px;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">FirstLien<span class="dot">.</span>Capital</a>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <span class="nav-deal-ref" id="nav-ref">Loading…</span>
+    <a href="/borrower.html" style="font-size:12px;color:var(--muted);text-decoration:none;">← Submit another deal</a>
+  </div>
+</nav>
+
+<div class="portal">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="side-card deal-summary">
+      <div class="side-card-h">Your Deal</div>
+      <div class="ds-addr" id="ds-addr">—</div>
+      <div style="font-size:12px;color:var(--muted);" id="ds-type">—</div>
+      <div class="ds-meta">
+        <div class="ds-meta-row"><span class="l">Loan</span><span class="v" id="ds-loan">—</span></div>
+        <div class="ds-meta-row"><span class="l">Value</span><span class="v" id="ds-value">—</span></div>
+        <div class="ds-meta-row"><span class="l">LTV</span><span class="v" id="ds-ltv">—</span></div>
+        <div class="ds-meta-row"><span class="l">Term</span><span class="v" id="ds-term">—</span></div>
+        <div class="ds-meta-row"><span class="l">Submitted</span><span class="v" id="ds-date">—</span></div>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <div class="side-card-h">Navigate</div>
+      <div class="tabs">
+        <button class="tab active" onclick="goTab('status')">📊 Deal Status</button>
+        <button class="tab" onclick="goTab('offers')">💰 Offers <span class="badge" id="offer-badge">0</span></button>
+        <button class="tab" onclick="goTab('docs')">📄 Documents</button>
+        <button class="tab" onclick="goTab('messages')">💬 Messages</button>
+        <button class="tab" onclick="goTab('details')">🏠 Deal Details</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- AVM banner shows up if there's a value discrepancy (sample logic) -->
+    <div class="avm-banner" id="avm-banner" style="display:none;">
+      <div class="avm-icon">⚠️</div>
+      <div class="avm-text">
+        <div class="avm-title">Value Discrepancy Detected</div>
+        <div class="avm-desc">AVM estimate is materially different from your stated value. Please add context so lenders understand.</div>
+      </div>
+      <button class="avm-action" onclick="explainAVM()">Add Context →</button>
+    </div>
+
+    <!-- STATUS PANE -->
+    <div class="tab-pane active" id="pane-status">
+      <h1 class="pane-h">Where your deal stands.</h1>
+      <p class="pane-sub">Real-time status. Joey will ping you the moment something moves.</p>
+
+      <div class="timeline">
+        <div class="tl-list" id="tl-list"></div>
+      </div>
+
+      <div class="activity">
+        <div class="act-h">Recent Activity</div>
+        <div class="act-list" id="act-list"></div>
+      </div>
+    </div>
+
+    <!-- OFFERS PANE -->
+    <div class="tab-pane" id="pane-offers">
+      <h1 class="pane-h">Competing offers.</h1>
+      <p class="pane-sub">Lender identity stays anonymous until you accept. Compare side-by-side.</p>
+      <div id="offers-container"></div>
+    </div>
+
+    <!-- DOCS PANE -->
+    <div class="tab-pane" id="pane-docs">
+      <h1 class="pane-h">Documents.</h1>
+      <p class="pane-sub">What lenders need to fund your deal. Upload securely — only the lender you accept will see them.</p>
+      <div class="doc-list" id="doc-list"></div>
+    </div>
+
+    <!-- MESSAGES PANE -->
+    <div class="tab-pane" id="pane-messages">
+      <h1 class="pane-h">Messages.</h1>
+      <p class="pane-sub">Communication with FirstLien admin and your matched lender.</p>
+      <div class="msg-thread">
+        <div class="msg-header">
+          <div>
+            <div class="msg-header-name">FirstLien Admin</div>
+            <div class="msg-header-sub">Active · Replies within hours</div>
+          </div>
+        </div>
+        <div class="msg-list" id="msg-list"></div>
+        <div class="msg-input-row">
+          <input type="text" class="msg-input" id="msg-input" placeholder="Send a message…" onkeydown="if(event.key==='Enter')sendMsg()">
+          <button class="btn btn-ink" onclick="sendMsg()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETAILS PANE -->
+    <div class="tab-pane" id="pane-details">
+      <h1 class="pane-h">Deal details.</h1>
+      <p class="pane-sub">Everything you submitted. Need to update something? Message admin.</p>
+      <div class="side-card" id="details-card"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- JOEY -->
+<div class="joey-wrap">
+  <div class="joey-bubble" id="joey-bubble" onclick="openJoey()">Need help with your deal?</div>
+  <div class="joey-figure" onclick="openJoey()">
+    <img src="/assets/joey-web.png" alt="Joey" onerror="this.src='joey-web.png'">
+  </div>
+</div>
+
+<div class="joey-panel" id="joey-panel">
+  <div class="joey-head">
+    <div class="joey-avatar"><img src="/assets/joey-web.png" alt="Joey" onerror="this.src='joey-web.png'"></div>
+    <div class="joey-head-text">
+      <div class="joey-head-name">Joey</div>
+      <div class="joey-head-role">Borrower Concierge · online</div>
+    </div>
+    <button class="joey-close" onclick="closeJoey()">×</button>
+  </div>
+  <div class="joey-msgs" id="joey-msgs">
+    <div class="joey-msg bot" id="joey-greeting">Hey — your deal is in front of lenders right now. Timing matters here, so let me know if you have questions about offers, docs, or what's next.</div>
+  </div>
+  <div class="joey-input-row">
+    <input type="text" class="joey-input" id="joey-input" placeholder="Ask Joey anything about your deal…" onkeydown="if(event.key==='Enter')sendJoey()">
+    <button class="joey-send" id="joey-send" onclick="sendJoey()">→</button>
+  </div>
+</div>
+
+<script>
+// ─── Get deal from URL or localStorage
+const urlParams = new URLSearchParams(window.location.search);
+const dealRef = urlParams.get('deal') || 'FL-DEMO01';
+let deal = null;
+
+function loadDeal() {
+  try {
+    const stored = localStorage.getItem('fl_deal_'+dealRef);
+    if (stored) deal = JSON.parse(stored);
+  } catch(e){}
+  if (!deal) {
+    // Demo data fallback so the page is never empty
+    deal = {
+      ref: dealRef,
+      createdAt: new Date(Date.now() - 1000*60*60*18).toISOString(),
+      property:{purpose:'Purchase', address:'1247 Camelback Rd, Phoenix AZ 85013', type:'Single Family Residential (SFR)', value:'$1,250,000', sqft:'2,800', year:'1998', condition:'Light cosmetic needed'},
+      loan:{amount:'$875,000', term:'24 months', ltv:'70 %', exit:'Sale of property', timing:'2-4 weeks', rate_floor:'9.5%', story:'Strong neighborhood, ARV ~$1.45M after light cosmetic. Comps support exit at sale.'},
+      borrower:{name:'Demo Investor', email:'demo@example.com', phone:'(555) 123-4567', type:'Individual investor', experience:'4-10 deals completed', fico:'700-749'},
+      status:'offers'
+    };
+  }
+}
+
+function renderSidebar() {
+  document.getElementById('nav-ref').textContent = deal.ref;
+  document.getElementById('ds-addr').textContent = deal.property.address;
+  document.getElementById('ds-type').textContent = deal.property.type;
+  document.getElementById('ds-loan').textContent = deal.loan.amount;
+  document.getElementById('ds-value').textContent = deal.property.value;
+  document.getElementById('ds-ltv').textContent = deal.loan.ltv;
+  document.getElementById('ds-term').textContent = deal.loan.term;
+  const dt = new Date(deal.createdAt);
+  document.getElementById('ds-date').textContent = dt.toLocaleDateString('en-US', {month:'short',day:'numeric'});
+}
+
+// ─── Status timeline
+const STAGES = [
+  {id:'submit', label:'Deal Submitted', desc:'Your submission is in. Reference assigned.'},
+  {id:'avm_check', label:'Property Verified', desc:'AVM cross-check from Zillow, Redfin, internal sources.'},
+  {id:'matched', label:'Lenders Matched', desc:'FirstLien Match Engine ranked lenders by deal-fit.'},
+  {id:'offers', label:'Offers Coming In', desc:'Term sheets land here as lenders review.'},
+  {id:'diligence', label:'Lender Diligence', desc:'Selected lender reviews property, entity, financials.'},
+  {id:'docs', label:'Docs Out', desc:'Loan docs prepared, sent for signing.'},
+  {id:'funded', label:'Funded', desc:'Wire sent, recording complete, deal closed.'}
+];
+
+function renderTimeline() {
+  const currentIdx = STAGES.findIndex(s => s.id === deal.status);
+  const list = document.getElementById('tl-list');
+  list.innerHTML = STAGES.map((s, i) => {
+    const cls = i < currentIdx ? 'done' : (i === currentIdx ? 'current' : '');
+    const dotContent = i < currentIdx ? '✓' : (i === currentIdx ? '●' : (i+1));
+    const meta = i === currentIdx ? '<div class="tl-meta">In progress</div>' :
+                  (i < currentIdx ? '<div class="tl-meta">Complete</div>' : '');
+    return `<div class="tl-step ${cls}">
+      <div class="tl-dot">${dotContent}</div>
+      <div class="tl-body">
+        <div class="tl-title">${s.label}</div>
+        <div class="tl-desc">${s.desc}</div>
+        ${meta}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderActivity() {
+  const acts = [
+    {icon:'💰', text:'<strong>3 lenders</strong> have submitted offers on your deal', time:'2 hr ago'},
+    {icon:'👁️', text:'<strong>12 lenders</strong> have reviewed your deal so far', time:'5 hr ago'},
+    {icon:'📊', text:'AVM check complete — average estimate $1.31M (your stated value $1.25M)', time:'17 hr ago'},
+    {icon:'🚀', text:'Deal submitted and live in lender network', time:'18 hr ago'}
+  ];
+  document.getElementById('act-list').innerHTML = acts.map(a =>
+    `<div class="act-item">
+      <div class="act-icon">${a.icon}</div>
+      <div class="act-text">${a.text}<div class="act-time">${a.time}</div></div>
+    </div>`
+  ).join('');
+}
+
+// ─── Offers
+const SAMPLE_OFFERS = [
+  {anonId:'Lender A', tag:'best', tagLabel:'Best Match', rate:'9.75%', points:'1.5', ltv:'70%', term:'24 mo', expires:'Expires in 71hr'},
+  {anonId:'Lender B', tag:'fast', tagLabel:'Fastest Close', rate:'10.25%', points:'1.0', ltv:'70%', term:'24 mo', expires:'Expires in 47hr'},
+  {anonId:'Lender C', tag:'flex', tagLabel:'Flexible Terms', rate:'10.0%', points:'2.0', ltv:'72%', term:'30 mo', expires:'Expires in 68hr'}
+];
+
+function renderOffers() {
+  const c = document.getElementById('offers-container');
+  if (deal.status === 'submit' || deal.status === 'avm_check' || deal.status === 'matched') {
+    c.innerHTML = `<div class="empty">
+      <div class="empty-icon">⏱</div>
+      <div class="empty-title">Offers coming soon</div>
+      <div class="empty-sub">Lenders are reviewing your deal. First offers typically arrive within 24 hours of submission. You'll get an email and Joey will ping you here the moment one lands.</div>
+    </div>`;
+    document.getElementById('offer-badge').textContent = '0';
+    return;
+  }
+  document.getElementById('offer-badge').textContent = SAMPLE_OFFERS.length;
+  c.innerHTML = '<div class="offers-grid">' + SAMPLE_OFFERS.map((o, i) =>
+    `<div class="offer-row ${o.tag === 'best' ? 'best' : ''}">
+      <div>
+        <div class="or-head">
+          <div class="or-name">${o.anonId}</div>
+          <span class="or-tag ${o.tag}">${o.tagLabel}</span>
+          <span class="or-tag anon">Anonymous</span>
+        </div>
+        <div class="or-terms">
+          <div class="or-term"><span class="l">Rate</span><span class="v">${o.rate}</span></div>
+          <div class="or-term"><span class="l">Points</span><span class="v">${o.points}</span></div>
+          <div class="or-term"><span class="l">LTV</span><span class="v">${o.ltv}</span></div>
+          <div class="or-term"><span class="l">Term</span><span class="v">${o.term}</span></div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--amber);margin-top:8px;">${o.expires}</div>
+      </div>
+      <div class="or-actions">
+        <button class="btn btn-gold" onclick="acceptOffer(${i})">Accept Offer</button>
+        <button class="btn btn-ghost" onclick="askJoeyAbout('${o.anonId}')">Ask Joey</button>
+      </div>
+    </div>`
+  ).join('') + '</div>';
+}
+
+function acceptOffer(i) {
+  if (!confirm(`Accept the offer from ${SAMPLE_OFFERS[i].anonId}? Their identity will be revealed and they'll start diligence.`)) return;
+  alert('Offer accepted. Joey is preparing your closing checklist now.');
+}
+
+function askJoeyAbout(name) {
+  openJoey();
+  document.getElementById('joey-input').value = `Tell me more about ${name}'s offer — should I take it?`;
+  setTimeout(sendJoey, 100);
+}
+
+// ─── Docs
+const DOCS = [
+  {name:'Property Appraisal', sub:'Lender-ordered AVM + full appraisal', icon:'📊', status:'review'},
+  {name:'Borrower Application (1003)', sub:'Standard loan application', icon:'📝', status:'pending'},
+  {name:'Entity Documents', sub:'LLC operating agreement, EIN letter, articles', icon:'🏢', status:'pending'},
+  {name:'Bank Statements (3 mo)', sub:'Most recent 3 months, all accounts', icon:'🏦', status:'pending'},
+  {name:'Property Insurance Quote', sub:'Hazard + liability', icon:'🔒', status:'pending'},
+  {name:'Title Commitment', sub:'Preliminary title report', icon:'📜', status:'pending'},
+  {name:'Photo ID', sub:'Driver license or passport', icon:'🪪', status:'pending'}
+];
+function renderDocs() {
+  document.getElementById('doc-list').innerHTML = DOCS.map(d =>
+    `<div class="doc-row">
+      <div class="doc-icon">${d.icon}</div>
+      <div class="doc-name">${d.name}<span class="ds">${d.sub}</span></div>
+      <span class="doc-status ${d.status}">${d.status === 'pending' ? 'Awaiting upload' : d.status === 'uploaded' ? 'Uploaded' : 'In review'}</span>
+      ${d.status === 'pending' ? '<button class="doc-upload-btn" onclick="alert(\'Upload UI — wire to Firebase Storage\')">Upload</button>' : ''}
+    </div>`
+  ).join('');
+}
+
+// ─── Messages
+const MSGS = [
+  {who:'them', text:'Hi! Welcome to FirstLien. Your deal looks solid — well-documented and competitively priced. Three lenders are already reviewing.', time:'18 hr ago'},
+  {who:'them', text:'You should see your first offers within 24 hours. Reach out anytime — and Joey is in the bottom-left corner if you have quick questions.', time:'18 hr ago'}
+];
+function renderMessages() {
+  document.getElementById('msg-list').innerHTML = MSGS.map(m =>
+    `<div><div class="msg-bubble ${m.who}">${m.text}</div><div class="msg-meta" style="text-align:${m.who === 'you' ? 'right' : 'left'};margin-top:4px;">${m.time}</div></div>`
+  ).join('');
+  const list = document.getElementById('msg-list');
+  list.scrollTop = list.scrollHeight;
+}
+function sendMsg() {
+  const inp = document.getElementById('msg-input');
+  const t = inp.value.trim();
+  if (!t) return;
+  MSGS.push({who:'you', text:t, time:'just now'});
+  inp.value = '';
+  renderMessages();
+}
+
+// ─── Details pane
+function renderDetails() {
+  const c = document.getElementById('details-card');
+  const sec = (h) => `<div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold);margin-top:18px;margin-bottom:10px;">${h}</div>`;
+  const row = (l, v) => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span style="color:var(--muted);">${l}</span><span style="color:var(--ink);font-weight:500;">${v || '—'}</span></div>`;
+  c.innerHTML =
+    sec('Property') +
+    row('Purpose', deal.property.purpose) +
+    row('Address', deal.property.address) +
+    row('Type', deal.property.type) +
+    row('Value', deal.property.value) +
+    row('Sq Ft', deal.property.sqft) +
+    row('Year Built', deal.property.year) +
+    row('Condition', deal.property.condition) +
+    sec('Loan') +
+    row('Amount', deal.loan.amount) +
+    row('Term', deal.loan.term) +
+    row('LTV', deal.loan.ltv) +
+    row('Exit', deal.loan.exit) +
+    row('Timing', deal.loan.timing) +
+    row('Rate Floor', deal.loan.rate_floor || 'None') +
+    row('Story', deal.loan.story) +
+    sec('Borrower') +
+    row('Name', deal.borrower.name) +
+    row('Email', deal.borrower.email) +
+    row('Phone', deal.borrower.phone) +
+    row('Entity Type', deal.borrower.type) +
+    row('Experience', deal.borrower.experience) +
+    row('FICO', deal.borrower.fico);
+}
+
+// ─── Tabs
+function goTab(id) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('pane-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function explainAVM() {
+  const explanation = prompt("AVM came in at ~$1.31M but you stated $1.25M. Lenders will want to know why. Add context (recent sale, condition, comp adjustments, etc):");
+  if (explanation) {
+    alert('Context added — lenders will see this with your deal.');
+    document.getElementById('avm-banner').style.display = 'none';
+  }
+}
+
+// ─── JOEY (same logic as borrower.html)
+const joeyHistory = [];
+function openJoey() {
+  document.getElementById('joey-panel').classList.add('open');
+  document.getElementById('joey-bubble').style.display = 'none';
+  setTimeout(() => document.getElementById('joey-input').focus(), 300);
+}
+function closeJoey() {
+  document.getElementById('joey-panel').classList.remove('open');
+  document.getElementById('joey-bubble').style.display = '';
+}
+async function sendJoey() {
+  const input = document.getElementById('joey-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  input.disabled = true;
+
+  appendJoeyMsg('user', msg);
+  joeyHistory.push({role:'user', content: msg});
+
+  const typing = appendJoeyMsg('typing', 'Joey is thinking…');
+  try {
+    // Inject deal context so Joey can answer deal-specific questions
+    const contextMsg = `[User is in their deal portal. Deal context: ${JSON.stringify({
+      ref: deal.ref, status: deal.status,
+      property: deal.property, loan: deal.loan
+    })}] User question: ${msg}`;
+    const resp = await fetch('/.netlify/functions/joey-chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ message: contextMsg, history: joeyHistory.slice(-12) })
+    });
+    const data = await resp.json();
+    typing.remove();
+    const reply = data.reply || "Hmm, didn't catch that — try again?";
+    appendJoeyMsg('bot', reply);
+    joeyHistory.push({role:'assistant', content: reply});
+  } catch(err) {
+    typing.remove();
+    appendJoeyMsg('bot', "Connection blip — try again in a sec.");
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
+}
+function appendJoeyMsg(type, text) {
+  const msgs = document.getElementById('joey-msgs');
+  const el = document.createElement('div');
+  el.className = 'joey-msg ' + type;
+  el.textContent = text;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  return el;
+}
+
+// ─── Boot
+document.addEventListener('DOMContentLoaded', () => {
+  loadDeal();
+  renderSidebar();
+  renderTimeline();
+  renderActivity();
+  renderOffers();
+  renderDocs();
+  renderMessages();
+  renderDetails();
+  // Show AVM banner only if there's a discrepancy (using sample logic — fires for demo data)
+  if (deal.ref === 'FL-DEMO01') {
+    document.getElementById('avm-banner').style.display = 'flex';
+  }
+});
+</script>
+</body>
+</html>
