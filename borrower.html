@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Get Funded Fast | FirstLien.Capital — Private Lending Marketplace</title>
+<title>Get Funded Fast | FirstLien.ai — Private Lending Marketplace</title>
 <meta name="description" content="Submit one deal. Reach 1,000+ private lenders competing for your business. No SSN required. Term sheets in 24 hours.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -292,19 +292,6 @@ nav {
 .cc-title{font-size:17px;font-weight:600;color:var(--ink);margin-bottom:8px;}
 .cc-desc{font-size:14px;color:var(--muted);line-height:1.75;font-weight:300;}
 
-/* ── PROP TYPES ── */
-.prop-types{padding:80px 48px;background:var(--white);}
-.prop-inner{max-width:1200px;margin:0 auto;}
-.prop-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;margin-top:36px;scrollbar-width:none;}
-.prop-scroll::-webkit-scrollbar{display:none;}
-.prop-card{flex-shrink:0;width:160px;border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;transition:all 0.18s;background:var(--cream);}
-.prop-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.08);}
-.prop-card-img{height:96px;background:var(--cream2);overflow:hidden;}
-.prop-card-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s;}
-.prop-card:hover .prop-card-img img{transform:scale(1.06);}
-.prop-card-name{padding:10px 12px;font-size:12px;font-weight:600;color:var(--ink);}
-.prop-card-sub{padding:0 12px 10px;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;}
-
 /* ── STATES ── */
 .states{background:var(--ink2);padding:48px;}
 .states-inner{max-width:1200px;margin:0 auto;display:flex;gap:48px;align-items:center;flex-wrap:wrap;}
@@ -323,6 +310,50 @@ nav {
 .apply-header h2{font-family:'Playfair Display',serif;font-size:clamp(30px,4vw,48px);font-weight:700;letter-spacing:-0.02em;line-height:1.1;margin-bottom:12px;}
 .apply-header h2 em{font-style:italic;color:var(--gold);}
 .apply-header p{font-size:15px;color:var(--muted);font-weight:300;}
+
+/* ── UPLOAD ON-RAMP (auto-fill from documents) ── */
+.up-onramp{background:var(--white);border:1px solid var(--border);border-radius:8px;box-shadow:0 2px 40px rgba(0,0,0,0.06);padding:26px 28px;margin-bottom:20px;position:relative;overflow:hidden;}
+.up-onramp::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--gold),var(--gold-l));}
+.up-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;}
+.up-badge{width:42px;height:42px;flex:none;border-radius:8px;background:var(--gold-bg);border:1px solid rgba(176,136,48,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.up-head-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;letter-spacing:-0.01em;line-height:1.2;}
+.up-head-title em{font-style:italic;color:var(--gold);}
+.up-head-sub{font-size:13px;color:var(--muted);margin-top:3px;font-weight:300;}
+.up-dz{border:1.5px dashed var(--border2);border-radius:6px;background:var(--cream);padding:26px 22px;text-align:center;cursor:pointer;transition:border-color .18s,background .18s;}
+.up-dz:hover{border-color:var(--gold);background:var(--gold-bg);}
+.up-dz.drag{border-color:var(--gold);background:var(--gold-bg);}
+.up-dz.compact{padding:14px 18px;display:flex;align-items:center;gap:12px;text-align:left;}
+.up-dz-ico{width:34px;height:34px;margin:0 auto 10px;color:var(--gold);}
+.up-dz.compact .up-dz-ico{width:22px;height:22px;margin:0;flex:none;}
+.up-dz-title{font-size:14px;font-weight:600;color:var(--ink);}
+.up-dz-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.up-dz .up-browse{color:var(--gold);text-decoration:underline;text-underline-offset:2px;}
+.up-dz-formats{margin-top:10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.4px;color:var(--muted);}
+.up-dz.compact .up-dz-formats{display:none;}
+.up-files{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+.up-file{display:flex;align-items:center;gap:12px;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:10px 13px;}
+.up-file-ico{width:28px;height:28px;flex:none;border-radius:6px;background:var(--gold-bg);color:var(--gold);display:flex;align-items:center;justify-content:center;}
+.up-file-ico svg{width:15px;height:15px;}
+.up-file-meta{flex:1;min-width:0;}
+.up-file-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.up-file-size{font-size:11px;color:var(--muted);}
+.up-file-status{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);flex:none;display:flex;align-items:center;gap:6px;}
+.up-file-status.ok{color:var(--teal);}
+.up-file-status.err{color:var(--red);}
+.up-spin{width:11px;height:11px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:upspin .7s linear infinite;}
+@keyframes upspin{to{transform:rotate(360deg);}}
+.up-bar{height:4px;border-radius:99px;background:var(--border);margin-top:14px;overflow:hidden;display:none;}
+.up-bar.show{display:block;}
+.up-bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:99px;transition:width .4s ease;}
+.up-note{display:none;margin-top:14px;align-items:center;gap:10px;background:var(--teal-bg);border:1px solid rgba(10,123,106,0.2);border-radius:6px;padding:12px 15px;font-size:13px;color:var(--ink2);}
+.up-note.show{display:flex;}
+.up-note.err{background:rgba(139,32,32,0.05);border-color:rgba(139,32,32,0.25);color:var(--ink2);}
+.up-note svg{width:16px;height:16px;flex:none;color:var(--teal);}
+.up-note.err svg{color:var(--red);}
+.up-note b{color:var(--ink);}
+.up-divider{display:flex;align-items:center;gap:16px;margin:24px 0 20px;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.14em;}
+.up-divider::before,.up-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+input.up-filled,select.up-filled{border-color:var(--teal)!important;background:var(--teal-bg)!important;}
 .form-card{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 2px 40px rgba(0,0,0,0.06);}
 .form-progress{height:3px;background:var(--border);}
 .form-progress-fill{height:100%;background:var(--gold);transition:width 0.4s ease;}
@@ -561,7 +592,7 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
 
 <!-- NAV -->
 <nav>
-  <a href="/" class="nav-logo">FirstLien<span class="dot">.</span>Capital</a>
+  <a href="/" class="nav-logo">FirstLien<span class="dot">.</span>ai</a>
   <ul class="nav-links">
     <li><a href="/">Home</a></li>
     <li><a href="/lender.html">Lenders</a></li>
@@ -607,6 +638,7 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
         </div>
         <div class="dfc-property">
           <div class="dfc-prop-img">
+            <img src="/assets/property-photos/web/commercial-corner-brick.jpg" alt="Commercial property in Phoenix, AZ" loading="lazy" onerror="this.style.display='none'">
             <div class="dfc-prop-overlay"></div>
             <div class="dfc-prop-addr">📍 Phoenix, AZ · Commercial</div>
           </div>
@@ -643,7 +675,7 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
       <span class="pitch-tag">🚀 The Smarter Way to Borrow</span>
       <h2 class="pitch-h">Private capital<br>should work for <em>you.</em></h2>
       <p class="pitch-p">Traditional lenders take 60 days and still say no. Private lenders move fast — but finding the right one has always been a full-time job. Until now.</p>
-      <p class="pitch-p">FirstLien.Capital's technology stack identifies the lenders most likely to fund your specific deal — based on property type, geography, loan size, and 40+ other criteria — and surfaces them in real time.</p>
+      <p class="pitch-p">FirstLien.ai's technology stack identifies the lenders most likely to fund your specific deal — based on property type, geography, loan size, and 40+ other criteria — and surfaces them in real time.</p>
       <div class="pitch-list">
         <div class="pitch-li">One application reaches the entire network simultaneously</div>
         <div class="pitch-li">AI scoring ranks lenders by deal-fit, not just availability</div>
@@ -731,6 +763,30 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
       <h2>Get <em>competing offers</em><br>from 1,000+ lenders.</h2>
       <p>No SSN required &nbsp;·&nbsp; No hard credit pull &nbsp;·&nbsp; Free to apply &nbsp;·&nbsp; 4 minutes</p>
     </div>
+
+    <!-- UPLOAD ON-RAMP — auto-fill the form from documents -->
+    <div class="up-onramp" id="up-onramp">
+      <div class="up-head">
+        <div class="up-badge">📄</div>
+        <div>
+          <div class="up-head-title">Have your docs? <em>Skip the typing.</em></div>
+          <div class="up-head-sub">Drop your purchase contract, title commitment, or loan quote — we'll read them and fill this out for you.</div>
+        </div>
+      </div>
+      <div class="up-dz" id="up-dz" tabindex="0" role="button" aria-label="Upload documents to auto-fill">
+        <svg class="up-dz-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div class="up-dz-title" id="up-dz-title">Drag &amp; drop your documents</div>
+        <div class="up-dz-sub">or <span class="up-browse">browse your files</span></div>
+        <div class="up-dz-formats">PDF · JPG · PNG · TIFF · Word &nbsp;—&nbsp; up to 25 MB each</div>
+      </div>
+      <input type="file" id="up-input" multiple accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff,.docx" style="display:none;">
+      <div class="up-files" id="up-files"></div>
+      <div class="up-bar" id="up-bar"><i></i></div>
+      <div class="up-note" id="up-note"></div>
+    </div>
+
+    <div class="up-divider">or fill it out yourself</div>
+
     <div class="form-card" id="main-form">
       <div class="form-progress"><div class="form-progress-fill" id="prog-fill" style="width:25%"></div></div>
       <div class="stepper">
@@ -890,7 +946,7 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
           <div class="fstep-sub">Confirm your details. You'll get a confirmation email and a link to your deal portal once submitted.</div>
           <table class="review-tbl" id="review-tbl"></table>
           <div class="consent-box">
-            By submitting, you acknowledge that FirstLien.Capital provides business-purpose / investment loans only — not for owner-occupied primary residences. You authorize FirstLien to share your deal details with lenders in our network for the purpose of generating term sheets. No hard credit pull will be made without your explicit consent.
+            By submitting, you acknowledge that FirstLien.ai provides business-purpose / investment loans only — not for owner-occupied primary residences. You authorize FirstLien to share your deal details with lenders in our network for the purpose of generating term sheets. No hard credit pull will be made without your explicit consent.
           </div>
           <div class="form-nav">
             <button class="btn-back" onclick="goToStep(3)">← Back</button>
@@ -921,25 +977,25 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
     <div class="disc-blocks">
       <div class="disc-block">
         <div class="disc-head">Business-Purpose Only</div>
-        <div class="disc-text">FirstLien.Capital facilitates business-purpose, investment, and non-owner-occupied real estate loans only. We do not originate or arrange loans on owner-occupied primary residences. Loans facilitated through our platform are exempt from TILA/Reg Z, RESPA, TRID, and ATR requirements as they are business-purpose loans.</div>
+        <div class="disc-text">FirstLien.ai facilitates business-purpose, investment, and non-owner-occupied real estate loans only. We do not originate or arrange loans on owner-occupied primary residences. Loans facilitated through our platform are exempt from TILA/Reg Z, RESPA, TRID, and ATR requirements as they are business-purpose loans.</div>
       </div>
       <div class="disc-block">
         <div class="disc-head">Brokered Through Lender Funds · BRE 02098388</div>
-        <div class="disc-text">FirstLien.Capital operates as a marketplace platform. All loans are originated, brokered, and serviced by licensed third-party lenders and brokers, including Lender Funds (CA BRE License #02098388). Subject to Fair Housing Act, FTC MAP Rule, applicable state lending regulations, and NMLS requirements. Equal Housing Opportunity.</div>
+        <div class="disc-text">FirstLien.ai operates as a marketplace platform. All loans are originated, brokered, and serviced by licensed third-party lenders and brokers, including Lender Funds (CA BRE License #02098388). Subject to Fair Housing Act, FTC MAP Rule, applicable state lending regulations, and NMLS requirements. Equal Housing Opportunity.</div>
       </div>
     </div>
-    <div class="disc-copy">© 2026 FirstLien.Capital · firstliencapital@gmail.com · All rights reserved</div>
+    <div class="disc-copy">© 2026 FirstLien.ai · info@firstlien.ai · All rights reserved</div>
   </div>
 </div>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">FirstLien.Capital</div>
+  <div class="footer-logo">FirstLien.ai</div>
   <div class="footer-links">
     <a href="/lender.html">For Lenders</a>
     <a href="#how">How It Works</a>
     <a href="#apply">Apply</a>
-    <a href="mailto:firstliencapital@gmail.com">Contact</a>
+    <a href="mailto:info@firstlien.ai">Contact</a>
   </div>
   <div class="footer-eho">⌂</div>
 </footer>
@@ -1112,14 +1168,10 @@ function renderReview() {
   `;
 }
 
-function submitDeal() {
-  // Generate a deal reference
+async function submitDeal() {
   const ref = 'FL-' + Date.now().toString(36).toUpperCase().slice(-6);
-
-  // TODO: wire to Firebase Firestore — push deal object to /deals collection
-  // For now, just save to localStorage so portal can pick it up
   const deal = {
-    ref, createdAt: new Date().toISOString(),
+    ref, type:'borrower', createdAt: new Date().toISOString(),
     property: {
       purpose: document.getElementById('loan_purpose').value,
       address: document.getElementById('prop_addr').value,
@@ -1146,17 +1198,37 @@ function submitDeal() {
       experience: document.getElementById('b_exp').value,
       fico: document.getElementById('b_fico').value
     },
-    status: 'submit'
+    // Link the document engine deal the upload created, so the docs and the typed
+    // details stay tied together for later document generation.
+    docorder: borrowerDeal ? { dealId: borrowerDeal.deal_id, fileNum: borrowerDeal.file_num || null } : null,
+    status: 'new'
   };
+
+  // Optimistic: keep a local copy so the portal works on this device even offline.
   try { localStorage.setItem('fl_deal_'+ref, JSON.stringify(deal)); } catch(e){}
 
-  // Hide form, show success
+  const submitBtn = document.querySelector('#step4 .btn-next');
+  if (submitBtn){ submitBtn.disabled = true; submitBtn.textContent = 'Submitting…'; }
+
+  let finalRef = ref, portalToken = '';
+  try {
+    const resp = await fetch('/.netlify/functions/submit-deal', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(deal)
+    });
+    const data = await resp.json().catch(()=>({}));
+    if (resp.ok && data.success && data.ref) { finalRef = data.ref; portalToken = data.portalToken || ''; }
+    // On failure the local copy above still holds the deal; we don't block the user.
+  } catch(e) { /* offline / not configured — local fallback already saved */ }
+
+  // Keep the local copy under the final ref (+token) so the portal opens on this device.
+  try { deal.ref = finalRef; if (portalToken) deal.portalToken = portalToken; localStorage.setItem('fl_deal_'+finalRef, JSON.stringify(deal)); } catch(e){}
+
+  // Show success
   document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
   document.getElementById('success-card').style.display = 'block';
-  document.getElementById('deal-ref').textContent = ref;
-  document.getElementById('portal-link').href = '/borrower-portal.html?deal=' + ref;
+  document.getElementById('deal-ref').textContent = finalRef;
+  document.getElementById('portal-link').href = '/borrower-portal.html?deal=' + encodeURIComponent(finalRef) + (portalToken ? '&t=' + encodeURIComponent(portalToken) : '');
   document.getElementById('prog-fill').style.width = '100%';
-
   window.scrollTo({top: document.getElementById('apply').offsetTop - 50, behavior:'smooth'});
 }
 
@@ -1231,12 +1303,211 @@ function appendJoeyMsg(type, text) {
   return el;
 }
 
+// ─────────────────────────────────────────────────────────────
+// UPLOAD ON-RAMP — create a document engine deal, upload docs, auto-fill form
+//   • create-deal (Netlify fn, holds document engine admin creds server-side)
+//   • upload straight to document engine's token-gated intake endpoint
+//   • poll, then map extracted fields into this form
+// ─────────────────────────────────────────────────────────────
+let borrowerDeal = null;               // {deal_id, token, base} once created
+const UP = {
+  CREATE:'/.netlify/functions/create-deal',
+  BASE:'',
+  ALLOWED:['pdf','jpg','jpeg','png','tif','tiff','docx'],
+  MAX:25*1024*1024,
+  busy:false, creating:null
+};
+const UP_FILE_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+
+function upExt(n){return (n.split('.').pop()||'').toLowerCase();}
+function upSize(b){if(b<1024)return b+' B';if(b<1048576)return (b/1024).toFixed(0)+' KB';return (b/1048576).toFixed(1)+' MB';}
+function upEsc(s){const d=document.createElement('div');d.textContent=(s==null?'':String(s));return d.innerHTML;}
+
+function upNote(html,isErr){
+  const n=document.getElementById('up-note');
+  const ico=isErr?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+                 :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  n.className='up-note show'+(isErr?' err':'');
+  n.innerHTML=ico+'<div>'+html+'</div>';
+}
+
+function upEnsureDeal(){
+  if(borrowerDeal) return Promise.resolve(borrowerDeal);
+  if(UP.creating) return UP.creating;
+  UP.creating=fetch(UP.CREATE,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+    .then(r=>r.text().then(t=>{
+      let j={};try{j=t?JSON.parse(t):{};}catch(e){j={raw:t};}
+      if(!r.ok||!j.success) throw new Error(j.detail||j.error||('Server returned '+r.status));
+      if(!j.token) throw new Error('Upload link could not be secured.');
+      borrowerDeal={deal_id:j.deal_id,token:j.token,base:(j.base||UP.BASE).replace(/\/+$/,'')};
+      return borrowerDeal;
+    })).catch(e=>{UP.creating=null;throw e;});
+  return UP.creating;
+}
+
+function upAddFiles(list){
+  if(UP.busy) return;
+  const files=Array.prototype.slice.call(list||[]);
+  if(!files.length) return;
+  const good=[],bad=[];
+  files.forEach(f=>{
+    if(UP.ALLOWED.indexOf(upExt(f.name))===-1) bad.push([f,'unsupported']);
+    else if(f.size>UP.MAX) bad.push([f,'over 25 MB']);
+    else if(f.size===0) bad.push([f,'empty']);
+    else good.push(f);
+  });
+  const wrap=document.getElementById('up-files');
+  wrap.innerHTML='';
+  good.concat(bad.map(x=>x[0])).forEach(f=>{
+    const isBad=bad.some(x=>x[0]===f);
+    const row=document.createElement('div');row.className='up-file';
+    row.innerHTML='<div class="up-file-ico">'+UP_FILE_ICON+'</div>'+
+      '<div class="up-file-meta"><div class="up-file-name">'+upEsc(f.name)+'</div><div class="up-file-size">'+upSize(f.size)+'</div></div>'+
+      '<div class="up-file-status '+(isBad?'err':'')+'" data-name="'+upEsc(f.name)+'">'+
+        (isBad?upEsc(bad.filter(x=>x[0]===f)[0][1]):'<span class="up-spin"></span> queued')+'</div>';
+    wrap.appendChild(row);
+  });
+  const dz=document.getElementById('up-dz');
+  dz.classList.add('compact');document.getElementById('up-dz-title').textContent='Add more documents';
+  if(good.length) upUpload(good);
+  else upNote('Please upload PDF, JPG, PNG, TIFF, or Word documents under 25 MB.',true);
+}
+
+function upSetStatus(name,html,cls){
+  const el=document.querySelector('.up-file-status[data-name="'+((window.CSS&&CSS.escape)?CSS.escape(name):name)+'"]');
+  if(el){el.className='up-file-status '+(cls||'');el.innerHTML=html;}
+}
+function upSetAll(html,cls){
+  document.querySelectorAll('.up-file-status').forEach(el=>{
+    if(el.classList.contains('err'))return;el.className='up-file-status '+(cls||'');el.innerHTML=html;});
+}
+
+function upUpload(files){
+  UP.busy=true;
+  const bar=document.getElementById('up-bar');bar.classList.add('show');
+  bar.firstElementChild.style.width='8%';
+  upNote('Securing your upload…',false);
+  upSetAll('<span class="up-spin"></span> uploading','');
+  upEnsureDeal().then(d=>{
+    bar.firstElementChild.style.width='20%';
+    const fd=new FormData();files.forEach(f=>fd.append('files',f,f.name));
+    const url='/api/docs/'+encodeURIComponent(d.deal_id)+'/documents?t='+encodeURIComponent(d.token);
+    return fetch(url,{method:'POST',body:fd}).then(r=>r.text().then(t=>{
+      let j={};try{j=t?JSON.parse(t):{};}catch(e){j={raw:t};}
+      if(!r.ok) throw new Error(j.error||('Upload failed ('+r.status+')'));
+      return j;
+    }));
+  }).then(j=>{
+    if(j&&j.fields){upFinish(j);return;}
+    if(!j||!j.job_id) throw new Error('Upload accepted but no job id returned.');
+    upNote('Reading your documents — pulling names, property, and loan terms…',false);
+    upSetAll('<span class="up-spin"></span> reading','');
+    upPoll(j.job_id);
+  }).catch(e=>upFail(e&&e.message));
+}
+
+function upPoll(jobId){
+  const d=borrowerDeal,bar=document.getElementById('up-bar').firstElementChild;
+  let tries=0;const MAX=180;
+  const iv=setInterval(()=>{
+    tries++;
+    const url='/api/docs/'+encodeURIComponent(d.deal_id)+'/ingest/'+encodeURIComponent(jobId)+'?t='+encodeURIComponent(d.token);
+    fetch(url).then(r=>r.json()).then(rec=>{
+      if(!rec||rec.error) throw new Error((rec&&rec.error)||'Lost track of the reading job.');
+      const total=rec.total||1,done=rec.done_files||0;
+      bar.style.width=Math.min(20+Math.round(done/total*65),88)+'%';
+      if(rec.state==='done'){clearInterval(iv);upFinish(rec.result||{},rec.failed||[]);}
+      else if(rec.state==='error'){clearInterval(iv);upFail(rec.error||'The reader hit a problem.');}
+      else if(tries>=MAX){clearInterval(iv);upFail('This is taking longer than expected. Your files are saved — please continue filling in below.');}
+    }).catch(e=>{if(tries>=MAX){clearInterval(iv);upFail(e&&e.message);}});
+  },2000);
+}
+
+function upFail(msg){
+  UP.busy=false;
+  document.getElementById('up-bar').classList.remove('show');
+  upSetAll('failed','err');
+  upNote((msg||'Please try again.')+' You can still fill the form in manually below.',true);
+}
+
+function upMoney(v){
+  const n=parseFloat(String(v).replace(/[^0-9.]/g,''));
+  return isNaN(n)?String(v):('$'+n.toLocaleString('en-US'));
+}
+function upSetTerm(months){
+  const m=parseInt(String(months).replace(/[^0-9]/g,''),10);if(!m)return;
+  const sel=document.getElementById('loan_term');
+  const map={6:'6 months',12:'12 months',24:'24 months',36:'36 months',60:'5 years',120:'10 years',360:'30 years'};
+  const want=map[m]|| (m>=300?'30 years':m>=90?'5 years':'24 months');
+  [...sel.options].forEach(o=>{if(o.text===want)sel.value=o.value;});
+  if(!sel.value){[...sel.options].forEach(o=>{if(o.text===want)o.selected=true;});}
+}
+
+// Map document engine's extracted field names → this form's inputs.
+function upApplyExtracted(fields){
+  if(!fields) return [];
+  const filled=[];
+  const setV=(id,val)=>{const el=document.getElementById(id);if(el&&val!=null&&String(val).trim()!==''){el.value=val;el.classList.add('up-filled');filled.push(id);}};
+  const setSel=(id,text)=>{const el=document.getElementById(id);if(!el)return;[...el.options].forEach(o=>{if(o.text===text){el.value=o.value;el.classList.add('up-filled');filled.push(id);}});};
+  // Property address — prefer the full line, else assemble from parts
+  const addr=fields.propFull||[fields.propAddr,fields.propCity,fields.propState||fields.propStateAbbr,fields.propZip].filter(Boolean).join(', ');
+  setV('prop_addr',addr);
+  // Stated value — purchase price, else appraised value
+  const val=fields.purchasePrice||fields.appraisedValue;
+  if(val) setV('prop_value',upMoney(val));
+  if(fields.loanAmount) setV('loan_amount',upMoney(fields.loanAmount));
+  if(fields.loanTerm){upSetTerm(fields.loanTerm);const st=document.getElementById('loan_term');if(st){st.classList.add('up-filled');filled.push('loan_term');}}
+  // Name — the person if we have one, else the borrowing entity
+  setV('b_name',fields.borrowerName||fields.entityName);
+  if(fields.entityName&&!fields.borrowerName) setSel('b_type','LLC / Entity');
+  updateLTV();
+  return filled;
+}
+
+function upFinish(result,failed){
+  UP.busy=false;
+  const bar=document.getElementById('up-bar');bar.firstElementChild.style.width='100%';
+  setTimeout(()=>bar.classList.remove('show'),500);
+  (result.uploaded||[]).forEach(u=>{const nm=u.filename||u.name;if(nm)upSetStatus(nm,'&#10003; read','ok');});
+  upSetAll('&#10003; read','ok');
+  (failed||[]).forEach(f=>{const nm=(f&&(f.name||f.filename))||'';if(nm)upSetStatus(nm,'couldn’t read','err');});
+
+  const filled=upApplyExtracted(result.fields||{});
+  if(filled.length){
+    upNote('<b>Filled in '+filled.length+' detail'+(filled.length!==1?'s':'')+' from your documents.</b> Review everything below, then submit.',false);
+    // reveal the fields that changed
+    goToStep(1);
+  } else {
+    upNote('Your files are saved to your deal. We couldn’t auto-read specific fields — go ahead and fill in the form below.',false);
+  }
+}
+
+function upWireDropzone(){
+  const dz=document.getElementById('up-dz'),input=document.getElementById('up-input');
+  if(!dz) return;
+  dz.addEventListener('click',()=>{if(!UP.busy)input.click();});
+  dz.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!UP.busy){e.preventDefault();input.click();}});
+  input.addEventListener('change',()=>{upAddFiles(input.files);input.value='';});
+  ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();if(!UP.busy)dz.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+  dz.addEventListener('drop',e=>{if(UP.busy)return;const dt=e.dataTransfer;if(dt&&dt.files&&dt.files.length)upAddFiles(dt.files);});
+}
+
+// If arriving from the standalone upload page with a deal already started
+function upAdoptInboundDeal(){
+  const p=new URLSearchParams(location.search);
+  const id=p.get('deal'),t=p.get('t');
+  if(id&&t){borrowerDeal={deal_id:id,token:t,base:UP.BASE};}
+}
+
 // ─── Boot
 document.addEventListener('DOMContentLoaded', () => {
   renderTrust();
   renderRates();
   renderStates();
   updateLTV();
+  upWireDropzone();
+  upAdoptInboundDeal();
 });
 </script>
 

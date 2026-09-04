@@ -526,6 +526,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:50;padding:18px 52px;display:fle
 .reg-submit{width:100%;background:var(--teal-bright);color:var(--ink);padding:16px;border-radius:100px;font-weight:700;font-size:14px;letter-spacing:.02em;text-transform:uppercase;border:none;cursor:pointer;transition:all .2s;margin-top:12px;}
 .reg-submit:hover{background:#2affcb;box-shadow:0 12px 32px rgba(0,212,168,0.3);}
 .reg-foot{text-align:center;font-family:"DM Mono",monospace;font-size:9px;letter-spacing:.12em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-top:24px;}
+.reg-field.full{grid-column:1/-1;}
+.reg-field label .reg-req{color:var(--teal-bright);}
+.reg-help{font-size:11.5px;color:rgba(255,255,255,0.4);margin-top:6px;line-height:1.5;font-family:"DM Sans",sans-serif;letter-spacing:0;text-transform:none;}
+.reg-field input::placeholder{color:rgba(255,255,255,0.28);}
+.lt-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.lt-chip input{position:absolute;opacity:0;width:0;height:0;}
+.lt-chip span{display:inline-block;padding:9px 15px;border:1px solid rgba(255,255,255,0.15);border-radius:100px;font-size:12.5px;color:rgba(255,255,255,0.72);cursor:pointer;transition:all .15s;background:rgba(255,255,255,0.03);user-select:none;}
+.lt-chip span:hover{border-color:rgba(255,255,255,0.35);color:#fff;}
+.lt-chip input:checked + span{background:var(--teal-dim);border-color:var(--teal-bright);color:var(--teal-bright);}
+.lt-chip input:focus-visible + span{outline:2px solid var(--teal-bright);outline-offset:2px;}
 
 /* OLD DISC CSS — replaced below */
 
@@ -1126,40 +1136,6 @@ footer b{color:rgba(255,255,255,0.8);}
 </style>
 </head>
 <body>
-
-<!-- ─── PASSWORD GATE (staging only — remove before public launch) ─── -->
-<div id="pw-gate" style="position:fixed;inset:0;z-index:9999;background:#0a0a0c;display:flex;align-items:center;justify-content:center;padding:24px;">
-  <div style="max-width:420px;width:100%;text-align:center;">
-    <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:700;color:#fafafa;letter-spacing:-.03em;margin-bottom:8px;">FirstLien<span style="color:#00d4a8;">.</span>ai</div>
-    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;margin-bottom:32px;">Real Estate Lenders &amp; Investors</div>
-    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:32px;">
-      <label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;color:rgba(255,255,255,0.5);text-transform:uppercase;display:block;margin-bottom:12px;">Enter access code</label>
-      <input id="pw-input" type="password" autofocus style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:14px 16px;color:#fafafa;font-size:16px;font-family:inherit;text-align:center;letter-spacing:.1em;outline:none;">
-      <div id="pw-err" style="font-family:'DM Mono',monospace;font-size:10px;color:#ff6b6b;text-transform:uppercase;letter-spacing:.14em;margin-top:12px;min-height:14px;"></div>
-      <button id="pw-submit" style="width:100%;background:#00d4a8;color:#0a0a0c;padding:14px;border-radius:100px;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;border:none;cursor:pointer;margin-top:16px;">Enter</button>
-    </div>
-    <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;color:rgba(255,255,255,0.45);text-transform:uppercase;margin-top:24px;">Real Estate Lenders &amp; Investors Marketplace</div>
-  </div>
-</div>
-<script>
-(function(){
-  var gate=document.getElementById('pw-gate'),inp=document.getElementById('pw-input'),err=document.getElementById('pw-err'),btn=document.getElementById('pw-submit');
-  if(sessionStorage.getItem('fl_access')==='1'){gate.style.display='none';return;}
-  function submit(){
-    if(inp.value.trim().toLowerCase()==='firstlien2026'){
-      sessionStorage.setItem('fl_access','1');
-      gate.style.transition='opacity .3s';
-      gate.style.opacity='0';
-      setTimeout(function(){gate.style.display='none';},300);
-    }else{
-      err.textContent='Invalid access code';
-      inp.value='';inp.focus();
-    }
-  }
-  btn.addEventListener('click',submit);
-  inp.addEventListener('keydown',function(e){if(e.key==='Enter')submit();});
-})();
-</script>
 
 <nav>
   <a href="#" class="logo">FirstLien<span class="dot">.</span>ai</a>
@@ -1973,23 +1949,78 @@ footer b{color:rgba(255,255,255,0.8);}
     <div class="reg-head">
       <div class="rate-tag">Apply for Lender Access</div>
       <h2 class="reg-title">Ready to become<br><em>the bank?</em></h2>
-      <p class="reg-desc">Tell us about your capital and criteria. We'll verify your accreditation, activate your lender account, and start matching you to deals within 48 hours.</p>
+      <p class="reg-desc">Access to live deal flow is for verified lenders only. Tell us who you are and what you fund — we'll confirm your accredited status, activate your account, and start routing matching first-lien deals to your inbox within 48 hours. No fee, no commitment.</p>
     </div>
-    <div class="reg-form">
+    <div class="reg-form" id="reg-form">
       <div class="reg-row">
-        <div class="reg-field"><label>Full Name</label><input type="text" placeholder="Jane Smith"></div>
-        <div class="reg-field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
+        <div class="reg-field"><label>Full Name <span class="reg-req">*</span></label><input type="text" id="rf-name" placeholder="Jane Smith"></div>
+        <div class="reg-field"><label>Work Email <span class="reg-req">*</span></label><input type="email" id="rf-email" placeholder="you@yourfund.com"></div>
       </div>
       <div class="reg-row">
-        <div class="reg-field"><label>Phone</label><input type="tel" placeholder="(555) 555-5555"></div>
-        <div class="reg-field"><label>Investor Type</label><select><option>Individual / HNW</option><option>Family Office</option><option>Fund / Institution</option><option>Broker</option></select></div>
+        <div class="reg-field"><label>Phone</label><input type="tel" id="rf-phone" placeholder="(555) 555-5555"></div>
+        <div class="reg-field"><label>Company / Fund</label><input type="text" id="rf-company" placeholder="Acme Capital Partners"><div class="reg-help">Leave blank if you lend as an individual.</div></div>
       </div>
       <div class="reg-row">
-        <div class="reg-field"><label>Capital Available</label><select><option>$50K – $250K</option><option>$250K – $1M</option><option>$1M – $5M</option><option>$5M – $25M</option><option>$25M+</option></select></div>
-        <div class="reg-field"><label>Accredited?</label><select><option>Yes — verified</option><option>Yes — awaiting verification</option><option>Need help determining</option></select></div>
+        <div class="reg-field"><label>Lender Type</label>
+          <select id="rf-type">
+            <option>Individual / HNW investor</option>
+            <option>Family office</option>
+            <option>Private lending fund</option>
+            <option>Institution / bank</option>
+            <option>Broker (placing capital for others)</option>
+          </select>
+        </div>
+        <div class="reg-field"><label>Accredited Investor <span class="reg-req">*</span></label>
+          <select id="rf-accredited">
+            <option>Yes — verified</option>
+            <option>Yes — can verify on request</option>
+            <option>Not sure — need help determining</option>
+          </select>
+          <div class="reg-help">$1M+ net worth (excl. primary home) or $200K+ income. Required to view deal flow.</div>
+        </div>
       </div>
-      <button class="reg-submit">Apply for Access →</button>
-      <div class="reg-foot">48-hour verification · No commitment · Access fee waived through Q2 2026</div>
+      <div class="reg-row">
+        <div class="reg-field"><label>Capital Ready to Deploy <span class="reg-req">*</span></label>
+          <select id="rf-capital">
+            <option>$50K – $250K</option><option>$250K – $1M</option><option>$1M – $5M</option><option>$5M – $25M</option><option>$25M+</option>
+          </select>
+          <div class="reg-help">Total you can put to work over the next 12 months.</div>
+        </div>
+        <div class="reg-field"><label>Typical Deal Size</label>
+          <select id="rf-checksize">
+            <option>No preference</option>
+            <option>$50K – $250K per loan</option>
+            <option>$250K – $500K per loan</option>
+            <option>$500K – $1M per loan</option>
+            <option>$1M – $3M per loan</option>
+            <option>$3M+ per loan</option>
+          </select>
+          <div class="reg-help">Your comfortable check size on a single first-lien position.</div>
+        </div>
+      </div>
+      <div class="reg-row">
+        <div class="reg-field full"><label>States You Lend In</label><input type="text" id="rf-geo" placeholder="e.g. AZ, CA, TX — or “Nationwide”"><div class="reg-help">Where you'll fund property. We only route deals inside your footprint.</div></div>
+      </div>
+      <div class="reg-row">
+        <div class="reg-field full"><label>Loan Types You Fund</label>
+          <div class="lt-chips" id="rf-loantypes">
+            <label class="lt-chip"><input type="checkbox" value="Bridge"><span>Bridge</span></label>
+            <label class="lt-chip"><input type="checkbox" value="Fix & Flip"><span>Fix &amp; Flip</span></label>
+            <label class="lt-chip"><input type="checkbox" value="DSCR Rental"><span>DSCR Rental</span></label>
+            <label class="lt-chip"><input type="checkbox" value="Ground-Up Construction"><span>Ground-Up Construction</span></label>
+            <label class="lt-chip"><input type="checkbox" value="Commercial"><span>Commercial</span></label>
+            <label class="lt-chip"><input type="checkbox" value="Land"><span>Land</span></label>
+          </div>
+          <div class="reg-help">Pick all that fit your box — this sharpens the deals we send you.</div>
+        </div>
+      </div>
+      <div class="reg-row">
+        <div class="reg-field full"><label>Website or LinkedIn</label><input type="text" id="rf-web" placeholder="yourfund.com or linkedin.com/in/…"><div class="reg-help">Optional — helps us verify you faster.</div></div>
+      </div>
+      <!-- honeypot: hidden from real users -->
+      <input type="text" id="rf-company-url" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" aria-hidden="true">
+      <button class="reg-submit" id="rf-submit" onclick="submitLenderApp()">Apply for Access →</button>
+      <div class="reg-foot" id="rf-foot">Fields marked <span class="reg-req">*</span> are required · 48-hour verification · No commitment · Access fee waived through Q2 2026</div>
     </div>
   </div>
 </section>
@@ -2390,6 +2421,44 @@ const chatLabel = document.getElementById('chat-label');
 chatBtn.addEventListener('mouseenter', () => chatLabel.classList.add('show'));
 chatBtn.addEventListener('mouseleave', () => chatLabel.classList.remove('show'));
 chatBtn.addEventListener('click', () => alert('Chat coming soon! Rich will be your AI assistant for questions about the platform.'));
+
+// ─── Lender access application ───
+async function submitLenderApp(){
+  var g = function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
+  var email = g('rf-email'), name = g('rf-name');
+  var foot = document.getElementById('rf-foot');
+  var btn = document.getElementById('rf-submit');
+  if(!email || email.indexOf('@')<0){
+    foot.textContent = 'Please enter a valid email so we can reach you.';
+    foot.style.color = '#ff6b6b';
+    document.getElementById('rf-email').focus();
+    return;
+  }
+  var loanTypes = [].map.call(document.querySelectorAll('#rf-loantypes input:checked'), function(el){ return el.value; });
+  var payload = {
+    type:'lender', ref:'FL-'+Date.now().toString(36).toUpperCase().slice(-6),
+    name:name, email:email, phone:g('rf-phone'), company:g('rf-company'),
+    investorType:g('rf-type'), accredited:g('rf-accredited'),
+    capital:g('rf-capital'), dealSize:g('rf-checksize'),
+    geography:g('rf-geo'), loanTypes:loanTypes, website:g('rf-web'),
+    company_url:g('rf-company-url'), createdAt:new Date().toISOString()
+  };
+  try{ localStorage.setItem('fl_lender_'+payload.ref, JSON.stringify(payload)); }catch(e){}
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try{
+    var resp = await fetch('/.netlify/functions/submit-deal',{
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+    });
+    await resp.json().catch(function(){return {};});
+  }catch(e){ /* local fallback already saved */ }
+  // Success state — swap the form for a confirmation
+  var form = document.getElementById('reg-form');
+  form.innerHTML = '<div style="text-align:center;padding:20px 8px;">'+
+    '<div style="font-size:44px;margin-bottom:14px;">✓</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:700;margin-bottom:10px;">You’re on the list.</div>'+
+    '<div style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.6;max-width:380px;margin:0 auto;">We’ll verify your accreditation and activate your lender account within 48 hours. Watch your inbox at <b style="color:var(--teal-bright);">'+email.replace(/</g,'&lt;')+'</b>.</div>'+
+    '</div>';
+}
 </script>
 </body>
 </html>

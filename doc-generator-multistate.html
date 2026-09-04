@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Loan Doc Generator — FirstLien.Capital</title>
+<title>Loan Doc Generator — FirstLien.ai</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -121,7 +121,7 @@
 
   <header class="masthead">
     <div>
-      <div class="eyebrow">FirstLien.Capital — Loan Document Engine</div>
+      <div class="eyebrow">FirstLien.ai — Loan Document Engine</div>
       <h1>Multi-State <em>Doc Generator</em></h1>
     </div>
     <div class="meta">
@@ -236,7 +236,7 @@
   </div>
 
   <div class="footer">
-    FirstLien.Capital · <em>Business-purpose, non-owner-occupied loans only</em> · 47-state marketplace · Template-driven · Attorney review required
+    FirstLien.ai · <em>Business-purpose, non-owner-occupied loans only</em> · 47-state marketplace · Template-driven · Attorney review required
   </div>
 
 </div>
@@ -878,7 +878,7 @@ function buildExtractionPrompt() {
 
   const fieldLines = relevant.map(f => `  "${f.key}": string | null,  // ${f.note}`).join('\n');
 
-  return `You're extracting deal data from private-lending closing documents for FirstLien.Capital / Lender Funds. This is a ${stateLabel} business-purpose / non-owner-occupied investment loan.
+  return `You're extracting deal data from private-lending closing documents for FirstLien.ai / Lender Funds. This is a ${stateLabel} business-purpose / non-owner-occupied investment loan.
 
 I've attached some combination of: ALTA title commitment, commercial appraisal, 1003 loan application, broker doc order form, borrower ID, and/or loan quote.
 

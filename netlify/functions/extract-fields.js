@@ -1,6 +1,6 @@
 // netlify/functions/extract-fields.js
 // ─────────────────────────────────────────────────────────────────────────────
-// FirstLien.Capital — AI-powered field extraction proxy
+// FirstLien.ai — AI-powered field extraction proxy
 //
 // Receives raw text from uploaded loan documents and asks Claude to return
 // structured JSON with all deal fields. This replaces fragile regex patterns

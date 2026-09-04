@@ -1,0 +1,6 @@
+# Netlify edge proxy — keeps FirstLien independent.
+# The browser only ever talks to firstlien.ai; document reads/uploads are
+# forwarded server-side to the document engine so the upstream host is never
+# exposed to end users. Query strings (?t=<token>) pass through automatically.
+# 200 = rewrite/proxy (not a redirect), so POST + multipart bodies stream through.
+/api/docs/*  https://docorder.app/api/intake/:splat  200

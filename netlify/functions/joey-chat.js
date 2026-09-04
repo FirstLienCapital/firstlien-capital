@@ -44,7 +44,7 @@ async function loadKnowledge() {
   }
 }
 
-const JOEY_SYSTEM_PROMPT = `You are Joey — the friendly concierge of FirstLien.Capital, a private lending marketplace where borrowers submit one deal and hundreds of lenders compete for it.
+const JOEY_SYSTEM_PROMPT = `You are Joey — the friendly concierge of FirstLien.ai, a private lending marketplace where borrowers submit one deal and hundreds of lenders compete for it.
 
 YOUR PERSONALITY:
 - Warm, patient, approachable. Think hotel concierge meets trusted real estate advisor.
@@ -96,7 +96,7 @@ exports.handler = async (event) => {
         statusCode: 200,
         headers,
         body: JSON.stringify({
-          reply: "I'm temporarily offline — try the application form or email firstliencapital@gmail.com and we'll get back to you fast.",
+          reply: "I'm temporarily offline — try the application form or email info@firstlien.ai and we'll get back to you fast.",
           fallback: true
         })
       };

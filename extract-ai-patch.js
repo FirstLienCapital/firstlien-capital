@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // extract-ai-patch.js
-// FirstLien.Capital — Doc Prep Engine AI Extraction Patch
+// FirstLien.ai — Doc Prep Engine AI Extraction Patch
 //
 // This script REPLACES the regex-based exExtractFields function at runtime
 // with an AI-powered version that calls the Netlify function proxy.

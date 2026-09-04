@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FirstLien Capital — Admin</title>
+<title>FirstLien.ai — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
@@ -321,6 +321,32 @@ select option{background:var(--s2);}
   .nav-tabs{display:none;}
   .tab-panel{padding:16px;}
 }
+
+/* ── SUBMISSIONS INBOX ── */
+.inbox-count-chip{display:inline-block;background:var(--gold);color:#02040a;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;padding:1px 8px;border-radius:100px;margin-left:6px;vertical-align:middle;}
+.inbox-toggle{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid var(--border);}
+.inbox-tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.04em;padding:10px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;}
+.inbox-tab:hover{color:var(--text);}
+.inbox-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.inbox-count{background:var(--s2);border:1px solid var(--border);color:var(--muted);font-size:10px;padding:1px 7px;border-radius:100px;}
+.inbox-tab.active .inbox-count{background:var(--gdim);border-color:var(--gmed);color:var(--gold);}
+.inbox-status{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);padding:22px 6px;line-height:1.7;}
+.inbox-status a{color:var(--gold);}
+.inbox-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;transition:border-color .15s;}
+.inbox-card:hover{border-color:var(--b2);}
+.ic-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+.ic-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:var(--text);}
+.ic-ref{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);background:var(--s2);border:1px solid var(--border);padding:3px 9px;border-radius:100px;}
+.ic-status{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;padding:3px 9px;border-radius:100px;background:var(--tdim);color:var(--teal);border:1px solid rgba(13,152,130,0.3);}
+.ic-status.new{background:var(--gdim);color:var(--gold);border-color:var(--gmed);}
+.ic-time{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-left:auto;}
+.ic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 20px;}
+.ic-field{display:flex;flex-direction:column;padding:5px 0;border-bottom:1px solid var(--border);}
+.ic-field:last-child{border-bottom:none;}
+.ic-l{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:2px;}
+.ic-v{font-size:13px;color:var(--text);word-break:break-word;}
+.ic-v a{color:var(--gold);text-decoration:none;}
+.ic-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;color:var(--teal);border:1px solid rgba(13,152,130,0.3);border-radius:4px;padding:2px 7px;margin-top:8px;}
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 </head>
@@ -332,7 +358,7 @@ select option{background:var(--s2);}
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">FL</div>
-    <div class="login-title">FirstLien Capital</div>
+    <div class="login-title">FirstLien.ai</div>
     <div class="login-sub">Admin Dashboard</div>
     <input type="password" class="login-input" id="lpass"
            placeholder="Access code" autocomplete="off"
@@ -356,10 +382,11 @@ select option{background:var(--s2);}
   <div class="topnav">
     <div class="nav-brand">
       <div class="nav-logo">FL</div>
-      <div class="nav-name">FirstLien Capital</div>
+      <div class="nav-name">FirstLien.ai</div>
     </div>
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="showTab('dash',this)">Dashboard</button>
+      <button class="nav-tab" onclick="showTab('inbox',this);inboxLoad(false)">Submissions</button>
       <button class="nav-tab" onclick="showTab('docorder',this)">Doc Request</button>
       <button class="nav-tab" onclick="showTab('docprep',this)">Doc Prep Engine</button>
       <button class="nav-tab" onclick="showTab('content',this)">Content Manager</button>
@@ -377,13 +404,19 @@ select option{background:var(--s2);}
 
       <div class="section-head" style="margin-top:0;">Quick Access</div>
       <div class="dash-grid">
-        <div class="dash-card" onclick="showTab('docorder',document.querySelectorAll('.nav-tab')[1])">
+        <div class="dash-card" onclick="showTab('inbox',document.querySelectorAll('.nav-tab')[1]);inboxLoad(false)">
+          <div class="dc-icon">📥</div>
+          <div class="dc-title">Submissions Inbox <span id="dc-inbox-count" class="inbox-count-chip" style="display:none;"></span></div>
+          <div class="dc-desc">Incoming borrower deals and lender applications, live from the marketplace</div>
+          <div class="dc-arrow">→</div>
+        </div>
+        <div class="dash-card" onclick="showTab('docorder',document.querySelectorAll('.nav-tab')[2])">
           <div class="dc-icon">📋</div>
           <div class="dc-title">Send Doc Request</div>
           <div class="dc-desc">Generate a custom link and send to borrower to collect required documents</div>
           <div class="dc-arrow">→</div>
         </div>
-        <div class="dash-card" onclick="showTab('docprep',document.querySelectorAll('.nav-tab')[2])">
+        <div class="dash-card" onclick="showTab('docprep',document.querySelectorAll('.nav-tab')[3])">
           <div class="dc-icon">⚙️</div>
           <div class="dc-title">Doc Prep Engine</div>
           <div class="dc-desc">Upload template + deal info → generate completed loan document package</div>
@@ -419,6 +452,28 @@ select option{background:var(--s2);}
         <button class="btn btn-ghost" onclick="window.open('/doc-generator-multistate.html','_blank')">📝 Multi-State Generator</button>
       </div>
 
+    </div>
+
+    <!-- ── SUBMISSIONS INBOX TAB ── -->
+    <div class="tab-panel" id="tab-inbox">
+      <div class="section-head" style="margin-top:0;display:flex;align-items:center;justify-content:space-between;">
+        <span>Submissions</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span id="inbox-updated" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);"></span>
+          <button class="btn btn-ghost" onclick="inboxLoad(true)">↻ Refresh</button>
+          <button class="btn btn-ghost" onclick="inboxExportCsv()" title="Download the current list as CSV for outreach / import">⤓ Export CSV</button>
+          <button class="btn btn-ghost" onclick="inboxSignOutData()" title="Forget the data access code on this device">🔑 Reset code</button>
+        </div>
+      </div>
+
+      <div class="inbox-toggle">
+        <button class="inbox-tab active" id="inbox-tab-deals" onclick="inboxView('deals')">Borrower Deals <span class="inbox-count" id="cnt-deals">0</span></button>
+        <button class="inbox-tab" id="inbox-tab-lenders" onclick="inboxView('lenders')">Lender Applications <span class="inbox-count" id="cnt-lenders">0</span></button>
+      </div>
+
+      <div id="inbox-status" class="inbox-status"></div>
+      <div id="inbox-deals" class="inbox-list"></div>
+      <div id="inbox-lenders" class="inbox-list" style="display:none;"></div>
     </div>
 
     <!-- ── DOC ORDER TAB ── -->
@@ -458,7 +513,7 @@ select option{background:var(--s2);}
           </div>
           <div class="field">
             <div class="flbl">Assigned Contact</div>
-            <input type="text" id="ql-contact" placeholder="FirstLien Capital" oninput="buildLink()">
+            <input type="text" id="ql-contact" placeholder="FirstLien.ai" oninput="buildLink()">
           </div>
         </div>
 
@@ -1109,6 +1164,198 @@ function showTab(id, btn) {
   document.querySelectorAll('.nav-tab').forEach(function(t){ t.classList.remove('active'); });
   document.getElementById('tab-'+id).classList.add('active');
   if (btn) btn.classList.add('active');
+}
+
+// ── SUBMISSIONS INBOX ─────────────────────────────────────────────────────────
+// Reads borrower deals + lender applications from Firestore via the
+// list-submissions function. That function is gated by ADMIN_DASH_TOKEN (a secret
+// Netlify env var) — NOT the public admin login password — because it returns PII.
+var INBOX = { token: null, data: null, view: 'deals', loading: false };
+var INBOX_TOKEN_KEY = 'fl_dash_token';
+
+function inboxEsc(s){ var d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; }
+function inboxTimeAgo(iso){
+  if(!iso) return '';
+  var t=new Date(iso).getTime(); if(isNaN(t)) return '';
+  var s=Math.floor((Date.now()-t)/1000);
+  if(s<60) return 'just now';
+  if(s<3600) return Math.floor(s/60)+'m ago';
+  if(s<86400) return Math.floor(s/3600)+'h ago';
+  if(s<604800) return Math.floor(s/86400)+'d ago';
+  return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+function inboxGetToken(forcePrompt){
+  if(!forcePrompt){
+    try{ var t=sessionStorage.getItem(INBOX_TOKEN_KEY); if(t) return t; }catch(e){}
+  }
+  var v=prompt('Enter the Submissions data access code\n(the ADMIN_DASH_TOKEN you set in Netlify — this is separate from the login password and is never stored in the site):');
+  if(v){ try{ sessionStorage.setItem(INBOX_TOKEN_KEY, v); }catch(e){} return v; }
+  return null;
+}
+function inboxSignOutData(){
+  try{ sessionStorage.removeItem(INBOX_TOKEN_KEY); }catch(e){}
+  INBOX.token=null; INBOX.data=null;
+  document.getElementById('inbox-status').innerHTML='Data access code cleared. Click ↻ Refresh to re-enter it.';
+  document.getElementById('inbox-deals').innerHTML='';
+  document.getElementById('inbox-lenders').innerHTML='';
+}
+function inboxStatus(msg){ document.getElementById('inbox-status').innerHTML=msg||''; }
+
+async function inboxLoad(force){
+  if(INBOX.loading) return;
+  if(INBOX.data && !force){ inboxRender(); return; }   // already loaded this session
+  var token = inboxGetToken(false);
+  if(!token){ inboxStatus('A data access code is required to view submissions.'); return; }
+  INBOX.token = token; INBOX.loading = true;
+  inboxStatus('Loading submissions…');
+  try{
+    var resp = await fetch('/.netlify/functions/list-submissions', {
+      method:'GET', headers:{ 'X-Admin-Token': token }
+    });
+    if(resp.status===401){
+      INBOX.loading=false;
+      try{ sessionStorage.removeItem(INBOX_TOKEN_KEY); }catch(e){}
+      inboxStatus('That access code was rejected. Click ↻ Refresh to try again.');
+      return;
+    }
+    if(resp.status===503){
+      INBOX.loading=false;
+      inboxStatus('The submissions inbox isn’t configured yet. On Netlify set <b>ADMIN_DASH_TOKEN</b> (a secret you choose) and <b>FIREBASE_SERVICE_ACCOUNT</b>, then redeploy. This loads only on the deployed site, not a local file.');
+      return;
+    }
+    if(!resp.ok){ INBOX.loading=false; inboxStatus('Could not load submissions ('+resp.status+'). This works on the deployed Netlify site.'); return; }
+    var data = await resp.json();
+    INBOX.data = data; INBOX.loading = false;
+    document.getElementById('inbox-updated').textContent = 'Updated '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    inboxStatus('');
+    inboxRender();
+  }catch(e){
+    INBOX.loading=false;
+    inboxStatus('Couldn’t reach the server. The Submissions inbox loads from the deployed site (Netlify), not a local file preview.');
+  }
+}
+
+// Export the current view (deals or lenders) as CSV — outreach-ready
+// (drops straight into your email / outreach tool of choice).
+function inboxCsvCell(v){
+  if(v==null) return '';
+  if(Array.isArray(v)) v=v.join('; ');
+  v=String(v);
+  return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+}
+function inboxExportCsv(){
+  var d = INBOX.data;
+  if(!d){ alert('Load submissions first (↻ Refresh).'); return; }
+  var rows=[], cols, name;
+  if(INBOX.view==='lenders'){
+    name='firstlien-lender-applications';
+    cols=['ref','createdAt','name','email','phone','company','investorType','accredited','capital','dealSize','geography','loanTypes','website'];
+    rows=(d.lenders||[]).map(function(x){ return cols.map(function(c){ return inboxCsvCell(x[c]); }); });
+  } else {
+    name='firstlien-borrower-deals';
+    cols=['ref','createdAt','status','borrower_name','borrower_email','borrower_phone','property_address','property_type','property_value','loan_amount','loan_term','loan_ltv','loan_purpose','experience','fico'];
+    rows=(d.deals||[]).map(function(x){
+      var b=x.borrower||{},p=x.property||{},l=x.loan||{};
+      return [x.ref,x.createdAt,x.status,b.name,b.email,b.phone,p.address,p.type,p.value,l.amount,l.term,l.ltv,p.purpose,b.experience,b.fico].map(inboxCsvCell);
+    });
+  }
+  if(!rows.length){ alert('Nothing to export in this view yet.'); return; }
+  var csv=[cols.join(',')].concat(rows.map(function(r){return r.join(',');})).join('\r\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download=name+'-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
+
+function inboxView(which){
+  INBOX.view = which;
+  document.getElementById('inbox-tab-deals').classList.toggle('active', which==='deals');
+  document.getElementById('inbox-tab-lenders').classList.toggle('active', which==='lenders');
+  document.getElementById('inbox-deals').style.display = which==='deals'?'block':'none';
+  document.getElementById('inbox-lenders').style.display = which==='lenders'?'block':'none';
+}
+
+function inboxField(label, val, opts){
+  if(val==null || String(val).trim()==='') return '';
+  opts=opts||{};
+  var v = inboxEsc(val);
+  if(opts.mailto) v='<a href="mailto:'+inboxEsc(val)+'">'+v+'</a>';
+  else if(opts.tel) v='<a href="tel:'+inboxEsc(String(val).replace(/[^0-9+]/g,''))+'">'+v+'</a>';
+  return '<div class="ic-field"><span class="ic-l">'+inboxEsc(label)+'</span><span class="ic-v">'+v+'</span></div>';
+}
+
+function inboxRender(){
+  var d = INBOX.data || {deals:[],lenders:[]};
+  document.getElementById('cnt-deals').textContent = (d.deals||[]).length;
+  document.getElementById('cnt-lenders').textContent = (d.lenders||[]).length;
+  var chip = document.getElementById('dc-inbox-count');
+  if(chip){ var total=(d.deals||[]).length+(d.lenders||[]).length; chip.textContent=total; chip.style.display=total?'inline-block':'none'; }
+
+  // Borrower deals
+  var dealsEl = document.getElementById('inbox-deals');
+  if(!(d.deals||[]).length){
+    dealsEl.innerHTML='<div class="inbox-status">No borrower deals yet. They’ll appear here the moment someone submits on the borrower page.</div>';
+  } else {
+    dealsEl.innerHTML = d.deals.map(function(x){
+      var b=x.borrower||{}, p=x.property||{}, l=x.loan||{};
+      return '<div class="inbox-card">'+
+        '<div class="ic-top">'+
+          '<span class="ic-title">'+inboxEsc(b.name||'Borrower')+'</span>'+
+          '<span class="ic-ref">'+inboxEsc(x.ref||'—')+'</span>'+
+          '<span class="ic-status '+(x.status==='new'?'new':'')+'">'+inboxEsc(x.status||'new')+'</span>'+
+          '<span class="ic-time">'+inboxTimeAgo(x.createdAt)+'</span>'+
+        '</div>'+
+        '<div class="ic-grid">'+
+          inboxField('Email', b.email, {mailto:true})+
+          inboxField('Phone', b.phone, {tel:true})+
+          inboxField('Property', p.address)+
+          inboxField('Type', p.type)+
+          inboxField('Stated value', p.value)+
+          inboxField('Loan amount', l.amount)+
+          inboxField('Term', l.term)+
+          inboxField('LTV', l.ltv)+
+          inboxField('Purpose', p.purpose)+
+          inboxField('Exit', l.exit)+
+          inboxField('Experience', b.experience)+
+          inboxField('FICO', b.fico)+
+        '</div>'+
+        (l.story?'<div class="ic-field" style="border:none;margin-top:6px;"><span class="ic-l">Deal story</span><span class="ic-v">'+inboxEsc(l.story)+'</span></div>':'')+
+        (x.docorder&&x.docorder.dealId?'<span class="ic-tag">📄 Documents linked · '+inboxEsc(x.docorder.fileNum||x.docorder.dealId)+'</span>':'')+
+      '</div>';
+    }).join('');
+  }
+
+  // Lender applications
+  var lendEl = document.getElementById('inbox-lenders');
+  if(!(d.lenders||[]).length){
+    lendEl.innerHTML='<div class="inbox-status">No lender applications yet. They’ll appear here when someone applies on the lender page.</div>';
+  } else {
+    lendEl.innerHTML = d.lenders.map(function(x){
+      return '<div class="inbox-card">'+
+        '<div class="ic-top">'+
+          '<span class="ic-title">'+inboxEsc(x.name||'Lender')+'</span>'+
+          '<span class="ic-ref">'+inboxEsc(x.ref||'—')+'</span>'+
+          '<span class="ic-status '+(x.status==='new'?'new':'')+'">'+inboxEsc(x.status||'new')+'</span>'+
+          '<span class="ic-time">'+inboxTimeAgo(x.createdAt)+'</span>'+
+        '</div>'+
+        '<div class="ic-grid">'+
+          inboxField('Email', x.email, {mailto:true})+
+          inboxField('Phone', x.phone, {tel:true})+
+          inboxField('Company / Fund', x.company)+
+          inboxField('Lender type', x.investorType)+
+          inboxField('Accredited', x.accredited)+
+          inboxField('Capital to deploy', x.capital)+
+          inboxField('Typical deal size', x.dealSize)+
+          inboxField('States', x.geography)+
+          inboxField('Loan types', (x.loanTypes&&x.loanTypes.length)?x.loanTypes.join(', '):'')+
+          inboxField('Website', x.website)+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  inboxView(INBOX.view);
 }
 
 // ── DOC ORDER ─────────────────────────────────────────────────────────────────
@@ -4020,7 +4267,7 @@ function dpDownloadAsPdf(docxBlob, filename) {
     '@media print{@page{margin:1in;}}'+
     '</style></head><body>'+
     '<h1>LOAN DOCUMENT PACKAGE — COVER SUMMARY</h1>'+
-    '<p style="font-size:9pt;color:#555;margin-bottom:16pt;">Generated by FirstLien.Capital Doc Prep Engine · '+new Date().toLocaleDateString()+'</p>'+
+    '<p style="font-size:9pt;color:#555;margin-bottom:16pt;">Generated by FirstLien.ai Doc Prep Engine · '+new Date().toLocaleDateString()+'</p>'+
     '<h2>PARTIES</h2>'+
     '<div class="field"><div class="fl">Borrower Entity</div><div class="fv">'+entity+', a '+etype+'</div></div>'+
     '<div class="field"><div class="fl">Guarantor</div><div class="fv">'+gname+'</div></div>'+

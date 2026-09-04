@@ -22,7 +22,7 @@ function buildPrompt(placeholders, stateHint) {
     ? `\nThis is a ${stateHint} deal. Use ${stateHint}-appropriate legal terminology and defaults.`
     : '';
 
-  return `You are extracting data from private-lending closing documents for FirstLien.Capital / Lender Funds (business-purpose / non-owner-occupied / investment loans only).${stateClause}
+  return `You are extracting data from private-lending closing documents for FirstLien.ai / Lender Funds (business-purpose / non-owner-occupied / investment loans only).${stateClause}
 
 The attached documents may include: title commitment / ALTA report, commercial appraisal, 1003 loan application, broker doc order form, borrower ID, loan quote.
 

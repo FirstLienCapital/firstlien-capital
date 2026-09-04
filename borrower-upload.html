@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>FirstLien — Upload Your Documents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0f0e0c; --ink2:#2a2620; --cream:#faf8f4; --white:#fff;
+  --border:#e0d8cc; --muted:#7a7060;
+  --gold:#b08830; --gold-l:#d4a92a; --gold-bg:rgba(176,136,48,0.07);
+  --teal:#0a7b6a; --teal-l:#0d9882; --teal-bg:rgba(10,123,106,0.07);
+  --dark:#080705; --green:#1a6a3a; --red:#8b2020;
+  --radius:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+body{background:var(--cream);color:var(--ink);font-family:'Outfit',sans-serif;font-size:15px;line-height:1.65;}
+a{color:inherit;}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px clamp(20px,5vw,64px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;letter-spacing:-0.01em;text-decoration:none;}
+.nav-logo .dot{color:var(--gold);}
+.nav-help{font-size:13px;color:var(--muted);text-decoration:none;}
+.nav-help:hover{color:var(--ink);}
+
+/* SHELL */
+.wrap{max-width:820px;margin:0 auto;padding:clamp(36px,7vw,72px) clamp(20px,5vw,32px) 96px;}
+.eyebrow{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold-l);display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--gold-l);}
+h1{font-family:'Playfair Display',serif;font-size:clamp(30px,5vw,44px);font-weight:700;line-height:1.08;letter-spacing:-0.02em;margin-bottom:14px;}
+h1 .ital{font-style:italic;color:var(--gold-l);}
+.lede{font-size:clamp(15px,2.2vw,17px);color:var(--ink2);max-width:56ch;margin-bottom:36px;}
+
+/* DROPZONE */
+.dz{position:relative;border:2px dashed var(--border);border-radius:var(--radius);background:var(--white);padding:clamp(34px,6vw,56px) 28px;text-align:center;cursor:pointer;transition:border-color .18s,background .18s,transform .18s;}
+.dz:hover{border-color:var(--gold);background:var(--gold-bg);}
+.dz.drag{border-color:var(--gold);background:var(--gold-bg);transform:scale(1.006);}
+.dz.compact{padding:18px 22px;text-align:left;display:flex;align-items:center;gap:14px;}
+.dz-ico{width:52px;height:52px;margin:0 auto 16px;color:var(--gold);}
+.dz.compact .dz-ico{width:26px;height:26px;margin:0;flex:none;}
+.dz-title{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;margin-bottom:6px;}
+.dz.compact .dz-title{font-size:15px;font-family:'Outfit',sans-serif;font-weight:600;margin:0;}
+.dz-sub{font-size:13.5px;color:var(--muted);}
+.dz .browse{color:var(--gold);text-decoration:underline;text-underline-offset:2px;}
+.dz-formats{margin-top:18px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.4px;color:var(--muted);}
+.dz.compact .dz-formats{display:none;}
+input[type=file]{display:none;}
+
+/* FILE LIST */
+.files{margin-top:20px;display:flex;flex-direction:column;gap:10px;}
+.file{display:flex;align-items:center;gap:14px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:13px 16px;}
+.file-ico{width:34px;height:34px;flex:none;border-radius:8px;background:var(--gold-bg);color:var(--gold);display:flex;align-items:center;justify-content:center;}
+.file-ico svg{width:18px;height:18px;}
+.file-meta{flex:1;min-width:0;}
+.file-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.file-size{font-size:12px;color:var(--muted);}
+.file-status{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted);flex:none;display:flex;align-items:center;gap:7px;}
+.file-status.ok{color:var(--teal);}
+.file-status.err{color:var(--red);}
+.dot-spin{width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* PROGRESS BANNER */
+.banner{margin-top:22px;border:1px solid var(--border);border-radius:var(--radius);background:var(--white);padding:20px 22px;display:none;}
+.banner.show{display:block;}
+.banner-row{display:flex;align-items:center;gap:13px;}
+.banner-title{font-weight:600;font-size:15px;}
+.banner-sub{font-size:13px;color:var(--muted);margin-top:3px;}
+.bar{height:5px;border-radius:99px;background:var(--border);margin-top:15px;overflow:hidden;}
+.bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:99px;transition:width .4s ease;}
+
+/* RESULTS */
+.results{margin-top:26px;display:none;}
+.results.show{display:block;animation:rise .4s ease;}
+@keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.res-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.res-check{width:40px;height:40px;flex:none;border-radius:50%;background:var(--teal-bg);color:var(--teal);display:flex;align-items:center;justify-content:center;}
+.res-h{font-family:'Playfair Display',serif;font-size:23px;font-weight:700;}
+.res-h .ital{font-style:italic;color:var(--teal-l);}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;margin-bottom:16px;}
+.card-eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px 26px;}
+.fld{padding:10px 0;border-bottom:1px solid var(--border);}
+.fld:last-child{border-bottom:none;}
+.fld-label{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px;}
+.fld-val{font-size:15px;font-weight:500;color:var(--ink);word-break:break-word;}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:11px;}
+.checklist li{display:flex;align-items:flex-start;gap:11px;font-size:14px;}
+.ck{width:19px;height:19px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.ck.have{background:var(--teal-bg);color:var(--teal);}
+.ck.need{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bg);}
+.ck svg{width:11px;height:11px;}
+.checklist .need-txt{color:var(--ink2);}
+.checklist .have-txt{color:var(--muted);}
+
+/* CTA / ERROR */
+.cta{display:inline-flex;align-items:center;gap:9px;background:var(--gold-l);color:var(--dark);font-family:'Outfit',sans-serif;font-weight:600;font-size:15px;padding:14px 28px;border-radius:99px;border:none;cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .15s;margin-top:6px;}
+.cta:hover{transform:translateY(-1px);box-shadow:0 8px 22px -10px rgba(176,136,48,.6);}
+.err{margin-top:22px;border:1px solid rgba(139,32,32,.25);background:rgba(139,32,32,.05);border-radius:var(--radius);padding:18px 20px;display:none;}
+.err.show{display:block;}
+.err-title{font-weight:600;color:var(--red);margin-bottom:4px;}
+.err-body{font-size:13.5px;color:var(--ink2);}
+.foot{margin-top:40px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;justify-content:center;text-align:center;}
+.foot svg{width:13px;height:13px;color:var(--teal);flex:none;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="borrower.html">FirstLien<span class="dot">.</span></a>
+  <a class="nav-help" href="mailto:info@firstlien.ai">Need help?</a>
+</nav>
+
+<main class="wrap">
+  <div class="eyebrow">Step 1 · Your documents</div>
+  <h1>Upload once. We <span class="ital">read everything.</span></h1>
+  <p class="lede">Drop your purchase contract, title commitment, rent roll, loan quote, or entity docs. Our engine reads them and fills out your deal automatically — so you don't retype a thing.</p>
+
+  <!-- DROPZONE -->
+  <div class="dz" id="dz" tabindex="0" role="button" aria-label="Upload documents">
+    <svg class="dz-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <div class="dz-title" id="dzTitle">Drag &amp; drop your documents</div>
+    <div class="dz-sub">or <span class="browse">browse your files</span></div>
+    <div class="dz-formats">PDF · JPG · PNG · TIFF · Word &nbsp;—&nbsp; up to 25 MB each</div>
+  </div>
+  <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff,.docx">
+
+  <!-- FILE LIST -->
+  <div class="files" id="fileList"></div>
+
+  <!-- PROGRESS BANNER -->
+  <div class="banner" id="banner">
+    <div class="banner-row">
+      <div class="dot-spin" id="bannerSpin"></div>
+      <div>
+        <div class="banner-title" id="bannerTitle">Reading your documents…</div>
+        <div class="banner-sub" id="bannerSub">This usually takes under a minute.</div>
+      </div>
+    </div>
+    <div class="bar"><i id="bannerBar"></i></div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="err" id="err">
+    <div class="err-title" id="errTitle">Something went wrong</div>
+    <div class="err-body" id="errBody"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="res-head">
+      <div class="res-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="res-h">Here's what we <span class="ital">found.</span></div>
+    </div>
+    <div class="card" id="fieldsCard">
+      <div class="card-eyebrow">Pulled from your documents</div>
+      <div class="fields" id="fieldsGrid"></div>
+    </div>
+    <div class="card" id="checklistCard" style="display:none;">
+      <div class="card-eyebrow">Your file checklist</div>
+      <ul class="checklist" id="checklist"></ul>
+    </div>
+    <a class="cta" id="continueBtn" href="#">Continue to your deal
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  </div>
+
+  <div class="foot">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    Your documents are encrypted in transit and stored securely. They're used only to prepare your file.
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  // ── config ────────────────────────────────────────────────────────────────
+  var CREATE_ENDPOINT = '/.netlify/functions/create-deal';
+  var DEFAULT_BASE    = '';        // document engine live API
+  var ALLOWED = ['pdf','jpg','jpeg','png','tif','tiff','docx'];
+  var MAX_BYTES = 25 * 1024 * 1024;
+
+  // Friendly labels for document engine's internal field names. Anything not listed is
+  // prettified from its key. We only ever get the safe, high-confidence pre-fill set.
+  var LABELS = {
+    entityName:'Borrower / Entity', borrowerName:'Borrower', guarantorName:'Guarantor',
+    propFull:'Property address', propAddr:'Street', propCity:'City', propState:'State',
+    propStateAbbr:'State', propZip:'ZIP', county:'County', apn:'Parcel / APN',
+    loanAmount:'Loan amount', purchasePrice:'Purchase price', appraisedValue:'Appraised value',
+    loanTerm:'Term (months)', amort:'Amortization (months)', rate:'Rate',
+    titleCo:'Title company', titleEmail:'Title contact', titleFileNo:'Title file #',
+    lender:'Lender', origBrokerName:'Broker'
+  };
+  var MONEY = {loanAmount:1,purchasePrice:1,appraisedValue:1};
+
+  // ── state ───────────────────────────────────────────────────────────────────
+  var deal = null;              // {deal_id, token, base}
+  var creating = null;          // in-flight create promise (dedupe)
+  var busy = false;
+
+  // ── elements ─────────────────────────────────────────────────────────────────
+  var dz = document.getElementById('dz'),
+      dzTitle = document.getElementById('dzTitle'),
+      fileInput = document.getElementById('fileInput'),
+      fileList = document.getElementById('fileList'),
+      banner = document.getElementById('banner'),
+      bannerTitle = document.getElementById('bannerTitle'),
+      bannerSub = document.getElementById('bannerSub'),
+      bannerBar = document.getElementById('bannerBar'),
+      errBox = document.getElementById('err'),
+      errTitle = document.getElementById('errTitle'),
+      errBody = document.getElementById('errBody'),
+      results = document.getElementById('results'),
+      fieldsGrid = document.getElementById('fieldsGrid'),
+      checklistCard = document.getElementById('checklistCard'),
+      checklist = document.getElementById('checklist'),
+      continueBtn = document.getElementById('continueBtn');
+
+  // ── helpers ──────────────────────────────────────────────────────────────────
+  function ext(name){ return (name.split('.').pop() || '').toLowerCase(); }
+  function fmtSize(b){ if(b<1024) return b+' B'; if(b<1048576) return (b/1024).toFixed(0)+' KB'; return (b/1048576).toFixed(1)+' MB'; }
+  function pretty(key){ return key.replace(/([A-Z])/g,' $1').replace(/^./,function(c){return c.toUpperCase();}).replace(/\s+/g,' ').trim(); }
+  function showErr(title, body){
+    errTitle.textContent = title || 'Something went wrong';
+    errBody.textContent = body || '';
+    errBox.classList.add('show');
+  }
+  function clearErr(){ errBox.classList.remove('show'); }
+  function esc(s){ var d=document.createElement('div'); d.textContent=(s==null?'':String(s)); return d.innerHTML; }
+  var FILE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+
+  // ── deal creation (via secure Netlify proxy) ─────────────────────────────────
+  function ensureDeal(){
+    if(deal) return Promise.resolve(deal);
+    if(creating) return creating;
+    creating = fetch(CREATE_ENDPOINT, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'
+    }).then(function(r){
+      return r.text().then(function(t){
+        var j={}; try{ j=t?JSON.parse(t):{}; }catch(e){ j={raw:t}; }
+        if(!r.ok || !j.success){
+          var msg = j.detail || j.error || ('Server returned ' + r.status);
+          throw new Error(msg);
+        }
+        if(!j.token){ throw new Error('Upload link could not be secured. Please contact us.'); }
+        deal = { deal_id:j.deal_id, token:j.token, base:(j.base||DEFAULT_BASE).replace(/\/+$/,'') };
+        return deal;
+      });
+    }).catch(function(e){ creating=null; throw e; });
+    return creating;
+  }
+
+  // ── add files ────────────────────────────────────────────────────────────────
+  function addFiles(list){
+    if(busy) return;
+    var files = Array.prototype.slice.call(list||[]);
+    if(!files.length) return;
+
+    // client-side validation first — instant feedback, no wasted upload
+    var good = [], bad = [];
+    files.forEach(function(f){
+      if(ALLOWED.indexOf(ext(f.name)) === -1) bad.push([f, 'unsupported type']);
+      else if(f.size > MAX_BYTES) bad.push([f, 'over 25 MB']);
+      else if(f.size === 0) bad.push([f, 'empty file']);
+      else good.push(f);
+    });
+
+    fileList.innerHTML = '';
+    good.concat(bad.map(function(x){return x[0];})).forEach(function(f){
+      var row = document.createElement('div'); row.className='file';
+      var isBad = bad.some(function(x){return x[0]===f;});
+      row.innerHTML =
+        '<div class="file-ico">'+FILE_ICON+'</div>'+
+        '<div class="file-meta"><div class="file-name">'+esc(f.name)+'</div>'+
+        '<div class="file-size">'+fmtSize(f.size)+'</div></div>'+
+        '<div class="file-status '+(isBad?'err':'')+'" data-name="'+esc(f.name)+'">'+
+          (isBad ? esc(bad.filter(function(x){return x[0]===f;})[0][1]) : '<span class="dot-spin"></span> queued')+
+        '</div>';
+      fileList.appendChild(row);
+    });
+
+    setCompact(true);
+    if(good.length) upload(good);
+    else showErr('No usable files', 'Please upload PDF, JPG, PNG, TIFF, or Word documents under 25 MB.');
+  }
+
+  function setFileStatus(name, html, cls){
+    var el = fileList.querySelector('.file-status[data-name="'+ (window.CSS&&CSS.escape?CSS.escape(name):name) +'"]');
+    if(el){ el.className = 'file-status ' + (cls||''); el.innerHTML = html; }
+  }
+  function setAllStatus(html, cls){
+    Array.prototype.forEach.call(fileList.querySelectorAll('.file-status'), function(el){
+      if(el.classList.contains('err')) return; // leave rejected files alone
+      el.className='file-status '+(cls||''); el.innerHTML=html;
+    });
+  }
+
+  // ── upload + poll ────────────────────────────────────────────────────────────
+  function upload(files){
+    busy = true; clearErr();
+    banner.classList.add('show'); results.classList.remove('show');
+    bannerTitle.textContent = 'Securing your upload…';
+    bannerSub.textContent = 'Setting up your file.';
+    bannerBar.style.width = '8%';
+    setAllStatus('<span class="dot-spin"></span> uploading', '');
+
+    ensureDeal().then(function(d){
+      bannerBar.style.width = '20%';
+      var fd = new FormData();
+      files.forEach(function(f){ fd.append('files', f, f.name); });
+      var url = d.base + '/api/intake/' + encodeURIComponent(d.deal_id) + '/documents?t=' + encodeURIComponent(d.token);
+      return fetch(url, { method:'POST', body:fd }).then(function(r){
+        return r.text().then(function(t){
+          var j={}; try{ j=t?JSON.parse(t):{}; }catch(e){ j={raw:t}; }
+          if(!r.ok){ throw new Error(j.error || ('Upload failed ('+r.status+')')); }
+          return j;
+        });
+      });
+    }).then(function(j){
+      // sync fallback (server returned results immediately)
+      if(j && j.fields){ finish(j); return; }
+      if(!j || !j.job_id){ throw new Error('Upload accepted but no job id returned.'); }
+      bannerTitle.textContent = 'Reading your documents…';
+      bannerSub.textContent = 'Pulling names, property, and loan terms.';
+      setAllStatus('<span class="dot-spin"></span> reading', '');
+      poll(j.job_id);
+    }).catch(function(e){
+      failAll(e && e.message);
+    });
+  }
+
+  function poll(jobId){
+    var d = deal, tries = 0, MAX = 180; // ~6 min at 2s
+    var iv = setInterval(function(){
+      tries++;
+      var url = d.base + '/api/intake/' + encodeURIComponent(d.deal_id) + '/ingest/' + encodeURIComponent(jobId) + '?t=' + encodeURIComponent(d.token);
+      fetch(url).then(function(r){ return r.json(); }).then(function(rec){
+        if(!rec || rec.error){ throw new Error((rec&&rec.error) || 'Lost track of the reading job.'); }
+        var total = rec.total || 1, done = rec.done_files || 0;
+        var pct = 20 + Math.round((done/total) * 65);
+        bannerBar.style.width = Math.min(pct,88) + '%';
+        if(rec.current){ bannerSub.textContent = 'Reading ' + rec.current + '…'; }
+        if(rec.state === 'done'){
+          clearInterval(iv);
+          finish(rec.result || {}, rec.failed || []);
+        } else if(rec.state === 'error'){
+          clearInterval(iv);
+          failAll(rec.error || 'The reader hit a problem.');
+        } else if(tries >= MAX){
+          clearInterval(iv);
+          failAll('This is taking longer than expected. Your files are saved — please refresh in a minute.');
+        }
+      }).catch(function(e){
+        if(tries >= MAX){ clearInterval(iv); failAll(e && e.message); }
+        // otherwise transient — keep polling
+      });
+    }, 2000);
+  }
+
+  function failAll(msg){
+    busy = false;
+    banner.classList.remove('show');
+    setAllStatus('failed', 'err');
+    showErr('We couldn’t finish reading your files',
+      (msg || 'Please try again.') + ' If this keeps happening, email info@firstlien.ai and we’ll take it from here.');
+  }
+
+  // ── done ─────────────────────────────────────────────────────────────────────
+  function finish(result, failed){
+    busy = false;
+    bannerBar.style.width = '100%';
+    setTimeout(function(){ banner.classList.remove('show'); }, 450);
+
+    // mark each accepted file done
+    (result.uploaded || []).forEach(function(u){
+      var nm = u.filename || u.name; if(nm) setFileStatus(nm, '&#10003; read', 'ok');
+    });
+    setAllStatus('&#10003; read', 'ok');
+    (failed || []).forEach(function(f){
+      var nm = (f && (f.name||f.filename)) || ''; if(nm) setFileStatus(nm, 'couldn’t read', 'err');
+    });
+
+    // extracted fields
+    var fields = result.fields || {};
+    var keys = Object.keys(fields).filter(function(k){ var v=fields[k]; return v!=null && String(v).trim()!==''; });
+    fieldsGrid.innerHTML = '';
+    if(!keys.length){
+      fieldsGrid.innerHTML = '<div class="fld"><div class="fld-val" style="color:var(--muted);font-weight:400">'+
+        'Your files are saved. We couldn’t auto-read specific fields from them — you can fill your deal in on the next step and we’ll take it from there.</div></div>';
+    } else {
+      // stable, sensible order
+      var order = ['entityName','borrowerName','guarantorName','propFull','propAddr','propCity','propState','propStateAbbr','propZip','county','apn','purchasePrice','loanAmount','appraisedValue','loanTerm','amort','rate','titleCo','titleEmail','titleFileNo','lender'];
+      keys.sort(function(a,b){ var ia=order.indexOf(a), ib=order.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib); });
+      keys.forEach(function(k){
+        var v = fields[k];
+        if(MONEY[k] && !isNaN(parseFloat(String(v).replace(/[^0-9.]/g,'')))){
+          v = '$' + parseFloat(String(v).replace(/[^0-9.]/g,'')).toLocaleString('en-US');
+        }
+        var el = document.createElement('div'); el.className='fld';
+        el.innerHTML = '<div class="fld-label">'+esc(LABELS[k]||pretty(k))+'</div><div class="fld-val">'+esc(v)+'</div>';
+        fieldsGrid.appendChild(el);
+      });
+    }
+
+    // checklist (requirements): {have:[], need:[]} or list of {label, satisfied}
+    renderChecklist(result.requirements);
+
+    // forward the deal to the next step
+    if(deal){
+      continueBtn.setAttribute('href', 'borrower.html?deal=' + encodeURIComponent(deal.deal_id) + '&t=' + encodeURIComponent(deal.token));
+    }
+
+    results.classList.add('show');
+    results.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function renderChecklist(req){
+    var items = [];
+    if(Array.isArray(req)){
+      items = req.map(function(x){
+        if(typeof x === 'string') return {label:x, have:false};
+        return {label:x.label||x.name||x.doc||'Document', have:!!(x.satisfied||x.have||x.uploaded||x.present)};
+      });
+    } else if(req && typeof req === 'object'){
+      (req.have||req.satisfied||[]).forEach(function(x){ items.push({label:(x.label||x.name||x), have:true}); });
+      (req.need||req.missing||req.outstanding||[]).forEach(function(x){ items.push({label:(x.label||x.name||x), have:false}); });
+    }
+    if(!items.length){ checklistCard.style.display='none'; return; }
+    checklist.innerHTML = '';
+    items.forEach(function(it){
+      var li = document.createElement('li');
+      var mark = it.have
+        ? '<span class="ck have"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>'
+        : '<span class="ck need"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>';
+      li.innerHTML = mark + '<span class="'+(it.have?'have-txt':'need-txt')+'">'+esc(it.label)+'</span>';
+      checklist.appendChild(li);
+    });
+    checklistCard.style.display='';
+  }
+
+  // ── ui: dropzone wiring ──────────────────────────────────────────────────────
+  function setCompact(on){
+    if(on){ dz.classList.add('compact'); dzTitle.textContent = 'Add more documents'; }
+    else { dz.classList.remove('compact'); dzTitle.textContent = 'Drag & drop your documents'; }
+  }
+  dz.addEventListener('click', function(){ if(!busy) fileInput.click(); });
+  dz.addEventListener('keydown', function(e){ if((e.key==='Enter'||e.key===' ')&&!busy){ e.preventDefault(); fileInput.click(); } });
+  fileInput.addEventListener('change', function(){ addFiles(fileInput.files); fileInput.value=''; });
+  ['dragenter','dragover'].forEach(function(ev){
+    dz.addEventListener(ev, function(e){ e.preventDefault(); if(!busy) dz.classList.add('drag'); });
+  });
+  ['dragleave','drop'].forEach(function(ev){
+    dz.addEventListener(ev, function(e){ e.preventDefault(); dz.classList.remove('drag'); });
+  });
+  dz.addEventListener('drop', function(e){
+    if(busy) return;
+    var dt = e.dataTransfer; if(dt && dt.files && dt.files.length) addFiles(dt.files);
+  });
+  // stop the browser opening a file dropped outside the zone
+  window.addEventListener('dragover', function(e){ e.preventDefault(); });
+  window.addEventListener('drop', function(e){ e.preventDefault(); });
+})();
+</script>
+</body>
+</html>

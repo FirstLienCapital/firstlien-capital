@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Deal Portal | FirstLien.Capital</title>
+<title>Your Deal Portal | FirstLien.ai</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -226,7 +226,7 @@ nav{
 <body>
 
 <nav>
-  <a href="/" class="nav-logo">FirstLien<span class="dot">.</span>Capital</a>
+  <a href="/" class="nav-logo">FirstLien<span class="dot">.</span>ai</a>
   <div style="display:flex;align-items:center;gap:14px;">
     <span class="nav-deal-ref" id="nav-ref">Loading…</span>
     <a href="/borrower.html" style="font-size:12px;color:var(--muted);text-decoration:none;">← Submit another deal</a>
@@ -360,18 +360,37 @@ nav{
 </div>
 
 <script>
-// ─── Get deal from URL or localStorage
+// ─── Get deal from URL (Firestore, token-gated) or localStorage
 const urlParams = new URLSearchParams(window.location.search);
 const dealRef = urlParams.get('deal') || 'FL-DEMO01';
+const dealToken = urlParams.get('t') || '';
 let deal = null;
 
-function loadDeal() {
+async function loadDeal() {
+  // 1. Instant same-device cache (also lets the page work offline right after submit).
   try {
     const stored = localStorage.getItem('fl_deal_'+dealRef);
     if (stored) deal = JSON.parse(stored);
   } catch(e){}
+
+  // 2. Authoritative, cross-device read from Firestore — only with the deal's token.
+  if (dealToken) {
+    try {
+      const resp = await fetch('/.netlify/functions/get-deal?ref='+encodeURIComponent(dealRef)+'&t='+encodeURIComponent(dealToken));
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.success && data.deal) deal = data.deal;
+      } else if ((resp.status === 403 || resp.status === 404) && !deal) {
+        // Bad/expired link and nothing cached locally — show a clean access message.
+        showAccessError();
+        return false;
+      }
+      // 500/503 (store down / not configured): keep whatever local copy we have.
+    } catch(e) { /* network blip — keep local copy if any */ }
+  }
+
   if (!deal) {
-    // Demo data fallback so the page is never empty
+    // Demo data fallback so a bare visit (no ref/token) is never empty.
     deal = {
       ref: dealRef,
       createdAt: new Date(Date.now() - 1000*60*60*18).toISOString(),
@@ -381,6 +400,17 @@ function loadDeal() {
       status:'offers'
     };
   }
+  return true;
+}
+
+function showAccessError() {
+  document.querySelector('.portal').innerHTML =
+    '<div style="grid-column:1/-1;max-width:520px;margin:60px auto;text-align:center;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:48px 32px;">'+
+    '<div style="font-size:44px;margin-bottom:16px;opacity:0.5;">🔒</div>'+
+    '<div style="font-family:\'Playfair Display\',serif;font-size:26px;font-weight:700;margin-bottom:10px;">We couldn’t open this deal.</div>'+
+    '<div style="font-size:14px;color:var(--muted);line-height:1.7;max-width:400px;margin:0 auto 22px;">This portal link is missing its security code or has expired. Please use the full link from your confirmation email, or submit your deal again.</div>'+
+    '<a href="/borrower.html" style="display:inline-block;background:var(--ink);color:var(--cream);padding:12px 26px;border-radius:100px;font-size:14px;font-weight:600;text-decoration:none;">Submit your deal →</a>'+
+    '</div>';
 }
 
 function renderSidebar() {
@@ -407,7 +437,10 @@ const STAGES = [
 ];
 
 function renderTimeline() {
-  const currentIdx = STAGES.findIndex(s => s.id === deal.status);
+  // A freshly submitted deal has status 'new' — map it to the first visible stage.
+  const statusMap = { new: 'submit', submitted: 'submit' };
+  const st = statusMap[deal.status] || deal.status;
+  const currentIdx = STAGES.findIndex(s => s.id === st);
   const list = document.getElementById('tl-list');
   list.innerHTML = STAGES.map((s, i) => {
     const cls = i < currentIdx ? 'done' : (i === currentIdx ? 'current' : '');
@@ -449,7 +482,8 @@ const SAMPLE_OFFERS = [
 
 function renderOffers() {
   const c = document.getElementById('offers-container');
-  if (deal.status === 'submit' || deal.status === 'avm_check' || deal.status === 'matched') {
+  const preOffer = ['new','submitted','submit','avm_check','matched'];
+  if (preOffer.indexOf(deal.status) !== -1) {
     c.innerHTML = `<div class="empty">
       <div class="empty-icon">⏱</div>
       <div class="empty-title">Offers coming soon</div>
@@ -640,8 +674,9 @@ function appendJoeyMsg(type, text) {
 }
 
 // ─── Boot
-document.addEventListener('DOMContentLoaded', () => {
-  loadDeal();
+document.addEventListener('DOMContentLoaded', async () => {
+  const ok = await loadDeal();
+  if (!ok) return; // access-error screen already shown
   renderSidebar();
   renderTimeline();
   renderActivity();
