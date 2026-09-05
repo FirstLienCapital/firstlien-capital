@@ -1323,6 +1323,7 @@ function inboxRender(){
         '</div>'+
         (l.story?'<div class="ic-field" style="border:none;margin-top:6px;"><span class="ic-l">Deal story</span><span class="ic-v">'+inboxEsc(l.story)+'</span></div>':'')+
         (x.docorder&&x.docorder.dealId?'<span class="ic-tag">📄 Documents linked · '+inboxEsc(x.docorder.fileNum||x.docorder.dealId)+'</span>':'')+
+        (x.portalToken&&x.ref?' <a class="ic-tag" style="text-decoration:none;cursor:pointer;" target="_blank" href="/borrower-portal.html?deal='+encodeURIComponent(x.ref)+'&t='+encodeURIComponent(x.portalToken)+'">👁 Open borrower portal ↗</a>':'')+
       '</div>';
     }).join('');
   }

@@ -1415,19 +1415,31 @@ function upUpload(files){
 
 function upPoll(jobId){
   const d=borrowerDeal,bar=document.getElementById('up-bar').firstElementChild;
-  let tries=0;const MAX=180;
+  // Documents are read one at a time and scanned PDFs are OCR'd — a single
+  // file can legitimately take several minutes. Poll patiently (up to ~15 min),
+  // keep the bar visibly creeping, and tell the borrower they can keep typing.
+  let tries=0;const MAX=225;const startedAt=Date.now();
   const iv=setInterval(()=>{
     tries++;
     const url='/api/docs/'+encodeURIComponent(d.deal_id)+'/ingest/'+encodeURIComponent(jobId)+'?t='+encodeURIComponent(d.token);
     fetch(url).then(r=>r.json()).then(rec=>{
       if(!rec||rec.error) throw new Error((rec&&rec.error)||'Lost track of the reading job.');
       const total=rec.total||1,done=rec.done_files||0;
-      bar.style.width=Math.min(20+Math.round(done/total*65),88)+'%';
-      if(rec.state==='done'){clearInterval(iv);upFinish(rec.result||{},rec.failed||[]);}
-      else if(rec.state==='error'){clearInterval(iv);upFail(rec.error||'The reader hit a problem.');}
-      else if(tries>=MAX){clearInterval(iv);upFail('This is taking longer than expected. Your files are saved — please continue filling in below.');}
+      const mins=(Date.now()-startedAt)/60000;
+      // progress: real per-file progress + a slow time-based creep so it never looks frozen
+      const creep=Math.min(mins*6,30);
+      bar.style.width=Math.min(15+creep+Math.round(done/total*40),88)+'%';
+      if(rec.state==='done'){clearInterval(iv);upFinish(rec.result||{},rec.failed||[]);return;}
+      if(rec.state==='error'){clearInterval(iv);upFail(rec.error||'The reader hit a problem.');return;}
+      // honest status text
+      if(rec.state==='queued'){
+        upNote('Your documents are saved and <b>in line to be read</b>. '+(mins>0.75?'Scanned files can take a few minutes — <b>feel free to keep filling out the form below</b>; we\'ll drop in what we find.':''),false);
+      } else {
+        upNote('<b>Reading your documents'+(rec.current?(' — '+upEsc(rec.current)):'')+'…</b> '+(mins>0.75?'Scanned files can take a few minutes — <b>keep filling out the form below</b> and we\'ll fill in what we find.':''),false);
+      }
+      if(tries>=MAX){clearInterval(iv);upFail('Reading is taking unusually long. Your files are saved to your deal — continue filling in below and we\'ll review them on our side.');}
     }).catch(e=>{if(tries>=MAX){clearInterval(iv);upFail(e&&e.message);}});
-  },2000);
+  },4000);
 }
 
 function upFail(msg){

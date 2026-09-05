@@ -88,7 +88,8 @@ exports.handler = async function (event) {
       recent(db, 'lender_applications', limit)
     ]);
 
-    // Deals — strip the portal token; keep what the inbox shows.
+    // Deals — includes portalToken so the (ADMIN_DASH_TOKEN-gated) admin can
+    // open any deal's borrower portal ("god mode"). This endpoint is operator-only.
     const deals = dealsRaw.map(d => ({
       ref: d.ref || null,
       createdAt: toIso(d.createdAt),
@@ -96,7 +97,8 @@ exports.handler = async function (event) {
       borrower: d.borrower || {},
       property: d.property || {},
       loan: d.loan || {},
-      docorder: d.docorder || null
+      docorder: d.docorder || null,
+      portalToken: d.portalToken || null
     }));
 
     const lenders = lendersRaw.map(l => ({
