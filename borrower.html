@@ -560,10 +560,17 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
 
 @media(max-width:900px){
   nav{padding:0 20px;}
+  /* collapse nav: keep logo + Apply Now CTA, hide the text links */
+  .nav-links{gap:12px;}
+  .nav-links li:not(:last-child){display:none;}
   .hero{padding:60px 20px;min-height:auto;}
   .hero-inner{grid-template-columns:1fr;gap:40px;}
+  /* grid children default to min-width:auto and can force the column wider
+     than the screen (clipped hero text) — allow them to shrink */
+  .hero-inner > *{min-width:0;}
+  .hero-sub{max-width:100%;}
   .hero-visual{display:none;}
-  .hero-proof{gap:28px;}
+  .hero-proof{gap:20px 28px;flex-wrap:wrap;}
   .pitch{padding:70px 20px;}
   .pitch-inner{grid-template-columns:1fr;gap:40px;}
   .how{padding:70px 20px;}
@@ -580,9 +587,9 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
   .disc-blocks{grid-template-columns:1fr;}
   .disclosures{padding:40px 20px;}
   footer{padding:24px 20px;}
-  /* Joey on mobile - smaller, panel goes full-width */
-  .joey-figure{width:90px;height:180px;}
-  .joey-wrap{left:12px;}
+  /* Joey on mobile - much smaller so he never covers content */
+  .joey-figure{width:60px;height:120px;}
+  .joey-wrap{left:8px;}
   .joey-bubble{display:none;}
   .joey-panel{left:12px;right:12px;width:auto;max-height:70vh;bottom:12px;}
 }
