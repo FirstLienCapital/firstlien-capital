@@ -40,6 +40,63 @@ function genRef() {
   return 'FL-' + Date.now().toString(36).toUpperCase().slice(-6);
 }
 
+// ── Email notification (Brevo) ───────────────────────────────────────────────
+// Every submission pings the operator's inbox. Requires BREVO_API_KEY in
+// Netlify env (and info@firstlien.ai verified as a sender in Brevo).
+// Failures are swallowed — a broken email must never block a submission.
+const NOTIFY_TO = process.env.NOTIFY_EMAIL || 'info@firstlien.ai';
+const NOTIFY_FROM = process.env.NOTIFY_FROM || 'info@firstlien.ai';
+
+function esc(s) { return String(s == null ? '' : s).replace(/</g, '&lt;'); }
+function row(label, val) {
+  if (val == null || String(val).trim() === '') return '';
+  return `<tr><td style="padding:6px 14px 6px 0;color:#7a7060;font-size:13px;white-space:nowrap;">${esc(label)}</td><td style="padding:6px 0;font-size:14px;color:#0f0e0c;"><b>${esc(val)}</b></td></tr>`;
+}
+
+async function notifyByEmail(type, ref, body) {
+  const key = process.env.BREVO_API_KEY;
+  if (!key) return; // not configured — skip silently
+  let subject, rows;
+  if (type === 'lender') {
+    subject = `New lender application — ${body.name || 'Unknown'} (${body.capital || 'capital n/a'})`;
+    rows = row('Name', body.name) + row('Email', body.email) + row('Phone', body.phone) +
+      row('Company / Fund', body.company) + row('Lender type', body.investorType) +
+      row('Accredited', body.accredited) + row('Capital to deploy', body.capital) +
+      row('Typical deal size', body.dealSize) + row('States', body.geography) +
+      row('Loan types', Array.isArray(body.loanTypes) ? body.loanTypes.join(', ') : '') +
+      row('Website', body.website);
+  } else {
+    const b = body.borrower || {}, p = body.property || {}, l = body.loan || {};
+    subject = `New borrower deal ${ref} — ${l.amount || 'amount n/a'} · ${p.address || 'address n/a'}`;
+    rows = row('Borrower', b.name) + row('Email', b.email) + row('Phone', b.phone) +
+      row('Property', p.address) + row('Type', p.type) + row('Stated value', p.value) +
+      row('Loan amount', l.amount) + row('Term', l.term) + row('LTV', l.ltv) +
+      row('Purpose', p.purpose) + row('Exit', l.exit) + row('Timing', l.timing) +
+      row('Experience', b.experience) + row('FICO', b.fico) + row('Story', l.story) +
+      row('Documents', body.docorder && body.docorder.dealId ? 'Linked (' + (body.docorder.fileNum || body.docorder.dealId) + ')' : '');
+  }
+  const html = `<div style="font-family:Arial,sans-serif;max-width:560px;">
+    <h2 style="font-size:18px;color:#0f0e0c;">${esc(subject)}</h2>
+    <table style="border-collapse:collapse;">${rows}</table>
+    <p style="margin-top:18px;"><a href="https://firstlien.ai/admin.html" style="color:#b08830;">Open the Submissions inbox →</a></p>
+    <p style="color:#7a7060;font-size:11px;">Ref ${esc(ref)} · FirstLien.ai automated notification</p></div>`;
+  try {
+    const resp = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'api-key': key },
+      body: JSON.stringify({
+        sender: { email: NOTIFY_FROM, name: 'FirstLien.ai' },
+        to: [{ email: NOTIFY_TO }],
+        subject,
+        htmlContent: html
+      })
+    });
+    if (!resp.ok) console.error('[submit-deal] notify failed:', resp.status, (await resp.text()).slice(0, 200));
+  } catch (e) {
+    console.error('[submit-deal] notify error:', e && e.message);
+  }
+}
+
 // Keep only strings/numbers/booleans/plain nested objects; cap depth & string length.
 function clean(v, depth) {
   if (depth > 4) return null;
@@ -97,6 +154,7 @@ exports.handler = async function (event) {
     const db = getFirestore();
     record.createdAt = FieldValue.serverTimestamp();
     await db.collection(collection).doc(ref).set(record, { merge: true });
+    await notifyByEmail(type, ref, body); // never throws; skipped if BREVO_API_KEY unset
     const out = { success: true, ref, id: ref, collection };
     if (portalToken) out.portalToken = portalToken;
     return reply(200, out);
