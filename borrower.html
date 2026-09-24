@@ -456,23 +456,24 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
 }
 .joey-bubble{
   position:absolute;
-  bottom:180px;left:100px;
+  bottom:150px;left:96px; /* tail lands at his mouth */
   background:var(--ink);
   color:var(--cream);
   padding:10px 16px;
-  border-radius:18px;
+  border-radius:18px;border-bottom-left-radius:6px;
   font-size:13px;
   white-space:nowrap;
-  pointer-events:auto;
   cursor:pointer;
   font-family:'Outfit',sans-serif;
   font-weight:500;
   box-shadow:0 6px 20px rgba(0,0,0,0.2);
   border:1px solid var(--gold);
-  animation:joeyBubbleIn 0.5s ease 1s both;
-  transition:all 0.2s;
+  /* hidden until the visitor hovers Joey (or the bubble itself) */
+  opacity:0;transform:translateY(6px);pointer-events:none;
+  transition:opacity 0.25s ease, transform 0.25s ease, background 0.2s;
 }
-.joey-bubble:hover{background:var(--ink2);transform:scale(1.04);}
+.joey-wrap:hover .joey-bubble{opacity:1;transform:translateY(0);pointer-events:auto;}
+.joey-bubble:hover{background:var(--ink2);}
 .joey-bubble::before{
   content:'';position:absolute;left:-7px;bottom:14px;
   width:0;height:0;
@@ -1011,7 +1012,7 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
      JOEY — Bottom-left concierge (mirrors Rich on bottom-right of lender pages)
      ════════════════════════════════════════════════════════════════════ -->
 <div class="joey-wrap">
-  <div class="joey-bubble" id="joey-bubble" onclick="openJoey()">Hey — I'm Joey. Got questions?</div>
+  <div class="joey-bubble" id="joey-bubble" onclick="openJoey()">Hey, I'm Joey! Click me if you need help.</div>
   <div class="joey-figure" id="joey-figure" onclick="openJoey()">
     <img src="/assets/joey-web.png" alt="Joey - your FirstLien concierge" onerror="this.src='joey-web.png'">
   </div>

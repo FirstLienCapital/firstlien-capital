@@ -563,31 +563,30 @@ footer b{color:rgba(255,255,255,0.8);}
   display:block;
   pointer-events:none;
 }
-/* Speech bubble that floats above Rich on hover */
-.chat-btn::before{
-  content:"";
-  position:absolute;top:8px;left:-8px;
-  width:34px;height:34px;
-  background:var(--teal-bright);
-  border-radius:50% 50% 50% 8%;
-  opacity:0;transform:scale(0.6);
-  transition:all .3s cubic-bezier(.4,1.6,.6,1);
-  box-shadow:0 4px 12px rgba(0,212,168,0.4);
-  z-index:1;
+/* Speech bubble from Rich's mouth on hover (uniform with Joey's on the borrower side) */
+.chat-label{
+  position:fixed;bottom:140px;right:112px;z-index:99;
+  background:var(--ink);color:var(--bg);
+  padding:10px 16px;
+  border-radius:18px;border-bottom-right-radius:6px;
+  font-family:"DM Sans",sans-serif;font-size:13px;font-weight:500;
+  white-space:nowrap;cursor:pointer;
+  border:1px solid var(--teal-bright);
+  box-shadow:0 6px 20px rgba(10,10,12,0.25);
+  opacity:0;transform:translateY(6px);pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;
 }
-.chat-btn::after{
-  content:"💬";
-  position:absolute;top:13px;left:-1px;
-  font-size:18px;
-  opacity:0;transform:scale(0.6);
-  transition:all .3s cubic-bezier(.4,1.6,.6,1);
-  z-index:2;
+.chat-label::before{
+  content:'';position:absolute;right:-7px;bottom:14px;width:0;height:0;
+  border-top:8px solid transparent;border-bottom:8px solid transparent;
+  border-left:8px solid var(--teal-bright);
 }
-.chat-btn:hover::before, .chat-btn:hover::after{
-  opacity:1;transform:scale(1);
+.chat-label::after{
+  content:'';position:absolute;right:-6px;bottom:15px;width:0;height:0;
+  border-top:7px solid transparent;border-bottom:7px solid transparent;
+  border-left:7px solid var(--ink);
 }
-.chat-label{position:fixed;bottom:200px;right:18px;z-index:99;background:var(--ink);color:var(--white);padding:10px 16px;border-radius:100px;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;box-shadow:0 8px 24px rgba(10,10,12,0.2);opacity:0;pointer-events:none;transition:opacity .3s;}
-.chat-btn:hover + .chat-label, .chat-label.show{opacity:1;}
+.chat-btn:hover + .chat-label, .chat-label:hover, .chat-label.show{opacity:1;transform:translateY(0);pointer-events:auto;}
 
 /* ─── ANIMATIONS ─── */
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
@@ -2117,7 +2116,7 @@ footer b{color:rgba(255,255,255,0.8);}
 <div class="chat-btn" id="chat-btn" aria-label="Chat with Rich, your AI assistant">
   <img src="assets/rich-happy-transparent.png" alt="Rich, FirstLien.ai lending advisor AI assistant" loading="lazy" onerror="this.style.display='none'">
 </div>
-<div class="chat-label" id="chat-label">Chat with Rich</div>
+<div class="chat-label" id="chat-label" onclick="document.getElementById('chat-btn').click()">Hi, I'm Rich! Click me with any lending questions.</div>
 <script>
 
 const CYCLING_DEALS = [
