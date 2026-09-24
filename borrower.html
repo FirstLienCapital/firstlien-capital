@@ -439,12 +439,12 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
    JOEY — Borrower-side concierge, BOTTOM-LEFT (mirrors Rich on right)
    ════════════════════════════════════════════════════════════════════ */
 .joey-wrap{
-  position:fixed;bottom:0;left:24px;
+  position:fixed;bottom:14px;left:24px;
   z-index:450;pointer-events:none;
 }
 .joey-figure{
   position:relative;
-  width:120px;height:170px; /* matched to Rich (.chat-btn) on the lender page */
+  width:132px;height:205px; /* between Rich (170) and original (280) — owner-tuned */
   cursor:pointer;
   pointer-events:auto;
   transition:transform 0.25s ease;
@@ -456,7 +456,7 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
 }
 .joey-bubble{
   position:absolute;
-  bottom:150px;left:95px;
+  bottom:180px;left:100px;
   background:var(--ink);
   color:var(--cream);
   padding:10px 16px;
@@ -588,7 +588,7 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
   .disclosures{padding:40px 20px;}
   footer{padding:24px 20px;}
   /* Joey on mobile - much smaller so he never covers content */
-  .joey-figure{width:64px;height:92px;}
+  .joey-figure{width:76px;height:118px;}
   .joey-wrap{left:8px;}
   .joey-bubble{display:none;}
   .joey-panel{left:12px;right:12px;width:auto;max-height:70vh;bottom:12px;}
