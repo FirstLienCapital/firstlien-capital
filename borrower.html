@@ -1513,6 +1513,16 @@ function upWireDropzone(){
   dz.addEventListener('drop',e=>{if(UP.busy)return;const dt=e.dataTransfer;if(dt&&dt.files&&dt.files.length)upAddFiles(dt.files);});
 }
 
+// Prefill from the homepage "I need a loan" quick-start (?addr=&amt=)
+function adoptQuickStart(){
+  const p=new URLSearchParams(location.search);
+  const a=p.get('addr'), m=p.get('amt');
+  let got=false;
+  if(a && document.getElementById('prop_addr')){ document.getElementById('prop_addr').value=a; got=true; }
+  if(m && document.getElementById('loan_amount')){ document.getElementById('loan_amount').value=m; got=true; }
+  if(got){ try{ updateLTV(); }catch(e){} }
+}
+
 // If arriving from the standalone upload page with a deal already started
 function upAdoptInboundDeal(){
   const p=new URLSearchParams(location.search);
@@ -1528,6 +1538,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateLTV();
   upWireDropzone();
   upAdoptInboundDeal();
+  adoptQuickStart();
 });
 </script>
 
