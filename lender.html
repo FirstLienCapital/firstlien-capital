@@ -1135,6 +1135,22 @@ footer b{color:rgba(255,255,255,0.8);}
   margin-bottom:10px;
   padding-top:6px;
 }
+
+/* ─── "Learn more" — every marketing section preserved, just not all at once ─── */
+.learnmore-wrap{background:var(--bg-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.lm-inner{max-width:1280px;margin:0 auto;padding:0 clamp(18px,4vw,40px);}
+.learnmore{padding:0;}
+.learnmore summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:30px 0;transition:opacity .15s;}
+.learnmore summary::-webkit-details-marker{display:none;}
+.learnmore summary:hover{opacity:.72;}
+.lm-title{font-family:"Cormorant Garamond",serif;font-size:clamp(23px,2.6vw,30px);font-weight:700;letter-spacing:-.02em;}
+.lm-hint{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;}
+.lm-hint i{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;border:1px solid var(--border-2);font-size:13px;transition:transform .2s;}
+.learnmore[open] .lm-hint i{transform:rotate(45deg);}
+.lm-body{padding-bottom:10px;}
+/* the nested sections keep their own look, just lose the outer page padding */
+.lm-body > section{border:none!important;}
+@media(max-width:700px){ .learnmore summary{padding:22px 0;} .lm-hint{font-size:9.5px;} }
 </style>
 </head>
 <body>
@@ -1239,6 +1255,182 @@ footer b{color:rgba(255,255,255,0.8);}
 </section>
 
 <!-- ─── FUNDED TOMBSTONES ─── -->
+<section class="reg-section" id="register">
+  <div class="reg-wrap">
+    <div class="reg-head">
+      <div class="rate-tag">Apply for Lender Access</div>
+      <h2 class="reg-title">Ready to become<br><em>the bank?</em></h2>
+      <p class="reg-desc">Access to live deal flow is for verified lenders only. Tell us who you are and what you fund — we'll confirm your accredited status, activate your account, and start routing matching first-lien deals to your inbox within 48 hours. No fee, no commitment.</p>
+    </div>
+    <div class="reg-form" id="reg-form">
+      <div class="reg-row">
+        <div class="reg-field"><label>Full Name <span class="reg-req">*</span></label><input type="text" id="rf-name" placeholder="Jane Smith"></div>
+        <div class="reg-field"><label>Work Email <span class="reg-req">*</span></label><input type="email" id="rf-email" placeholder="you@yourfund.com"></div>
+      </div>
+      <div class="reg-row">
+        <div class="reg-field"><label>Phone</label><input type="tel" id="rf-phone" placeholder="(555) 555-5555"></div>
+        <div class="reg-field"><label>Company / Fund</label><input type="text" id="rf-company" placeholder="Acme Capital Partners"><div class="reg-help">Leave blank if you lend as an individual.</div></div>
+      </div>
+      <div class="reg-row">
+        <div class="reg-field"><label>Lender Type</label>
+          <select id="rf-type">
+            <option>Individual / HNW investor</option>
+            <option>Family office</option>
+            <option>Private lending fund</option>
+            <option>Institution / bank</option>
+            <option>Broker (placing capital for others)</option>
+          </select>
+        </div>
+        <div class="reg-field"><label>Accredited Investor <span class="reg-req">*</span></label>
+          <select id="rf-accredited">
+            <option>Yes — verified</option>
+            <option>Yes — can verify on request</option>
+            <option>Not sure — need help determining</option>
+          </select>
+          <div class="reg-help">$1M+ net worth (excl. primary home) or $200K+ income. Required to view deal flow.</div>
+        </div>
+      </div>
+      <div class="reg-row">
+        <div class="reg-field"><label>Capital Ready to Deploy <span class="reg-req">*</span></label>
+          <select id="rf-capital">
+            <option>$50K – $250K</option><option>$250K – $1M</option><option>$1M – $5M</option><option>$5M – $25M</option><option>$25M+</option>
+          </select>
+          <div class="reg-help">Total you can put to work over the next 12 months.</div>
+        </div>
+        <div class="reg-field"><label>Typical Deal Size</label>
+          <select id="rf-checksize">
+            <option>No preference</option>
+            <option>$50K – $250K per loan</option>
+            <option>$250K – $500K per loan</option>
+            <option>$500K – $1M per loan</option>
+            <option>$1M – $3M per loan</option>
+            <option>$3M+ per loan</option>
+          </select>
+          <div class="reg-help">Your comfortable check size on a single first-lien position.</div>
+        </div>
+      </div>
+      <div class="reg-row">
+        <div class="reg-field full"><label>States You Lend In</label><input type="text" id="rf-geo" placeholder="e.g. AZ, CA, TX — or “Nationwide”"><div class="reg-help">Where you'll fund property. We only route deals inside your footprint.</div></div>
+      </div>
+      <div class="reg-row">
+        <div class="reg-field full"><label>Loan Types You Fund</label>
+          <div class="lt-chips" id="rf-loantypes">
+            <label class="lt-chip"><input type="checkbox" value="Bridge"><span>Bridge</span></label>
+            <label class="lt-chip"><input type="checkbox" value="Fix & Flip"><span>Fix &amp; Flip</span></label>
+            <label class="lt-chip"><input type="checkbox" value="DSCR Rental"><span>DSCR Rental</span></label>
+            <label class="lt-chip"><input type="checkbox" value="Ground-Up Construction"><span>Ground-Up Construction</span></label>
+            <label class="lt-chip"><input type="checkbox" value="Commercial"><span>Commercial</span></label>
+            <label class="lt-chip"><input type="checkbox" value="Land"><span>Land</span></label>
+          </div>
+          <div class="reg-help">Pick all that fit your box — this sharpens the deals we send you.</div>
+        </div>
+      </div>
+      <div class="reg-row">
+        <div class="reg-field full"><label>Website or LinkedIn</label><input type="text" id="rf-web" placeholder="yourfund.com or linkedin.com/in/…"><div class="reg-help">Optional — helps us verify you faster.</div></div>
+      </div>
+      <!-- honeypot: hidden from real users -->
+      <input type="text" id="rf-company-url" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" aria-hidden="true">
+      <button class="reg-submit" id="rf-submit" onclick="submitLenderApp()">Apply for Access →</button>
+      <div class="reg-foot" id="rf-foot">Fields marked <span class="reg-req">*</span> are required · 48-hour verification · No commitment · Access fee waived through Q2 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DISCLOSURES & LEGAL ─── -->
+<section class="calc-section" id="calculator">
+  <div class="calc-wrap">
+    <div>
+      <div class="section-tag">Yield calculator</div>
+      <h2 class="section-h">Small rate differences.<br><em>Outsized results.</em></h2>
+      <p class="section-desc" style="margin-top:20px;">Private lending yields typically run <b>8–14%</b> — substantially higher than public-market alternatives. Over a decade, that gap compounds into dramatically different outcomes.</p>
+      <ul style="margin-top:28px;list-style:none;display:flex;flex-direction:column;gap:14px;">
+        <li style="display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:14px;"><span style="color:var(--teal);font-weight:700;">→</span><span>$100K at <b style="color:var(--ink);">12.99%</b> compounded 10 years → <b style="color:var(--teal);">~$339K</b></span></li>
+        <li style="display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:14px;"><span style="color:var(--teal);font-weight:700;">→</span><span>Same $100K at S&amp;P 500 ~10.5% avg → <b style="color:var(--muted);">~$271K</b></span></li>
+        <li style="display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:14px;"><span style="color:var(--teal);font-weight:700;">→</span><span>At 4.5% high-yield savings → just <b style="color:var(--muted);">~$155K</b></span></li>
+        <li style="display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:14px;"><span style="color:var(--teal);font-weight:700;">→</span><span>First-lien secured = <b style="color:var(--ink);">lower risk profile</b> than the upside suggests</span></li>
+      </ul>
+    </div>
+    <div class="calc-body">
+      <div class="calc-brand">
+        <span class="calc-brand-name">FirstLien YieldTron 9000</span>
+        <span class="calc-brand-model">MODEL FL-15</span>
+      </div>
+      <div class="calc-display">
+        <div class="calc-label">Projected Value</div>
+        <div class="calc-value" id="calc-final">$339,156</div>
+        <div class="calc-subtxt">From <b id="calc-starting">$100K</b> · <b id="calc-horizon-show">10 yrs</b> · <b id="calc-yield-show">12.99%</b></div>
+        <div class="calc-compare">
+          <div class="calc-compare-row"><b id="calc-spx">$271K</b><span>S&amp;P 500 ~10.5%</span></div>
+          <div class="calc-compare-row"><b id="calc-hysa">$155K</b><span>HYSA 4.5%</span></div>
+          <div class="calc-compare-row"><b id="calc-bonds">$184K</b><span>10-yr Treasury</span></div>
+        </div>
+      </div>
+      <div class="calc-input-row">
+        <div class="calc-input-head">
+          <div class="calc-input-name">Capital</div>
+          <div class="calc-input-val" id="calc-capital-val">$100K</div>
+        </div>
+        <input type="range" class="calc-slider" id="calc-capital" min="50000" max="5000000" step="10000" value="100000">
+        <div class="calc-limits"><span>$50K</span><span>$5M</span></div>
+      </div>
+      <div class="calc-input-row">
+        <div class="calc-input-head">
+          <div class="calc-input-name">Target Yield</div>
+          <div class="calc-input-val" id="calc-yield-val">12.99 <small>% per year</small></div>
+        </div>
+        <input type="range" class="calc-slider" id="calc-yield" min="6" max="15" step="0.01" value="12.99">
+        <div class="calc-limits"><span>6%</span><span>15%</span></div>
+      </div>
+      <div class="calc-input-row">
+        <div class="calc-input-head">
+          <div class="calc-input-name">Horizon</div>
+          <div class="calc-input-val" id="calc-horizon-val">10 <small>years</small></div>
+        </div>
+        <input type="range" class="calc-slider" id="calc-horizon" min="2" max="20" step="1" value="10">
+        <div class="calc-limits"><span>2 yrs</span><span>20 yrs</span></div>
+      </div>
+      <div class="calc-status-row">
+        <div class="calc-leds">
+          <div class="calc-led on"></div>
+          <div class="calc-led on"></div>
+          <div class="calc-led amber"></div>
+          <div class="calc-led"></div>
+        </div>
+        <span>Compounded · Annualized · Pre-tax</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROPERTY TYPES ─── -->
+<section class="rate-section">
+  <div class="rate-inner">
+    <div class="rate-head">
+      <div>
+        <div class="rate-tag">Marketplace · Indicative yield ranges</div>
+        <h2 class="rate-title">What our lenders are<br><em>typically offering.</em></h2>
+      </div>
+      <div class="rate-head-right">Based on recent platform activity · Final rate set by competing lender offers · Investment &amp; business-purpose loans only</div>
+    </div>
+    <div class="rate-grid">
+      <div class="rate-cell"><div class="rate-cell-head"><div class="rate-cell-name">Fix &amp; Flip<br>/ Bridge</div><div class="rate-cell-trend">3mo avg</div></div><div class="rate-cell-val">6–13%</div><div class="rate-cell-sub">Short-term residential value-add</div></div>
+      <div class="rate-cell"><div class="rate-cell-head"><div class="rate-cell-name">DSCR<br>Rental</div><div class="rate-cell-trend">3mo avg</div></div><div class="rate-cell-val">5.5–10%</div><div class="rate-cell-sub">Long-term income-producing property</div></div>
+      <div class="rate-cell"><div class="rate-cell-head"><div class="rate-cell-name">Construction<br>/ Ground-Up</div><div class="rate-cell-trend">3mo avg</div></div><div class="rate-cell-val">11–14%</div><div class="rate-cell-sub">18–24 month development loans</div></div>
+      <div class="rate-cell"><div class="rate-cell-head"><div class="rate-cell-name">Land<br>/ Commercial</div><div class="rate-cell-trend">3mo avg</div></div><div class="rate-cell-val gold">12–15%</div><div class="rate-cell-sub">Raw land, lots, high-yield commercial</div></div>
+    </div>
+    <div class="rate-footer">All positions <b>first-lien secured</b> · Investment &amp; business-purpose loans only · <b>Not investment advice</b></div>
+  </div>
+</section>
+
+<!-- ─── TODAY'S DEAL FLOW ─── -->
+<section class="learnmore-wrap">
+  <div class="lm-inner">
+    <details class="learnmore">
+      <summary>
+        <span class="lm-title">How FirstLien works for lenders</span>
+        <span class="lm-hint">Deal flow &middot; yields &middot; trust-deed basics &middot; coverage <i>+</i></span>
+      </summary>
+      <div class="lm-body">
 <section class="section" id="funded">
   <div class="section-inner">
     <div class="section-head">
@@ -1460,26 +1652,6 @@ footer b{color:rgba(255,255,255,0.8);}
 </section>
 
 <!-- ─── DARK RATE SECTION ─── -->
-<section class="rate-section">
-  <div class="rate-inner">
-    <div class="rate-head">
-      <div>
-        <div class="rate-tag">Marketplace · Indicative yield ranges</div>
-        <h2 class="rate-title">What our lenders are<br><em>typically offering.</em></h2>
-      </div>
-      <div class="rate-head-right">Based on recent platform activity · Final rate set by competing lender offers · Investment &amp; business-purpose loans only</div>
-    </div>
-    <div class="rate-grid">
-      <div class="rate-cell"><div class="rate-cell-head"><div class="rate-cell-name">Fix &amp; Flip<br>/ Bridge</div><div class="rate-cell-trend">3mo avg</div></div><div class="rate-cell-val">6–13%</div><div class="rate-cell-sub">Short-term residential value-add</div></div>
-      <div class="rate-cell"><div class="rate-cell-head"><div class="rate-cell-name">DSCR<br>Rental</div><div class="rate-cell-trend">3mo avg</div></div><div class="rate-cell-val">5.5–10%</div><div class="rate-cell-sub">Long-term income-producing property</div></div>
-      <div class="rate-cell"><div class="rate-cell-head"><div class="rate-cell-name">Construction<br>/ Ground-Up</div><div class="rate-cell-trend">3mo avg</div></div><div class="rate-cell-val">11–14%</div><div class="rate-cell-sub">18–24 month development loans</div></div>
-      <div class="rate-cell"><div class="rate-cell-head"><div class="rate-cell-name">Land<br>/ Commercial</div><div class="rate-cell-trend">3mo avg</div></div><div class="rate-cell-val gold">12–15%</div><div class="rate-cell-sub">Raw land, lots, high-yield commercial</div></div>
-    </div>
-    <div class="rate-footer">All positions <b>first-lien secured</b> · Investment &amp; business-purpose loans only · <b>Not investment advice</b></div>
-  </div>
-</section>
-
-<!-- ─── TODAY'S DEAL FLOW ─── -->
 <section class="flow-section">
   <div class="section-inner">
     <div class="flow-head">
@@ -1825,72 +1997,6 @@ footer b{color:rgba(255,255,255,0.8);}
 </section>
 
 <!-- ─── CALCULATOR ─── -->
-<section class="calc-section" id="calculator">
-  <div class="calc-wrap">
-    <div>
-      <div class="section-tag">Yield calculator</div>
-      <h2 class="section-h">Small rate differences.<br><em>Outsized results.</em></h2>
-      <p class="section-desc" style="margin-top:20px;">Private lending yields typically run <b>8–14%</b> — substantially higher than public-market alternatives. Over a decade, that gap compounds into dramatically different outcomes.</p>
-      <ul style="margin-top:28px;list-style:none;display:flex;flex-direction:column;gap:14px;">
-        <li style="display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:14px;"><span style="color:var(--teal);font-weight:700;">→</span><span>$100K at <b style="color:var(--ink);">12.99%</b> compounded 10 years → <b style="color:var(--teal);">~$339K</b></span></li>
-        <li style="display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:14px;"><span style="color:var(--teal);font-weight:700;">→</span><span>Same $100K at S&amp;P 500 ~10.5% avg → <b style="color:var(--muted);">~$271K</b></span></li>
-        <li style="display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:14px;"><span style="color:var(--teal);font-weight:700;">→</span><span>At 4.5% high-yield savings → just <b style="color:var(--muted);">~$155K</b></span></li>
-        <li style="display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:14px;"><span style="color:var(--teal);font-weight:700;">→</span><span>First-lien secured = <b style="color:var(--ink);">lower risk profile</b> than the upside suggests</span></li>
-      </ul>
-    </div>
-    <div class="calc-body">
-      <div class="calc-brand">
-        <span class="calc-brand-name">FirstLien YieldTron 9000</span>
-        <span class="calc-brand-model">MODEL FL-15</span>
-      </div>
-      <div class="calc-display">
-        <div class="calc-label">Projected Value</div>
-        <div class="calc-value" id="calc-final">$339,156</div>
-        <div class="calc-subtxt">From <b id="calc-starting">$100K</b> · <b id="calc-horizon-show">10 yrs</b> · <b id="calc-yield-show">12.99%</b></div>
-        <div class="calc-compare">
-          <div class="calc-compare-row"><b id="calc-spx">$271K</b><span>S&amp;P 500 ~10.5%</span></div>
-          <div class="calc-compare-row"><b id="calc-hysa">$155K</b><span>HYSA 4.5%</span></div>
-          <div class="calc-compare-row"><b id="calc-bonds">$184K</b><span>10-yr Treasury</span></div>
-        </div>
-      </div>
-      <div class="calc-input-row">
-        <div class="calc-input-head">
-          <div class="calc-input-name">Capital</div>
-          <div class="calc-input-val" id="calc-capital-val">$100K</div>
-        </div>
-        <input type="range" class="calc-slider" id="calc-capital" min="50000" max="5000000" step="10000" value="100000">
-        <div class="calc-limits"><span>$50K</span><span>$5M</span></div>
-      </div>
-      <div class="calc-input-row">
-        <div class="calc-input-head">
-          <div class="calc-input-name">Target Yield</div>
-          <div class="calc-input-val" id="calc-yield-val">12.99 <small>% per year</small></div>
-        </div>
-        <input type="range" class="calc-slider" id="calc-yield" min="6" max="15" step="0.01" value="12.99">
-        <div class="calc-limits"><span>6%</span><span>15%</span></div>
-      </div>
-      <div class="calc-input-row">
-        <div class="calc-input-head">
-          <div class="calc-input-name">Horizon</div>
-          <div class="calc-input-val" id="calc-horizon-val">10 <small>years</small></div>
-        </div>
-        <input type="range" class="calc-slider" id="calc-horizon" min="2" max="20" step="1" value="10">
-        <div class="calc-limits"><span>2 yrs</span><span>20 yrs</span></div>
-      </div>
-      <div class="calc-status-row">
-        <div class="calc-leds">
-          <div class="calc-led on"></div>
-          <div class="calc-led on"></div>
-          <div class="calc-led amber"></div>
-          <div class="calc-led"></div>
-        </div>
-        <span>Compounded · Annualized · Pre-tax</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── PROPERTY TYPES ─── -->
 <section class="section" style="background:var(--bg-2);">
   <div class="section-inner">
     <div class="section-head">
@@ -1947,88 +2053,11 @@ footer b{color:rgba(255,255,255,0.8);}
 </section>
 
 <!-- ─── REGISTRATION ─── -->
-<section class="reg-section" id="register">
-  <div class="reg-wrap">
-    <div class="reg-head">
-      <div class="rate-tag">Apply for Lender Access</div>
-      <h2 class="reg-title">Ready to become<br><em>the bank?</em></h2>
-      <p class="reg-desc">Access to live deal flow is for verified lenders only. Tell us who you are and what you fund — we'll confirm your accredited status, activate your account, and start routing matching first-lien deals to your inbox within 48 hours. No fee, no commitment.</p>
-    </div>
-    <div class="reg-form" id="reg-form">
-      <div class="reg-row">
-        <div class="reg-field"><label>Full Name <span class="reg-req">*</span></label><input type="text" id="rf-name" placeholder="Jane Smith"></div>
-        <div class="reg-field"><label>Work Email <span class="reg-req">*</span></label><input type="email" id="rf-email" placeholder="you@yourfund.com"></div>
+
       </div>
-      <div class="reg-row">
-        <div class="reg-field"><label>Phone</label><input type="tel" id="rf-phone" placeholder="(555) 555-5555"></div>
-        <div class="reg-field"><label>Company / Fund</label><input type="text" id="rf-company" placeholder="Acme Capital Partners"><div class="reg-help">Leave blank if you lend as an individual.</div></div>
-      </div>
-      <div class="reg-row">
-        <div class="reg-field"><label>Lender Type</label>
-          <select id="rf-type">
-            <option>Individual / HNW investor</option>
-            <option>Family office</option>
-            <option>Private lending fund</option>
-            <option>Institution / bank</option>
-            <option>Broker (placing capital for others)</option>
-          </select>
-        </div>
-        <div class="reg-field"><label>Accredited Investor <span class="reg-req">*</span></label>
-          <select id="rf-accredited">
-            <option>Yes — verified</option>
-            <option>Yes — can verify on request</option>
-            <option>Not sure — need help determining</option>
-          </select>
-          <div class="reg-help">$1M+ net worth (excl. primary home) or $200K+ income. Required to view deal flow.</div>
-        </div>
-      </div>
-      <div class="reg-row">
-        <div class="reg-field"><label>Capital Ready to Deploy <span class="reg-req">*</span></label>
-          <select id="rf-capital">
-            <option>$50K – $250K</option><option>$250K – $1M</option><option>$1M – $5M</option><option>$5M – $25M</option><option>$25M+</option>
-          </select>
-          <div class="reg-help">Total you can put to work over the next 12 months.</div>
-        </div>
-        <div class="reg-field"><label>Typical Deal Size</label>
-          <select id="rf-checksize">
-            <option>No preference</option>
-            <option>$50K – $250K per loan</option>
-            <option>$250K – $500K per loan</option>
-            <option>$500K – $1M per loan</option>
-            <option>$1M – $3M per loan</option>
-            <option>$3M+ per loan</option>
-          </select>
-          <div class="reg-help">Your comfortable check size on a single first-lien position.</div>
-        </div>
-      </div>
-      <div class="reg-row">
-        <div class="reg-field full"><label>States You Lend In</label><input type="text" id="rf-geo" placeholder="e.g. AZ, CA, TX — or “Nationwide”"><div class="reg-help">Where you'll fund property. We only route deals inside your footprint.</div></div>
-      </div>
-      <div class="reg-row">
-        <div class="reg-field full"><label>Loan Types You Fund</label>
-          <div class="lt-chips" id="rf-loantypes">
-            <label class="lt-chip"><input type="checkbox" value="Bridge"><span>Bridge</span></label>
-            <label class="lt-chip"><input type="checkbox" value="Fix & Flip"><span>Fix &amp; Flip</span></label>
-            <label class="lt-chip"><input type="checkbox" value="DSCR Rental"><span>DSCR Rental</span></label>
-            <label class="lt-chip"><input type="checkbox" value="Ground-Up Construction"><span>Ground-Up Construction</span></label>
-            <label class="lt-chip"><input type="checkbox" value="Commercial"><span>Commercial</span></label>
-            <label class="lt-chip"><input type="checkbox" value="Land"><span>Land</span></label>
-          </div>
-          <div class="reg-help">Pick all that fit your box — this sharpens the deals we send you.</div>
-        </div>
-      </div>
-      <div class="reg-row">
-        <div class="reg-field full"><label>Website or LinkedIn</label><input type="text" id="rf-web" placeholder="yourfund.com or linkedin.com/in/…"><div class="reg-help">Optional — helps us verify you faster.</div></div>
-      </div>
-      <!-- honeypot: hidden from real users -->
-      <input type="text" id="rf-company-url" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" aria-hidden="true">
-      <button class="reg-submit" id="rf-submit" onclick="submitLenderApp()">Apply for Access →</button>
-      <div class="reg-foot" id="rf-foot">Fields marked <span class="reg-req">*</span> are required · 48-hour verification · No commitment · Access fee waived through Q2 2026</div>
-    </div>
+    </details>
   </div>
 </section>
-
-<!-- ─── DISCLOSURES & LEGAL ─── -->
 <section class="disclosures" id="disclosures">
   <div class="disc-inner">
     <div class="disc-head">

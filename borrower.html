@@ -594,6 +594,18 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
   .joey-bubble{display:none;}
   .joey-panel{left:12px;right:12px;width:auto;max-height:70vh;bottom:12px;}
 }
+
+/* ─── "Learn more" — all marketing preserved, collapsed by default ─── */
+.learnmore-wrap{background:var(--cream2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.lm-inner{max-width:1200px;margin:0 auto;padding:0 clamp(20px,4vw,48px);}
+.learnmore summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:30px 0;transition:opacity .15s;}
+.learnmore summary::-webkit-details-marker{display:none;}
+.learnmore summary:hover{opacity:.72;}
+.lm-title{font-family:'Playfair Display',serif;font-size:clamp(23px,2.6vw,30px);font-weight:700;letter-spacing:-.02em;}
+.lm-hint{font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:10px;}
+.lm-hint i{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);font-size:13px;transition:transform .2s;}
+.learnmore[open] .lm-hint i{transform:rotate(45deg);}
+@media(max-width:700px){.learnmore summary{padding:22px 0;}}
 </style>
 </head>
 <body>
@@ -678,93 +690,6 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
 </div>
 
 <!-- PITCH -->
-<section class="pitch">
-  <div class="pitch-inner">
-    <div class="pitch-left">
-      <span class="pitch-tag">🚀 The Smarter Way to Borrow</span>
-      <h2 class="pitch-h">Private capital<br>should work for <em>you.</em></h2>
-      <p class="pitch-p">Traditional lenders take 60 days and still say no. Private lenders move fast — but finding the right one has always been a full-time job. Until now.</p>
-      <p class="pitch-p">FirstLien.ai's technology stack identifies the lenders most likely to fund your specific deal — based on property type, geography, loan size, and 40+ other criteria — and surfaces them in real time.</p>
-      <div class="pitch-list">
-        <div class="pitch-li">One application reaches the entire network simultaneously</div>
-        <div class="pitch-li">AI scoring ranks lenders by deal-fit, not just availability</div>
-        <div class="pitch-li">Lender identity stays anonymous until you choose</div>
-        <div class="pitch-li">Zero fees unless your loan funds — we only win when you win</div>
-        <div class="pitch-li">Automated valuation pulls Zillow, Redfin + 3 other sources</div>
-      </div>
-    </div>
-    <div class="pitch-right">
-      <div class="feature-stack">
-        <div class="feat-card"><div class="feat-icon fi-gold">🧠</div><div class="feat-body"><div class="feat-title">AI-Powered Matching Engine</div><div class="feat-desc">Our proprietary algorithm analyzes 40+ data points to match your deal with lenders who are actively deploying capital in your exact asset class and geography. Ranked by probability to close.</div></div></div>
-        <div class="feat-card"><div class="feat-icon fi-teal">📊</div><div class="feat-body"><div class="feat-title">Automated Property Valuation</div><div class="feat-desc">Address entry triggers instant AVM pulls from Zillow, Redfin, and additional data sources. Lenders see averaged estimates alongside your stated value — and we flag material discrepancies before they become problems.</div></div></div>
-        <div class="feat-card"><div class="feat-icon fi-dark">🔒</div><div class="feat-body"><div class="feat-title">Lowball Protection System</div><div class="feat-desc">Set a minimum rate floor when submitting. Lenders below your threshold are flagged. We monitor lender behavior across the network — repeat lowballers are removed. Your deal, your terms.</div></div></div>
-        <div class="feat-card"><div class="feat-icon fi-gold">⚡</div><div class="feat-body"><div class="feat-title">AI-Guided Closing Checklist</div><div class="feat-desc">When you accept a term sheet, our AI generates a custom closing roadmap based on what your lender requires — appraisal, 1003, bank statements, entity docs — with instructions at every step.</div></div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- HOW -->
-<section class="how" id="how">
-  <div class="how-inner">
-    <div class="how-head">
-      <div>
-        <div class="how-eyebrow">The Process</div>
-        <h2 class="how-title">From submission<br>to funded in <em>4 steps.</em></h2>
-      </div>
-      <p class="how-sub">The average deal on our platform receives its first term sheet within 24 hours of submission.</p>
-    </div>
-    <div class="steps-row">
-      <div class="step-col"><div class="step-n">01</div><span class="step-icon">📝</span><div class="step-title">Submit Your Deal</div><div class="step-desc">A 4-minute form captures your property, loan needs, and timeline. No SSN. No hard pull. No commitment. Just the deal details lenders need to make an offer.</div><div class="step-connector">→</div></div>
-      <div class="step-col"><div class="step-n">02</div><span class="step-icon">🧠</span><div class="step-title">AI Matches Lenders</div><div class="step-desc">Our engine instantly identifies which of our 1,000+ lenders are actively deploying in your asset class, location, and loan size — and ranks them by probability to close your specific deal.</div><div class="step-connector">→</div></div>
-      <div class="step-col"><div class="step-n">03</div><span class="step-icon">📬</span><div class="step-title">Receive Competing Offers</div><div class="step-desc">Lenders review your deal and send term sheets with their rate, points, and conditions. You see everything in one place. Lender identity stays anonymous until you choose. You're in control.</div><div class="step-connector">→</div></div>
-      <div class="step-col"><div class="step-n">04</div><span class="step-icon">✅</span><div class="step-title">Accept & Close</div><div class="step-desc">Accept the offer that fits. Our AI closing assistant walks you through every required document and step. 1 point at close — and only if we fund. No deal, no fee. Period.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- RATES -->
-<div class="rates-section">
-  <div class="rates-inner">
-    <div class="rates-header">
-      <div>
-        <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.18em;color:var(--gold);margin-bottom:8px;">Current Market Rates</div>
-        <h2 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;letter-spacing:-0.02em;">What lenders are offering <em style="font-style:italic;color:var(--gold);">right now.</em></h2>
-      </div>
-      <div class="rates-note">Updated daily · All rates indicative · Subject to deal terms</div>
-    </div>
-    <div class="rates-grid" id="rates-grid"></div>
-    <div class="rates-disclaimer" id="rates-disclaimer">Rates shown are indicative market ranges based on current lender criteria. Actual rate depends on LTV, FICO, property type, and lender. Not a commitment to lend.</div>
-  </div>
-</div>
-
-<!-- COMPETE -->
-<section class="compete">
-  <div class="compete-inner">
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:20px;">
-      <div>
-        <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.18em;color:var(--gold);margin-bottom:12px;">The Marketplace Advantage</div>
-        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,46px);font-weight:700;letter-spacing:-0.02em;line-height:1.1;">Why lenders <em style="font-style:italic;">compete</em><br>for your deal.</h2>
-      </div>
-      <p style="font-size:15px;color:var(--muted);max-width:380px;line-height:1.75;font-weight:300;">You're not a borrower begging for capital. You're a buyer in a marketplace with hundreds of lenders competing for your business.</p>
-    </div>
-    <div class="compete-grid">
-      <div class="compete-cell"><div class="cc-num">01</div><div class="cc-title">Capital Looking for Deals</div><div class="cc-desc">Our lenders have committed capital to deploy. They're not gatekeepers — they're investors actively looking for quality deals. Your submission lands in front of lenders with money ready to move.</div></div>
-      <div class="compete-cell"><div class="cc-num">02</div><div class="cc-title">You See Every Offer</div><div class="cc-desc">No broker cherry-picking the offer with the highest commission. Every term sheet comes to you directly. You compare rates, points, terms, and required docs side by side and choose what's best for your deal.</div></div>
-      <div class="compete-cell"><div class="cc-num">03</div><div class="cc-title">Lender Behavior Monitored</div><div class="cc-desc">We track every lender in the network. Lenders who consistently lowball, bait-and-switch, or fail to perform are flagged and removed. You're protected before you ever see an offer.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- STATES -->
-<div class="states">
-  <div class="states-inner">
-    <div class="states-label">We Lend In 47 States</div>
-    <div class="states-list" id="states-list"></div>
-  </div>
-</div>
-
-<!-- APPLICATION -->
 <section id="apply">
   <div class="apply-inner">
     <div class="apply-header">
@@ -980,6 +905,106 @@ footer{background:var(--dark);padding:32px 48px;display:flex;align-items:center;
 </section>
 
 <!-- DISCLOSURES -->
+<div class="rates-section">
+  <div class="rates-inner">
+    <div class="rates-header">
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.18em;color:var(--gold);margin-bottom:8px;">Current Market Rates</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;letter-spacing:-0.02em;">What lenders are offering <em style="font-style:italic;color:var(--gold);">right now.</em></h2>
+      </div>
+      <div class="rates-note">Updated daily · All rates indicative · Subject to deal terms</div>
+    </div>
+    <div class="rates-grid" id="rates-grid"></div>
+    <div class="rates-disclaimer" id="rates-disclaimer">Rates shown are indicative market ranges based on current lender criteria. Actual rate depends on LTV, FICO, property type, and lender. Not a commitment to lend.</div>
+  </div>
+</div>
+
+<!-- COMPETE -->
+<section class="learnmore-wrap">
+  <div class="lm-inner">
+    <details class="learnmore">
+      <summary>
+        <span class="lm-title">How FirstLien works for borrowers</span>
+        <span class="lm-hint">Why lenders compete &middot; the 4 steps &middot; where we lend <i>+</i></span>
+      </summary>
+      <div class="lm-body">
+<section class="pitch">
+  <div class="pitch-inner">
+    <div class="pitch-left">
+      <span class="pitch-tag">🚀 The Smarter Way to Borrow</span>
+      <h2 class="pitch-h">Private capital<br>should work for <em>you.</em></h2>
+      <p class="pitch-p">Traditional lenders take 60 days and still say no. Private lenders move fast — but finding the right one has always been a full-time job. Until now.</p>
+      <p class="pitch-p">FirstLien.ai's technology stack identifies the lenders most likely to fund your specific deal — based on property type, geography, loan size, and 40+ other criteria — and surfaces them in real time.</p>
+      <div class="pitch-list">
+        <div class="pitch-li">One application reaches the entire network simultaneously</div>
+        <div class="pitch-li">AI scoring ranks lenders by deal-fit, not just availability</div>
+        <div class="pitch-li">Lender identity stays anonymous until you choose</div>
+        <div class="pitch-li">Zero fees unless your loan funds — we only win when you win</div>
+        <div class="pitch-li">Automated valuation pulls Zillow, Redfin + 3 other sources</div>
+      </div>
+    </div>
+    <div class="pitch-right">
+      <div class="feature-stack">
+        <div class="feat-card"><div class="feat-icon fi-gold">🧠</div><div class="feat-body"><div class="feat-title">AI-Powered Matching Engine</div><div class="feat-desc">Our proprietary algorithm analyzes 40+ data points to match your deal with lenders who are actively deploying capital in your exact asset class and geography. Ranked by probability to close.</div></div></div>
+        <div class="feat-card"><div class="feat-icon fi-teal">📊</div><div class="feat-body"><div class="feat-title">Automated Property Valuation</div><div class="feat-desc">Address entry triggers instant AVM pulls from Zillow, Redfin, and additional data sources. Lenders see averaged estimates alongside your stated value — and we flag material discrepancies before they become problems.</div></div></div>
+        <div class="feat-card"><div class="feat-icon fi-dark">🔒</div><div class="feat-body"><div class="feat-title">Lowball Protection System</div><div class="feat-desc">Set a minimum rate floor when submitting. Lenders below your threshold are flagged. We monitor lender behavior across the network — repeat lowballers are removed. Your deal, your terms.</div></div></div>
+        <div class="feat-card"><div class="feat-icon fi-gold">⚡</div><div class="feat-body"><div class="feat-title">AI-Guided Closing Checklist</div><div class="feat-desc">When you accept a term sheet, our AI generates a custom closing roadmap based on what your lender requires — appraisal, 1003, bank statements, entity docs — with instructions at every step.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="how-head">
+      <div>
+        <div class="how-eyebrow">The Process</div>
+        <h2 class="how-title">From submission<br>to funded in <em>4 steps.</em></h2>
+      </div>
+      <p class="how-sub">The average deal on our platform receives its first term sheet within 24 hours of submission.</p>
+    </div>
+    <div class="steps-row">
+      <div class="step-col"><div class="step-n">01</div><span class="step-icon">📝</span><div class="step-title">Submit Your Deal</div><div class="step-desc">A 4-minute form captures your property, loan needs, and timeline. No SSN. No hard pull. No commitment. Just the deal details lenders need to make an offer.</div><div class="step-connector">→</div></div>
+      <div class="step-col"><div class="step-n">02</div><span class="step-icon">🧠</span><div class="step-title">AI Matches Lenders</div><div class="step-desc">Our engine instantly identifies which of our 1,000+ lenders are actively deploying in your asset class, location, and loan size — and ranks them by probability to close your specific deal.</div><div class="step-connector">→</div></div>
+      <div class="step-col"><div class="step-n">03</div><span class="step-icon">📬</span><div class="step-title">Receive Competing Offers</div><div class="step-desc">Lenders review your deal and send term sheets with their rate, points, and conditions. You see everything in one place. Lender identity stays anonymous until you choose. You're in control.</div><div class="step-connector">→</div></div>
+      <div class="step-col"><div class="step-n">04</div><span class="step-icon">✅</span><div class="step-title">Accept & Close</div><div class="step-desc">Accept the offer that fits. Our AI closing assistant walks you through every required document and step. 1 point at close — and only if we fund. No deal, no fee. Period.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- RATES -->
+<section class="compete">
+  <div class="compete-inner">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:20px;">
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.18em;color:var(--gold);margin-bottom:12px;">The Marketplace Advantage</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,46px);font-weight:700;letter-spacing:-0.02em;line-height:1.1;">Why lenders <em style="font-style:italic;">compete</em><br>for your deal.</h2>
+      </div>
+      <p style="font-size:15px;color:var(--muted);max-width:380px;line-height:1.75;font-weight:300;">You're not a borrower begging for capital. You're a buyer in a marketplace with hundreds of lenders competing for your business.</p>
+    </div>
+    <div class="compete-grid">
+      <div class="compete-cell"><div class="cc-num">01</div><div class="cc-title">Capital Looking for Deals</div><div class="cc-desc">Our lenders have committed capital to deploy. They're not gatekeepers — they're investors actively looking for quality deals. Your submission lands in front of lenders with money ready to move.</div></div>
+      <div class="compete-cell"><div class="cc-num">02</div><div class="cc-title">You See Every Offer</div><div class="cc-desc">No broker cherry-picking the offer with the highest commission. Every term sheet comes to you directly. You compare rates, points, terms, and required docs side by side and choose what's best for your deal.</div></div>
+      <div class="compete-cell"><div class="cc-num">03</div><div class="cc-title">Lender Behavior Monitored</div><div class="cc-desc">We track every lender in the network. Lenders who consistently lowball, bait-and-switch, or fail to perform are flagged and removed. You're protected before you ever see an offer.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATES -->
+<div class="states">
+  <div class="states-inner">
+    <div class="states-label">We Lend In 47 States</div>
+    <div class="states-list" id="states-list"></div>
+  </div>
+</div>
+
+<!-- APPLICATION -->
+
+      </div>
+    </details>
+  </div>
+</section>
 <div class="disclosures">
   <div class="disc-inner">
     <div class="disc-title">Important Disclosures</div>
